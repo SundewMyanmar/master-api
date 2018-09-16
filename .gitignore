@@ -29,7 +29,7 @@
 
 # Misc
 *.swp
-application.properties
+./src/main/resources/application.properties
 pom.xml.releaseBackup
 pom.xml.tag
 dependency-reduced-pom.xml
