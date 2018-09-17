@@ -1,23 +1,24 @@
 package com.sdm.core.config;
 
+import com.sdm.Constants;
+import com.sdm.core.SecurityProperties;
 import com.sdm.core.security.PermissionHandler;
+import com.sdm.core.security.PermissionMatcher;
 import com.sdm.core.security.jwt.JwtAuthenticationFilter;
 import com.sdm.core.security.jwt.JwtAuthenticationProvider;
 import com.sdm.core.security.jwt.JwtUnauthorizeHandler;
-import com.sdm.core.security.model.PermissionMatcher;
-import com.sdm.master.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.List;
+import java.util.Optional;
 
 @Configuration
 @EnableWebSecurity
@@ -27,58 +28,59 @@ import java.util.List;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private AuthService authService;
+    private SecurityProperties securityProperties;
 
     @Autowired
-    private JwtUnauthorizeHandler jwtUnauthorizeHandler;
+    private JwtUnauthorizeHandler unauthorizeHandler;
 
     @Autowired
-    private JwtAuthenticationProvider jwtAuthenticationProvider;
+    private JwtAuthenticationProvider authenticationProvider;
 
     @Autowired
     private PermissionHandler permissionHandler;
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+    public JwtAuthenticationFilter authenticationFilter() {
         return new JwtAuthenticationFilter();
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(jwtAuthenticationProvider);
-    }
-
+    /**
+     * Warning! HttpSecurity authorize validation process run step by step.
+     *
+     * @param http
+     * @throws Exception
+     */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        //1. Load default system configure
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and().exceptionHandling()
-            .authenticationEntryPoint(jwtUnauthorizeHandler)
-            .and().authenticationProvider(jwtAuthenticationProvider)
-            .addFilterBefore(jwtAuthenticationFilter(), AnonymousAuthenticationFilter.class)
-            .csrf().disable()
+            .and().exceptionHandling().authenticationEntryPoint(unauthorizeHandler)
+            .and().csrf().disable()
             .formLogin().disable()
             .httpBasic().disable()
-            .logout().disable();
+            .logout().disable()
+            .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+            .authenticationProvider(authenticationProvider)
+            .authorizeRequests().antMatchers(securityProperties.getPublicUrls()).permitAll();
 
-        List<PermissionMatcher> matchers = permissionHandler.getAllMatchers();
-        for (PermissionMatcher matcher : matchers) {
-            if (matcher.getPattern() == null || matcher.getPattern().isEmpty()) {
-                continue;
-            }
+        //2. Load Database Permissions
+        List<PermissionMatcher> permissions = permissionHandler.loadPermissions();
 
-            if (matcher.isEveryone()) {
-                http.authorizeRequests()
-                    .antMatchers(matcher.getMethod(), matcher.getPattern())
-                    .permitAll();
-            } else if (matcher.isUser()) {
-                http.authorizeRequests()
-                    .antMatchers(matcher.getMethod(), matcher.getPattern())
-                    .authenticated();
-            } else if (matcher.getRole() != null) {
-                http.authorizeRequests()
-                    .antMatchers(matcher.getMethod(), matcher.getPattern())
-                    .hasRole(matcher.getRole());
+        if (permissions != null) {
+            for (PermissionMatcher permission : permissions) {
+                Optional<String> pattern = Optional.ofNullable(permission.getPattern());
+                Optional<String> role = Optional.ofNullable(permission.getRole());
+                if (pattern.isPresent() && role.isPresent()) {
+                    String cleanPattern = pattern.get().trim();
+                    http.authorizeRequests()
+                        .antMatchers(permission.getMethod(), cleanPattern.split(","))
+                        .hasAnyRole(role.get(), Constants.Auth.ROOT_ROLE);
+                }
             }
         }
+
+        //3. Prevent
+        http.authorizeRequests().anyRequest().authenticated();
+
     }
 }

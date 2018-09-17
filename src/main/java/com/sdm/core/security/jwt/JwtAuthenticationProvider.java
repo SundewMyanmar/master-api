@@ -1,13 +1,10 @@
 package com.sdm.core.security.jwt;
 
-import com.sdm.Constants;
 import com.sdm.core.SecurityProperties;
 import com.sdm.core.exception.InvalidTokenExcpetion;
-import com.sdm.core.security.model.AuthInfo;
+import com.sdm.core.model.AuthInfo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,18 +39,11 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
                 throw new InvalidTokenExcpetion("Token has expired.");
             }
 
-            JSONObject subject = new JSONObject(authorizeToken.getSubject());
-            long userId = subject.getLong(Constants.Auth.SUBJECT_USER);
-            JSONArray roles = subject.getJSONArray(Constants.Auth.SUBJECT_ROLES);
-
             AuthInfo authInfo = new AuthInfo();
-            authInfo.setUserId(userId);
-            authInfo.setToken(authorizeToken.getId());
+            authInfo.setUserId(Long.parseLong(authorizeToken.getId()));
+            authInfo.setToken(authorizeToken.getSubject());
             authInfo.setDeviceId(deviceId);
             authInfo.setExpired(expired);
-            for (int i = 0; i < roles.length(); i++) {
-                authInfo.addAuthority(roles.getString(i));
-            }
 
             return authInfo;
         } catch (Exception ex) {
@@ -71,12 +61,13 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
         final String jwt = usernamePasswordAuthenticationToken.getPrincipal().toString();
         final String deviceId = usernamePasswordAuthenticationToken.getCredentials().toString();
         AuthInfo requestAuth = this.getAuth(jwt, deviceId);
-        boolean isAllow = jwtAuthHandler.authByJwt(requestAuth);
+        boolean isAllow = jwtAuthHandler.authByJwt(requestAuth, null);
         if (isAllow) {
             usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                requestAuth, null, requestAuth.getAuthorities());
+                requestAuth, requestAuth.getDeviceId(), requestAuth.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
         } else {
+            SecurityContextHolder.clearContext();
             throw new InvalidTokenExcpetion("Sorry! your authorization token hasn't permission to the resource.");
         }
         return requestAuth;

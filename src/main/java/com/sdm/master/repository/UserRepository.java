@@ -11,12 +11,12 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
-    Optional<UserEntity> findByUsernameOrEmail(String username, String email);
+    Optional<UserEntity> findByUserNameOrEmail(String userName, String email);
 
     Optional<UserEntity> findByEmailAndOtpToken(String email, String token);
 
     Optional<UserEntity> findByFacebookId(String facebookId);
 
-    @Query("SELECT u FROM UserEntity u WHERE (u.email = :user OR u.username = :user) AND u.password = :password")
+    @Query("SELECT u FROM UserEntity u WHERE (u.email = :user OR u.userName = :user) AND u.password = :password")
     Optional<UserEntity> authByPassword(@Param("user") String user, @Param("password") String password);
 }

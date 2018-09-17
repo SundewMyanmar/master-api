@@ -1,14 +1,10 @@
 package com.sdm.master.service;
 
-import com.sdm.Constants;
 import com.sdm.core.SecurityProperties;
 import com.sdm.core.component.WebMailManager;
 import com.sdm.core.exception.GeneralException;
-import com.sdm.core.exception.InvalidTokenExcpetion;
 import com.sdm.core.model.MailHeader;
 import com.sdm.core.security.SecurityManager;
-import com.sdm.core.security.jwt.JwtAuthenticationHandler;
-import com.sdm.core.security.model.AuthInfo;
 import com.sdm.core.util.Globalizer;
 import com.sdm.master.entity.TokenEntity;
 import com.sdm.master.entity.UserEntity;
@@ -21,7 +17,6 @@ import io.grpc.netty.shaded.io.netty.util.internal.StringUtil;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-@Service("jwtAuthHandler")
-@Transactional
-public class AuthService implements JwtAuthenticationHandler {
+@Service
+public class AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     @Autowired
@@ -54,26 +48,6 @@ public class AuthService implements JwtAuthenticationHandler {
 
     private static final int MAX_PASSWORD = 32;
     private static final int MIN_PASSWORD = 16;
-
-    @Override
-    @Transactional
-    public boolean authByJwt(AuthInfo authInfo) {
-        TokenEntity authToken = tokenRepository.findById(authInfo.getToken())
-            .orElseThrow(() -> new InvalidTokenExcpetion("There is no token: " + authInfo.getToken()));
-
-        authInfo.setExpired(authToken.getTokenExpired());
-        boolean result = (authInfo.isAccountNonExpired()
-            && authInfo.getToken().equalsIgnoreCase(authToken.getId())
-            && authInfo.getDeviceId().equalsIgnoreCase(authToken.getDeviceId())
-            && authInfo.getUserId() == authToken.getUserId());
-        if (result) {
-            authToken.setLastLogin(new Date());
-            logger.info("User " + authToken.getUserId() + " login by " + authToken.getId());
-            tokenRepository.save(authToken);
-        }
-
-        return result;
-    }
 
     private void setAnonymousExtras(AnonymousRequest request, UserEntity user) {
         if (!StringUtil.isNullOrEmpty(request.getBrand())) {
@@ -140,12 +114,8 @@ public class AuthService implements JwtAuthenticationHandler {
         token.setLastLogin(new Date());
         tokenRepository.save(token);
 
-        JSONObject subject = new JSONObject();
-        subject.put(Constants.Auth.SUBJECT_USER, token.getUserId());
-        subject.put(Constants.Auth.SUBJECT_ROLES, user.getRoles());
-
-        String compactJWT = Jwts.builder().setId(token.getId())
-            .setSubject(subject.toString())
+        String compactJWT = Jwts.builder().setId(Long.toString(token.getUserId()))
+            .setSubject(token.getId())
             .setIssuer(token.getDeviceId())
             .setIssuedAt(new Date())
             .setExpiration(token.getTokenExpired())
@@ -178,16 +148,16 @@ public class AuthService implements JwtAuthenticationHandler {
     @Transactional
     public ResponseEntity registerByUserAndEmail(RegistrationRequest request) {
         //Check user by user name
-        userRepository.findByUsernameOrEmail(request.getUserName(), request.getEmail())
+        userRepository.findByUserNameOrEmail(request.getUserName(), request.getEmail())
             .ifPresent(user -> {
                 if (user.getEmail().equalsIgnoreCase(request.getEmail())) {
-                    throw new GeneralException(HttpStatus.FOUND, "Sorry! someone already registered with this email");
-                } else if (user.getUsername().equalsIgnoreCase(request.getUserName())) {
-                    throw new GeneralException(HttpStatus.FOUND, "Sorry! someone already registered with this username");
+                    throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! someone already registered with this email");
+                } else if (user.getUserName().equalsIgnoreCase(request.getUserName())) {
+                    throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! someone already registered with this username");
                 }
             });
 
-        char status = securityProperties.isRequireConfirm() ? UserEntity.PENDING : UserEntity.ACTIVE;
+        UserEntity.Status status = securityProperties.isRequireConfirm() ? UserEntity.Status.PENDING : UserEntity.Status.ACTIVE;
         String password = securityManager.hashString(request.getPassword());
         UserEntity newUser = new UserEntity(request.getEmail(), request.getUserName(), request.getDisplayName(),
             password, status);
@@ -215,7 +185,7 @@ public class AuthService implements JwtAuthenticationHandler {
 
 
         //Check Device Registration
-        UserEntity newUser = new UserEntity(userName, "Unknown", password, UserEntity.ACTIVE);
+        UserEntity newUser = new UserEntity(userName, "Unknown", password, UserEntity.Status.ACTIVE);
         UserEntity authUser = tokenRepository.findByDeviceIdAndDeviceOs(request.getUniqueId(), request.getOs())
             .map(token -> {
                 UserEntity user = userRepository.findById(token.getUserId())

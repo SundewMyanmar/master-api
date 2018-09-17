@@ -12,7 +12,7 @@ import java.util.Date;
 @Entity(name = "TokenEntity")
 @Table(name = "tbl_user_tokens")
 @JsonPropertyOrder(value = {"token", "device_id", "device_os", "token_expired"})
-public class TokenEntity extends DefaultEntity implements Serializable {
+public class TokenEntity extends DefaultEntity<String> implements Serializable {
 
     private static final long serialVersionUID = -7999643701327132659L;
 
@@ -56,6 +56,7 @@ public class TokenEntity extends DefaultEntity implements Serializable {
         this.tokenExpired = tokenExpired;
     }
 
+    @Override
     public String getId() {
         return id;
     }
@@ -112,4 +113,18 @@ public class TokenEntity extends DefaultEntity implements Serializable {
         this.tokenExpired = tokenExpired;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TokenEntity that = (TokenEntity) o;
+
+        return id != null ? id.equals(that.id) : that.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

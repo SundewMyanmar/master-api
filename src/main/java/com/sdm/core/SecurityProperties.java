@@ -21,6 +21,8 @@ public class SecurityProperties {
 
     private boolean requireConfirm = false;
 
+    private String[] publicUrls;
+
     public long getOwnerId() {
         return ownerId;
     }
@@ -75,5 +77,13 @@ public class SecurityProperties {
 
     public void setRequireConfirm(boolean requireConfirm) {
         this.requireConfirm = requireConfirm;
+    }
+
+    public String[] getPublicUrls() {
+        return publicUrls;
+    }
+
+    public void setPublicUrls(String[] publicUrls) {
+        this.publicUrls = publicUrls;
     }
 }

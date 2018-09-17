@@ -23,26 +23,10 @@ public interface TokenRepository extends JpaRepository<TokenEntity, String> {
     Optional<TokenEntity> findByDeviceIdAndDeviceOs(String deviceId, String deviceOS);
 
     @Query("SELECT t FROM TokenEntity t WHERE t.lastLogin BETWEEN :fromDate AND :toDate ORDER BY lastLogin")
-    List<TokenEntity> findInActiveTokens(@Param("fromDate") Date fromDate, @Param("toDate") Date toDate, Pageable pageable);
+    List<TokenEntity> findAllByInActiveTokens(@Param("fromDate") Date fromDate, @Param("toDate") Date toDate, Pageable pageable);
 
     @Transactional
     @Modifying
     @Query("DELETE FROM TokenEntity t WHERE t.userId = :userId")
     void deleteInBulkByUserId(@Param("userId") long userId);
-
-    /*
-    public TokenEntity generateToken(TokenEntity token) throws SQLException {
-        token.setTokenExpired(Globalizer.getTokenExpired());
-        token.setLastLogin(new Date());
-
-        TokenEntity existToken = this.getTokenByUserInfo(token.getUserId(), token.getDeviceId(), token.getDeviceOs());
-        if (existToken == null) {
-            token.setToken(UUID.randomUUID().toString());
-            return super.insert(token, false);
-        } else {
-            token.setId(existToken.getId());
-            return super.update(token, false);
-        }
-    }
-    */
 }

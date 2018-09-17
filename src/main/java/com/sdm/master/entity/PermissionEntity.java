@@ -7,7 +7,7 @@ package com.sdm.master.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sdm.core.model.DefaultEntity;
-import com.sdm.core.security.model.PermissionMatcher;
+import com.sdm.core.security.PermissionMatcher;
 import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
@@ -20,7 +20,7 @@ import javax.persistence.*;
  */
 @Entity(name = "PermissionEntity")
 @Table(name = "tbl_permissions")
-public class PermissionEntity extends DefaultEntity implements PermissionMatcher {
+public class PermissionEntity extends DefaultEntity<Integer> implements PermissionMatcher {
 
     /**
      *
@@ -42,10 +42,7 @@ public class PermissionEntity extends DefaultEntity implements PermissionMatcher
     private String httpMethod;
 
     @Column
-    private boolean everyone;
-
-    @Column
-    private boolean user;
+    private int priority;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = true)
@@ -67,7 +64,8 @@ public class PermissionEntity extends DefaultEntity implements PermissionMatcher
         this.search = search;
     }
 
-    public int getId() {
+    @Override
+    public Integer getId() {
         return id;
     }
 
@@ -87,12 +85,12 @@ public class PermissionEntity extends DefaultEntity implements PermissionMatcher
         this.httpMethod = httpMethod;
     }
 
-    public void setEveryone(boolean everyone) {
-        this.everyone = everyone;
+    public int getPriority() {
+        return priority;
     }
 
-    public void setUser(boolean user) {
-        this.user = user;
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 
     public void setRole(RoleEntity role) {
@@ -120,16 +118,6 @@ public class PermissionEntity extends DefaultEntity implements PermissionMatcher
         }
 
         return this.role.getName();
-    }
-
-    @Override
-    public boolean isEveryone() {
-        return this.everyone;
-    }
-
-    @Override
-    public boolean isUser() {
-        return this.user;
     }
 
     @Override

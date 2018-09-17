@@ -1,8 +1,9 @@
 package com.sdm.master.service;
 
 import com.sdm.core.security.PermissionHandler;
-import com.sdm.core.security.model.PermissionMatcher;
+import com.sdm.core.security.PermissionMatcher;
 import com.sdm.master.entity.PermissionEntity;
+import com.sdm.master.entity.RoleEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,17 +13,12 @@ import java.util.List;
 public class PermissionService implements PermissionHandler {
 
     @Override
-    public List<PermissionMatcher> getAllMatchers() {
+    public List<PermissionMatcher> loadPermissions() {
+        PermissionEntity testPermission = new PermissionEntity();
+        testPermission.setPattern("/role/**");
+        testPermission.setRole(new RoleEntity("admin"));
         List<PermissionMatcher> permissions = new ArrayList<>();
-
-        PermissionEntity authPermission = new PermissionEntity("/auth/**");
-        authPermission.setEveryone(true);
-        permissions.add(authPermission);
-
-        PermissionEntity profilePermission = new PermissionEntity("/me/**");
-        profilePermission.setUser(true);
-        permissions.add(profilePermission);
-
+        permissions.add(testPermission);
         return permissions;
     }
 }

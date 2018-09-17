@@ -1,6 +1,6 @@
 package com.sdm.core.config;
 
-import com.sdm.core.security.model.AuthInfo;
+import com.sdm.core.model.AuthInfo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;

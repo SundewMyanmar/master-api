@@ -5,39 +5,26 @@
  */
 package com.sdm.core.model;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.springframework.http.HttpStatus;
 
-import java.io.Serializable;
 import java.util.Date;
-import java.util.Map;
 
 /**
- * @param <T>
  * @author Htoonlin
  */
 @JsonPropertyOrder(value = {"code", "status", "content", "timestamp"})
-public class DefaultResponse<T extends Serializable> {
+public class DefaultResponse {
 
-    @JsonIgnore
-    private HttpStatus status;
-    private Map<String, Object> headers;
+    private int code;
+    private String status;
+    private Object content;
 
-    public DefaultResponse(HttpStatus status, T content) {
+    public DefaultResponse() {
+    }
+
+    public DefaultResponse(int code, String status, Object content) {
+        this.code = code;
         this.status = status;
-        this.content = content;
-    }
-
-    public DefaultResponse(T content) {
-        // Get Code from message model
-        this(HttpStatus.OK, content);
-    }
-
-    private T content;
-
-    public void setContent(T content) {
         this.content = content;
     }
 
@@ -45,21 +32,27 @@ public class DefaultResponse<T extends Serializable> {
         return (new Date()).getTime();
     }
 
-    @JsonGetter("code")
     public int getCode() {
-        return status.value();
+        return code;
     }
 
-    @JsonGetter("status")
+    public void setCode(int code) {
+        this.code = code;
+    }
+
     public String getStatus() {
-        return this.status.series().name();
+        return status;
     }
 
-    public void setStatus(HttpStatus status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
     public Object getContent() {
-        return this.content;
+        return content;
+    }
+
+    public void setContent(Object content) {
+        this.content = content;
     }
 }

@@ -124,11 +124,11 @@ public interface Constants {
         /**
          * User Key of JWT Subject
          */
-        String SUBJECT_USER = "user";
+        String DEFAULT_USER_ROLE = "BASIC_USER";
 
         /**
-         * Roles Key of JWT Subject
+         * Super Admin role for all permission
          */
-        String SUBJECT_ROLES = "roles";
+        String ROOT_ROLE = "ROOT";
     }
 }

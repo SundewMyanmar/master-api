@@ -19,14 +19,18 @@ import java.util.*;
 
 @Entity(name = "UserEntity")
 @Table(name = "tbl_users")
-public class UserEntity extends DefaultEntity implements Serializable {
+public class UserEntity extends DefaultEntity<Long> implements Serializable {
+
+    public enum Status {
+        ACTIVE,
+        PENDING,
+        CANCEL
+    }
 
     /**
      *
      */
     private static final long serialVersionUID = 1939600458371706458L;
-    public static final char ACTIVE = 'A';
-    public static final char PENDING = 'P';
     public static final int TOKEN_LENGTH = 8;
 
     @JsonIgnore
@@ -39,8 +43,8 @@ public class UserEntity extends DefaultEntity implements Serializable {
 
     @NotBlank
     @Size(min = 4, max = 255)
-    @Column(name = "username", unique = true, nullable = false)
-    private String username;
+    @Column(name = "userName", unique = true, nullable = false)
+    private String userName;
 
     @Email
     @Size(max = 255)
@@ -68,7 +72,7 @@ public class UserEntity extends DefaultEntity implements Serializable {
 
     @NotBlank
     @Size(min = 6, max = 255)
-    @Column(name = "password", columnDefinition = "VARCHAR(255)", nullable = false, length = 255)
+    @Column(name = "password", columnDefinition = "VARCHAR(255)", nullable = false)
     private String password;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -88,8 +92,9 @@ public class UserEntity extends DefaultEntity implements Serializable {
     @Column(name = "otp_expired", length = 19)
     private Date otpExpired;
 
-    @Column(name = "status", nullable = false, length = 1)
-    private char status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private Status status;
 
     @Transient
     private String currentToken;
@@ -97,27 +102,20 @@ public class UserEntity extends DefaultEntity implements Serializable {
     public UserEntity() {
     }
 
-    public UserEntity(String email, String username, String displayName, String password, char status) {
+    public UserEntity(String email, String userName, String displayName, String password, Status status) {
         this.email = email;
-        this.username = username;
+        this.userName = userName;
         this.displayName = displayName;
         this.password = password;
         this.status = status;
     }
 
-    public UserEntity(String username, String displayName, String password, char status) {
-        this.username = username;
+    public UserEntity(String userName, String displayName, String password, Status status) {
+        this.userName = userName;
         this.displayName = displayName;
         this.password = password;
         this.status = status;
     }
-
-    /*@JsonGetter("&detail_link")
-    public LinkModel getSelfLink() {
-        String selfLink = UriBuilder.fromResource(UserResource.class).path(Long.toString(this.id)).build()
-                .toString();
-        return new LinkModel(selfLink);
-    }*/
 
     public String getSearch() {
         return search;
@@ -127,7 +125,8 @@ public class UserEntity extends DefaultEntity implements Serializable {
         this.search = search;
     }
 
-    public long getId() {
+    @Override
+    public Long getId() {
         return id;
     }
 
@@ -147,12 +146,12 @@ public class UserEntity extends DefaultEntity implements Serializable {
         return this.email != null && this.email.length() > 3 && Globalizer.isEmail(this.email);
     }
 
-    public String getUsername() {
-        return username;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getDisplayName() {
@@ -239,11 +238,11 @@ public class UserEntity extends DefaultEntity implements Serializable {
         this.otpExpired = otpExpired;
     }
 
-    public char getStatus() {
-        return this.status;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setStatus(char status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 

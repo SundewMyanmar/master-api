@@ -32,7 +32,7 @@ public class RegistrationRequest implements Serializable {
     @NotBlank
     @Pattern(regexp = "[a-zA-Z0-9_\\.]+",
         message = "Sorry! invalid user name, allow char (a-zA-Z0-9) and special char (`.` and `_`). Eg./ mg_hla.09")
-    @Size(min = 1, max = 255)
+    @Size(max = 255)
     private String userName;
 
 
@@ -40,7 +40,7 @@ public class RegistrationRequest implements Serializable {
     private String displayName;
 
     @NotBlank(message = "Password can't be blank.")
-    @Size(min = 2, max = 255)
+    @Size(min = 6, max = 255)
     private String password;
 
     @NotBlank(message = "DeviceID can't be blank.")

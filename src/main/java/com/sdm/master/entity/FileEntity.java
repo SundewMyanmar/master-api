@@ -22,7 +22,7 @@ import java.util.Objects;
  */
 @Entity(name = "FileEntity")
 @Table(name = "tbl_files")
-public class FileEntity extends DefaultEntity implements Serializable {
+public class FileEntity extends DefaultEntity<Long> implements Serializable {
 
     /**
      *
@@ -88,31 +88,6 @@ public class FileEntity extends DefaultEntity implements Serializable {
         this.storagePath = storagePath;
     }
 
-    /*@JsonGetter("&file_links")
-    public Map<String, LinkModel> getLinks() {
-        UriBuilder baseUri = UriBuilder.fromResource(FileResource.class).path(Long.toString(id));
-        Map<String, LinkModel> links = new HashMap<>();
-        String selfLink = baseUri.build().toString();
-        links.put("self", new LinkModel(selfLink));
-
-        baseUri.path("{access}");
-
-        String privateDownload = baseUri.build("download").toString();
-        links.put("private", new LinkModel(privateDownload));
-
-        String thumbnailDownload = baseUri.build("thumbnail").toString();
-        links.put("thumbnail", new LinkModel(thumbnailDownload));
-
-        if (this.isPublicAccess()) {
-            String publicDownload = baseUri.build("public").toString();
-            links.put("public", new LinkModel(publicDownload));
-
-            String publicthumbnailDownload = baseUri.build("public/thumbnail").toString();
-            links.put("publicThumbnail", new LinkModel(publicthumbnailDownload));
-        }
-
-        return links;
-    }*/
 
     public String getSearch() {
         return search;
@@ -122,7 +97,8 @@ public class FileEntity extends DefaultEntity implements Serializable {
         this.search = search;
     }
 
-    public long getId() {
+    @Override
+    public Long getId() {
         return id;
     }
 

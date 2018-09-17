@@ -15,7 +15,7 @@ import java.util.List;
  * @author Htoonlin
  */
 @JsonPropertyOrder({"count", "data"})
-public class ListModel<T extends Serializable> implements Serializable {
+public class ListModel<T> implements Serializable {
 
     /**
      *

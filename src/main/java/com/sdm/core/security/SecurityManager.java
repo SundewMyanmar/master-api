@@ -12,7 +12,7 @@ import io.jsonwebtoken.impl.crypto.MacProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -27,7 +27,7 @@ import java.util.Base64;
 /**
  * @author Htoonlin
  */
-@Service
+@Component
 public class SecurityManager {
 
     private static final Logger logger = LoggerFactory.getLogger(SecurityManager.class);
@@ -92,7 +92,7 @@ public class SecurityManager {
         return new String(data);
     }
 
-    public static String generateJWTKey() {
+    public String generateJWTKey() {
         byte[] key = MacProvider.generateKey().getEncoded();
         return Base64.getEncoder().encodeToString(key);
     }

@@ -5,7 +5,10 @@
  */
 package com.sdm.core.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.SecureRandom;
@@ -17,6 +20,17 @@ import java.util.regex.Pattern;
  * @author Htoonlin
  */
 public class Globalizer {
+
+    public static ObjectMapper jsonMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        mapper.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true);
+        mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+
+        return mapper;
+    }
 
     public static String camelToLowerUnderScore(String input) {
         return (new PropertyNamingStrategy.SnakeCaseStrategy()).translate(input);

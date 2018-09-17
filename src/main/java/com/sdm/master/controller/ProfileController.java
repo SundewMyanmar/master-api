@@ -1,8 +1,8 @@
 package com.sdm.master.controller;
 
 import com.sdm.core.exception.GeneralException;
+import com.sdm.core.model.AuthInfo;
 import com.sdm.core.security.SecurityManager;
-import com.sdm.core.security.model.AuthInfo;
 import com.sdm.master.entity.UserEntity;
 import com.sdm.master.repository.UserRepository;
 import com.sdm.master.request.AuthRequest;
@@ -12,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -46,22 +43,21 @@ public class ProfileController {
 
     //@UserAllowed
     @PostMapping("/")
-    public ResponseEntity getProfile(@Valid UserEntity user) {
+    public ResponseEntity getProfile(@RequestBody UserEntity user) {
         UserEntity existUser = userRepository.findById(getCurrentUser().getUserId())
             .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "Sorry! can't find your account."));
 
-        user.setPassword(existUser.getPassword());
-        user.setEmail(existUser.getEmail());
-        user.setUsername(existUser.getUsername());
-        user.setRoles(existUser.getRoles());
-        userRepository.save(user);
+        existUser.setProfileImage(user.getProfileImage());
+        existUser.setMMDisplayName(user.getDisplayName());
+        existUser.setExtras(user.getExtras());
+        existUser = userRepository.save(existUser);
 
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(existUser);
     }
 
     //@UserAllowed
     @PostMapping("/changePassword")
-    public ResponseEntity getProfile(@Valid ChangePasswordRequest request) {
+    public ResponseEntity getProfile(@Valid @RequestBody ChangePasswordRequest request) {
         UserEntity existUser = userRepository.findById(getCurrentUser().getUserId())
             .orElseThrow(() -> new GeneralException(HttpStatus.UNAUTHORIZED, "Sorry! you don't have permission."));
 
@@ -69,7 +65,7 @@ public class ProfileController {
         UserEntity authUser = userRepository.authByPassword(request.getUser(), oldPassword)
             .orElseThrow(() -> new GeneralException(HttpStatus.UNAUTHORIZED, "Sorry! you old password are not correct."));
 
-        if (authUser.getId() != getCurrentUser().getUserId()) {
+        if (authUser.getId().equals(getCurrentUser().getUserId())) {
             throw new GeneralException(HttpStatus.UNAUTHORIZED,
                 "There is no user (or) old password is wrong. Pls try again.");
         }
@@ -83,7 +79,7 @@ public class ProfileController {
 
     //@UserAllowed
     @PostMapping("/clean")
-    public ResponseEntity cleanToken(AuthRequest request) {
+    public ResponseEntity cleanToken(@Valid @RequestBody AuthRequest request) {
         return authService.authByPassword(request, true);
     }
 }

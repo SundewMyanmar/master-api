@@ -5,6 +5,7 @@
  */
 package com.sdm.core.model.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,7 @@ import java.util.Map;
  * @author Htoonlin
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder(value = {"code", "message", "errors", "trace"})
+@JsonPropertyOrder(value = {"title", "message", "details"})
 public class MessageModel implements Serializable {
 
     /**
@@ -24,33 +25,50 @@ public class MessageModel implements Serializable {
      */
     private static final long serialVersionUID = -459150304625745739L;
 
-    private int code;
+    @JsonIgnore
     private HttpStatus status;
+    private String title;
     private String message;
-    private Map<String, String> errors;
-    private Map<String, Object> trace;
-
-    public MessageModel() {
-    }
+    private Map<String, Object> details;
 
     public MessageModel(HttpStatus status, String message) {
         this.status = status;
-        this.code = status.value();
         this.message = message;
     }
 
-    public static synchronized MessageModel createErrors(HttpStatus status, String message, Map<String, String> errors) {
+    public static synchronized MessageModel createMessage(HttpStatus status, String title, String message) {
         MessageModel instance = new MessageModel(status, message);
-        instance.setErrors(errors);
+        instance.setTitle(title);
         return instance;
     }
 
-    public int getCode() {
-        return code;
+    public static synchronized MessageModel createMessage(String title, String message) {
+        MessageModel instance = new MessageModel(HttpStatus.OK, message);
+        instance.setTitle(title);
+        return instance;
     }
 
-    public void setCode(int code) {
-        this.code = code;
+    public static synchronized MessageModel createWithDetail(String message, Map<String, Object> details) {
+        MessageModel instance = new MessageModel(HttpStatus.OK, message);
+        instance.setDetails(details);
+        return instance;
+    }
+
+    public static synchronized MessageModel createWithDetail(HttpStatus status, String message, Map<String, Object> details) {
+        MessageModel instance = new MessageModel(status, message);
+        instance.setDetails(details);
+        return instance;
+    }
+
+    public String getTitle() {
+        if (title == null || title.isEmpty()) {
+            return this.status.getReasonPhrase();
+        }
+        return this.title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public HttpStatus getStatus() {
@@ -69,20 +87,11 @@ public class MessageModel implements Serializable {
         this.message = message;
     }
 
-    public Map<String, String> getErrors() {
-        return errors;
+    public Map<String, Object> getDetails() {
+        return details;
     }
 
-    public void setErrors(Map<String, String> errors) {
-        this.errors = errors;
+    public void setDetails(Map<String, Object> details) {
+        this.details = details;
     }
-
-    public Map<String, Object> getTrace() {
-        return trace;
-    }
-
-    public void setTrace(Map<String, Object> trace) {
-        this.trace = trace;
-    }
-
 }

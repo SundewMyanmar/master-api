@@ -20,7 +20,7 @@ public class AuthController {
 
     @PostMapping("/")
     public ResponseEntity authWithEmail(@Valid @RequestBody AuthRequest request) {
-        return service.authByPassword(request, true);
+        return service.authByPassword(request, false);
     }
 
     @PostMapping("/register")

@@ -8,9 +8,9 @@ package com.sdm.master.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sdm.core.model.DefaultEntity;
 import org.hibernate.annotations.Formula;
-import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 
@@ -19,7 +19,7 @@ import java.io.Serializable;
  */
 @Entity(name = "RoleEntity")
 @Table(name = "tbl_roles")
-public class RoleEntity extends DefaultEntity implements Serializable {
+public class RoleEntity extends DefaultEntity<Integer> implements Serializable {
 
     /**
      *
@@ -40,6 +40,13 @@ public class RoleEntity extends DefaultEntity implements Serializable {
     @Column(columnDefinition = "varchar(500)", length = 500, nullable = false)
     private String description;
 
+    public RoleEntity() {
+    }
+
+    public RoleEntity(String name) {
+        this.name = name;
+    }
+
     public String getSearch() {
         return search;
     }
@@ -48,7 +55,8 @@ public class RoleEntity extends DefaultEntity implements Serializable {
         this.search = search;
     }
 
-    public int getId() {
+    @Override
+    public Integer getId() {
         return id;
     }
 
