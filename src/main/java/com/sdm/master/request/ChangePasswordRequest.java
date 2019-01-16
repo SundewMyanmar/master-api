@@ -24,7 +24,7 @@ public class ChangePasswordRequest implements Serializable {
     private String user;
 
     @NotBlank(message = "User field can't be blank.")
-    @Size(min = 6, max = 255)
+    @Size(min = 4, max = 255)
     public String getUser() {
         return user;
     }

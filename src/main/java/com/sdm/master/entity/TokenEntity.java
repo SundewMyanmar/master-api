@@ -12,12 +12,12 @@ import java.util.Date;
 @Entity(name = "TokenEntity")
 @Table(name = "tbl_user_tokens")
 @JsonPropertyOrder(value = {"token", "device_id", "device_os", "token_expired"})
-public class TokenEntity extends DefaultEntity<String> implements Serializable {
+public class TokenEntity extends DefaultEntity implements Serializable {
 
     private static final long serialVersionUID = -7999643701327132659L;
 
     @Id
-    @Column(name = "token", unique = true, nullable = false, length = 36)
+    @Column(name = "token", unique = true, nullable = false, columnDefinition = "CHAR(36)", length = 36)
     private String id;
 
     @Column(name = "user_id", nullable = false)
@@ -45,6 +45,12 @@ public class TokenEntity extends DefaultEntity<String> implements Serializable {
     private Date tokenExpired;
 
     public TokenEntity() {
+    }
+
+    public TokenEntity(long userId, @NotBlank @Size(max = 255) String deviceId, @NotBlank @Size(max = 50) String deviceOs) {
+        this.userId = userId;
+        this.deviceId = deviceId;
+        this.deviceOs = deviceOs;
     }
 
     public TokenEntity(String id, long userId, String deviceId, String deviceOs, Date lastLogin, Date tokenExpired) {

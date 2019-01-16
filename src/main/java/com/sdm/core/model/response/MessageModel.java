@@ -31,6 +31,11 @@ public class MessageModel implements Serializable {
     private String message;
     private Map<String, Object> details;
 
+    public MessageModel(String message) {
+        this.status = HttpStatus.OK;
+        this.message = message;
+    }
+
     public MessageModel(HttpStatus status, String message) {
         this.status = status;
         this.message = message;
@@ -43,13 +48,13 @@ public class MessageModel implements Serializable {
     }
 
     public static synchronized MessageModel createMessage(String title, String message) {
-        MessageModel instance = new MessageModel(HttpStatus.OK, message);
+        MessageModel instance = new MessageModel(message);
         instance.setTitle(title);
         return instance;
     }
 
     public static synchronized MessageModel createWithDetail(String message, Map<String, Object> details) {
-        MessageModel instance = new MessageModel(HttpStatus.OK, message);
+        MessageModel instance = new MessageModel(message);
         instance.setDetails(details);
         return instance;
     }

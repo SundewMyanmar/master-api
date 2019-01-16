@@ -1,7 +1,7 @@
 package com.sdm.master.service;
 
-import com.sdm.core.SecurityProperties;
 import com.sdm.core.component.WebMailManager;
+import com.sdm.core.config.SecurityProperties;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.MailHeader;
 import com.sdm.core.security.SecurityManager;
@@ -94,59 +94,57 @@ public class AuthService {
     }
 
     @Transactional
-    public String generateJWT(UserEntity user, String deviceId, String deviceOS, String fireBaseToken) {
-        TokenEntity token = tokenRepository.findByDeviceIdAndDeviceOs(
-            deviceId, deviceOS).orElseGet(() -> {
-            TokenEntity newToken = new TokenEntity();
-            newToken.setId(UUID.randomUUID().toString());
-            return newToken;
-        });
+    public String generateJWT(TokenEntity token, String userAgent) {
+        String id = tokenRepository.findByDeviceIdAndDeviceOs(
+            token.getDeviceId(), token.getDeviceOs())
+            .map(existToken -> existToken.getId())
+            .orElse(UUID.randomUUID().toString());
 
-        token.setUserId(user.getId());
-        token.setDeviceId(deviceId);
-        token.setDeviceOs(deviceOS);
-
-        if (fireBaseToken != null && !fireBaseToken.isEmpty()) {
-            token.setFirebaseToken(fireBaseToken);
-        }
+        token.setId(id);
 
         token.setTokenExpired(getTokenExpired());
         token.setLastLogin(new Date());
         tokenRepository.save(token);
 
-        String compactJWT = Jwts.builder().setId(Long.toString(token.getUserId()))
-            .setSubject(token.getId())
-            .setIssuer(token.getDeviceId())
+        String compactJWT = Jwts.builder().setId(token.getId())
+            .setSubject(Long.toString(token.getUserId()))
+            .setIssuer(userAgent)
             .setIssuedAt(new Date())
             .setExpiration(token.getTokenExpired())
+            .claim("device_id", token.getDeviceId())
+            .claim("device_os", token.getDeviceOs())
             .compressWith(CompressionCodecs.DEFLATE)
             .signWith(SignatureAlgorithm.HS512, securityProperties.getJwtKey()).compact();
 
-        user.setCurrentToken(compactJWT);
         return compactJWT;
     }
 
     @Transactional
-    public ResponseEntity authByPassword(AuthRequest request, boolean isClean) {
+    public ResponseEntity authByPassword(AuthRequest request, String userAgent, boolean isClean) {
         String password = securityManager.hashString(request.getPassword());
         UserEntity authUser = userRepository.authByPassword(request.getUser(), password)
             .orElseThrow(() -> new GeneralException(
-                HttpStatus.UNAUTHORIZED, "Opp! Request email or password is something wrong"));
+                HttpStatus.UNAUTHORIZED, "Opp! request email or password is something wrong"));
 
         //If cleantoken, delete all old token
         if (isClean) {
             tokenRepository.deleteInBulkByUserId(authUser.getId());
         }
 
+        TokenEntity token = new TokenEntity(authUser.getId(), request.getDeviceId(), request.getDeviceOS());
+        if (request.getFirebaseToken() != null && !request.getFirebaseToken().isEmpty()) {
+            token.setFirebaseToken(request.getFirebaseToken());
+        }
+
         // Generate and store JWT
-        this.generateJWT(authUser, request.getDeviceId(),
-            request.getDeviceOS(), request.getFirebaseToken());
+        String tokenString = this.generateJWT(token, userAgent);
+        authUser.setCurrentToken(tokenString);
 
         return ResponseEntity.ok(authUser);
     }
 
     @Transactional
-    public ResponseEntity registerByUserAndEmail(RegistrationRequest request) {
+    public ResponseEntity registerByUserAndEmail(RegistrationRequest request, String userAgent) {
         //Check user by user name
         userRepository.findByUserNameOrEmail(request.getUserName(), request.getEmail())
             .ifPresent(user -> {
@@ -163,15 +161,19 @@ public class AuthService {
             password, status);
         userRepository.save(newUser);
 
+        TokenEntity token = new TokenEntity(newUser.getId(), request.getDeviceId(), request.getDeviceOS());
+        if (request.getFirebaseToken() != null && !request.getFirebaseToken().isEmpty()) {
+            token.setFirebaseToken(request.getFirebaseToken());
+        }
+
         // Generate and store JWT
-        this.generateJWT(newUser, request.getDeviceId(),
-            request.getDeviceOS(), request.getFirebaseToken());
+        String tokenString = this.generateJWT(token, userAgent);
+        newUser.setCurrentToken(tokenString);
 
         return new ResponseEntity(newUser, HttpStatus.CREATED);
     }
 
-    @Transactional
-    public ResponseEntity anonymousAuth(AnonymousRequest request) {
+    private UserEntity createAnonymousUser(AnonymousRequest request) {
         Random rnd = new Random();
         int size = rnd.nextInt((MAX_PASSWORD - MIN_PASSWORD) + 1) + MIN_PASSWORD;
 
@@ -182,23 +184,31 @@ public class AuthService {
         String passwordChars = securityProperties.getTokenChars() + "!@#$%^&*_+=abcdefghijklmnopqrstuvwxyz";
         String rawPassword = Globalizer.generateToken(passwordChars, size);
         String password = securityManager.hashString(rawPassword);
+        return new UserEntity(userName, "Anonymous", password, UserEntity.Status.ACTIVE);
+    }
 
-
+    @Transactional
+    public ResponseEntity anonymousAuth(AnonymousRequest request) {
         //Check Device Registration
-        UserEntity newUser = new UserEntity(userName, "Unknown", password, UserEntity.Status.ACTIVE);
         UserEntity authUser = tokenRepository.findByDeviceIdAndDeviceOs(request.getUniqueId(), request.getOs())
             .map(token -> {
                 UserEntity user = userRepository.findById(token.getUserId())
-                    .orElse(newUser);
+                    .orElse(this.createAnonymousUser(request));
                 return user;
-            }).orElse(newUser);
+            }).orElse(this.createAnonymousUser(request));
 
         //User create / update
         setAnonymousExtras(request, authUser);
         userRepository.save(authUser);
 
-        //Token create / update
-        this.generateJWT(authUser, request.getUniqueId(), request.getOs(), request.getFirebaseToken());
+        TokenEntity token = new TokenEntity(authUser.getId(), request.getUniqueId(), request.getOs());
+        if (request.getFirebaseToken() != null && !request.getFirebaseToken().isEmpty()) {
+            token.setFirebaseToken(request.getFirebaseToken());
+        }
+
+        // Generate and store JWT
+        String tokenString = this.generateJWT(token, request.getUserAgent());
+        authUser.setCurrentToken(tokenString);
 
         return ResponseEntity.ok(authUser);
     }

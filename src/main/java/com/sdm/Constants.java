@@ -112,14 +112,9 @@ public interface Constants {
         String TYPE = "Bearer";
 
         /**
-         * JWT header Key
+         * request Parameter Token Name
          */
-        String HEADER_TOKEN_KEY = "Authorization";
-
-        /**
-         * Require key to reclaim JWT
-         */
-        String HEADER_CREDENTIAL_KEY = "Device-Id";
+        String PARAM_NAME = "accessToken";
 
         /**
          * User Key of JWT Subject

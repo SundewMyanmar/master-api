@@ -1,6 +1,7 @@
 package com.sdm.core.security.jwt;
 
-import com.sdm.core.SecurityProperties;
+import com.sdm.Constants;
+import com.sdm.core.config.SecurityProperties;
 import com.sdm.core.exception.InvalidTokenExcpetion;
 import com.sdm.core.model.AuthInfo;
 import io.jsonwebtoken.Claims;
@@ -28,21 +29,26 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
     @Autowired
     SecurityProperties securityProperties;
 
-    private AuthInfo getAuth(String tokenString, String deviceId) {
+    private AuthInfo getAuth(String tokenString, String userAgent) {
         try {
             byte[] jwtKey = Base64.getDecoder().decode(securityProperties.getJwtKey());
             Claims authorizeToken = Jwts.parser().setSigningKey(jwtKey)
-                .requireIssuer(deviceId).parseClaimsJws(tokenString).getBody();
+                .requireIssuer(userAgent).parseClaimsJws(tokenString).getBody();
 
             Date expired = authorizeToken.getExpiration();
             if (expired.before(new Date())) {
                 throw new InvalidTokenExcpetion("Token has expired.");
             }
 
+            long userId = Long.parseLong(authorizeToken.getSubject());
+            String deviceId = authorizeToken.get("device_id").toString();
+            String deviceOs = authorizeToken.get("device_os").toString();
+
             AuthInfo authInfo = new AuthInfo();
-            authInfo.setUserId(Long.parseLong(authorizeToken.getId()));
-            authInfo.setToken(authorizeToken.getSubject());
+            authInfo.setUserId(userId);
+            authInfo.setToken(authorizeToken.getId());
             authInfo.setDeviceId(deviceId);
+            authInfo.setDeviceOs(deviceOs);
             authInfo.setExpired(expired);
 
             return authInfo;
@@ -59,12 +65,17 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
     @Override
     protected UserDetails retrieveUser(String s, UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) throws AuthenticationException {
         final String jwt = usernamePasswordAuthenticationToken.getPrincipal().toString();
-        final String deviceId = usernamePasswordAuthenticationToken.getCredentials().toString();
-        AuthInfo requestAuth = this.getAuth(jwt, deviceId);
+        final String userAgent = usernamePasswordAuthenticationToken.getCredentials().toString();
+        AuthInfo requestAuth = this.getAuth(jwt, userAgent);
         boolean isAllow = jwtAuthHandler.authByJwt(requestAuth, null);
         if (isAllow) {
+            if (securityProperties.getOwnerIds().contains(requestAuth.getUserId())) {
+                requestAuth.addAuthority(Constants.Auth.ROOT_ROLE);
+            }
+
             usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                 requestAuth, requestAuth.getDeviceId(), requestAuth.getAuthorities());
+
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
         } else {
             SecurityContextHolder.clearContext();

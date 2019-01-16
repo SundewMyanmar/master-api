@@ -5,11 +5,11 @@
  */
 package com.sdm.core.component;
 
+import com.sdm.core.config.PathProperties;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.StringWriter;
@@ -26,15 +26,11 @@ public class VelocityTemplateManager {
 
     private final VelocityEngine engine;
 
-    @Value("${com.sdm.template.path}")
-    private String path = "./template";
-
-    public VelocityTemplateManager() {
+    public VelocityTemplateManager(PathProperties properties) {
         this.engine = new VelocityEngine();
-        this.engine.addProperty(RuntimeConstants.FILE_RESOURCE_LOADER_PATH, this.path);
+        this.engine.addProperty(RuntimeConstants.FILE_RESOURCE_LOADER_PATH, properties.getTemplate());
         this.engine.init();
     }
-
 
     public String buildTemplate(String template, Map<String, Object> data) {
         VelocityContext context = new VelocityContext(data);
@@ -43,5 +39,4 @@ public class VelocityTemplateManager {
         vm.merge(context, writer);
         return writer.toString();
     }
-
 }

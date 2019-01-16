@@ -22,11 +22,10 @@ public class AnonymousRequest implements Serializable {
     private String os;
 
     //Firebase FCM registration token
-    @NotBlank(message = "Firebase Token is required for notification.")
     @Size(max = 255)
     private String firebaseToken;
 
-    @NotBlank(message = "Device User agent string is required.")
+    @NotBlank(message = "Device User lunchbox string is required.")
     private String userAgent;
     private String brand;
     private String carrier;

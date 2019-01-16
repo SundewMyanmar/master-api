@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * @author Htoonlin
@@ -26,7 +26,7 @@ public class ListModel<T> implements Serializable {
 
     }
 
-    public ListModel(List<T> data) {
+    public ListModel(Collection<T> data) {
         this.data = data;
     }
 
@@ -34,7 +34,7 @@ public class ListModel<T> implements Serializable {
         return this.data.size();
     }
 
-    private List<T> data;
+    private Collection<T> data;
 
     public void addData(T entity) {
         if (this.data == null) {
@@ -43,11 +43,11 @@ public class ListModel<T> implements Serializable {
         this.data.add(entity);
     }
 
-    public List<T> getData() {
+    public Collection<T> getData() {
         return data;
     }
 
-    public void setData(List<T> data) {
+    public void setData(Collection<T> data) {
         this.data = data;
     }
 

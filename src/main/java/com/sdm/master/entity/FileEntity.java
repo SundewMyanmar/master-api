@@ -7,10 +7,9 @@ package com.sdm.master.entity;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.util.FileManager;
-import org.hibernate.annotations.Formula;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -22,24 +21,24 @@ import java.util.Objects;
  */
 @Entity(name = "FileEntity")
 @Table(name = "tbl_files")
-public class FileEntity extends DefaultEntity<Long> implements Serializable {
+public class FileEntity extends DefaultEntity implements Serializable {
 
     /**
      *
      */
     private static final long serialVersionUID = 2692423129475255385L;
-    public static final char STORAGE = 'S';
-    public static final char EXTERNAL = 'E';
-    public static final char TRASH = 'T';
 
-    @JsonIgnore
-    @Formula(value = "concat(name, extension, type)")
-    private String search;
+    public enum Status {
+        STORAGE,
+        EXTERNAL,
+        TRASH
+    }
+
+    ;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", unique = true, nullable = false)
-    private long id;
+    @Column(name = "id", columnDefinition = "char(36)", length = 36, unique = true, nullable = false)
+    private String id;
 
     @NotBlank
     @Column(name = "name", columnDefinition = "varchar(255)", length = 255, nullable = false)
@@ -66,19 +65,20 @@ public class FileEntity extends DefaultEntity<Long> implements Serializable {
     @Column(name = "is_public", length = 25)
     private boolean publicAccess;
 
-    @Column(name = "status", columnDefinition = "char(1)", length = 1, nullable = false)
-    private char status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private Status status;
 
     public FileEntity() {
-        this.status = STORAGE;
+        this.status = Status.STORAGE;
     }
 
-    public FileEntity(long id, String name, String extension, String type, long fileSize,
+    public FileEntity(String id, String name, String extension, String type, long fileSize,
                       String storagePath, String externalUrl) {
         if (externalUrl == null || externalUrl.length() <= 0) {
-            this.status = STORAGE;
+            this.status = Status.STORAGE;
         } else {
-            this.status = EXTERNAL;
+            this.status = Status.EXTERNAL;
         }
         this.id = id;
         this.name = name;
@@ -88,21 +88,40 @@ public class FileEntity extends DefaultEntity<Long> implements Serializable {
         this.storagePath = storagePath;
     }
 
-
-    public String getSearch() {
-        return search;
+    @JsonGetter("download_url")
+    public String getDownloadUrl() {
+        String downloadURL = ServletUriComponentsBuilder.fromCurrentContextPath()
+            .path("/files/download/")
+            .path(this.id + "/")
+            .path(this.name + "." + this.extension)
+            .toUriString();
+        return downloadURL;
     }
 
-    public void setSearch(String search) {
-        this.search = search;
+    @JsonGetter("public_url")
+    public String getPublicUrl() {
+        if (!this.publicAccess) {
+            return null;
+        }
+        String downloadURL = ServletUriComponentsBuilder.fromCurrentContextPath()
+            .path("/public/files/")
+            .path(this.id + "/")
+            .path(this.name + "." + this.extension)
+            .toUriString();
+        return downloadURL;
+    }
+
+    @JsonGetter("size")
+    public String getSize() {
+        return FileManager.byteSize(fileSize);
     }
 
     @Override
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -146,16 +165,6 @@ public class FileEntity extends DefaultEntity<Long> implements Serializable {
         this.fileSize = size;
     }
 
-    @JsonGetter("size")
-    public String getSize() {
-        return FileManager.byteSize(fileSize);
-    }
-
-    @JsonSetter("size")
-    public void setSize() {
-
-    }
-
     public String getStoragePath() {
         return storagePath;
     }
@@ -172,11 +181,11 @@ public class FileEntity extends DefaultEntity<Long> implements Serializable {
         this.publicAccess = publicAccess;
     }
 
-    public char getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(char status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 

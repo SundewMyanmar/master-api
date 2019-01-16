@@ -88,4 +88,29 @@ public class Globalizer {
         return pattern.matcher(email).matches();
     }
 
+    public static String generateCodeWithTime(String maxCode, String prefix, Date date, int incLength) {
+        String dateString = getDateString("yyyyMMdd", date);
+        int startIdx = prefix.length() + dateString.length();
+        int incValue = 0;
+        if (maxCode.length() == startIdx + incLength) {
+            String incString = maxCode.substring(startIdx);
+            incValue = Integer.parseInt(incString);
+        }
+        String incString = String.format("%0" + incLength + "d", incValue + 1);
+
+        return prefix + dateString + incString;
+    }
+
+    public static String generateCode(String maxCode, String prefix, int incLength) {
+        int startIdx = prefix.length();
+        int incValue = 0;
+        if (maxCode.length() == startIdx + incLength) {
+            String incString = maxCode.substring(startIdx);
+            incValue = Integer.parseInt(incString);
+        }
+        String incString = String.format("%0" + incLength + "d", incValue + 1);
+
+        return prefix + incString;
+    }
+
 }

@@ -5,15 +5,14 @@
  */
 package com.sdm.core.component;
 
-import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.*;
+import com.sdm.core.config.FireBaseProperties;
 import com.sdm.core.util.MyanmarFontManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
@@ -28,17 +27,11 @@ public class FirebaseManager {
 
     private static final Logger logger = LoggerFactory.getLogger(FirebaseManager.class);
 
-    @Value("${com.sdm.firebase.service-json}")
-    private String serviceJson = "";
-
-    @Value("${com.sdm.firebase.url}")
-    private String projectURL = "";
-
-    public FirebaseManager() {
-        try (FileInputStream serviceAccount = new FileInputStream(this.serviceJson)) {
+    public FirebaseManager(FireBaseProperties fireBaseProperties) {
+        try (FileInputStream serviceAccount = new FileInputStream(fireBaseProperties.getServiceJson())) {
             FirebaseOptions options = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .setDatabaseUrl(this.projectURL)
+                .setDatabaseUrl(fireBaseProperties.getProjectUrl())
                 .build();
             FirebaseApp.initializeApp(options);
         } catch (IOException ex) {
@@ -72,15 +65,15 @@ public class FirebaseManager {
             .build();
     }
 
-    public ApiFuture<String> sendMessage(String token, String title, String body, int badgeCount,
-                                         Map<String, String> data) {
+    public void sendMessage(String token, String title, String body, int badgeCount,
+                            Map<String, String> data) {
         String zgTitle = title;
-        if (MyanmarFontManager.isMyanmar(title) && MyanmarFontManager.isUnicode(title)) {
+        if (MyanmarFontManager.isMyanmar(title) && !MyanmarFontManager.isZawgyi(title)) {
             zgTitle = MyanmarFontManager.toZawgyi(title);
         }
 
         String zgBody = body;
-        if (MyanmarFontManager.isMyanmar(body) && MyanmarFontManager.isUnicode(body)) {
+        if (MyanmarFontManager.isMyanmar(body) && !MyanmarFontManager.isZawgyi(body)) {
             zgBody = MyanmarFontManager.toZawgyi(body);
         }
 
@@ -92,7 +85,12 @@ public class FirebaseManager {
             .putAllData(data)
             .build();
 
-        return FirebaseMessaging.getInstance().sendAsync(message);
+        try {
+            String response = FirebaseMessaging.getInstance().send(message);
+            logger.info("Response from FCM => " + response);
+        } catch (FirebaseMessagingException ex) {
+            logger.warn(ex.getLocalizedMessage());
+        }
     }
 
 }

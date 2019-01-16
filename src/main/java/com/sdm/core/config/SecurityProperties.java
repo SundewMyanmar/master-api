@@ -1,13 +1,16 @@
-package com.sdm.core;
+package com.sdm.core.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Configuration
 @ConfigurationProperties(prefix = "com.sdm.security")
 public class SecurityProperties {
 
-    private long ownerId = 0;
+    private Set<Long> ownerIds = new HashSet<>();
 
     private String encryptSalt = "";
 
@@ -23,12 +26,12 @@ public class SecurityProperties {
 
     private String[] publicUrls;
 
-    public long getOwnerId() {
-        return ownerId;
+    public Set<Long> getOwnerIds() {
+        return ownerIds;
     }
 
-    public void setOwnerId(long ownerId) {
-        this.ownerId = ownerId;
+    public void setOwnerIds(Set<Long> ownerIds) {
+        this.ownerIds = ownerIds;
     }
 
     public String getEncryptSalt() {

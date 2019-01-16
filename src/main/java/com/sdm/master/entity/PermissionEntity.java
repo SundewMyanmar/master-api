@@ -5,31 +5,27 @@
  */
 package com.sdm.master.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.security.PermissionMatcher;
-import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.springframework.http.HttpMethod;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Htoonlin
  */
 @Entity(name = "PermissionEntity")
 @Table(name = "tbl_permissions")
-public class PermissionEntity extends DefaultEntity<Integer> implements PermissionMatcher {
+public class PermissionEntity extends DefaultEntity implements PermissionMatcher {
 
     /**
      *
      */
     private static final long serialVersionUID = 231291254158536747L;
-
-    @JsonIgnore
-    @Formula(value = "concat(pattern, method)")
-    private String search;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,27 +37,18 @@ public class PermissionEntity extends DefaultEntity<Integer> implements Permissi
     @Column
     private String httpMethod;
 
-    @Column
-    private int priority;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id", nullable = true)
     @NotFound(action = NotFoundAction.IGNORE)
-    private RoleEntity role;
+    @JoinTable(name = "tbl_route_permissions",
+        joinColumns = {@JoinColumn(name = "route_id")},
+        inverseJoinColumns = {@JoinColumn(name = "role_id")})
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<RoleEntity> roles;
 
     public PermissionEntity() {
     }
 
     public PermissionEntity(String pattern) {
         this.pattern = pattern;
-    }
-
-    public String getSearch() {
-        return search;
-    }
-
-    public void setSearch(String search) {
-        this.search = search;
     }
 
     @Override
@@ -85,16 +72,8 @@ public class PermissionEntity extends DefaultEntity<Integer> implements Permissi
         this.httpMethod = httpMethod;
     }
 
-    public int getPriority() {
-        return priority;
-    }
-
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
-
-    public void setRole(RoleEntity role) {
-        this.role = role;
+    public void setRoles(Set<RoleEntity> roles) {
+        this.roles = roles;
     }
 
     @Override
@@ -112,12 +91,11 @@ public class PermissionEntity extends DefaultEntity<Integer> implements Permissi
     }
 
     @Override
-    public String getRole() {
-        if (this.role == null) {
-            return null;
+    public Set<RoleEntity> getRoles() {
+        if (this.roles == null) {
+            return new HashSet<>();
         }
-
-        return this.role.getName();
+        return this.roles;
     }
 
     @Override

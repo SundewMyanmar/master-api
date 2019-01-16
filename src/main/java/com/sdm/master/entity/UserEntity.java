@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.MyanmarFontManager;
-import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
@@ -19,7 +18,7 @@ import java.util.*;
 
 @Entity(name = "UserEntity")
 @Table(name = "tbl_users")
-public class UserEntity extends DefaultEntity<Long> implements Serializable {
+public class UserEntity extends DefaultEntity implements Serializable {
 
     public enum Status {
         ACTIVE,
@@ -32,10 +31,6 @@ public class UserEntity extends DefaultEntity<Long> implements Serializable {
      */
     private static final long serialVersionUID = 1939600458371706458L;
     public static final int TOKEN_LENGTH = 8;
-
-    @JsonIgnore
-    @Formula(value = "concat(email, display_name)")
-    private String search;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -117,14 +112,6 @@ public class UserEntity extends DefaultEntity<Long> implements Serializable {
         this.status = status;
     }
 
-    public String getSearch() {
-        return search;
-    }
-
-    public void setSearch(String search) {
-        this.search = search;
-    }
-
     @Override
     public Long getId() {
         return id;
@@ -164,24 +151,12 @@ public class UserEntity extends DefaultEntity<Long> implements Serializable {
 
     @JsonGetter("display_name")
     public Object getMMDisplayName() {
-        if (MyanmarFontManager.isMyanmar(this.displayName)) {
-            Map<String, String> output = new HashMap<>();
-            output.put("zg", MyanmarFontManager.toZawgyi(this.displayName));
-            output.put("uni", this.displayName);
-            return output;
-        } else {
-            return this.displayName;
-        }
+        return MyanmarFontManager.getResponseObject(this.displayName);
     }
 
     @JsonSetter("display_name")
     public void setMMDisplayName(String displayName) {
-        if (MyanmarFontManager.isMyanmar(displayName)
-            && MyanmarFontManager.isZawgyi(displayName)) {
-            this.displayName = MyanmarFontManager.toUnicode(displayName);
-        } else {
-            this.displayName = displayName;
-        }
+        this.displayName = MyanmarFontManager.toUnicode(displayName);
     }
 
     public Set<RoleEntity> getRoles() {

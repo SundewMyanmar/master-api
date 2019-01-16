@@ -5,9 +5,7 @@
  */
 package com.sdm.master.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sdm.core.model.DefaultEntity;
-import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -19,16 +17,12 @@ import java.io.Serializable;
  */
 @Entity(name = "RoleEntity")
 @Table(name = "tbl_roles")
-public class RoleEntity extends DefaultEntity<Integer> implements Serializable {
+public class RoleEntity extends DefaultEntity implements Serializable {
 
     /**
      *
      */
     private static final long serialVersionUID = 739168064520778219L;
-
-    @JsonIgnore
-    @Formula(value = "concat(name, description)")
-    private String search;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,14 +39,6 @@ public class RoleEntity extends DefaultEntity<Integer> implements Serializable {
 
     public RoleEntity(String name) {
         this.name = name;
-    }
-
-    public String getSearch() {
-        return search;
-    }
-
-    public void setSearch(String search) {
-        this.search = search;
     }
 
     @Override

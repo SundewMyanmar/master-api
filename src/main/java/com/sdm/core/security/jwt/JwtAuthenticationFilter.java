@@ -3,6 +3,7 @@ package com.sdm.core.security.jwt;
 import com.sdm.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -20,13 +21,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        Optional<String> authorization = Optional.ofNullable(httpServletRequest.getHeader(Constants.Auth.HEADER_TOKEN_KEY));
-        Optional<String> deviceId = Optional.ofNullable(httpServletRequest.getHeader(Constants.Auth.HEADER_CREDENTIAL_KEY));
+        boolean isHeader = true;
+        Optional<String> authorization = Optional.ofNullable(httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION));
+        Optional<String> userAgent = Optional.ofNullable(httpServletRequest.getHeader(HttpHeaders.USER_AGENT));
 
-        if (authorization.isPresent() && deviceId.isPresent()) {
-            String tokenString = authorization.get().substring(Constants.Auth.TYPE.length()).trim();
+        if (!authorization.isPresent()) {
+            authorization = Optional.ofNullable(httpServletRequest.getParameter(Constants.Auth.PARAM_NAME));
+            isHeader = false;
+        }
+
+        if (authorization.isPresent() && userAgent.isPresent()) {
+            String tokenString = authorization.get();
+            if (isHeader) {
+                tokenString = tokenString.substring(Constants.Auth.TYPE.length()).trim();
+            }
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                tokenString, deviceId.get());
+                tokenString, userAgent.get());
             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
             SecurityContextHolder.getContext().setAuthentication(auth);
         }

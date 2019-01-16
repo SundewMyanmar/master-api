@@ -9,6 +9,7 @@ import com.sdm.master.request.AuthRequest;
 import com.sdm.master.request.ChangePasswordRequest;
 import com.sdm.master.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,7 +35,7 @@ public class ProfileController {
     }
 
     //@UserAllowed
-    @GetMapping("/")
+    @GetMapping({"/", ""})
     public ResponseEntity getProfile() {
         UserEntity user = userRepository.findById(getCurrentUser().getUserId())
             .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "Sorry! can't find your account."));
@@ -42,7 +43,7 @@ public class ProfileController {
     }
 
     //@UserAllowed
-    @PostMapping("/")
+    @PostMapping({"/", ""})
     public ResponseEntity getProfile(@RequestBody UserEntity user) {
         UserEntity existUser = userRepository.findById(getCurrentUser().getUserId())
             .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "Sorry! can't find your account."));
@@ -65,7 +66,7 @@ public class ProfileController {
         UserEntity authUser = userRepository.authByPassword(request.getUser(), oldPassword)
             .orElseThrow(() -> new GeneralException(HttpStatus.UNAUTHORIZED, "Sorry! you old password are not correct."));
 
-        if (authUser.getId().equals(getCurrentUser().getUserId())) {
+        if (!authUser.getId().equals(getCurrentUser().getUserId())) {
             throw new GeneralException(HttpStatus.UNAUTHORIZED,
                 "There is no user (or) old password is wrong. Pls try again.");
         }
@@ -79,7 +80,8 @@ public class ProfileController {
 
     //@UserAllowed
     @PostMapping("/clean")
-    public ResponseEntity cleanToken(@Valid @RequestBody AuthRequest request) {
-        return authService.authByPassword(request, true);
+    public ResponseEntity cleanToken(@Valid @RequestBody AuthRequest request,
+                                     @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) {
+        return authService.authByPassword(request, userAgent, true);
     }
 }

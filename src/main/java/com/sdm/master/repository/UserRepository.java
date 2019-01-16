@@ -17,6 +17,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     Optional<UserEntity> findByFacebookId(String facebookId);
 
-    @Query("SELECT u FROM UserEntity u WHERE (u.email = :user OR u.userName = :user) AND u.password = :password")
+    @Query("SELECT u FROM UserEntity u WHERE u.status = 'ACTIVE' AND (u.email = :user OR u.userName = :user) AND u.password = :password")
     Optional<UserEntity> authByPassword(@Param("user") String user, @Param("password") String password);
 }

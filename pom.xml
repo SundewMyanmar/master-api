@@ -9,12 +9,12 @@
     <packaging>war</packaging>
 
     <name>master-api</name>
-    <description>Demo project for Spring Boot</description>
+    <description>Backend API project with Spring Boot</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.0.5.RELEASE</version>
+        <version>RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -54,11 +54,33 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jsonSchema</artifactId>
             <version>RELEASE</version>
         </dependency>
+
+        <!-- Data Export/Import by CSV -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-csv</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+
 
         <dependency>
             <groupId>mysql</groupId>
@@ -123,15 +145,29 @@
         <dependency>
             <groupId>com.google.myanmartools</groupId>
             <artifactId>myanmar-tools</artifactId>
-            <version>1.1.0</version>
+            <version>RELEASE</version>
         </dependency>
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>api</classifier>
+                            <mainClass>
+                                com.sdm.Application
+                            </mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
         <resources>
@@ -139,7 +175,8 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>**/*</include>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
                 </includes>
             </resource>
         </resources>

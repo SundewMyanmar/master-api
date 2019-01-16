@@ -1,8 +1,6 @@
 package com.sdm.master.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sdm.core.model.DefaultEntity;
-import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
@@ -16,16 +14,12 @@ import java.util.Set;
  */
 @Entity(name = "MenuEntity")
 @Table(name = "tbl_menus")
-public class MenuEntity extends DefaultEntity<Integer> implements Serializable {
+public class MenuEntity extends DefaultEntity implements Serializable {
 
     /**
      *
      */
     private static final long serialVersionUID = -6187216010093509650L;
-
-    @JsonIgnore
-    @Formula(value = "concat(icon, name, state, type)")
-    private String search;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -80,14 +74,6 @@ public class MenuEntity extends DefaultEntity<Integer> implements Serializable {
         this.type = type;
         this.priority = priority;
         this.divider = separator;
-    }
-
-    public String getSearch() {
-        return search;
-    }
-
-    public void setSearch(String search) {
-        this.search = search;
     }
 
     @Override

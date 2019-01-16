@@ -23,7 +23,7 @@ public class AuthRequest implements Serializable {
     private static final long serialVersionUID = -341416570638461653L;
 
     @NotBlank(message = "Please enter user name or email.")
-    @Size(min = 6, max = 255)
+    @Size(min = 4, max = 255)
     private String user;
 
     @NotBlank(message = "Password can't be blank.")

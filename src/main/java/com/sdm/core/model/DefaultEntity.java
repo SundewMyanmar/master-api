@@ -26,11 +26,11 @@ import java.util.Date;
 @EntityListeners({AuditingEntityListener.class, JpaAuditListener.class})
 @JsonPropertyOrder(value = {"id", "created_at", "modified_at"}, alphabetic = true)
 @JsonIgnoreProperties(value = {"created_at", "modified_at"}, allowGetters = true)
-public abstract class DefaultEntity<T extends Serializable> implements Serializable {
+public abstract class DefaultEntity implements Serializable {
 
     private static final long serialVersionUID = -1235673932545866165L;
 
-    public abstract T getId();
+    public abstract <T extends Serializable> T getId();
 
     @JsonIgnore
     @CreatedBy
@@ -80,8 +80,32 @@ public abstract class DefaultEntity<T extends Serializable> implements Serializa
         return modifiedAt;
     }
 
+    @Override
+    public int hashCode() {
+        int result = createdBy != null ? createdBy.hashCode() : 0;
+        result = 31 * result + (createdAt != null ? createdAt.hashCode() : 0);
+        return result;
+    }
+
     public void setModifiedAt(Date modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final DefaultEntity other = (DefaultEntity) obj;
+        if (this.getId() != other.getId()) {
+            return false;
+        }
+        return true;
+    }
 }
