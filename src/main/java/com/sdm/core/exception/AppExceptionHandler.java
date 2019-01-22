@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.sdm.core.model.response.MessageModel;
 import com.sdm.core.util.Globalizer;
 import org.apache.velocity.exception.ResourceNotFoundException;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,6 +65,19 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 
     private ResponseEntity generalMessage(HttpStatus status, String message) {
         return new ResponseEntity<>(new MessageModel(status, message), status);
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity handleDataException(DataAccessException ex, WebRequest request) {
+        if (ConstraintViolationException.class.isInstance(ex.getCause())) {
+            ConstraintViolationException constraintViolationException = (ConstraintViolationException) ex.getCause();
+            MessageModel messageModel = MessageModel.createMessage(HttpStatus.BAD_REQUEST,
+                constraintViolationException.getSQLState(),
+                constraintViolationException.getSQLException().getLocalizedMessage());
+            return new ResponseEntity<>(messageModel, HttpStatus.BAD_REQUEST);
+        }
+
+        return this.generalMessage(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
     }
 
     @ExceptionHandler(InvalidTokenExcpetion.class)
