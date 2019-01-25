@@ -14,7 +14,7 @@ import java.util.Set;
  */
 @Entity(name = "MenuEntity")
 @Table(name = "tbl_menus")
-public class MenuEntity extends DefaultEntity implements Serializable {
+public class MenuEntity extends DefaultEntity<Integer> implements Serializable {
 
     /**
      *
@@ -51,7 +51,7 @@ public class MenuEntity extends DefaultEntity implements Serializable {
 
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "parent_id")
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.EAGER)
     private Set<MenuEntity> children;
 
     @NotFound(action = NotFoundAction.IGNORE)

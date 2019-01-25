@@ -16,7 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin
@@ -32,24 +34,24 @@ public class MenuController extends ReadWriteController<MenuEntity, Integer> {
 
     @Transactional
     @RequestMapping(value = "/roles", method = RequestMethod.GET)
-    public ResponseEntity getByRoles(@RequestParam(value = "ids", defaultValue = "0") String roles) {
-        try {
-            String[] strRoles = roles.split(",");
+    public ResponseEntity getByRoles(@RequestParam(value = "ids", defaultValue = "0") String roles){
+        try{
+            String[] strRoles= roles.split(",") ;
             Integer[] intRoles = new Integer[strRoles.length];
-            for (int i = 0; i < intRoles.length; i++) {
+            for (int i = 0; i < intRoles.length; i++){
                 intRoles[i] = Integer.parseInt(strRoles[i]);
             }
 
-            List<MenuEntity> results = menuRepository.findByRoles(intRoles);
+            List<MenuEntity> results= menuRepository.findByRoles(intRoles);
             return new ResponseEntity(new ListModel(results), HttpStatus.OK);
-        } catch (Exception ex) {
+        }catch(Exception ex){
             logger.error(ex.getLocalizedMessage(), ex);
             throw ex;
         }
     }
 
     @Transactional
-    @RequestMapping(value = "/paging", method = RequestMethod.GET)
+    @RequestMapping(value="/paging",method = RequestMethod.GET)
     public ResponseEntity getPaging(@RequestParam(value = "filter", defaultValue = "") String filter,
                                     @RequestParam(value = "page", defaultValue = "0") int pageId,
                                     @RequestParam(value = "size", defaultValue = "10") int pageSize,
@@ -68,10 +70,10 @@ public class MenuController extends ReadWriteController<MenuEntity, Integer> {
                 }
             }
 
-            Page<MenuEntity> paging = menuRepository.findByFilter(filter, PageRequest.of(pageId, pageSize, Sort.by(sorting)));
+            Page<MenuEntity> paging=menuRepository.findByFilter(filter, PageRequest.of(pageId, pageSize, Sort.by(sorting)));
 
             return new ResponseEntity(new PaginationModel<>(paging), HttpStatus.PARTIAL_CONTENT);
-        } catch (Exception ex) {
+        }catch (Exception ex) {
             logger.error(ex.getLocalizedMessage(), ex);
             throw ex;
         }
