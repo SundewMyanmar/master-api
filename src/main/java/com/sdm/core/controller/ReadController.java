@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,22 @@ public abstract class ReadController<T extends DefaultEntity, ID extends Seriali
                 "There is no any data by : " + id.toString()));
     }
 
+    protected Pageable buildPagination(int pageId, int pageSize, String sortString) {
+        List<Sort.Order> sorting = new ArrayList<>();
+        if (sortString.length() > 0) {
+            String[] sorts = sortString.split(",");
+            for (String sort : sorts) {
+                String[] sortParams = sort.trim().split(":", 2);
+                if (sortParams.length >= 2 && sortParams[1].equalsIgnoreCase("desc")) {
+                    sorting.add(Sort.Order.desc(sortParams[0]));
+                } else {
+                    sorting.add(Sort.Order.asc(sortParams[0]));
+                }
+            }
+        }
+        return PageRequest.of(pageId, pageSize, Sort.by(sorting));
+    }
+
     @PostMapping("q")
     ResponseEntity advanceSearch() {
         throw new GeneralException(HttpStatus.SERVICE_UNAVAILABLE,
@@ -44,10 +61,9 @@ public abstract class ReadController<T extends DefaultEntity, ID extends Seriali
     }
 
     @GetMapping("/")
-    ResponseEntity getPaging(@RequestParam(value = "filter", defaultValue = "") String filter,
-                             @RequestParam(value = "page", defaultValue = "0") int pageId,
-                             @RequestParam(value = "size", defaultValue = "10") int pageSize,
-                             @RequestParam(value = "sort", defaultValue = "id:DESC") String sortString) {
+    ResponseEntity getPageByPage(@RequestParam(value = "page", defaultValue = "0") int pageId,
+                                 @RequestParam(value = "size", defaultValue = "10") int pageSize,
+                                 @RequestParam(value = "sort", defaultValue = "id:DESC") String sortString) {
         try {
             List<Sort.Order> sorting = new ArrayList<>();
             if (sortString.length() > 0) {
@@ -61,7 +77,7 @@ public abstract class ReadController<T extends DefaultEntity, ID extends Seriali
                     }
                 }
             }
-            Page<T> paging = getRepository().findAll(PageRequest.of(pageId, pageSize, Sort.by(sorting)));
+            Page<T> paging = getRepository().findAll(this.buildPagination(pageId, pageSize, sortString));
             return new ResponseEntity(new PaginationModel(paging), HttpStatus.PARTIAL_CONTENT);
         } catch (Exception ex) {
             logger.error(ex.getLocalizedMessage(), ex);
