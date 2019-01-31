@@ -20,6 +20,5 @@ public interface PermissionRepository extends JpaRepository<PermissionEntity, In
     @Query("SELECT p from PermissionEntity p JOIN p.roles r WHERE lower(concat(p.pattern,p.httpMethod,r.name)) LIKE %:filter%")
     Page<PermissionEntity> findByFilter(@Param("filter") String filter, Pageable pageable);
 
-    //@Query("SELECT P FROM PermissionEntity p ORDER BY id desc limit 1")
     Optional<PermissionEntity> findTopByOrderByIdDesc();
 }
