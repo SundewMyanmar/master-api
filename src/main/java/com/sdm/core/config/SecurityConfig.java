@@ -55,6 +55,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         "/webjars/**",
     };
 
+    private static final String[] ROOT_PERMISSION_LIST = {
+        "/users/**"
+    };
+
     /**
      * Warning! HttpSecurity authorize validation process run step by step.
      *
@@ -77,7 +81,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .authenticationProvider(authenticationProvider)
             .authorizeRequests()
             .antMatchers(securityProperties.getPublicUrls()).permitAll()
-            .antMatchers(SWAGGER_WHITE_LIST).permitAll();
+            .antMatchers(SWAGGER_WHITE_LIST).permitAll()
+            .antMatchers(ROOT_PERMISSION_LIST).hasAuthority(Constants.Auth.ROOT_ROLE);
 
         //2. Load Database Permissions
         List<PermissionMatcher> permissions = permissionHandler.loadPermissions();
