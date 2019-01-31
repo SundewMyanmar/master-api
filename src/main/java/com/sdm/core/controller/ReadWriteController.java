@@ -1,7 +1,5 @@
 package com.sdm.core.controller;
 
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.response.ListModel;
@@ -10,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.Serializable;
@@ -28,26 +25,6 @@ public abstract class ReadWriteController<T extends DefaultEntity, ID extends Se
     ResponseEntity multiCreate(@Valid @RequestBody List<T> request) {
         List<T> data = getRepository().saveAll(request);
         return new ResponseEntity(new ListModel<T>(data), HttpStatus.CREATED);
-    }
-
-    @Transactional
-    @PostMapping("/import")
-    ResponseEntity importData(@RequestParam("uploadedFile") MultipartFile file) throws Exception {
-        CsvSchema bootstrapSchema = CsvSchema.emptySchema().withHeader();
-        MappingIterator<T> entities = getCsvMapper().readerWithSchemaFor(this.getEntityClass())
-            .with(bootstrapSchema).readValues(file.getInputStream());
-
-        int count = 0;
-        while (entities.hasNextValue()) {
-            T entity = entities.nextValue();
-            getRepository().save(entity);
-            count++;
-        }
-
-        MessageModel message = MessageModel.createMessage("Success",
-            "Created " + count + " record(s).");
-
-        return new ResponseEntity(message, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
