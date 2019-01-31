@@ -1,8 +1,6 @@
 package com.sdm.core.controller;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator;
 import com.sdm.core.exception.GeneralException;
@@ -38,12 +36,6 @@ public abstract class ReadController<T extends DefaultEntity, ID extends Seriali
     protected Class<T> getEntityClass() {
         ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
         return (Class<T>) type.getActualTypeArguments()[0];
-    }
-
-    protected CsvMapper getCsvMapper() {
-        CsvMapper mapper = new CsvMapper();
-        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-        return mapper;
     }
 
     protected AuthInfo getCurrentUser() {
