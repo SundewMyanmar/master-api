@@ -18,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.Serializable;
@@ -54,29 +53,11 @@ public abstract class ReadController<T extends DefaultEntity, ID extends Seriali
         return PageRequest.of(pageId, pageSize, Sort.by(sorting));
     }
 
-    @PostMapping("q")
-    ResponseEntity advanceSearch() {
-        throw new GeneralException(HttpStatus.SERVICE_UNAVAILABLE,
-            "It is not avaialable now. We are developing.");
-    }
-
     @GetMapping("/")
     ResponseEntity getPageByPage(@RequestParam(value = "page", defaultValue = "0") int pageId,
                                  @RequestParam(value = "size", defaultValue = "10") int pageSize,
                                  @RequestParam(value = "sort", defaultValue = "id:DESC") String sortString) {
         try {
-            List<Sort.Order> sorting = new ArrayList<>();
-            if (sortString.length() > 0) {
-                String[] sorts = sortString.split(",");
-                for (String sort : sorts) {
-                    String[] sortParams = sort.trim().split(":", 2);
-                    if (sortParams.length >= 2 && sortParams[1].equalsIgnoreCase("desc")) {
-                        sorting.add(Sort.Order.desc(sortParams[0]));
-                    } else {
-                        sorting.add(Sort.Order.asc(sortParams[0]));
-                    }
-                }
-            }
             Page<T> paging = getRepository().findAll(this.buildPagination(pageId, pageSize, sortString));
             return new ResponseEntity(new PaginationModel(paging), HttpStatus.PARTIAL_CONTENT);
         } catch (Exception ex) {

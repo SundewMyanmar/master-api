@@ -14,7 +14,7 @@ import java.util.Set;
  */
 @Entity(name = "MenuEntity")
 @Table(name = "tbl_menus")
-public class MenuEntity extends DefaultEntity<Integer> implements Serializable {
+public class MenuEntity extends DefaultEntity implements Serializable {
 
     /**
      *
