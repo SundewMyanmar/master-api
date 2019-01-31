@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator;
 import com.sdm.core.exception.GeneralException;
+import com.sdm.core.model.AuthInfo;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.response.PaginationModel;
 import com.sdm.core.util.Globalizer;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +32,10 @@ public abstract class ReadController<T extends DefaultEntity, ID extends Seriali
     protected static final Logger logger = LoggerFactory.getLogger(ReadController.class);
 
     protected abstract JpaRepository<T, ID> getRepository();
+
+    protected AuthInfo getCurrentUser() {
+        return (AuthInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
 
     protected T checkData(ID id) {
         return this.getRepository().findById(id)
