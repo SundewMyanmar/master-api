@@ -5,11 +5,9 @@ import com.sdm.core.model.AuthInfo;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.master.entity.UserEntity;
 import com.sdm.master.repository.UserRepository;
-import com.sdm.master.request.AuthRequest;
 import com.sdm.master.request.ChangePasswordRequest;
 import com.sdm.master.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -76,12 +74,5 @@ public class ProfileController {
         userRepository.save(authUser);
 
         return ResponseEntity.ok(authUser);
-    }
-
-    //@UserAllowed
-    @PostMapping("/clean")
-    public ResponseEntity cleanToken(@Valid @RequestBody AuthRequest request,
-                                     @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) {
-        return authService.authByPassword(request, userAgent, true);
     }
 }

@@ -37,7 +37,7 @@ public class UserEntity extends DefaultEntity implements Serializable {
     private long id;
 
     @NotBlank
-    @Size(min = 4, max = 255)
+    @Size(min = 6, max = 255)
     @Column(name = "userName", unique = true, nullable = false)
     private String userName;
 

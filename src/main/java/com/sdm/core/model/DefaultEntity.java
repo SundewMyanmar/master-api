@@ -34,12 +34,12 @@ public abstract class DefaultEntity implements Serializable {
 
     @JsonIgnore
     @CreatedBy
-    @Column(length = 36, columnDefinition = "VARCHAR(36)")
+    @Column(length = 36, columnDefinition = "CHAR(36)")
     private String createdBy;
 
     @JsonIgnore
     @LastModifiedBy
-    @Column(length = 36, columnDefinition = "VARCHAR(36)")
+    @Column(length = 36, columnDefinition = "CHAR(36)")
     private String modifiedBy;
 
     @Column(nullable = false, updatable = false)

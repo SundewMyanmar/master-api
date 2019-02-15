@@ -1,5 +1,6 @@
 package com.sdm.master.controller;
 
+import com.sdm.master.request.AnonymousRequest;
 import com.sdm.master.request.AuthRequest;
 import com.sdm.master.request.RegistrationRequest;
 import com.sdm.master.service.AuthService;
@@ -19,7 +20,7 @@ public class AuthController {
     @PostMapping("/")
     public ResponseEntity authWithEmail(@Valid @RequestBody AuthRequest request,
                                         @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) {
-        return service.authByPassword(request, userAgent, false);
+        return service.authByPassword(request, userAgent);
     }
 
     @PostMapping("/register")
@@ -28,12 +29,9 @@ public class AuthController {
         return service.registerByUserAndEmail(request, userAgent);
     }
 
-    /*
     @PostMapping({"/anonymous"})
     public ResponseEntity anonymousAuth(@Valid @RequestBody AnonymousRequest request,
                                         @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) {
-        request.setUserAgent(userAgent);
-        return service.anonymousAuth(request);
+        return service.anonymousAuth(request, userAgent);
     }
-    */
 }

@@ -95,7 +95,7 @@ public class PermissionEntity extends DefaultEntity implements PermissionMatcher
         if (this.roles == null) {
             return new HashSet<>();
         }
-        return this.roles;
+        return roles;
     }
 
     @Override

@@ -4,11 +4,7 @@ import com.sdm.master.entity.TokenEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -25,8 +21,4 @@ public interface TokenRepository extends JpaRepository<TokenEntity, String> {
 
     Page<TokenEntity> findByLastLoginBetween(Date fromDate, Date toDate, Pageable pageable);
 
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM TokenEntity t WHERE t.userId = :userId")
-    void deleteInBulkByUserId(@Param("userId") long userId);
 }

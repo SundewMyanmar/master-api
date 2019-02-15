@@ -2,6 +2,8 @@ package com.sdm.master.entity;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.sdm.core.model.DefaultEntity;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -20,8 +22,10 @@ public class TokenEntity extends DefaultEntity implements Serializable {
     @Column(name = "token", unique = true, nullable = false, columnDefinition = "CHAR(36)", length = 36)
     private String id;
 
-    @Column(name = "user_id", nullable = false)
-    private long userId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private UserEntity user;
 
     @NotBlank
     @Size(max = 255)
@@ -47,21 +51,6 @@ public class TokenEntity extends DefaultEntity implements Serializable {
     public TokenEntity() {
     }
 
-    public TokenEntity(long userId, @NotBlank @Size(max = 255) String deviceId, @NotBlank @Size(max = 50) String deviceOs) {
-        this.userId = userId;
-        this.deviceId = deviceId;
-        this.deviceOs = deviceOs;
-    }
-
-    public TokenEntity(String id, long userId, String deviceId, String deviceOs, Date lastLogin, Date tokenExpired) {
-        this.id = id;
-        this.userId = userId;
-        this.deviceId = deviceId;
-        this.deviceOs = deviceOs;
-        this.lastLogin = lastLogin;
-        this.tokenExpired = tokenExpired;
-    }
-
     @Override
     public String getId() {
         return id;
@@ -71,12 +60,12 @@ public class TokenEntity extends DefaultEntity implements Serializable {
         this.id = id;
     }
 
-    public long getUserId() {
-        return userId;
+    public UserEntity getUser() {
+        return user;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setUser(UserEntity user) {
+        this.user = user;
     }
 
     public String getDeviceId() {

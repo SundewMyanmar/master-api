@@ -41,7 +41,7 @@ public class JwtService implements JwtAuthenticationHandler {
         if (!authInfo.isAccountNonExpired()
             || !authInfo.getToken().equalsIgnoreCase(authToken.getId())
             || !authInfo.getDeviceId().equalsIgnoreCase(authToken.getDeviceId())
-            || authInfo.getUserId() != authToken.getUserId()) {
+            || authInfo.getUserId() != authToken.getUser().getId()) {
             throw new InvalidTokenExcpetion("Sorry! requested token is not valid/expired.");
         }
 
@@ -62,7 +62,7 @@ public class JwtService implements JwtAuthenticationHandler {
         }
 
         authToken.setLastLogin(new Date());
-        logger.info("User " + authToken.getUserId() + " login by " + authToken.getId());
+        logger.info("User " + authToken.getUser().getUserName() + " login by " + authToken.getId());
         tokenRepository.save(authToken);
 
         return true;
