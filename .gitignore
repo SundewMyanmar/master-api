@@ -29,8 +29,8 @@
 
 # Misc
 *.swp
-src/main/resources/application.properties
-src/main/resources/logback-spring.xml
+/src/main/resources/application.properties
+/src/main/resources/logback-spring.xml
 pom.xml.releaseBackup
 pom.xml.tag
 dependency-reduced-pom.xml

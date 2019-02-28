@@ -12,7 +12,7 @@ public interface Constants {
      */
     interface Facebook {
         String GRAPH_API = "https://graph.facebook.com/";
-        String AUTH_SCOPE = "id,name,email,picture{url}";
+        String AUTH_SCOPE = "id,name,email";
         String API_VERSION = "v3.2";
     }
 

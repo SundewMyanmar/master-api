@@ -122,7 +122,7 @@ public class AuthService {
         String id = tokenRepository.findByDeviceIdAndDeviceOs(
             token.getDeviceId(), token.getDeviceOs())
             .map(existToken -> existToken.getId())
-            .orElse(UUID.randomUUID().toString());
+            .orElseGet(() -> UUID.randomUUID().toString());
 
         token.setId(id);
 
@@ -144,7 +144,9 @@ public class AuthService {
     }
 
     private String createToken(UserEntity user, AuthRequest request, String userAgent) {
-        TokenEntity token = new TokenEntity();
+        TokenEntity token = tokenRepository.findByDeviceIdAndDeviceOs(request.getDeviceId(), request.getDeviceOS())
+            .orElseGet(() -> new TokenEntity());
+
         token.setUser(user);
         token.setDeviceId(request.getDeviceId());
         token.setDeviceOs(request.getDeviceOS());
@@ -199,7 +201,7 @@ public class AuthService {
     public ResponseEntity anonymousAuth(AnonymousRequest request, String userAgent) {
         //Check Device Registration
         UserEntity authUser = tokenRepository.findByDeviceIdAndDeviceOs(request.getDeviceId(), request.getDeviceOS())
-            .map(token -> token.getUser()).orElse(this.createAnonymousUser(request));
+            .map(token -> token.getUser()).orElseGet(() -> this.createAnonymousUser(request));
 
         //User create / update
         setAnonymousExtras(request, authUser);
@@ -212,8 +214,8 @@ public class AuthService {
 
     private JSONObject checkFacebookToken(String accessToken, String userAgent) {
         StringBuilder profileURL = new StringBuilder(Constants.Facebook.GRAPH_API + Constants.Facebook.API_VERSION + "/me");
-        profileURL.append("?fields" + Constants.Facebook.AUTH_SCOPE);
-        profileURL.append("&access_token" + accessToken);
+        profileURL.append("?fields=" + Constants.Facebook.AUTH_SCOPE);
+        profileURL.append("&access_token=" + accessToken);
 
         CloseableHttpClient client = HttpClientBuilder.create().build();
         HttpGet profileRequest = new HttpGet(profileURL.toString());
@@ -243,6 +245,11 @@ public class AuthService {
         String rawPassword = Globalizer.generateToken(passwordChars, size);
         String password = securityManager.hashString(rawPassword);
         UserEntity userEntity = new UserEntity(userName, displayName, password, UserEntity.Status.ACTIVE);
+
+        if (profileObj.has("email")) {
+            userEntity.setEmail(profileObj.getString("email"));
+        }
+
         userEntity.setFacebookId(profileObj.getString("id"));
         return userRepository.save(userEntity);
     }
@@ -250,10 +257,11 @@ public class AuthService {
     @Transactional
     public ResponseEntity facebookAuth(FacebookAuthRequest request, String userAgent) {
         JSONObject facebookProfile = this.checkFacebookToken(request.getAccessToken(), userAgent);
+        String id = facebookProfile.getString("id");
 
-        //Check Device Registration
-        UserEntity authUser = tokenRepository.findByDeviceIdAndDeviceOs(request.getDeviceId(), request.getDeviceOS())
-            .map(token -> token.getUser()).orElse(this.createFacebookUser(facebookProfile));
+        //Check User by FacebookId
+        UserEntity authUser = userRepository.findByFacebookId(id)
+            .orElseGet(() -> this.createFacebookUser(facebookProfile));
 
         if (authUser.getFacebookId().equalsIgnoreCase(facebookProfile.getString("id"))) {
             this.createToken(authUser, request, userAgent);
