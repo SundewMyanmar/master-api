@@ -2,6 +2,7 @@ package com.sdm.master.controller;
 
 import com.sdm.master.request.AnonymousRequest;
 import com.sdm.master.request.AuthRequest;
+import com.sdm.master.request.FacebookAuthRequest;
 import com.sdm.master.request.RegistrationRequest;
 import com.sdm.master.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,5 +34,11 @@ public class AuthController {
     public ResponseEntity anonymousAuth(@Valid @RequestBody AnonymousRequest request,
                                         @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) {
         return service.anonymousAuth(request, userAgent);
+    }
+
+    @PostMapping({"/facebook"})
+    public ResponseEntity facebookAuth(@Valid @RequestBody FacebookAuthRequest request,
+                                       @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) {
+        return service.facebookAuth(request, userAgent);
     }
 }

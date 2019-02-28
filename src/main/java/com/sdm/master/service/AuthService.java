@@ -1,5 +1,6 @@
 package com.sdm.master.service;
 
+import com.sdm.Constants;
 import com.sdm.core.component.WebMailManager;
 import com.sdm.core.config.SecurityProperties;
 import com.sdm.core.exception.GeneralException;
@@ -12,11 +13,18 @@ import com.sdm.master.repository.TokenRepository;
 import com.sdm.master.repository.UserRepository;
 import com.sdm.master.request.AnonymousRequest;
 import com.sdm.master.request.AuthRequest;
+import com.sdm.master.request.FacebookAuthRequest;
 import com.sdm.master.request.RegistrationRequest;
 import io.grpc.netty.shaded.io.netty.util.internal.StringUtil;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +33,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Service
@@ -196,6 +206,60 @@ public class AuthService {
         userRepository.save(authUser);
 
         this.createToken(authUser, request, userAgent);
+
+        return ResponseEntity.ok(authUser);
+    }
+
+    private JSONObject checkFacebookToken(String accessToken, String userAgent) {
+        StringBuilder profileURL = new StringBuilder(Constants.Facebook.GRAPH_API + Constants.Facebook.API_VERSION + "/me");
+        profileURL.append("?fields" + Constants.Facebook.AUTH_SCOPE);
+        profileURL.append("&access_token" + accessToken);
+
+        CloseableHttpClient client = HttpClientBuilder.create().build();
+        HttpGet profileRequest = new HttpGet(profileURL.toString());
+        profileRequest.addHeader("User-Agent", userAgent);
+
+        try {
+            HttpResponse response = client.execute(profileRequest);
+
+            if (response.getStatusLine().getStatusCode() == org.apache.http.HttpStatus.SC_OK) {
+                String jsonString = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+                return new JSONObject(jsonString);
+            }
+
+            throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
+        } catch (IOException ex) {
+            throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
+        }
+    }
+
+    private UserEntity createFacebookUser(JSONObject profileObj) {
+        String userName = "FB" + profileObj.getString("id");
+        String displayName = profileObj.getString("name");
+
+        Random rnd = new Random();
+        int size = rnd.nextInt((MAX_PASSWORD - MIN_PASSWORD) + 1) + MIN_PASSWORD;
+        String passwordChars = securityProperties.getTokenChars() + "!@#$%^&*_+=abcdefghijklmnopqrstuvwxyz";
+        String rawPassword = Globalizer.generateToken(passwordChars, size);
+        String password = securityManager.hashString(rawPassword);
+        UserEntity userEntity = new UserEntity(userName, displayName, password, UserEntity.Status.ACTIVE);
+        userEntity.setFacebookId(profileObj.getString("id"));
+        return userRepository.save(userEntity);
+    }
+
+    @Transactional
+    public ResponseEntity facebookAuth(FacebookAuthRequest request, String userAgent) {
+        JSONObject facebookProfile = this.checkFacebookToken(request.getAccessToken(), userAgent);
+
+        //Check Device Registration
+        UserEntity authUser = tokenRepository.findByDeviceIdAndDeviceOs(request.getDeviceId(), request.getDeviceOS())
+            .map(token -> token.getUser()).orElse(this.createFacebookUser(facebookProfile));
+
+        if (authUser.getFacebookId().equalsIgnoreCase(facebookProfile.getString("id"))) {
+            this.createToken(authUser, request, userAgent);
+        } else {
+            throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
+        }
 
         return ResponseEntity.ok(authUser);
     }

@@ -11,10 +11,9 @@ public interface Constants {
      * Facebook Constants
      */
     interface Facebook {
-
-        String API_VERSION = "v2.10";
         String GRAPH_API = "https://graph.facebook.com/";
-        String AUTH_SCOPE = "email,public_profile";
+        String AUTH_SCOPE = "id,name,email,picture{url}";
+        String API_VERSION = "v3.2";
     }
 
     /**

@@ -34,7 +34,7 @@ public abstract class DefaultEntity implements Serializable {
 
     @JsonIgnore
     @CreatedBy
-    @Column(length = 36, columnDefinition = "CHAR(36)")
+    @Column(length = 36, columnDefinition = "CHAR(36)", updatable = false)
     private String createdBy;
 
     @JsonIgnore

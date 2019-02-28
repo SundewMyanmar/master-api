@@ -10,36 +10,22 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @author Htoonlin
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class FacebookAuthRequest implements Serializable {
+public class FacebookAuthRequest extends AuthRequest implements Serializable {
 
     /**
      *
      */
     private static final long serialVersionUID = -637231624670219448L;
 
-    private String accessToken;
-
-    private String deviceId;
-
-    private Date timestamp;
-
-    @NotBlank(message = "DeviceID can't be blank.")
-    public String getDeviceId() {
-        return this.deviceId;
-    }
-
-    public void setDeviceId(String value) {
-        this.deviceId = value;
-    }
-
     @NotBlank(message = "Token can't be blank.")
     @Size(min = 6, max = 255)
+    private String accessToken;
+
     public String getAccessToken() {
         return this.accessToken;
     }
