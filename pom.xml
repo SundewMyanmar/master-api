@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>RELEASE</version>
+        <version>2.1.4.RELEASE</version>
         <relativePath/>
         <!-- lookup parent from repository -->
     </parent>
@@ -56,65 +56,60 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
+        <!-- Swagger Modules -->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
-            <version>RELEASE</version>
+            <version>2.9.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
-            <version>RELEASE</version>
+            <version>2.9.2</version>
             <scope>compile</scope>
         </dependency>
 
+        <!-- Jackson Modules -->
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jsonSchema</artifactId>
-            <version>RELEASE</version>
+            <version>2.9.8</version>
         </dependency>
 
         <!-- Data Export/Import by CSV -->
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-csv</artifactId>
-            <version>RELEASE</version>
+            <version>2.9.8</version>
         </dependency>
 
-
+        <!-- MySQL JDBC -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
 
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-core</artifactId>
-            <version>RELEASE</version>
-        </dependency>
-
+        <!-- Firebase Module -->
         <dependency>
             <groupId>com.google.firebase</groupId>
             <artifactId>firebase-admin</artifactId>
-            <version>RELEASE</version>
+            <version>6.8.1</version>
         </dependency>
 
+        <!-- Zxing BarCode Library -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.3.3</version>
+        </dependency>
+
+        <!-- Thumbnailtor -->
         <dependency>
             <groupId>net.coobird</groupId>
             <artifactId>thumbnailator</artifactId>
-            <version>RELEASE</version>
+            <version>0.4.8</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.json/json -->
@@ -124,36 +119,29 @@
             <version>20180813</version>
         </dependency>
 
-        <!-- Zxing BarCode Library -->
-        <dependency>
-            <groupId>com.google.zxing</groupId>
-            <artifactId>core</artifactId>
-            <version>RELEASE</version>
-        </dependency>
-
         <!-- JWT Security -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
-            <version>RELEASE</version>
+            <version>0.9.1</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity</artifactId>
-            <version>RELEASE</version>
+            <version>1.7</version>
         </dependency>
 
         <dependency>
             <groupId>eu.bitwalker</groupId>
             <artifactId>UserAgentUtils</artifactId>
-            <version>RELEASE</version>
+            <version>1.21</version>
         </dependency>
 
         <dependency>
             <groupId>com.google.myanmartools</groupId>
             <artifactId>myanmar-tools</artifactId>
-            <version>RELEASE</version>
+            <version>1.1.2</version>
         </dependency>
     </dependencies>
 
