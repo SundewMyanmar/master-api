@@ -1,5 +1,12 @@
 package com.sdm.master.service;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+
 import com.sdm.Constants;
 import com.sdm.core.component.WebMailManager;
 import com.sdm.core.config.SecurityProperties;
@@ -15,27 +22,24 @@ import com.sdm.master.request.AnonymousRequest;
 import com.sdm.master.request.AuthRequest;
 import com.sdm.master.request.FacebookAuthRequest;
 import com.sdm.master.request.RegistrationRequest;
-import io.grpc.netty.shaded.io.netty.util.internal.StringUtil;
-import io.jsonwebtoken.CompressionCodecs;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import io.grpc.netty.shaded.io.netty.util.internal.StringUtil;
+import io.jsonwebtoken.CompressionCodecs;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 @Service
 public class AuthService {
@@ -212,27 +216,25 @@ public class AuthService {
         return ResponseEntity.ok(authUser);
     }
 
-    private JSONObject checkFacebookToken(String accessToken, String userAgent) {
+    private JSONObject checkFacebookToken(String accessToken, String userAgent) {        
+        //Build Facebook URL
         StringBuilder profileURL = new StringBuilder(Constants.Facebook.GRAPH_API + Constants.Facebook.API_VERSION + "/me");
         profileURL.append("?fields=" + Constants.Facebook.AUTH_SCOPE);
         profileURL.append("&access_token=" + accessToken);
 
-        CloseableHttpClient client = HttpClientBuilder.create().build();
-        HttpGet profileRequest = new HttpGet(profileURL.toString());
-        profileRequest.addHeader("User-Agent", userAgent);
+        //Build Request Headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("User-Agent", userAgent);
+        HttpEntity<String> headerEntity = new HttpEntity<>(null, headers);
 
-        try {
-            HttpResponse response = client.execute(profileRequest);
+        //Request
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> result = restTemplate.exchange(profileURL.toString(), HttpMethod.GET, headerEntity, String.class);
 
-            if (response.getStatusLine().getStatusCode() == org.apache.http.HttpStatus.SC_OK) {
-                String jsonString = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-                return new JSONObject(jsonString);
-            }
-
-            throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
-        } catch (IOException ex) {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
+        if(result.getStatusCode() == HttpStatus.OK){
+            return new JSONObject(result.getBody());
         }
+        throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
     }
 
     private UserEntity createFacebookUser(JSONObject profileObj) {
