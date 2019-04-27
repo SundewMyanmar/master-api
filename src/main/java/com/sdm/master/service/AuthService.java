@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-import com.sdm.Constants;
+import com.sdm.core.component.FBGraphManager;
 import com.sdm.core.component.WebMailManager;
 import com.sdm.core.config.SecurityProperties;
 import com.sdm.core.exception.GeneralException;
@@ -27,14 +27,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import io.grpc.netty.shaded.io.netty.util.internal.StringUtil;
 import io.jsonwebtoken.CompressionCodecs;
@@ -44,6 +40,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Service
 public class AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
+
+    @Autowired
+    FBGraphManager facebookGraphManager;
 
     @Autowired
     SecurityProperties securityProperties;
@@ -59,6 +58,8 @@ public class AuthService {
 
     @Autowired
     TokenRepository tokenRepository;
+
+    private static final String FB_AUTH_FIELDS = "id, name, email, gender, age_range";
 
     private static final int MAX_PASSWORD = 32;
     private static final int MIN_PASSWORD = 16;
@@ -216,27 +217,6 @@ public class AuthService {
         return ResponseEntity.ok(authUser);
     }
 
-    private JSONObject checkFacebookToken(String accessToken, String userAgent) {        
-        //Build Facebook URL
-        StringBuilder profileURL = new StringBuilder(Constants.Facebook.GRAPH_API + Constants.Facebook.API_VERSION + "/me");
-        profileURL.append("?fields=" + Constants.Facebook.AUTH_SCOPE);
-        profileURL.append("&access_token=" + accessToken);
-
-        //Build Request Headers
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("User-Agent", userAgent);
-        HttpEntity<String> headerEntity = new HttpEntity<>(null, headers);
-
-        //Request
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> result = restTemplate.exchange(profileURL.toString(), HttpMethod.GET, headerEntity, String.class);
-
-        if(result.getStatusCode() == HttpStatus.OK){
-            return new JSONObject(result.getBody());
-        }
-        throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
-    }
-
     private UserEntity createFacebookUser(JSONObject profileObj) {
         String userName = "FB" + profileObj.getString("id");
         String displayName = profileObj.getString("name");
@@ -252,13 +232,21 @@ public class AuthService {
             userEntity.setEmail(profileObj.getString("email"));
         }
 
+        if (profileObj.has("gender")) {
+            userEntity.addExtra("gender", profileObj.getString("gender"));
+        }
+
+        if (profileObj.has("age_range")) {
+            userEntity.addExtra("age_range", profileObj.getString("age_range"));
+        }
+
         userEntity.setFacebookId(profileObj.getString("id"));
         return userRepository.save(userEntity);
     }
 
     @Transactional
     public ResponseEntity facebookAuth(FacebookAuthRequest request, String userAgent) {
-        JSONObject facebookProfile = this.checkFacebookToken(request.getAccessToken(), userAgent);
+        JSONObject facebookProfile = facebookGraphManager.checkFacebookToken(request.getAccessToken(), FB_AUTH_FIELDS, userAgent);
         String id = facebookProfile.getString("id");
 
         //Check User by FacebookId

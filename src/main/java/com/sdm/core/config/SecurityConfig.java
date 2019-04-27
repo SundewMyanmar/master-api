@@ -1,5 +1,6 @@
 package com.sdm.core.config;
 
+import com.google.common.collect.ObjectArrays;
 import com.sdm.Constants;
 import com.sdm.core.security.CorsFilter;
 import com.sdm.core.security.PermissionHandler;
@@ -8,6 +9,8 @@ import com.sdm.core.security.jwt.JwtAuthenticationFilter;
 import com.sdm.core.security.jwt.JwtAuthenticationProvider;
 import com.sdm.core.security.jwt.JwtUnauthorizeHandler;
 import com.sdm.master.entity.RoleEntity;
+
+import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +26,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Configuration
 @EnableWebSecurity
@@ -67,6 +71,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        String[] publicUrls = ObjectArrays.concat(SWAGGER_WHITE_LIST, 
+            securityProperties.getPublicUrls(), String.class);
+
         //1. Load default system configure
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and().exceptionHandling().authenticationEntryPoint(unauthorizeHandler)
@@ -80,8 +87,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
             .authenticationProvider(authenticationProvider)
             .authorizeRequests()
-            .antMatchers(securityProperties.getPublicUrls()).permitAll()
-            .antMatchers(SWAGGER_WHITE_LIST).permitAll()
+            .antMatchers(publicUrls).permitAll()
             .antMatchers(ROOT_PERMISSION_LIST).hasAuthority(Constants.Auth.ROOT_ROLE);
 
         //2. Load Database Permissions

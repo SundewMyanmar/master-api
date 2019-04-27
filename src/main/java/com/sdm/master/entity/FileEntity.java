@@ -72,7 +72,7 @@ public class FileEntity extends DefaultEntity implements Serializable {
     public FileEntity() {
         this.status = Status.STORAGE;
     }
-
+    
     public FileEntity(String id, String name, String extension, String type, long fileSize,
                       String storagePath, String externalUrl) {
         if (externalUrl == null || externalUrl.length() <= 0) {
@@ -103,6 +103,11 @@ public class FileEntity extends DefaultEntity implements Serializable {
         if (!this.publicAccess) {
             return null;
         }
+
+        if(this.externalUrl != null && this.externalUrl.length() > 0){
+            return this.externalUrl;
+        }
+
         String downloadURL = ServletUriComponentsBuilder.fromCurrentContextPath()
             .path("/public/files/")
             .path(this.id + "/")
