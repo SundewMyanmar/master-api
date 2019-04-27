@@ -1,9 +1,12 @@
 package com.sdm.core.model.facebook.attachment;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LocationAttachment extends GeneralAttachment {
 
+    private static final Logger LOG = LoggerFactory.getLogger(LocationAttachment.class);
     /**
      *
      */
@@ -21,28 +24,37 @@ public class LocationAttachment extends GeneralAttachment {
     @Override
     public JSONObject serialize() {
         JSONObject attachment = super.serialize();
-        attachment.put("type", "location");
-        JSONObject cords = new JSONObject();
-        cords.put("lat", this.latitude);
-        cords.put("long", this.longtitude);
-        attachment.put("payload", new JSONObject().put("coordinates", cords));
+        try {
+            attachment.put("type", "location");
+            JSONObject cords = new JSONObject();
+            cords.put("lat", this.latitude);
+            cords.put("long", this.longtitude);
+            attachment.put("payload", new JSONObject().put("coordinates", cords));
+        } catch (Exception ex) {
+            LOG.warn(ex.getLocalizedMessage(), ex);
+        }
+
         return attachment;
     }
 
     @Override
     public void deserialize(JSONObject value) {
-        if (value.has("payload") && value.getJSONObject("payload").has("coordinates")) {
-            JSONObject cords = value.getJSONObject("payload").getJSONObject("coordinates");
-            if (cords.has("lat")) {
-                this.latitude = cords.getDouble("lat");
+        try{
+            if (value.has("payload") && value.getJSONObject("payload").has("coordinates")) {
+                JSONObject cords = value.getJSONObject("payload").getJSONObject("coordinates");
+                if (cords.has("lat")) {
+                    this.latitude = cords.getDouble("lat");
+                }
+    
+                if (cords.has("long")) {
+                    this.latitude = cords.getDouble("long");
+                }
             }
-
-            if (cords.has("long")) {
-                this.latitude = cords.getDouble("long");
-            }
+    
+            super.deserialize(value);
+        }catch(Exception ex){
+            LOG.warn(ex.getLocalizedMessage(), ex);
         }
-
-        super.deserialize(value);
     }
 
     public double getLatitude() {

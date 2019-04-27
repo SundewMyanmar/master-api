@@ -3,9 +3,15 @@ package com.sdm.core.model.facebook.webhook;
 import com.sdm.core.model.facebook.FacebookSerialize;
 import com.sdm.core.model.facebook.type.MessageType;
 import org.json.JSONObject;
-
+/**
+ * Received Message Management 
+ * It will define messages automatically
+ */
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class BaseMessage implements FacebookSerialize {
 
+    private static final Logger LOG = LoggerFactory.getLogger(BaseMessage.class);
     /**
      *
      */
@@ -52,6 +58,7 @@ public class BaseMessage implements FacebookSerialize {
         this.type = type;
     }
 
+    
     public String getSenderId() {
         return senderId;
     }
@@ -99,62 +106,72 @@ public class BaseMessage implements FacebookSerialize {
 
     @Override
     public void deserialize(JSONObject value) {
-        if (value.has("sender") && value.getJSONObject("sender").has("id")) {
-            this.senderId = value.getJSONObject("sender").getString("id");
-        }
-
-        if (value.has("recipient") && value.getJSONObject("recipient").has("id")) {
-            this.recipientId = value.getJSONObject("recipient").getString("id");
-        }
-
-        if (value.has("timestamp")) {
-            this.timestamp = value.getLong("timestamp");
-        }
-
-        if (value.has("message")) {
-            this.type = MessageType.text;
-            TextMessage message = new TextMessage();
-            message.deserialize(value.getJSONObject("message"));
-            this.body = message;
-        } else if (value.has("delivery")) {
-            this.type = MessageType.delivery;
-            NotifyMessage message = new NotifyMessage("delivery");
-            message.deserialize(value.getJSONObject("delivery"));
-            this.body = message;
-        } else if (value.has("read")) {
-            this.type = MessageType.read;
-            NotifyMessage message = new NotifyMessage("read");
-            message.deserialize(value.getJSONObject("read"));
-            this.body = message;
-        } else if (value.has("postback")) {
-            this.type = MessageType.postback;
-            PostBackMessage message = new PostBackMessage();
-            message.deserialize(value.getJSONObject("postback"));
-            this.body = message;
-        } else if (value.has("optin")) {
-            this.type = MessageType.plugin_optin;
-            if (value.getJSONObject("optin").has("ref")) {
-                this.body = value.getJSONObject("optin").getString("ref");
+        try{
+            if (value.has("sender") && value.getJSONObject("sender").has("id")) {
+                this.senderId = value.getJSONObject("sender").getString("id");
             }
-        } else if (value.has("referral")) {
-            this.type = MessageType.referreal;
-            ReferralMessage message = new ReferralMessage();
-            message.deserialize(value.getJSONObject("referral"));
-            this.body = message;
-        } else if (value.has("payment")) {
-            this.type = MessageType.payment;
-            this.body = value.getJSONObject("payment");
-        } else if (value.has("checkout_update")) {
-            this.type = MessageType.checkout;
-            this.body = value.getJSONObject("checkout_update");
-        } else if (value.has("pre_checkout")) {
-            this.type = MessageType.pre_checkout;
-            this.body = value.getJSONObject("pre_checkout");
-        } else if (value.has("account_linking")) {
-            this.type = MessageType.account_linking;
-            AccountLinkingMessage message = new AccountLinkingMessage();
-            message.deserialize(value.getJSONObject("account_linking"));
-            this.body = message;
+    
+            if (value.has("recipient") && value.getJSONObject("recipient").has("id")) {
+                this.recipientId = value.getJSONObject("recipient").getString("id");
+            }
+    
+            if (value.has("timestamp")) {
+                this.timestamp = value.getLong("timestamp");
+            }
+    
+            if (value.has("message")) {
+                this.type = MessageType.text;
+                TextMessage message = new TextMessage();
+                message.deserialize(value.getJSONObject("message"));
+                this.body = message;
+            } else if (value.has("delivery")) {
+                this.type = MessageType.delivery;
+                NotifyMessage message = new NotifyMessage("delivery");
+                message.deserialize(value.getJSONObject("delivery"));
+                this.body = message;
+            } else if (value.has("read")) {
+                this.type = MessageType.read;
+                NotifyMessage message = new NotifyMessage("read");
+                message.deserialize(value.getJSONObject("read"));
+                this.body = message;
+            } else if (value.has("postback")) {
+                this.type = MessageType.postback;
+                PostBackMessage message = new PostBackMessage();
+                message.deserialize(value.getJSONObject("postback"));
+                this.body = message;
+            } else if (value.has("optin")) {
+                this.type = MessageType.plugin_optin;
+                if (value.getJSONObject("optin").has("ref")) {
+                    this.body = value.getJSONObject("optin").getString("ref");
+                }
+            } else if (value.has("referral")) {
+                this.type = MessageType.referreal;
+                ReferralMessage message = new ReferralMessage();
+                message.deserialize(value.getJSONObject("referral"));
+                this.body = message;
+            } else if (value.has("payment")) {
+                this.type = MessageType.payment;
+                this.body = value.getJSONObject("payment");
+            } else if (value.has("checkout_update")) {
+                this.type = MessageType.checkout;
+                this.body = value.getJSONObject("checkout_update");
+            } else if (value.has("pre_checkout")) {
+                this.type = MessageType.pre_checkout;
+                this.body = value.getJSONObject("pre_checkout");
+            } else if (value.has("account_linking")) {
+                this.type = MessageType.account_linking;
+                AccountLinkingMessage message = new AccountLinkingMessage();
+                message.deserialize(value.getJSONObject("account_linking"));
+                this.body = message;
+            }else if(value.has("game_play")){
+                
+            }else if(value.has("pass_thread_control")){
+    
+            }else if(value.has("policy-enforcement")){
+    
+            }
+        }catch(Exception ex){
+            LOG.warn(ex.getLocalizedMessage(), ex);
         }
     }
 }

@@ -5,8 +5,17 @@ import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * Manage following messages:
+ * messages_deliveries => https://developers.facebook.com/docs/messenger-platform/reference/webhook-events/message-deliveries
+ * message_reads => https://developers.facebook.com/docs/messenger-platform/reference/webhook-events/message-reads
+ */
 public class NotifyMessage implements FacebookSerialize {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NotifyMessage.class);
 
     /**
      *
@@ -44,17 +53,21 @@ public class NotifyMessage implements FacebookSerialize {
 
     @Override
     public void deserialize(JSONObject value) {
-        if (value.has("watermark")) {
-            this.watermark = value.getLong("watermark");
-        }
-        if (value.has("seq")) {
-            this.sequence = value.getInt("seq");
-        }
-        if (value.has("mids")) {
-            JSONArray ids = value.getJSONArray("mids");
-            for (int i = 0; i < ids.length(); i++) {
-                this.addMessageId(ids.getString(i));
+        try{
+            if (value.has("watermark")) {
+                this.watermark = value.getLong("watermark");
             }
+            if (value.has("seq")) {
+                this.sequence = value.getInt("seq");
+            }
+            if (value.has("mids")) {
+                JSONArray ids = value.getJSONArray("mids");
+                for (int i = 0; i < ids.length(); i++) {
+                    this.addMessageId(ids.getString(i));
+                }
+            }
+        }catch(Exception ex){
+            LOG.warn(ex.getLocalizedMessage(), ex);
         }
     }
 

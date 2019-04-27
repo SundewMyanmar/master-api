@@ -1,10 +1,17 @@
 package com.sdm.core.model.facebook.webhook;
 
 import com.sdm.core.model.facebook.FacebookSerialize;
-import org.json.JSONObject;
 
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * messaging_account_linking => https://developers.facebook.com/docs/messenger-platform/reference/webhook-events/messaging_account_linking
+ */
 public class AccountLinkingMessage implements FacebookSerialize {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AccountLinkingMessage.class);
     /**
      *
      */
@@ -23,23 +30,31 @@ public class AccountLinkingMessage implements FacebookSerialize {
     @Override
     public JSONObject serialize() {
         JSONObject account_linking = new JSONObject();
-        if (this.linked != null && this.linked.length() > 0) {
-            account_linking.put("status", this.linked);
-        }
-        if (this.authorizationCode != null && this.authorizationCode.length() > 0) {
-            account_linking.put("authorization_code", this.authorizationCode);
+        try{
+            if (this.linked != null && this.linked.length() > 0) {
+                account_linking.put("status", this.linked);
+            }
+            if (this.authorizationCode != null && this.authorizationCode.length() > 0) {
+                account_linking.put("authorization_code", this.authorizationCode);
+            }
+        }catch(Exception ex){
+            LOG.warn(ex.getLocalizedMessage(), ex);
         }
         return account_linking;
     }
 
     @Override
     public void deserialize(JSONObject value) {
-        if (value.has("status")) {
-            this.linked = value.getString("status");
-        }
-
-        if (value.has("authorization_code")) {
-            this.authorizationCode = value.getString("authorization_code");
+        try{
+            if (value.has("status")) {
+                this.linked = value.getString("status");
+            }
+    
+            if (value.has("authorization_code")) {
+                this.authorizationCode = value.getString("authorization_code");
+            }
+        }catch(Exception ex){
+            LOG.warn(ex.getLocalizedMessage(), ex);
         }
     }
 

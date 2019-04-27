@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -12,6 +14,8 @@ import org.json.JSONObject;
  *
  */
 public class MessengerEntry implements FacebookSerialize {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MessengerEntry.class);
 
     /**
      *
@@ -39,38 +43,47 @@ public class MessengerEntry implements FacebookSerialize {
     @Override
     public JSONObject serialize() {
         JSONObject entry = new JSONObject();
-        if (this.pageId != null && this.pageId.length() > 0) {
-            entry.put("id", this.pageId);
-        }
-
-        entry.put("time", this.timestamp);
-        if (this.messages != null && this.messages.size() > 0) {
-            JSONArray messaging = new JSONArray();
-            for (BaseMessage message : this.messages) {
-                messaging.put(message.serialize());
+        try{
+            if (this.pageId != null && this.pageId.length() > 0) {
+                entry.put("id", this.pageId);
             }
-            entry.put("messaging", messaging);
+    
+            entry.put("time", this.timestamp);
+            if (this.messages != null && this.messages.size() > 0) {
+                JSONArray messaging = new JSONArray();
+                for (BaseMessage message : this.messages) {
+                    messaging.put(message.serialize());
+                }
+                entry.put("messaging", messaging);
+            }
+        }catch(Exception ex){
+            LOG.warn(ex.getLocalizedMessage(), ex);
         }
+        
         return entry;
     }
 
     @Override
     public void deserialize(JSONObject value) {
-        if (value.has("id")) {
-            this.pageId = value.getString("id");
-        }
-
-        if (value.has("time")) {
-            this.timestamp = value.getLong("time");
-        }
-
-        if (value.has("messaging")) {
-            JSONArray messages = value.getJSONArray("messaging");
-            for (int i = 0; i < messages.length(); i++) {
-                BaseMessage message = new BaseMessage();
-                message.deserialize(messages.getJSONObject(i));
-                this.addMessage(message);
+        try{
+            if (value.has("id")) {
+                this.pageId = value.getString("id");
             }
+    
+            if (value.has("time")) {
+                this.timestamp = value.getLong("time");
+            }
+    
+            if (value.has("messaging")) {
+                JSONArray messages = value.getJSONArray("messaging");
+                for (int i = 0; i < messages.length(); i++) {
+                    BaseMessage message = new BaseMessage();
+                    message.deserialize(messages.getJSONObject(i));
+                    this.addMessage(message);
+                }
+            }
+        }catch(Exception ex){
+            LOG.warn(ex.getLocalizedMessage(), ex);
         }
     }
 

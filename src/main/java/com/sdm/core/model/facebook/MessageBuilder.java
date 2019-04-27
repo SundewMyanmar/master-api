@@ -1,157 +1,183 @@
 package com.sdm.core.model.facebook;
 
-import com.sdm.core.model.facebook.attachment.GeneralAttachment;
-import com.sdm.core.model.facebook.type.MessageTag;
 import com.sdm.core.model.facebook.type.NotificationType;
 import com.sdm.core.model.facebook.type.SenderAction;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- * It is the main API used to send messages to users. Ref : https://developers.facebook.com/docs/messenger-platform/send-api-reference
- *
- * @author htoonlin
- *
+ * Send Message Format Ref =>
+ * https://developers.facebook.com/docs/messenger-platform/reference/send-api
  */
 public class MessageBuilder {
-
+    private String messagingType;
     private JSONObject recipient;
     private JSONObject message;
     private JSONArray quickReplies;
+    private NotificationType notificationType;
+    private String tag;
 
     public MessageBuilder() {
         this.recipient = new JSONObject();
         this.message = new JSONObject();
     }
 
-    public JSONObject buildMessage() {
-        return this.buildMessage(null, null);
-    }
-
-    /**
-     * Set typing indicators or send read receipts using the Send API, to let users know you are processing their request.
-     *
-     * @param action
-     * @return
-     */
-    public JSONObject buildAction(SenderAction action) {
+    public JSONObject build() {
         JSONObject result = new JSONObject();
         result.put("recipient", this.recipient);
-        if (action != null) {
-            result.put("sender_action", action.toString());
-        }
-
-        return result;
-    }
-
-    /**
-     *
-     * @param senderAction
-     * @param notificationType
-     * @return
-     */
-    public JSONObject buildMessage(NotificationType notificationType, MessageTag tag) {
-        JSONObject result = new JSONObject();
-        result.put("recipient", this.recipient);
+        result.put("message", this.message);
 
         if (quickReplies != null && quickReplies.length() > 0) {
             this.message.put("quick_replies", this.quickReplies);
         }
 
-        result.put("message", this.message);
-
-        if (notificationType != null) {
-            result.put("notification_type", notificationType);
+        if (this.messagingType != null && this.messagingType.length() > 0) {
+            result.put("messaging_type", this.messagingType);
         }
 
-        if (tag != null) {
-            result.put("tag", tag.toString());
+        if (this.notificationType != null) {
+            result.put("notification_type", this.notificationType.toString());
+        }
+
+        if (this.tag != null && this.tag.length() > 0) {
+            result.put("messaging_type", "MESSAGE_TAG");
+            result.put("tag", this.tag);
         }
         return result;
     }
 
     /**
-     * Page-scoped user ID of the recipient. This is the field most developers will commonly use to send messages.
+     * Set typing indicators or send read receipts using the Send API, to let users
+     * know you are processing their request.
      *
-     * @param userId
+     * @param action
      * @return
      */
-    public MessageBuilder setRecipientId(String userId) {
-        this.recipient.put("id", userId);
-        return this;
+    public JSONObject buildAction(SenderAction action) {
+        JSONObject result = this.build();
+        if (action != null) {
+            result.put("sender_action", action.toString());
+        }
+        return result;
     }
 
     /**
-     *
-     *
+     * 
+     * @param id
+     * @return
+     */
+    public void setRecipient(String id) {
+        this.setRecipient(id, null, null, null, null);
+    }
+
+    /**
+     * 
+     * @param id
      * @param phone
-     * @return
-     */
-    public MessageBuilder setRecipientPhone(String phone) {
-        this.recipient.put("phone_number", phone);
-        return this;
-    }
-
-    /**
-     * If passing a phone number, also passing the user's name that you have on file will increase the odds of a successful match. Specify it as an object with the format:
-     *
+     * @param userRef
      * @param firstName
      * @param lastName
      * @return
      */
-    public MessageBuilder setRecipientName(String firstName, String lastName) {
-        JSONObject name = new JSONObject();
-        name.put("first_name", firstName);
-        name.put("last_name", lastName);
-        this.recipient.put("name", name);
-        return this;
-    }
+    public void setRecipient(String id, String phone, String userRef, String firstName, String lastName) {
+        this.recipient.put("id", id);
 
-    /**
-     * Message text. Previews will not be shown for the URLs in this field.
-     *
-     * @param message
-     * @return
-     */
-    public MessageBuilder setText(String message) {
-        this.message.put("text", message);
-        return this;
-    }
-
-    public MessageBuilder setTemplate(JSONObject payload) {
-        JSONObject attachment = new JSONObject();
-        attachment.put("type", "template");
-        attachment.put("payload", payload);
-        this.message.put("attachment", attachment);
-        return this;
-    }
-
-    /**
-     * attachment object. Previews the URL. .
-     *
-     * @param type It will support image, audio, video, file attachments
-     * @param url
-     * @param reuse (This API allows you to upload an attachment that you may later send out to many users, without having to repeatedly upload the same data each time it is sent.)
-     * @return
-     */
-    public MessageBuilder setFile(GeneralAttachment attachment, boolean reuse) {
-        JSONObject jsonAttachment = attachment.serialize();
-        if (reuse) {
-            jsonAttachment.getJSONObject("payload").put("is_reusable", true);
+        if (phone != null && phone.length() > 0) {
+            this.recipient.put("phone", phone);
         }
-        this.message.put("attachment", jsonAttachment);
-        return this;
+
+        if (userRef != null && userRef.length() > 0) {
+            this.recipient.put("user_ref", userRef);
+        }
+
+        if (firstName != null && firstName.length() > 0 && lastName != null && lastName.length() > 0) {
+            JSONObject name = new JSONObject();
+            name.put("first_name", firstName);
+            name.put("last_name", lastName);
+            this.recipient.put("name", name);
+        }
     }
 
     /**
-     * Quick Replies provide a way to present buttons to the user in response to a message.s
+     * @return the recipient
+     */
+    public JSONObject getRecipient() {
+        return recipient;
+    }
+
+    /**
+     * @param recipient the recipient to set
+     */
+    public void setRecipient(JSONObject recipient) {
+        this.recipient = recipient;
+    }
+
+    /**
+     * @return the message
+     */
+    public JSONObject getMessage() {
+        return message;
+    }
+
+    /**
+     * @param message the message to set
+     */
+    public void setMessage(JSONObject message) {
+        this.message = message;
+    }
+
+    /**
+     * @return the notificationType
+     */
+    public NotificationType getNotificationType() {
+        return notificationType;
+    }
+
+    /**
+     * @param notificationType the notificationType to set
+     */
+    public void setNotificationType(NotificationType notificationType) {
+        this.notificationType = notificationType;
+    }
+
+    /**
+     * @return the tag
+     */
+    public String getTag() {
+        return tag;
+    }
+
+    /**
+     * @param tag the tag to set
+     */
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    /**
+     * @return the messagingType
+     */
+    public String getMessagingType() {
+        return messagingType;
+    }
+
+    /**
+     * @param messagingType the messagingType to set
+     */
+    public void setMessagingType(String messagingType) {
+        this.messagingType = messagingType;        
+    }
+
+    /**
+     * Quick Replies provide a way to present buttons to the user in response to a
+     * message.s
      *
      * @param quickReply
      * @return
      */
-    public MessageBuilder addQuickReply(QuickReply quickReply) {
+    public void addQuickReply(QuickReply quickReply) {
         this.quickReplies.put(quickReply.serialize());
-        return this;
     }
 
     /**
@@ -160,9 +186,7 @@ public class MessageBuilder {
      * @param metaData
      * @return
      */
-    public MessageBuilder setMetaData(String metaData) {
+    public void setMetaData(String metaData) {
         this.message.put("metadata", metaData);
-        return this;
     }
-
 }

@@ -8,6 +8,10 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+/**
+ * It will manage all general messages
+ * messages => https://developers.facebook.com/docs/messenger-platform/reference/webhook-events/messages
+ */
 public class TextMessage implements FacebookSerialize {
 
     /**
@@ -29,7 +33,7 @@ public class TextMessage implements FacebookSerialize {
     /**
      * Array containing attachment data
      */
-    private List<FacebookSerialize> attachments;
+    private List<GeneralAttachment> attachments;
 
     /**
      * Indicates the message sent from the page itself
@@ -140,18 +144,18 @@ public class TextMessage implements FacebookSerialize {
         this.quickReply = quickReply;
     }
 
-    public void addAttachment(FacebookSerialize attachment) {
+    public void addAttachment(GeneralAttachment attachment) {
         if (this.attachments == null) {
             this.attachments = new ArrayList<>();
         }
         this.attachments.add(attachment);
     }
 
-    public List<FacebookSerialize> getAttachments() {
+    public List<GeneralAttachment> getAttachments() {
         return attachments;
     }
 
-    public void setAttachments(List<FacebookSerialize> attachments) {
+    public void setAttachments(List<GeneralAttachment> attachments) {
         this.attachments = attachments;
     }
 

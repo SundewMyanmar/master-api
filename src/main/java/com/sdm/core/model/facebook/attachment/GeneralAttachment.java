@@ -3,8 +3,12 @@ package com.sdm.core.model.facebook.attachment;
 import com.sdm.core.model.facebook.FacebookSerialize;
 import com.sdm.core.model.facebook.type.AttachmentType;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GeneralAttachment implements FacebookSerialize {
+
+    public static final Logger LOG = LoggerFactory.getLogger(GeneralAttachment.class);
 
     /**
      *
@@ -20,35 +24,43 @@ public class GeneralAttachment implements FacebookSerialize {
     @Override
     public JSONObject serialize() {
         JSONObject attachment = new JSONObject();
-        if (this.type != null) {
-            attachment.put("type", this.type.toString());
-        }
-
-        if (this.title != null && this.title.length() > 0) {
-            attachment.put("title", this.title);
-            if (this.url != null && this.url.length() > 0) {
-                attachment.put("url", this.url);
+        try {
+            if (this.type != null) {
+                attachment.put("type", this.type.toString());
             }
-        } else if (this.url != null && this.url.length() > 0) {
-            attachment.put("payload", new JSONObject().put("url", this.url));
-        }
 
+            if (this.title != null && this.title.length() > 0) {
+                attachment.put("title", this.title);
+                if (this.url != null && this.url.length() > 0) {
+                    attachment.put("url", this.url);
+                }
+            } else if (this.url != null && this.url.length() > 0) {
+                attachment.put("payload", new JSONObject().put("url", this.url));
+            }
+
+        } catch (Exception ex) {
+            LOG.warn(ex.getLocalizedMessage(), ex);
+        }
         return attachment;
     }
 
     @Override
     public void deserialize(JSONObject value) {
-        if (value.has("payload") && value.getJSONObject("payload").has("url")) {
-            this.url = value.getJSONObject("payload").getString("url");
-        } else if (value.has("url")) {
-            this.url = value.getString("url");
-            if (value.has("title")) {
-                this.title = value.getString("title");
+        try {
+            if (value.has("payload") && value.getJSONObject("payload").has("url")) {
+                this.url = value.getJSONObject("payload").getString("url");
+            } else if (value.has("url") && !value.isNull("url")) {
+                this.url = value.getString("url");
+                if (value.has("title")) {
+                    this.title = value.getString("title");
+                }
             }
-        }
 
-        if (value.has("type")) {
-            this.type = AttachmentType.valueOf(value.getString("type"));
+            if (value.has("type")) {
+                this.type = AttachmentType.valueOf(value.getString("type"));
+            }
+        } catch (Exception ex) {
+            LOG.warn(ex.getLocalizedMessage(), ex);
         }
     }
 

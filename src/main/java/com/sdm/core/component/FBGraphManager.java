@@ -3,14 +3,10 @@ package com.sdm.core.component;
 
 import com.sdm.core.config.FacebookProperties;
 import com.sdm.core.exception.GeneralException;
-import com.sdm.core.model.facebook.MessageBuilder;
-import com.sdm.core.model.facebook.attachment.GeneralAttachment;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -61,6 +57,8 @@ public class FBGraphManager{
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
 
+        LOG.info("Send Message to Facebook => " + entity.toString());
+
         //Build Request Body
         HttpEntity<String> requestEntity = new HttpEntity<>(entity.toString(), headers);
 
@@ -69,25 +67,8 @@ public class FBGraphManager{
         ResponseEntity<String> result = restTemplate.exchange(uriBuilder.toUriString(), HttpMethod.POST, 
             requestEntity, String.class);
 
+        LOG.info("Facebook Response => " + result.getBody());
         return result;
     }
 
-    public ResponseEntity<String> sendMessage(MessageBuilder builder) {
-        return this.sendMessage(builder.buildMessage());
-    }
-
-    public ResponseEntity<String> sendTextMessage(String recipientId, String message) {
-        MessageBuilder builder = new MessageBuilder();
-        return this.sendMessage(builder.setRecipientId(recipientId).setText(message).buildMessage());
-    }
-
-    public ResponseEntity<String> sendFileMessage(String recipientId, GeneralAttachment attachment) {
-        MessageBuilder builder = new MessageBuilder();
-        return this.sendMessage(builder.setRecipientId(recipientId).setFile(attachment, false).buildMessage());
-    }
-
-    public ResponseEntity<String> sendTemplateMessage(String recipientId, JSONObject templatePayload) {
-        MessageBuilder builder = new MessageBuilder();
-        return this.sendMessage(builder.setRecipientId(recipientId).setTemplate(templatePayload).buildMessage());
-    }
 }

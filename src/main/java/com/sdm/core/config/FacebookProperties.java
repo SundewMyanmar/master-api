@@ -9,6 +9,8 @@ public class FacebookProperties {
 
     private String appId = "";
 
+    private String appSecret = "";
+
     private String pageAccessToken = "";
 
     private String webhookToken = "";
@@ -69,6 +71,20 @@ public class FacebookProperties {
      */
     public void setWebhookToken(String webhookToken) {
         this.webhookToken = webhookToken;
+    }
+
+    /**
+     * @return the appSecret
+     */
+    public String getAppSecret() {
+        return appSecret;
+    }
+
+    /**
+     * @param appSecret the appSecret to set
+     */
+    public void setAppSecret(String appSecret) {
+        this.appSecret = appSecret;
     }
 
 }
