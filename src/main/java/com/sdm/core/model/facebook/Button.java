@@ -1,8 +1,7 @@
 package com.sdm.core.model.facebook;
 
+import com.google.gson.JsonObject;
 import com.sdm.core.model.facebook.type.WebViewType;
-
-import org.json.JSONObject;
 
 public class Button {
     /**
@@ -12,13 +11,13 @@ public class Button {
      * 
      * @param title
      * @param number
-     * @return JSONObject
+     * @return
      */
-    public static JSONObject call(String title, String number) {
-        JSONObject button = new JSONObject();
-        button.put("type", "phone_number");
-        button.put("title", title);
-        button.put("payload", number);
+    public static JsonObject call(String title, String number) {
+        JsonObject button = new JsonObject();
+        button.addProperty("type", "phone_number");
+        button.addProperty("title", title);
+        button.addProperty("payload", number);
         return button;
     }
 
@@ -35,24 +34,24 @@ public class Button {
      * @param data
      * @param playerId
      * @param contextId
-     * @return JSONObject
+     * @return JsonObject
      */
-    public static JSONObject gameplay(String title, String data, String playerId, String contextId) {
-        JSONObject button = new JSONObject();
-        button.put("type", "game_play");
-        button.put("title", title);
-        button.put("payload", data);
+    public static JsonObject gameplay(String title, String data, String playerId, String contextId) {
+        JsonObject button = new JsonObject();
+        button.addProperty("type", "game_play");
+        button.addProperty("title", title);
+        button.addProperty("payload", data);
 
         if (playerId != null || contextId != null) {
-            JSONObject meta = new JSONObject();
+            JsonObject meta = new JsonObject();
             if (playerId != null && playerId.length() > 0) {
-                meta.put("player_id", playerId);
+                meta.addProperty("player_id", playerId);
             }
 
             if (contextId != null && contextId.length() > 0) {
-                meta.put("context_id", contextId);
+                meta.addProperty("context_id", contextId);
             }
-            button.put("game_metadata", meta);
+            button.add("game_metadata", meta);
         }
         return button;
     }
@@ -70,7 +69,7 @@ public class Button {
      * @param data
      * @return
      */
-    public static JSONObject gameplay(String title, String data) {
+    public static JsonObject gameplay(String title, String data) {
         return gameplay(title, data, null, null);
     }
 
@@ -83,10 +82,10 @@ public class Button {
      * @param callbackURL
      * @return
      */
-    public static JSONObject accountLink(String callbackURL) {
-        JSONObject button = new JSONObject();
-        button.put("type", "account_link");
-        button.put("url", callbackURL);
+    public static JsonObject accountLink(String callbackURL) {
+        JsonObject button = new JsonObject();
+        button.addProperty("type", "account_link");
+        button.addProperty("url", callbackURL);
         return button;
     }
 
@@ -97,9 +96,9 @@ public class Button {
      * 
      * @return
      */
-    public static JSONObject accountUnlink() {
-        JSONObject button = new JSONObject();
-        button.put("type", "account_unlink");
+    public static JsonObject accountUnlink() {
+        JsonObject button = new JsonObject();
+        button.addProperty("type", "account_unlink");
         return button;
     }
 
@@ -116,11 +115,11 @@ public class Button {
      * @param value
      * @return
      */
-    public static JSONObject postBack(String title, String value) {
-        JSONObject button = new JSONObject();
-        button.put("type", "web_url");
-        button.put("title", title);
-        button.put("payload", value);
+    public static JsonObject postBack(String title, String value) {
+        JsonObject button = new JsonObject();
+        button.addProperty("type", "web_url");
+        button.addProperty("title", title);
+        button.addProperty("payload", value);
         return button;
     }
 
@@ -136,27 +135,27 @@ public class Button {
      * @param url
      * @return
      */
-    public static JSONObject url(String title, String webURL, String fallbackUrl, WebViewType type,
+    public static JsonObject url(String title, String webURL, String fallbackUrl, WebViewType type,
             boolean messengerExt, boolean hideShareButton) {
-        JSONObject button = new JSONObject();
-        button.put("type", "web_url");
-        button.put("title", title);
-        button.put("url", webURL);
+        JsonObject button = new JsonObject();
+        button.addProperty("type", "web_url");
+        button.addProperty("title", title);
+        button.addProperty("url", webURL);
 
         if (fallbackUrl != null && fallbackUrl.length() > 0) {
-            button.put("fallback_url", fallbackUrl);
+            button.addProperty("fallback_url", fallbackUrl);
         }
 
         if (type != null) {
-            button.put("webview_height_ratio", type.toString());
+            button.addProperty("webview_height_ratio", type.toString());
         }
 
         if (messengerExt) {
-            button.put("messenger_extensions", messengerExt);
+            button.addProperty("messenger_extensions", messengerExt);
         }
 
         if (hideShareButton) {
-            button.put("webview_share_button", "hide");
+            button.addProperty("webview_share_button", "hide");
         }
 
         return button;
@@ -174,7 +173,7 @@ public class Button {
      * @param url
      * @return
      */
-    public static JSONObject url(String title, String webURL) {
+    public static JsonObject url(String title, String webURL) {
         return url(title, webURL, null, null, false, false);
     }
 
@@ -188,18 +187,18 @@ public class Button {
      * @param templatePayload
      * @return
      */
-    public static JSONObject share(JSONObject templatePayload) {
-        JSONObject button = new JSONObject();
-        button.put("type", "element_share");
+    public static JsonObject share(JsonObject templatePayload) {
+        JsonObject button = new JsonObject();
+        button.addProperty("type", "element_share");
 
-        JSONObject attachment = new JSONObject();
-        attachment.put("type", "template");
-        attachment.put("payload", templatePayload);
+        JsonObject attachment = new JsonObject();
+        attachment.addProperty("type", "template");
+        attachment.add("payload", templatePayload);
 
-        JSONObject shareContent = new JSONObject();
-        shareContent.put("attachment", attachment);
+        JsonObject shareContent = new JsonObject();
+        shareContent.add("attachment", attachment);
 
-        button.put("share_contents", shareContent);
+        button.add("share_contents", shareContent);
         return button;
     }
 }

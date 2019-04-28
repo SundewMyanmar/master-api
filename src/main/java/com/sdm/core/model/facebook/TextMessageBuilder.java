@@ -1,6 +1,6 @@
 package com.sdm.core.model.facebook;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 public class TextMessageBuilder extends MessageBuilder {
 
@@ -16,8 +16,8 @@ public class TextMessageBuilder extends MessageBuilder {
     }
 
     @Override
-    public JSONObject build() {
-        this.getMessage().put("text", this.text);
+    public JsonObject build() {
+        this.getMessage().addProperty("text", this.text);
         return super.build();
     }
 

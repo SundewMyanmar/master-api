@@ -1,9 +1,9 @@
 package com.sdm.core.model.facebook;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.sdm.core.model.facebook.type.TemplateType;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 /**
  * The Messenger Platform allows you to attach assets to messages, including
@@ -11,11 +11,11 @@ import org.json.JSONObject;
  * ways to attach an asset to a message: URL, FILE, Attachment_ID
  */
 public class TemplateBuilder extends MessageBuilder {
-    private JSONObject payload;
+    private JsonObject payload;
 
     public TemplateBuilder() {
         super();
-        this.payload = new JSONObject();
+        this.payload = new JsonObject();
     }
 
     public TemplateBuilder(TemplateType type){
@@ -24,15 +24,15 @@ public class TemplateBuilder extends MessageBuilder {
     }
 
     public void setTemplateType(TemplateType type) {
-        this.payload.put("template_type", type);
+        this.payload.addProperty("template_type", type.toString());
     }
 
     @Override
-    public JSONObject build() {
-        JSONObject attachment = new JSONObject();
-        attachment.put("type", "template");
-        attachment.put("payload", this.payload);
-        this.getMessage().put("attachment", attachment);
+    public JsonObject build() {
+        JsonObject attachment = new JsonObject();
+        attachment.addProperty("type", "template");
+        attachment.add("payload", this.payload);
+        this.getMessage().add("attachment", attachment);
         return super.build();
     }
 
@@ -46,13 +46,13 @@ public class TemplateBuilder extends MessageBuilder {
      * @param sharable
      * @return
      */
-    public JSONObject buildButtonTemplate(String text, JSONArray buttons, boolean sharable) {
+    public JsonObject buildButtonTemplate(String text, JsonArray buttons, boolean sharable) {
         this.setTemplateType(TemplateType.button);
-        this.payload.put("text", text);
-        this.payload.put("buttons", buttons);
+        this.payload.addProperty("text", text);
+        this.payload.add("buttons", buttons);
 
         if (sharable) {
-            this.payload.put("sharable", sharable);
+            this.payload.addProperty("sharable", sharable);
         }
 
         return this.build();
@@ -70,16 +70,16 @@ public class TemplateBuilder extends MessageBuilder {
      * @param imageRatio
      * @return
      */
-    public JSONObject buildGenericTemplate(JSONArray elements, boolean sharable, String imageRatio) {
+    public JsonObject buildGenericTemplate(JsonArray elements, boolean sharable, String imageRatio) {
         this.setTemplateType(TemplateType.generic);
-        this.payload.put("elements", elements);
+        this.payload.add("elements", elements);
 
         if (sharable) {
-            this.payload.put("sharable", sharable);
+            this.payload.addProperty("sharable", sharable);
         }
 
         if (imageRatio != null && imageRatio.length() > 0) {
-            this.payload.put("image_aspect_ratio", imageRatio);
+            this.payload.addProperty("image_aspect_ratio", imageRatio);
         }
 
         return this.build();
@@ -96,21 +96,21 @@ public class TemplateBuilder extends MessageBuilder {
      * @param sharable
      * @return
      */
-    public JSONObject buildListTemplate(JSONArray elements, JSONArray buttons, String topElementStyle,
+    public JsonObject buildListTemplate(JsonArray elements, JsonArray buttons, String topElementStyle,
             boolean sharable) {
         this.setTemplateType(TemplateType.list);
-        this.payload.put("elements", elements);
+        this.payload.add("elements", elements);
 
         if (buttons != null) {
-            this.payload.put("buttons", buttons);
+            this.payload.add("buttons", buttons);
         }
 
         if (sharable) {
-            this.payload.put("sharable", sharable);
+            this.payload.addProperty("sharable", sharable);
         }
 
         if (topElementStyle != null && topElementStyle.length() > 0) {
-            this.payload.put("top_element_style", topElementStyle);
+            this.payload.addProperty("top_element_style", topElementStyle);
         }
 
         return this.build();
@@ -125,12 +125,12 @@ public class TemplateBuilder extends MessageBuilder {
      * @param sharable
      * @return
      */
-    public JSONObject buildMediaTemplate(JSONArray elements, boolean sharable) {
+    public JsonObject buildMediaTemplate(JsonArray elements, boolean sharable) {
         this.setTemplateType(TemplateType.media);
-        this.payload.put("elements", elements);
+        this.payload.add("elements", elements);
 
         if (sharable) {
-            this.payload.put("sharable", sharable);
+            this.payload.addProperty("sharable", sharable);
         }
 
         return this.build();
@@ -146,9 +146,9 @@ public class TemplateBuilder extends MessageBuilder {
      * @param elements
      * @return
      */
-    public JSONObject buildOpenGraphTemplate(JSONArray elements) {
+    public JsonObject buildOpenGraphTemplate(JsonArray elements) {
         this.setTemplateType(TemplateType.open_graph);
-        this.payload.put("elements", elements);
+        this.payload.add("elements", elements);
 
         return this.build();
     }
@@ -156,14 +156,14 @@ public class TemplateBuilder extends MessageBuilder {
     /**
      * @return the payload
      */
-    public JSONObject getPayload() {
+    public JsonObject getPayload() {
         return payload;
     }
 
     /**
      * @param payload the payload to set
      */
-    public void setPayload(JSONObject payload) {
+    public void setPayload(JsonObject payload) {
         this.payload = payload;
     }
 }

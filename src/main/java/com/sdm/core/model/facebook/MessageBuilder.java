@@ -1,10 +1,9 @@
 package com.sdm.core.model.facebook;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.sdm.core.model.facebook.type.NotificationType;
 import com.sdm.core.model.facebook.type.SenderAction;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 /**
  * Send Message Format Ref =>
@@ -12,37 +11,37 @@ import org.json.JSONObject;
  */
 public class MessageBuilder {
     private String messagingType;
-    private JSONObject recipient;
-    private JSONObject message;
-    private JSONArray quickReplies;
+    private JsonObject recipient;
+    private JsonObject message;
+    private JsonArray quickReplies;
     private NotificationType notificationType;
     private String tag;
 
     public MessageBuilder() {
-        this.recipient = new JSONObject();
-        this.message = new JSONObject();
+        this.recipient = new JsonObject();
+        this.message = new JsonObject();
     }
 
-    public JSONObject build() {
-        JSONObject result = new JSONObject();
-        result.put("recipient", this.recipient);
-        result.put("message", this.message);
+    public JsonObject build() {
+        JsonObject result = new JsonObject();
+        result.add("recipient", this.recipient);
+        result.add("message", this.message);
 
-        if (quickReplies != null && quickReplies.length() > 0) {
-            this.message.put("quick_replies", this.quickReplies);
+        if (quickReplies != null && quickReplies.size() > 0) {
+            this.message.add("quick_replies", this.quickReplies);
         }
 
         if (this.messagingType != null && this.messagingType.length() > 0) {
-            result.put("messaging_type", this.messagingType);
+            result.addProperty("messaging_type", this.messagingType);
         }
 
         if (this.notificationType != null) {
-            result.put("notification_type", this.notificationType.toString());
+            result.addProperty("notification_type", this.notificationType.toString());
         }
 
         if (this.tag != null && this.tag.length() > 0) {
-            result.put("messaging_type", "MESSAGE_TAG");
-            result.put("tag", this.tag);
+            result.addProperty("messaging_type", "MESSAGE_TAG");
+            result.addProperty("tag", this.tag);
         }
         return result;
     }
@@ -54,10 +53,10 @@ public class MessageBuilder {
      * @param action
      * @return
      */
-    public JSONObject buildAction(SenderAction action) {
-        JSONObject result = this.build();
+    public JsonObject buildAction(SenderAction action) {
+        JsonObject result = this.build();
         if (action != null) {
-            result.put("sender_action", action.toString());
+            result.addProperty("sender_action", action.toString());
         }
         return result;
     }
@@ -81,49 +80,49 @@ public class MessageBuilder {
      * @return
      */
     public void setRecipient(String id, String phone, String userRef, String firstName, String lastName) {
-        this.recipient.put("id", id);
+        this.recipient.addProperty("id", id);
 
         if (phone != null && phone.length() > 0) {
-            this.recipient.put("phone", phone);
+            this.recipient.addProperty("phone", phone);
         }
 
         if (userRef != null && userRef.length() > 0) {
-            this.recipient.put("user_ref", userRef);
+            this.recipient.addProperty("user_ref", userRef);
         }
 
         if (firstName != null && firstName.length() > 0 && lastName != null && lastName.length() > 0) {
-            JSONObject name = new JSONObject();
-            name.put("first_name", firstName);
-            name.put("last_name", lastName);
-            this.recipient.put("name", name);
+            JsonObject name = new JsonObject();
+            name.addProperty("first_name", firstName);
+            name.addProperty("last_name", lastName);
+            this.recipient.add("name", name);
         }
     }
 
     /**
      * @return the recipient
      */
-    public JSONObject getRecipient() {
+    public JsonObject getRecipient() {
         return recipient;
     }
 
     /**
      * @param recipient the recipient to set
      */
-    public void setRecipient(JSONObject recipient) {
+    public void setRecipient(JsonObject recipient) {
         this.recipient = recipient;
     }
 
     /**
      * @return the message
      */
-    public JSONObject getMessage() {
+    public JsonObject getMessage() {
         return message;
     }
 
     /**
      * @param message the message to set
      */
-    public void setMessage(JSONObject message) {
+    public void setMessage(JsonObject message) {
         this.message = message;
     }
 
@@ -166,18 +165,35 @@ public class MessageBuilder {
      * @param messagingType the messagingType to set
      */
     public void setMessagingType(String messagingType) {
-        this.messagingType = messagingType;        
+        this.messagingType = messagingType;
     }
 
     /**
-     * Quick Replies provide a way to present buttons to the user in response to a
-     * message.s
-     *
-     * @param quickReply
-     * @return
+     * Quick replies provide a way to present a set of up to 11 buttons
+     * in-conversation that contain a title and optional image, and appear
+     * prominently above the composer. You can also use quick replies to request a
+     * person's location, email address, and phone number.
+     * Ref => https://developers.facebook.com/docs/messenger-platform/reference/send-api/quick-replies
+     * @param type
+     * @param title
+     * @param payload
+     * @param image
      */
-    public void addQuickReply(QuickReply quickReply) {
-        this.quickReplies.put(quickReply.serialize());
+    public void addQuickReply(String type, String title, String payload, String image) {
+        JsonObject quickReply = new JsonObject();
+        if (type != null && type.length() > 0) {
+            quickReply.addProperty("content_type", type);
+        }
+        if (title != null && title.length() > 0) {
+            quickReply.addProperty("title", title);
+        }
+        if (payload != null && payload.length() > 0) {
+            quickReply.addProperty("payload", payload);
+        }
+        if (image != null && image.length() > 0) {
+            quickReply.addProperty("image_url", image);
+        }
+        this.quickReplies.add(quickReply);
     }
 
     /**
@@ -187,6 +203,6 @@ public class MessageBuilder {
      * @return
      */
     public void setMetaData(String metaData) {
-        this.message.put("metadata", metaData);
+        this.message.addProperty("metadata", metaData);
     }
 }

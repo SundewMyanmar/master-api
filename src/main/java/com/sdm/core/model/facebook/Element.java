@@ -1,7 +1,7 @@
 package com.sdm.core.model.facebook;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public class Element{
     
@@ -11,23 +11,23 @@ public class Element{
      * @param number
      * @return
      */
-    public static JSONObject genericOrList(String title, String subtitle, String image, JSONObject action, JSONArray buttons) {
-        JSONObject element = new JSONObject();
-        element.put("title", title);
+    public static JsonObject genericOrList(String title, String subtitle, String image, JsonObject action, JsonArray buttons) {
+        JsonObject element = new JsonObject();
+        element.addProperty("title", title);
         if(subtitle != null && subtitle.length() > 0){
-            element.put("subtitle", subtitle);
+            element.addProperty("subtitle", subtitle);
         }
 
         if(image != null && image.length() > 0){
-            element.put("image_url", image);
+            element.addProperty("image_url", image);
         }
 
         if(action != null){
-            element.put("default_action", action);
+            element.add("default_action", action);
         }
 
         if(buttons != null){
-            element.put("buttons", buttons);
+            element.add("buttons", buttons);
         }
         
         return element;
@@ -42,19 +42,19 @@ public class Element{
      * @param buttons
      * @return
      */
-    public static JSONObject media(String type, String id, String url, JSONArray buttons){
-        JSONObject element = new JSONObject();
-        element.put("media_type", type);
+    public static JsonObject media(String type, String id, String url, JsonArray buttons){
+        JsonObject element = new JsonObject();
+        element.addProperty("media_type", type);
         if(id != null && id.length() > 0){
-            element.put("attachment_id", id);
+            element.addProperty("attachment_id", id);
         }
 
         if(url != null && url.length() > 0){
-            element.put("url", url);
+            element.addProperty("url", url);
         }
 
         if(buttons != null){
-            element.put("buttons", buttons);
+            element.add("buttons", buttons);
         }
         
         return element;
@@ -66,12 +66,12 @@ public class Element{
      * @param buttons
      * @return
      */
-    public static JSONObject openGraph(String url, JSONArray buttons){
-        JSONObject element = new JSONObject();
-        element.put("url", url);
+    public static JsonObject openGraph(String url, JsonArray buttons){
+        JsonObject element = new JsonObject();
+        element.addProperty("url", url);
 
         if(buttons != null){
-            element.put("buttons", buttons);
+            element.add("buttons", buttons);
         }
         
         return element;

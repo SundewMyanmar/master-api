@@ -1,17 +1,11 @@
 package com.sdm.master.controller;
 
-import com.sdm.core.component.FBGraphManager;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.sdm.core.config.FacebookProperties;
-import com.sdm.core.model.facebook.Button;
-import com.sdm.core.model.facebook.MessageBuilder;
-import com.sdm.core.model.facebook.QuickReply;
-import com.sdm.core.model.facebook.TemplateBuilder;
-import com.sdm.core.model.facebook.TextMessageBuilder;
-import com.sdm.core.model.facebook.webhook.MessengerEntry;
-import com.sdm.core.model.facebook.webhook.TextMessage;
+import com.sdm.master.service.FBMessengerService;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +27,7 @@ public class FacebookMessengerController {
     FacebookProperties properties;
 
     @Autowired
-    FBGraphManager manager;
+    FBMessengerService messengerService;
 
     @GetMapping("/")
     public ResponseEntity verifyWebhook(@RequestParam("hub.mode") String mode,
@@ -50,33 +44,14 @@ public class FacebookMessengerController {
     @PostMapping("/")
     public ResponseEntity messageReceiver(@RequestBody String request) {
         LOG.info("Received from Facebook => " + request);
-        JSONObject body = new JSONObject(request);
-        if (body.has("object") && body.getString("object").equalsIgnoreCase("page")) {
-            if (body.has("entry")) {
-                JSONArray entries = body.getJSONArray("entry");
-                LOG.info("Entry from Facebook => " + entries);
-                for (int i = 0; i < entries.length(); i++) {
-                    MessengerEntry entry = new MessengerEntry();
-                    entry.deserialize(entries.getJSONObject(i));
-                    if (entry.getMessages().get(0).getBody().getClass().isInstance(TextMessage.class)) {
-                        String sender = entry.getMessages().get(0).getSenderId();
-                        TextMessage received = (TextMessage) entry.getMessages().get(0).getBody();
-                        if (!received.isEcho()) {
-                            // Send Message
-                            JSONArray buttons = new JSONArray();
-                            buttons.put(Button.url("SUNDEW", "http://www.sundewmyanmar.com"));
-                            buttons.put(Button.url("MeFood", "http://food.threeinlife.com"));
+        JsonObject body = new Gson().fromJson(request, JsonObject.class);
+        if (body.has("object") && !body.get("object").isJsonNull()
+                && body.get("object").getAsString().equalsIgnoreCase("page")) {
+            if (body.has("entry") && !body.get("entry").isJsonNull()) {
 
-                            TemplateBuilder builder = new TemplateBuilder();
-                            builder.buildButtonTemplate("Test Buttons", buttons, false);
-                            builder.setRecipient(sender);
-
-
-                            manager.sendMessage(builder.build());
-                        }else{
-                            LOG.info("Echo messages => " + received.serialize().toString());
-                        }
-                    }
+                JsonArray entries = body.get("entry").getAsJsonArray();
+                for (int i = 0; i < entries.size(); i++) {
+                    messengerService.messageAnaylsis(entries.get(i).getAsJsonObject());
                 }
             }
         } else {

@@ -1,10 +1,11 @@
 package com.sdm.core.component;
 
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.sdm.core.config.FacebookProperties;
 import com.sdm.core.exception.GeneralException;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -26,7 +27,7 @@ public class FBGraphManager{
         this.properties = properties;
     }
 
-    public JSONObject checkFacebookToken(String accessToken, String fields, String userAgent){
+    public JsonObject checkFacebookToken(String accessToken, String fields, String userAgent){
         //Build Facebook Auth URL
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(this.properties.getGraphURL() + "me")
             .queryParam("fields", fields)
@@ -43,12 +44,12 @@ public class FBGraphManager{
             HttpMethod.GET, requestEntity, String.class);
 
         if(result.getStatusCode() == HttpStatus.OK){
-            return new JSONObject(result.getBody());
+            return new Gson().fromJson(result.getBody(), JsonObject.class);
         }
         throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
     }
 
-    public ResponseEntity<String> sendMessage(JSONObject entity) {
+    public ResponseEntity<String> sendMessage(JsonObject entity) {
         //Build Facebook Auth URL
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(this.properties.getGraphURL() + "me/messages")
             .queryParam("access_token", this.properties.getPageAccessToken());
@@ -57,10 +58,10 @@ public class FBGraphManager{
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
 
-        LOG.info("Send Message to Facebook => " + entity.toString());
+        LOG.info("Send Message to Facebook => " + entity.getAsString());
 
         //Build Request Body
-        HttpEntity<String> requestEntity = new HttpEntity<>(entity.toString(), headers);
+        HttpEntity<String> requestEntity = new HttpEntity<>(entity.getAsString(), headers);
 
         //Request
         RestTemplate restTemplate = new RestTemplate();

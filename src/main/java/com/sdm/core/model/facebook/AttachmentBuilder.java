@@ -1,8 +1,8 @@
 package com.sdm.core.model.facebook;
 
+import com.google.gson.JsonObject;
 import com.sdm.core.model.facebook.type.AttachmentType;
 
-import org.json.JSONObject;
 
 /**
  * The Messenger Platform allows you to attach assets to messages, including
@@ -11,19 +11,19 @@ import org.json.JSONObject;
  */
 public class AttachmentBuilder extends MessageBuilder {
     private AttachmentType type;
-    private JSONObject payload;
+    private JsonObject payload;
 
     public AttachmentBuilder() {
         super();
-        this.payload = new JSONObject();
+        this.payload = new JsonObject();
     }
 
     @Override
-    public JSONObject build() {
-        JSONObject attachment = new JSONObject();
-        attachment.put("type", type.toString());
-        attachment.put("payload", this.payload);
-        this.getMessage().put("attachment", this.payload);
+    public JsonObject build() {
+        JsonObject attachment = new JsonObject();
+        attachment.addProperty("type", type.toString());
+        attachment.add("payload", this.payload);
+        this.getMessage().add("attachment", this.payload);
         return super.build();
     }
 
@@ -35,9 +35,9 @@ public class AttachmentBuilder extends MessageBuilder {
      * @return
      */
     public void attachURL(String url, boolean reusable) {
-        this.payload = new JSONObject();
-        this.payload.put("url", url);
-        this.payload.put("reusable", reusable);
+        this.payload = new JsonObject();
+        this.payload.addProperty("url", url);
+        this.payload.addProperty("reusable", reusable);
     }
 
     /**
@@ -49,8 +49,8 @@ public class AttachmentBuilder extends MessageBuilder {
      * @return
      */
     public void attachAssets(String id) {
-        this.payload = new JSONObject();
-        this.payload.put("attachment_id", id);
+        this.payload = new JsonObject();
+        this.payload.addProperty("attachment_id", id);
     }
 
     /**
@@ -70,14 +70,14 @@ public class AttachmentBuilder extends MessageBuilder {
     /**
      * @return the payload
      */
-    public JSONObject getPayload() {
+    public JsonObject getPayload() {
         return payload;
     }
 
     /**
      * @param payload the payload to set
      */
-    public void setPayload(JSONObject payload) {
+    public void setPayload(JsonObject payload) {
         this.payload = payload;
     }
 

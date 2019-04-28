@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import com.google.gson.JsonObject;
 import com.sdm.core.component.FBGraphManager;
 import com.sdm.core.component.WebMailManager;
 import com.sdm.core.config.SecurityProperties;
@@ -23,7 +24,6 @@ import com.sdm.master.request.AuthRequest;
 import com.sdm.master.request.FacebookAuthRequest;
 import com.sdm.master.request.RegistrationRequest;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -217,9 +217,9 @@ public class AuthService {
         return ResponseEntity.ok(authUser);
     }
 
-    private UserEntity createFacebookUser(JSONObject profileObj) {
-        String userName = "FB" + profileObj.getString("id");
-        String displayName = profileObj.getString("name");
+    private UserEntity createFacebookUser(JsonObject profileObj) {
+        String userName = "FB" + profileObj.get("id").getAsString();
+        String displayName = profileObj.get("name").getAsString();
 
         Random rnd = new Random();
         int size = rnd.nextInt((MAX_PASSWORD - MIN_PASSWORD) + 1) + MIN_PASSWORD;
@@ -228,32 +228,32 @@ public class AuthService {
         String password = securityManager.hashString(rawPassword);
         UserEntity userEntity = new UserEntity(userName, displayName, password, UserEntity.Status.ACTIVE);
 
-        if (profileObj.has("email")) {
-            userEntity.setEmail(profileObj.getString("email"));
+        if (profileObj.has("email") && !profileObj.get("email").isJsonNull()){
+            userEntity.setEmail(profileObj.get("email").getAsString());
         }
 
-        if (profileObj.has("gender")) {
-            userEntity.addExtra("gender", profileObj.getString("gender"));
+        if (profileObj.has("gender") && !profileObj.get("gender").isJsonNull()){
+            userEntity.setEmail(profileObj.get("gender").getAsString());
         }
 
-        if (profileObj.has("age_range")) {
-            userEntity.addExtra("age_range", profileObj.getString("age_range"));
+        if (profileObj.has("age_range") && !profileObj.get("age_range").isJsonNull()){
+            userEntity.setEmail(profileObj.get("age_range").getAsString());
         }
 
-        userEntity.setFacebookId(profileObj.getString("id"));
+        userEntity.setFacebookId(profileObj.get("id").getAsString());
         return userRepository.save(userEntity);
     }
 
     @Transactional
     public ResponseEntity facebookAuth(FacebookAuthRequest request, String userAgent) {
-        JSONObject facebookProfile = facebookGraphManager.checkFacebookToken(request.getAccessToken(), FB_AUTH_FIELDS, userAgent);
-        String id = facebookProfile.getString("id");
+        JsonObject facebookProfile = facebookGraphManager.checkFacebookToken(request.getAccessToken(), FB_AUTH_FIELDS, userAgent);
+        String id = facebookProfile.get("id").getAsString();
 
         //Check User by FacebookId
         UserEntity authUser = userRepository.findByFacebookId(id)
             .orElseGet(() -> this.createFacebookUser(facebookProfile));
 
-        if (authUser.getFacebookId().equalsIgnoreCase(facebookProfile.getString("id"))) {
+        if (authUser.getFacebookId().equalsIgnoreCase(facebookProfile.get("id").getAsString())) {
             this.createToken(authUser, request, userAgent);
         } else {
             throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
