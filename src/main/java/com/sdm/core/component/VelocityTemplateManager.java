@@ -10,6 +10,7 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.StringWriter;
@@ -20,6 +21,7 @@ import java.util.logging.Logger;
  * @author htoonlin
  */
 @Component
+@Scope("prototype")
 public class VelocityTemplateManager {
 
     private static final Logger LOG = Logger.getLogger(VelocityTemplateManager.class.getName());
