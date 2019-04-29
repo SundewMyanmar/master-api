@@ -5,6 +5,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.sdm.core.config.FacebookProperties;
 import com.sdm.core.exception.GeneralException;
+import com.sdm.core.model.facebook.AttachmentBuilder;
+import com.sdm.core.model.facebook.MessageBuilder;
+import com.sdm.core.model.facebook.TemplateBuilder;
+import com.sdm.core.model.facebook.TextMessageBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +53,7 @@ public class FBGraphManager{
         throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
     }
 
-    public ResponseEntity<String> sendMessage(JsonObject entity) {
+    public ResponseEntity<String> sendMessage(String entity) {
         //Build Facebook Auth URL
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(this.properties.getGraphURL() + "me/messages")
             .queryParam("access_token", this.properties.getPageAccessToken());
@@ -58,10 +62,10 @@ public class FBGraphManager{
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
 
-        LOG.info("Send Message to Facebook => " + entity.getAsString());
+        LOG.info("Send Message to Facebook => " + entity);
 
         //Build Request Body
-        HttpEntity<String> requestEntity = new HttpEntity<>(entity.getAsString(), headers);
+        HttpEntity<String> requestEntity = new HttpEntity<>(entity, headers);
 
         //Request
         RestTemplate restTemplate = new RestTemplate();
@@ -70,6 +74,26 @@ public class FBGraphManager{
 
         LOG.info("Facebook Response => " + result.getBody());
         return result;
+    }
+
+    public ResponseEntity<String> sendMessage(JsonObject json){
+        return this.sendMessage(json.getAsString());
+    }
+
+    public ResponseEntity<String> sendMessage(MessageBuilder builder){
+        return this.sendMessage(builder.build().getAsString());
+    }
+
+    public ResponseEntity<String> sendTextMessage(TextMessageBuilder builder){
+        return this.sendMessage(builder.build().getAsString());
+    }
+
+    public ResponseEntity<String> sendAttachment(AttachmentBuilder builder){
+        return this.sendMessage(builder.build().getAsString());
+    }
+
+    public ResponseEntity<String> sendTemplate(TemplateBuilder builder){
+        return this.sendMessage(builder.build().getAsString());
     }
 
 }
