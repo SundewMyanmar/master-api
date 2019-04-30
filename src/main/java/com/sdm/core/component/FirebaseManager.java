@@ -21,7 +21,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
-import com.sdm.core.config.FireBaseProperties;
+import com.sdm.core.config.properties.FireBaseProperties;
 import com.sdm.core.util.MyanmarFontManager;
 
 import org.slf4j.Logger;

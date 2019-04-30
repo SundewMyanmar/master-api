@@ -1,6 +1,6 @@
 package com.sdm.master.service;
 
-import com.sdm.core.config.PathProperties;
+import com.sdm.core.config.properties.PathProperties;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.util.FileManager;
 import com.sdm.core.util.Globalizer;

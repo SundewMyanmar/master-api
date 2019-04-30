@@ -1,4 +1,4 @@
-package com.sdm.core.config;
+package com.sdm.core.config.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

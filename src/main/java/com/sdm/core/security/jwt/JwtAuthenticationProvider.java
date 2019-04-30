@@ -1,7 +1,7 @@
 package com.sdm.core.security.jwt;
 
 import com.sdm.Constants;
-import com.sdm.core.config.SecurityProperties;
+import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.exception.InvalidTokenExcpetion;
 import com.sdm.core.model.AuthInfo;
 import io.jsonwebtoken.Claims;

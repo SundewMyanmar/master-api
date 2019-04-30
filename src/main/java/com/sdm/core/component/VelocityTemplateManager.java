@@ -5,7 +5,7 @@
  */
 package com.sdm.core.component;
 
-import com.sdm.core.config.PathProperties;
+import com.sdm.core.config.properties.PathProperties;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;

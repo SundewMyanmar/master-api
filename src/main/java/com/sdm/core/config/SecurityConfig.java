@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.google.common.collect.ObjectArrays;
 import com.sdm.Constants;
+import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.security.CorsFilter;
 import com.sdm.core.security.PermissionHandler;
 import com.sdm.core.security.PermissionMatcher;

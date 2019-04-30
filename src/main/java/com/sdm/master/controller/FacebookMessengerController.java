@@ -3,7 +3,7 @@ package com.sdm.master.controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.sdm.core.config.FacebookProperties;
+import com.sdm.core.config.properties.FacebookProperties;
 import com.sdm.master.service.FBMessengerService;
 
 import org.slf4j.Logger;

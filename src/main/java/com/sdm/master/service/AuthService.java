@@ -9,9 +9,8 @@ import java.util.UUID;
 
 import com.google.gson.JsonObject;
 import com.sdm.core.component.FBGraphManager;
-import com.sdm.core.component.FirebaseManager;
 import com.sdm.core.component.WebMailManager;
-import com.sdm.core.config.SecurityProperties;
+import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.MailHeader;
 import com.sdm.core.security.SecurityManager;
