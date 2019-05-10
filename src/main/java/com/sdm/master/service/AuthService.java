@@ -9,8 +9,9 @@ import java.util.UUID;
 
 import com.google.gson.JsonObject;
 import com.sdm.core.component.FBGraphManager;
+import com.sdm.core.component.FirebaseManager;
 import com.sdm.core.component.WebMailManager;
-import com.sdm.core.config.properties.SecurityProperties;
+import com.sdm.core.config.SecurityProperties;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.MailHeader;
 import com.sdm.core.security.SecurityManager;
@@ -59,7 +60,7 @@ public class AuthService {
     @Autowired
     TokenRepository tokenRepository;
 
-    private static final String FB_AUTH_FIELDS = "id, name, email, gender, age_range";
+    private static final String FB_AUTH_FIELDS = "id,name,email,gender,age_range";
 
     private static final int MAX_PASSWORD = 32;
     private static final int MIN_PASSWORD = 16;
@@ -166,6 +167,24 @@ public class AuthService {
         return tokenString;
     }
 
+    private String createToken(UserEntity user, FacebookAuthRequest request, String userAgent) {
+        TokenEntity token = tokenRepository.findByDeviceIdAndDeviceOs(request.getDeviceId(), request.getDeviceOS())
+                .orElseGet(() -> new TokenEntity());
+
+        token.setUser(user);
+        token.setDeviceId(request.getDeviceId());
+        token.setDeviceOs(request.getDeviceOS());
+        if (request.getFirebaseToken() != null && !request.getFirebaseToken().isEmpty()) {
+            token.setFirebaseToken(request.getFirebaseToken());
+        }
+
+        // Generate and store JWT
+        String tokenString = this.generateJWT(token, userAgent);
+        user.setCurrentToken(tokenString);
+
+        return tokenString;
+    }
+
     @Transactional
     public ResponseEntity authByPassword(AuthRequest request, String userAgent) {
         String password = securityManager.hashString(request.getPassword());
@@ -233,11 +252,13 @@ public class AuthService {
         }
 
         if (profileObj.has("gender") && !profileObj.get("gender").isJsonNull()){
-            userEntity.setEmail(profileObj.get("gender").getAsString());
+            userEntity.addExtra("gender",profileObj.get("gender").getAsString());
         }
 
         if (profileObj.has("age_range") && !profileObj.get("age_range").isJsonNull()){
-            userEntity.setEmail(profileObj.get("age_range").getAsString());
+            JsonObject obj=profileObj.get("age_range").getAsJsonObject();
+
+            userEntity.addExtra("age_range",obj.toString());
         }
 
         userEntity.setFacebookId(profileObj.get("id").getAsString());
