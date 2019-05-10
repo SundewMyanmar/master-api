@@ -15,7 +15,7 @@ import java.io.Serializable;
  * @author Htoonlin
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class FacebookAuthRequest extends AuthRequest implements Serializable {
+public class FacebookAuthRequest implements Serializable {
 
     /**
      *
@@ -34,12 +34,47 @@ public class FacebookAuthRequest extends AuthRequest implements Serializable {
         this.accessToken = value;
     }
 
+    @NotBlank(message = "Device UniqueID is required.")
+    @Size(max = 255)
+    private String deviceId;
+
+    @NotBlank(message = "Device OS (ios, android, windows, browser) is required.")
+    @Size(max = 50)
+    private String deviceOS;
+
+    @Size(max = 255)
+    private String firebaseToken;
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((accessToken == null) ? 0 : accessToken.hashCode());
         return result;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public String getDeviceOS() {
+        return deviceOS;
+    }
+
+    public void setDeviceOS(String deviceOS) {
+        this.deviceOS = deviceOS;
+    }
+
+    public String getFirebaseToken() {
+        return firebaseToken;
+    }
+
+    public void setFirebaseToken(String firebaseToken) {
+        this.firebaseToken = firebaseToken;
     }
 
     @Override
