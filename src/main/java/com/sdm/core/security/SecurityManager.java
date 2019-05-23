@@ -6,7 +6,7 @@
 package com.sdm.core.security;
 
 
-import com.sdm.core.config.properties.SecurityProperties;
+import com.sdm.core.config.SecurityProperties;
 import com.sdm.core.util.Globalizer;
 import io.jsonwebtoken.impl.crypto.MacProvider;
 import org.slf4j.Logger;
@@ -14,11 +14,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.Mac;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -95,5 +98,40 @@ public class SecurityManager {
     public String generateJWTKey() {
         byte[] key = MacProvider.generateKey().getEncoded();
         return Base64.getEncoder().encodeToString(key);
+    }
+
+    public String generateHashHmac(String stringData,String secretKey){
+        Mac sha512_HMAC = null;
+        try{
+            byte [] byteKey = secretKey.getBytes("UTF-8");
+            final String HMAC_SHA512 = "HmacSHA512";
+            sha512_HMAC = Mac.getInstance(HMAC_SHA512);
+            SecretKeySpec keySpec = new SecretKeySpec(byteKey, HMAC_SHA512);
+            sha512_HMAC.init(keySpec);
+            byte [] mac_data = sha512_HMAC.
+                    doFinal(stringData.getBytes("UTF-8"));
+            //result = Base64.encode(mac_data);
+            return bytesToHex(mac_data);
+        } catch (UnsupportedEncodingException e) {
+
+        } catch (NoSuchAlgorithmException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String bytesToHex(byte[] bytes) {
+        final  char[] hexArray = "0123456789ABCDEF".toCharArray();
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 }

@@ -1,11 +1,6 @@
 package com.sdm.master.service;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 import com.google.gson.JsonObject;
 import com.sdm.core.component.FBGraphManager;
@@ -120,7 +115,7 @@ public class AuthService {
         String passwordChars = securityProperties.getTokenChars() + "!@#$%^&*_+=abcdefghijklmnopqrstuvwxyz";
         String rawPassword = Globalizer.generateToken(passwordChars, size);
         String password = securityManager.hashString(rawPassword);
-        return new UserEntity(userName, "Anonymous", password, UserEntity.Status.ACTIVE);
+        return new UserEntity(userName, "Anonymous", password, UserEntity.Status.ACTIVE,false);
     }
 
     @Transactional
@@ -212,7 +207,7 @@ public class AuthService {
         UserEntity.Status status = securityProperties.isRequireConfirm() ? UserEntity.Status.PENDING : UserEntity.Status.ACTIVE;
         String password = securityManager.hashString(request.getPassword());
         UserEntity newUser = new UserEntity(request.getEmail(), request.getUser(), request.getDisplayName(),
-            password, status);
+            password, status,false);
         userRepository.save(newUser);
 
         this.createToken(newUser, request, userAgent);
@@ -236,7 +231,11 @@ public class AuthService {
         return ResponseEntity.ok(authUser);
     }
 
-    private UserEntity createFacebookUser(JsonObject profileObj) {
+
+    public UserEntity createFacebookUser(JsonObject profileObj) {
+        Optional<UserEntity> dbEntity;
+        UserEntity userEntity;
+
         String userName = "FB" + profileObj.get("id").getAsString();
         String displayName = profileObj.get("name").getAsString();
 
@@ -245,10 +244,24 @@ public class AuthService {
         String passwordChars = securityProperties.getTokenChars() + "!@#$%^&*_+=abcdefghijklmnopqrstuvwxyz";
         String rawPassword = Globalizer.generateToken(passwordChars, size);
         String password = securityManager.hashString(rawPassword);
-        UserEntity userEntity = new UserEntity(userName, displayName, password, UserEntity.Status.ACTIVE);
 
         if (profileObj.has("email") && !profileObj.get("email").isJsonNull()){
-            userEntity.setEmail(profileObj.get("email").getAsString());
+            String email=profileObj.get("email").getAsString();
+
+            //Get Back Old User Data With Email
+            dbEntity =userRepository.findByUserNameOrEmail(email,email);
+
+            if(dbEntity.isPresent()){
+                userEntity=dbEntity.get();
+                userEntity.setDisplayName(displayName);
+            }else{
+                userEntity = new UserEntity(userName, displayName, password, UserEntity.Status.ACTIVE,false);
+                userEntity.setEmail(profileObj.get("email").getAsString());
+            }
+        }else{
+            userEntity = new UserEntity(userName, displayName, password, UserEntity.Status.ACTIVE,false);
+            //if no email
+            userEntity.setEmail(profileObj.get("id").getAsString()+"@facebook.com");
         }
 
         if (profileObj.has("gender") && !profileObj.get("gender").isJsonNull()){

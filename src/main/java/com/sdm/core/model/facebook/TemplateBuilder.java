@@ -4,6 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.sdm.core.model.facebook.type.TemplateType;
 
+import java.util.Date;
+
 
 /**
  * The Messenger Platform allows you to attach assets to messages, including
@@ -96,6 +98,49 @@ public class TemplateBuilder extends MessageBuilder {
      * @param sharable
      * @return
      */
+
+    public JsonObject buildReceiptTemplate(String recipient_name,String order_number,String currency,String payment_method,String order_url,
+                                           JsonObject address,JsonObject summary,JsonArray adjustments,JsonArray elements){
+        this.setTemplateType(TemplateType.receipt);
+        if(recipient_name!=null && !recipient_name.equals("")){
+            this.payload.addProperty("recipient_name",recipient_name);
+        }
+
+        if(order_number!=null && !order_number.equals("")){
+            this.payload.addProperty("order_number",order_number);
+        }
+
+        if(currency!=null && !currency.equals("")){
+            this.payload.addProperty("currency",currency);
+        }
+
+        if(payment_method!=null && !payment_method.equals("")){
+            this.payload.addProperty("payment_method",payment_method);
+        }
+
+        if(order_url!=null && !order_url.equals("")){
+            this.payload.addProperty("order_url",order_url);
+        }
+
+        if(address!=null){
+            this.payload.add("address",address);
+        }
+
+        if(summary!=null){
+            this.payload.add("summary",summary);
+        }
+
+        if(adjustments!=null && adjustments.size()>0){
+            this.payload.add("adjustments",adjustments);
+        }
+
+        if(elements!=null && elements.size()>0){
+            this.payload.add("elements",elements);
+        }
+
+        return this.build();
+    }
+
     public JsonObject buildListTemplate(JsonArray elements, JsonArray buttons, String topElementStyle,
             boolean sharable) {
         this.setTemplateType(TemplateType.list);
@@ -166,4 +211,6 @@ public class TemplateBuilder extends MessageBuilder {
     public void setPayload(JsonObject payload) {
         this.payload = payload;
     }
+
+
 }

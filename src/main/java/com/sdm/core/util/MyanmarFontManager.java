@@ -9,6 +9,7 @@ import com.google.myanmartools.TransliterateU2Z;
 import com.google.myanmartools.TransliterateZ2U;
 import com.google.myanmartools.ZawgyiDetector;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,34 @@ public class MyanmarFontManager {
     private static final ZawgyiDetector zgDetector = new ZawgyiDetector();
     private static final TransliterateZ2U z2u = new TransliterateZ2U("Zawgyi to Unicode");
     private static final TransliterateU2Z u2z = new TransliterateU2Z("Unicode to Zawgyi");
+    private static final String[] mm_numbers=new String[]{"၀",
+            "၁",
+            "၂",
+            "၃",
+            "၄",
+            "၅",
+            "၆",
+            "၇",
+            "၈",
+            "၉"};
+
+    public static String convertToMMNumber(String nums) {
+        String result = "";
+        String txt = nums.toString();
+
+        for (int i = 0; i < txt.length(); i++) {
+            //don't translate, if not number
+
+            if (!StringUtils.isNumeric(String.valueOf(txt.charAt(i)))) {
+                result += txt.charAt(i);
+                continue;
+            }
+
+            result += mm_numbers[Integer.parseInt(String.valueOf(txt.charAt(i)))];
+        }
+
+        return result;
+    }
 
     // These Pattern Ref => http://novasteps.com/shake-n-break.html
     private static final Pattern IS_MYANMAR_PATTERN = Pattern.compile("[\u1000-\u1021]+|[\u1025-\u1027]");

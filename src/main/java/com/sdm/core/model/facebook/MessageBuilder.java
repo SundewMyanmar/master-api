@@ -2,18 +2,23 @@ package com.sdm.core.model.facebook;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.sdm.core.model.facebook.type.MessageType;
 import com.sdm.core.model.facebook.type.NotificationType;
+import com.sdm.core.model.facebook.type.QuickReplyType;
 import com.sdm.core.model.facebook.type.SenderAction;
+
+import javax.management.remote.JMXConnectorFactory;
 
 /**
  * Send Message Format Ref =>
  * https://developers.facebook.com/docs/messenger-platform/reference/send-api
  */
 public class MessageBuilder {
-    private String messagingType;
+    private MessageType messagingType;
     private JsonObject recipient;
     private JsonObject message;
     private JsonArray quickReplies;
+
     private NotificationType notificationType;
     private String tag;
 
@@ -25,14 +30,15 @@ public class MessageBuilder {
     public JsonObject build() {
         JsonObject result = new JsonObject();
         result.add("recipient", this.recipient);
+
         result.add("message", this.message);
 
         if (quickReplies != null && quickReplies.size() > 0) {
             this.message.add("quick_replies", this.quickReplies);
         }
 
-        if (this.messagingType != null && this.messagingType.length() > 0) {
-            result.addProperty("messaging_type", this.messagingType);
+        if (this.messagingType != null) {
+            result.addProperty("messaging_type", this.messagingType.toString());
         }
 
         if (this.notificationType != null) {
@@ -43,6 +49,7 @@ public class MessageBuilder {
             result.addProperty("messaging_type", "MESSAGE_TAG");
             result.addProperty("tag", this.tag);
         }
+
         return result;
     }
 
@@ -57,6 +64,7 @@ public class MessageBuilder {
         JsonObject result = this.build();
         if (action != null) {
             result.addProperty("sender_action", action.toString());
+            result.remove("message");
         }
         return result;
     }
@@ -157,14 +165,14 @@ public class MessageBuilder {
     /**
      * @return the messagingType
      */
-    public String getMessagingType() {
+    public MessageType getMessagingType() {
         return messagingType;
     }
 
     /**
      * @param messagingType the messagingType to set
      */
-    public void setMessagingType(String messagingType) {
+    public void setMessagingType(MessageType messagingType) {
         this.messagingType = messagingType;
     }
 
@@ -179,10 +187,14 @@ public class MessageBuilder {
      * @param payload
      * @param image
      */
-    public void addQuickReply(String type, String title, String payload, String image) {
+    public void addQuickReply(QuickReplyType type, String title, String payload, String image) {
+        if(this.quickReplies==null){
+            this.quickReplies= new JsonArray();
+        }
+
         JsonObject quickReply = new JsonObject();
-        if (type != null && type.length() > 0) {
-            quickReply.addProperty("content_type", type);
+        if (type != null) {
+            quickReply.addProperty("content_type", type.toString());
         }
         if (title != null && title.length() > 0) {
             quickReply.addProperty("title", title);

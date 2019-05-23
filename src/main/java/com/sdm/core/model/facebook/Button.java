@@ -115,11 +115,11 @@ public class Button {
      * @param value
      * @return
      */
-    public static JsonObject postBack(String title, String value) {
+    public static JsonObject postBack(String title, String payload) {
         JsonObject button = new JsonObject();
-        button.addProperty("type", "web_url");
+        button.addProperty("type", "postback");
         button.addProperty("title", title);
-        button.addProperty("payload", value);
+        button.addProperty("payload", payload);
         return button;
     }
 
