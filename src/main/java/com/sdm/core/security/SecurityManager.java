@@ -6,7 +6,7 @@
 package com.sdm.core.security;
 
 
-import com.sdm.core.config.SecurityProperties;
+import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.util.Globalizer;
 import io.jsonwebtoken.impl.crypto.MacProvider;
 import org.slf4j.Logger;

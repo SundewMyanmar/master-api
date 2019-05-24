@@ -3,7 +3,8 @@ package com.sdm.core.component;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.sdm.core.config.FacebookProperties;
+
+import com.sdm.core.config.properties.FacebookProperties;
 import com.sdm.core.exception.GeneralException;
 
 import com.sdm.core.security.SecurityManager;

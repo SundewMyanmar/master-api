@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import com.sdm.core.component.FBGraphManager;
 import com.sdm.core.component.FirebaseManager;
 import com.sdm.core.component.WebMailManager;
-import com.sdm.core.config.SecurityProperties;
+import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.MailHeader;
 import com.sdm.core.security.SecurityManager;
@@ -115,7 +115,7 @@ public class AuthService {
         String passwordChars = securityProperties.getTokenChars() + "!@#$%^&*_+=abcdefghijklmnopqrstuvwxyz";
         String rawPassword = Globalizer.generateToken(passwordChars, size);
         String password = securityManager.hashString(rawPassword);
-        return new UserEntity(userName, "Anonymous", password, UserEntity.Status.ACTIVE,false);
+        return new UserEntity(userName, "Anonymous", password, UserEntity.Status.ACTIVE);
     }
 
     @Transactional
@@ -207,7 +207,7 @@ public class AuthService {
         UserEntity.Status status = securityProperties.isRequireConfirm() ? UserEntity.Status.PENDING : UserEntity.Status.ACTIVE;
         String password = securityManager.hashString(request.getPassword());
         UserEntity newUser = new UserEntity(request.getEmail(), request.getUser(), request.getDisplayName(),
-            password, status,false);
+            password, status);
         userRepository.save(newUser);
 
         this.createToken(newUser, request, userAgent);
@@ -255,11 +255,11 @@ public class AuthService {
                 userEntity=dbEntity.get();
                 userEntity.setDisplayName(displayName);
             }else{
-                userEntity = new UserEntity(userName, displayName, password, UserEntity.Status.ACTIVE,false);
+                userEntity = new UserEntity(userName, displayName, password, UserEntity.Status.ACTIVE);
                 userEntity.setEmail(profileObj.get("email").getAsString());
             }
         }else{
-            userEntity = new UserEntity(userName, displayName, password, UserEntity.Status.ACTIVE,false);
+            userEntity = new UserEntity(userName, displayName, password, UserEntity.Status.ACTIVE);
             //if no email
             userEntity.setEmail(profileObj.get("id").getAsString()+"@facebook.com");
         }
