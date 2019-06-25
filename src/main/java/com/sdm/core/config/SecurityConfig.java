@@ -59,7 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     };
 
     private static final String[] ROOT_PERMISSION_LIST = {
-        "/users/**"
+
     };
 
     /**

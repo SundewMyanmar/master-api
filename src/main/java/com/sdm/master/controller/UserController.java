@@ -1,6 +1,6 @@
 package com.sdm.master.controller;
 
-import com.sdm.core.controller.ReadController;
+import com.sdm.core.controller.ReadWriteController;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.master.entity.UserEntity;
@@ -16,7 +16,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/users")
-public class UserController extends ReadController<UserEntity, Long> {
+public class UserController extends ReadWriteController<UserEntity, Long> {
 
     @Autowired
     UserRepository userRepository;
@@ -40,5 +40,46 @@ public class UserController extends ReadController<UserEntity, Long> {
         userRepository.save(existUser);
 
         return ResponseEntity.ok(existUser);
+    }
+
+    @Override
+    public ResponseEntity create(@Valid @RequestBody UserEntity request) {
+        //Check user by user name
+        userRepository.findByUserNameOrEmail(request.getUserName(), request.getEmail())
+                .ifPresent(user -> {
+                    if (user.getEmail().equalsIgnoreCase(request.getEmail())) {
+                        throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! someone already registered with this email");
+                    } else if (user.getUserName().equalsIgnoreCase(request.getUserName())) {
+                        throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! someone already registered with this username");
+                    }
+                });
+
+        String password = securityManager.hashString(request.getPassword());
+        request.setPassword(password);
+
+        UserEntity entity=userRepository.save(request);
+
+        return new ResponseEntity(entity, HttpStatus.CREATED);
+    }
+
+    @Override
+    @PutMapping("/{id}")
+    public ResponseEntity update(@Valid @RequestBody UserEntity request, @PathVariable("id") Long id) {
+        UserEntity dbEntity = this.getRepository().findById(id)
+                .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT,
+                        "There is no any data by : " + id.toString()));
+
+        if (!id.equals(request.getId())) {
+            throw new GeneralException(HttpStatus.CONFLICT,
+                    "Path ID and body ID aren't match.");
+        }
+
+        request.setUserName(dbEntity.getUserName());
+        request.setEmail(dbEntity.getEmail());
+        request.setPassword(dbEntity.getPassword());
+        request.setFacebookId(dbEntity.getFacebookId());
+
+        UserEntity entity = getRepository().save(request);
+        return ResponseEntity.ok(entity);
     }
 }

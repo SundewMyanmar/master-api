@@ -20,7 +20,7 @@ public class FBMessengerService {
      * https://developers.facebook.com/docs/messenger-platform/reference/webhook-events
      * @param pageEntry
      */
-    public void messageAnaylsis(JsonObject pageEntry) {
+    public void messageAnaylsis(JsonObject pageEntry, String userAgent) {
         String pageId = pageEntry.get("id").toString();
         long entryTime = pageEntry.get("time").getAsLong();
 

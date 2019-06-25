@@ -9,13 +9,9 @@ import com.sdm.master.service.FBMessengerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/facebook/messenger")
@@ -42,7 +38,7 @@ public class FacebookMessengerController {
     }
 
     @PostMapping("/")
-    public ResponseEntity messageReceiver(@RequestBody String request) {
+    public ResponseEntity messageReceiver(@RequestBody String request, @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) {
         LOG.info("Received from Facebook => " + request);
         JsonObject body = new Gson().fromJson(request, JsonObject.class);
         if (body.has("object") && !body.get("object").isJsonNull()
@@ -51,7 +47,7 @@ public class FacebookMessengerController {
 
                 JsonArray entries = body.get("entry").getAsJsonArray();
                 for (int i = 0; i < entries.size(); i++) {
-                    messengerService.messageAnaylsis(entries.get(i).getAsJsonObject());
+                    messengerService.messageAnaylsis(entries.get(i).getAsJsonObject(),userAgent);
                 }
             }
         } else {
@@ -60,4 +56,7 @@ public class FacebookMessengerController {
 
         return ResponseEntity.ok().build();
     }
+
+
 }
+

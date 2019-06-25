@@ -16,7 +16,7 @@ import java.util.Set;
 
 public abstract class ReadWriteController<T extends DefaultEntity, ID extends Serializable> extends ReadController<T, ID> {
     @PostMapping("/")
-    ResponseEntity create(@Valid @RequestBody T request) {
+    public ResponseEntity create(@Valid @RequestBody T request) {
         T entity = getRepository().save(request);
         return new ResponseEntity(entity, HttpStatus.CREATED);
     }
@@ -28,7 +28,7 @@ public abstract class ReadWriteController<T extends DefaultEntity, ID extends Se
     }
 
     @PutMapping("/{id}")
-    ResponseEntity update(@Valid @RequestBody T request, @PathVariable("id") ID id) {
+    public ResponseEntity update(@Valid @RequestBody T request, @PathVariable("id") ID id) {
         this.checkData(id);
         if (!id.equals(request.getId())) {
             throw new GeneralException(HttpStatus.CONFLICT,

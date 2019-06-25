@@ -49,6 +49,9 @@ public class MenuEntity extends DefaultEntity implements Serializable {
     @Column(nullable = false)
     private boolean divider;
 
+    @Column(nullable = true,name = "parent_id")
+    private Integer parentId;
+
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "parent_id")
     @OneToMany(fetch = FetchType.EAGER)
@@ -64,7 +67,7 @@ public class MenuEntity extends DefaultEntity implements Serializable {
     public MenuEntity() {
     }
 
-    public MenuEntity(int id, String name, String description, String state, String icon, String type, int priority, boolean separator) {
+    public MenuEntity(int id, String name, String description, String state, String icon, String type, int priority, boolean separator,Integer parentId) {
         super();
         this.id = id;
         this.name = name;
@@ -74,6 +77,7 @@ public class MenuEntity extends DefaultEntity implements Serializable {
         this.type = type;
         this.priority = priority;
         this.divider = separator;
+        this.parentId=parentId;
     }
 
     @Override
@@ -139,6 +143,14 @@ public class MenuEntity extends DefaultEntity implements Serializable {
 
     public void setDivider(boolean divider) {
         this.divider = divider;
+    }
+
+    public Integer getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Integer parentId) {
+        this.parentId = parentId;
     }
 
     public Set<MenuEntity> getChildren() {

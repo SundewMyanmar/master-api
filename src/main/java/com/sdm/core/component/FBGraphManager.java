@@ -3,7 +3,6 @@ package com.sdm.core.component;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
 import com.sdm.core.config.properties.FacebookProperties;
 import com.sdm.core.exception.GeneralException;
 
@@ -75,6 +74,27 @@ public class FBGraphManager{
             return new Gson().fromJson(result.getBody(), JsonObject.class);
         }
         throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid PSID!");
+    }
+
+    public ResponseEntity<String> sendWelcomeScreen(JsonObject entity){
+        //Build Facebook Auth URL
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(this.properties.getGraphURL() + "me/messenger_profile")
+                .queryParam("access_token", this.properties.getPageAccessToken());
+
+        //Build Request Headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
+
+        LOG.info("Send Welcome Screen Message to Facebook => " + entity.toString());
+        //Build Request Body
+        HttpEntity<String> requestEntity = new HttpEntity<>(entity.toString(), headers);
+        //Request
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> result = restTemplate.exchange(uriBuilder.toUriString(), HttpMethod.POST,
+                requestEntity, String.class);
+
+        LOG.info("Facebook Response => " + result.getBody());
+        return result;
     }
 
     public ResponseEntity<String> sendMessage(JsonObject entity) {

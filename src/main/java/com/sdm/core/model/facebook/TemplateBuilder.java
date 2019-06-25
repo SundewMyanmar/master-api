@@ -4,7 +4,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.sdm.core.model.facebook.type.TemplateType;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 
 /**
@@ -138,6 +140,14 @@ public class TemplateBuilder extends MessageBuilder {
             this.payload.add("elements",elements);
         }
 
+        //Set POSIX_TIMESTAMP
+        //http://zetcode.com/java/unixtime/
+        Calendar calendar=Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("Asia/Rangoon"));
+        calendar.setTime(new Date());
+
+        this.payload.addProperty("timestamp",calendar.getTimeInMillis()/1000L);
+
         return this.build();
     }
 
@@ -212,5 +222,22 @@ public class TemplateBuilder extends MessageBuilder {
         this.payload = payload;
     }
 
+    public static JsonObject buildWelcomeScreen(String greetingText1,String greetingText2){
+        JsonObject jsonObject=new JsonObject();
+        JsonArray jsonArray=new JsonArray();
 
+        JsonObject greet1=new JsonObject();
+        greet1.addProperty("locale","default");
+        greet1.addProperty("text",greetingText1);
+
+        JsonObject greet2=new JsonObject();
+        greet2.addProperty("locale","en_US");
+        greet2.addProperty("text",greetingText2);
+
+        jsonArray.add(greet1);
+        jsonArray.add(greet2);
+
+        jsonObject.add("greeting",jsonArray);
+        return jsonObject;
+    }
 }
