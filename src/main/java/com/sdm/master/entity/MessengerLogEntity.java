@@ -1,6 +1,7 @@
 package com.sdm.master.entity;
 
 import com.sdm.core.model.DefaultEntity;
+import com.sdm.core.model.annotation.Filterable;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -21,9 +22,11 @@ public class MessengerLogEntity extends DefaultEntity implements Serializable {
     @Column(name="state", columnDefinition = "VARCHAR(50)", length = 50)
     private String state;
 
+    @Filterable
     @Column(name="message_type",columnDefinition = "VARCHAR(50)", length=50)
     private String messageType;
 
+    @Filterable
     @Column(name="message",columnDefinition = "TEXT")
     private String message;
 

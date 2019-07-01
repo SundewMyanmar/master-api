@@ -6,7 +6,9 @@ import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.model.DefaultEntity;
+import com.sdm.core.model.annotation.Filterable;
 import com.sdm.core.model.response.PaginationModel;
+import com.sdm.core.repository.DefaultRepository;
 import com.sdm.core.util.Globalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,13 +26,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class ReadController<T extends DefaultEntity, ID extends Serializable> {
 
     protected static final Logger logger = LoggerFactory.getLogger(ReadController.class);
 
-    protected abstract JpaRepository<T, ID> getRepository();
+    protected abstract DefaultRepository<T, ID> getRepository();
 
     protected Class<T> getEntityClass() {
         ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
@@ -40,6 +42,18 @@ public abstract class ReadController<T extends DefaultEntity, ID extends Seriali
 
     protected AuthInfo getCurrentUser() {
         return (AuthInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
+    private List<String> getFilterFields() {
+        List<String> fields = new ArrayList();
+        Arrays.stream(getEntityClass().getDeclaredFields()).forEach(field ->
+                Arrays.stream(field.getDeclaredAnnotations()).forEach(annotation -> {
+                    if (annotation.annotationType().equals(Filterable.class)) {
+                        fields.add(field.getName());
+                    }
+                })
+        );
+        return fields;
     }
 
     protected T checkData(ID id) {
@@ -67,9 +81,10 @@ public abstract class ReadController<T extends DefaultEntity, ID extends Seriali
     @GetMapping("/")
     ResponseEntity getPageByPage(@RequestParam(value = "page", defaultValue = "0") int pageId,
                                  @RequestParam(value = "size", defaultValue = "10") int pageSize,
-                                 @RequestParam(value = "sort", defaultValue = "id:DESC") String sortString) {
+                                 @RequestParam(value = "sort", defaultValue = "id:DESC") String sortString,
+                                 @RequestParam(value = "filter", defaultValue = "") String filter) {
         try {
-            Page<T> paging = getRepository().findAll(this.buildPagination(pageId, pageSize, sortString));
+            Page<T> paging = getRepository().findAll(this.buildPagination(pageId, pageSize, sortString),filter, this.getFilterFields());
             return new ResponseEntity(new PaginationModel(paging), HttpStatus.PARTIAL_CONTENT);
         } catch (Exception ex) {
             logger.error(ex.getLocalizedMessage(), ex);

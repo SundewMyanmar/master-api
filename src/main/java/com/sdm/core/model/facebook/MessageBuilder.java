@@ -7,8 +7,6 @@ import com.sdm.core.model.facebook.type.NotificationType;
 import com.sdm.core.model.facebook.type.QuickReplyType;
 import com.sdm.core.model.facebook.type.SenderAction;
 
-import javax.management.remote.JMXConnectorFactory;
-
 /**
  * Send Message Format Ref =>
  * https://developers.facebook.com/docs/messenger-platform/reference/send-api

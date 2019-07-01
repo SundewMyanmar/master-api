@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.SecureRandom;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Pattern;
@@ -71,6 +72,15 @@ public class Globalizer {
     public static String getDateString(String format, Date date) {
         SimpleDateFormat formatter = new SimpleDateFormat(format);
         return formatter.format(date);
+    }
+
+    public static Date toDate(String format, String value){
+        SimpleDateFormat formatter=new SimpleDateFormat(format);
+        try{
+            return formatter.parse(value);
+        }catch(ParseException exception){
+            return new Date();
+        }
     }
 
     public static String generateToken(String chars, int length) {

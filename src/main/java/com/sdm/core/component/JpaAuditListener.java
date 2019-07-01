@@ -1,5 +1,6 @@
 package com.sdm.core.component;
 
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
@@ -8,9 +9,6 @@ import org.slf4j.MarkerFactory;
 import javax.persistence.PostPersist;
 import javax.persistence.PostRemove;
 import javax.persistence.PostUpdate;
-
-import com.google.gson.Gson;
-import com.sdm.core.util.Globalizer;
 
 public class JpaAuditListener {
     private static final Logger logger = LoggerFactory.getLogger(JpaAuditListener.class);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sdm.core.model.DefaultEntity;
+import com.sdm.core.model.annotation.Filterable;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.MyanmarFontManager;
 import org.hibernate.annotations.NotFound;
@@ -36,16 +37,19 @@ public class UserEntity extends DefaultEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Filterable
     @NotBlank
     @Size(min = 6, max = 255)
     @Column(name = "userName", unique = true, nullable = false)
     private String userName;
 
+    @Filterable
     @Email
     @Size(max = 255)
     @Column(name = "email", unique = true)
     private String email;
 
+    @Filterable
     @Size(max = 255)
     @JsonIgnore
     @Column(name = "display_name")

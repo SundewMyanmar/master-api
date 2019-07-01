@@ -8,6 +8,7 @@ package com.sdm.master.entity;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sdm.core.model.DefaultEntity;
+import com.sdm.core.model.annotation.Filterable;
 import com.sdm.core.util.FileManager;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -34,12 +35,11 @@ public class FileEntity extends DefaultEntity implements Serializable {
         TRASH
     }
 
-    ;
-
     @Id
     @Column(name = "id", columnDefinition = "char(36)", length = 36, unique = true, nullable = false)
     private String id;
 
+    @Filterable
     @NotBlank
     @Column(name = "name", columnDefinition = "varchar(255)", length = 255, nullable = false)
     private String name;

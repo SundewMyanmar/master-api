@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.sdm.core.config.properties.FacebookProperties;
 import com.sdm.core.exception.GeneralException;
-
 import com.sdm.core.security.SecurityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

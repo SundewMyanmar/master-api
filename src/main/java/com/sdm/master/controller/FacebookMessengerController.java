@@ -5,7 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.sdm.core.config.properties.FacebookProperties;
 import com.sdm.master.service.FBMessengerService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

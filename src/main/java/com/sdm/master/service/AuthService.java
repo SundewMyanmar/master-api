@@ -1,10 +1,7 @@
 package com.sdm.master.service;
 
-import java.util.*;
-
 import com.google.gson.JsonObject;
 import com.sdm.core.component.FBGraphManager;
-import com.sdm.core.component.FirebaseManager;
 import com.sdm.core.component.WebMailManager;
 import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.exception.GeneralException;
@@ -19,7 +16,10 @@ import com.sdm.master.request.AnonymousRequest;
 import com.sdm.master.request.AuthRequest;
 import com.sdm.master.request.FacebookAuthRequest;
 import com.sdm.master.request.RegistrationRequest;
-
+import io.grpc.netty.shaded.io.netty.util.internal.StringUtil;
+import io.jsonwebtoken.CompressionCodecs;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.grpc.netty.shaded.io.netty.util.internal.StringUtil;
-import io.jsonwebtoken.CompressionCodecs;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import java.util.*;
 
 @Service
 public class AuthService {

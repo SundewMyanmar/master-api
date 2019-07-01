@@ -1,17 +1,16 @@
 package com.sdm.core.util;
 
+import com.google.myanmartools.TransliterateU2Z;
+import com.google.myanmartools.TransliterateZ2U;
+import com.google.myanmartools.ZawgyiDetector;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.google.myanmartools.TransliterateU2Z;
-import com.google.myanmartools.TransliterateZ2U;
-import com.google.myanmartools.ZawgyiDetector;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Myanmar Tools uses a machine learning model to give very accurate results

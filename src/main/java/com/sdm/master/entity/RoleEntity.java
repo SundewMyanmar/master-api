@@ -6,6 +6,7 @@
 package com.sdm.master.entity;
 
 import com.sdm.core.model.DefaultEntity;
+import com.sdm.core.model.annotation.Filterable;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -28,9 +29,11 @@ public class RoleEntity extends DefaultEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Filterable
     @Column(unique = true, nullable = false)
     private String name;
 
+    @Filterable
     @Column(columnDefinition = "varchar(500)", length = 500, nullable = false)
     private String description;
 

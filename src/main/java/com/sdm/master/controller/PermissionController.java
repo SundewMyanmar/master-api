@@ -2,11 +2,11 @@ package com.sdm.master.controller;
 
 import com.sdm.core.controller.ReadWriteController;
 import com.sdm.core.model.response.PaginationModel;
+import com.sdm.core.repository.DefaultRepository;
 import com.sdm.master.entity.PermissionEntity;
 import com.sdm.master.repository.PermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +21,7 @@ public class PermissionController extends ReadWriteController<PermissionEntity, 
     private PermissionRepository permissionRepository;
 
     @Override
-    protected JpaRepository<PermissionEntity, Integer> getRepository() {
+    protected DefaultRepository<PermissionEntity, Integer> getRepository() {
         return permissionRepository;
     }
 

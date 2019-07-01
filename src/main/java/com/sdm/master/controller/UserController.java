@@ -2,12 +2,12 @@ package com.sdm.master.controller;
 
 import com.sdm.core.controller.ReadWriteController;
 import com.sdm.core.exception.GeneralException;
+import com.sdm.core.repository.DefaultRepository;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.master.entity.UserEntity;
 import com.sdm.master.repository.UserRepository;
 import com.sdm.master.request.ChangePasswordRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +25,7 @@ public class UserController extends ReadWriteController<UserEntity, Long> {
     private SecurityManager securityManager;
 
     @Override
-    protected JpaRepository<UserEntity, Long> getRepository() {
+    protected DefaultRepository<UserEntity, Long> getRepository() {
         return this.userRepository;
     }
 

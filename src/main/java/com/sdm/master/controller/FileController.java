@@ -3,12 +3,12 @@ package com.sdm.master.controller;
 import com.sdm.core.controller.ReadController;
 import com.sdm.core.model.response.ListModel;
 import com.sdm.core.model.response.MessageModel;
+import com.sdm.core.repository.DefaultRepository;
 import com.sdm.master.entity.FileEntity;
 import com.sdm.master.repository.FileRepository;
 import com.sdm.master.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -33,7 +33,7 @@ public class FileController extends ReadController<FileEntity, String> {
     private FileRepository fileRepository;
 
     @Override
-    protected JpaRepository<FileEntity, String> getRepository() {
+    protected DefaultRepository<FileEntity, String> getRepository() {
         return this.fileRepository;
     }
 

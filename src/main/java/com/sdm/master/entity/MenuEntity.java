@@ -1,6 +1,7 @@
 package com.sdm.master.entity;
 
 import com.sdm.core.model.DefaultEntity;
+import com.sdm.core.model.annotation.Filterable;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
@@ -25,9 +26,11 @@ public class MenuEntity extends DefaultEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Filterable
     @Column(nullable = false, columnDefinition = "varchar(50)")
     private String name;
 
+    @Filterable
     @Column
     private String description;
 
@@ -40,6 +43,7 @@ public class MenuEntity extends DefaultEntity implements Serializable {
     /**
      * Supported Types : module, toggle, link
      */
+    @Filterable
     @Column(nullable = false, columnDefinition = "varchar(10)")
     private String type;
 

@@ -1,9 +1,5 @@
 package com.sdm.core.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import com.google.common.collect.ObjectArrays;
 import com.sdm.Constants;
 import com.sdm.core.config.properties.SecurityProperties;
@@ -14,7 +10,6 @@ import com.sdm.core.security.jwt.JwtAuthenticationFilter;
 import com.sdm.core.security.jwt.JwtAuthenticationProvider;
 import com.sdm.core.security.jwt.JwtUnauthorizeHandler;
 import com.sdm.master.entity.RoleEntity;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +21,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Configuration
 @EnableWebSecurity

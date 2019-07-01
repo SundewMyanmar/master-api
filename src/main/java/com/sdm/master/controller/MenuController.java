@@ -3,11 +3,11 @@ package com.sdm.master.controller;
 import com.sdm.core.controller.ReadWriteController;
 import com.sdm.core.model.response.ListModel;
 import com.sdm.core.model.response.PaginationModel;
+import com.sdm.core.repository.DefaultRepository;
 import com.sdm.master.entity.MenuEntity;
 import com.sdm.master.repository.MenuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +24,7 @@ public class MenuController extends ReadWriteController<MenuEntity, Integer> {
     private MenuRepository menuRepository;
 
     @Override
-    protected JpaRepository<MenuEntity, Integer> getRepository() {
+    protected DefaultRepository<MenuEntity, Integer> getRepository() {
         return menuRepository;
     }
 

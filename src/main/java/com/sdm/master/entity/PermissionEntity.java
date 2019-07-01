@@ -6,6 +6,7 @@
 package com.sdm.master.entity;
 
 import com.sdm.core.model.DefaultEntity;
+import com.sdm.core.model.annotation.Filterable;
 import com.sdm.core.security.PermissionMatcher;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
@@ -31,9 +32,11 @@ public class PermissionEntity extends DefaultEntity implements PermissionMatcher
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Filterable
     @Column(nullable = false)
     private String pattern;
 
+    @Filterable
     @Column
     private String httpMethod;
 
