@@ -35,7 +35,7 @@ public class ResponseWrapper implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> aClass) {
         return (MappingJackson2HttpMessageConverter.class.isAssignableFrom(aClass) ||
-            AbstractJackson2HttpMessageConverter.class.isAssignableFrom(aClass));
+                AbstractJackson2HttpMessageConverter.class.isAssignableFrom(aClass));
     }
 
     @Override

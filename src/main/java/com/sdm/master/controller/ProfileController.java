@@ -29,7 +29,7 @@ public class ProfileController {
     }
 
     // @UserAllowed
-    @GetMapping({ "/", "" })
+    @GetMapping({"/", ""})
     public ResponseEntity getProfile() {
         UserEntity user = userRepository.findById(getCurrentUser().getUserId())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "Sorry! can't find your account."));
@@ -37,7 +37,7 @@ public class ProfileController {
     }
 
     // @UserAllowed
-    @PostMapping({ "/", "" })
+    @PostMapping({"/", ""})
     public ResponseEntity updateProfile(@RequestBody UserEntity user) {
         UserEntity existUser = userRepository.findById(getCurrentUser().getUserId())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "Sorry! can't find your account."));

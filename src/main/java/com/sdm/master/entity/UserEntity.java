@@ -57,8 +57,8 @@ public class UserEntity extends DefaultEntity implements Serializable {
 
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinTable(name = "tbl_user_roles",
-        joinColumns = {@JoinColumn(name = "user_id")},
-        inverseJoinColumns = {@JoinColumn(name = "role_id")})
+            joinColumns = {@JoinColumn(name = "user_id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_id")})
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<RoleEntity> roles = new HashSet<>();
 
@@ -66,7 +66,7 @@ public class UserEntity extends DefaultEntity implements Serializable {
     @MapKeyColumn(name = "name")
     @Column(name = "value")
     @CollectionTable(name = "tbl_user_extras",
-        joinColumns = @JoinColumn(name = "user_id", nullable = false))
+            joinColumns = @JoinColumn(name = "user_id", nullable = false))
     private Map<String, String> extras = new HashMap();
 
     @NotBlank

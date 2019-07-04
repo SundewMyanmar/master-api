@@ -29,7 +29,7 @@ public class AttachmentBuilder extends MessageBuilder {
 
     /**
      * To send an attachment from a URL
-     * 
+     *
      * @param url
      * @param reusable
      * @return
@@ -44,7 +44,7 @@ public class AttachmentBuilder extends MessageBuilder {
      * The Messenger Platform supports saving assets via the Send API and Attachment
      * Upload API. This allows you reuse assets, rather than uploading them every
      * time they are needed.
-     * 
+     *
      * @param id
      * @return
      */

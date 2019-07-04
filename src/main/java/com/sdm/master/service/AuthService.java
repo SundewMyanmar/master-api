@@ -73,7 +73,7 @@ public class AuthService {
 
     private UserEntity setOTP(UserEntity user) {
         user.setOtpToken(Globalizer.generateToken(
-            securityProperties.getTokenChars(), UserEntity.TOKEN_LENGTH));
+                securityProperties.getTokenChars(), UserEntity.TOKEN_LENGTH));
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
         cal.add(Calendar.MINUTE, securityProperties.getOtpLife());
@@ -91,7 +91,7 @@ public class AuthService {
         data.put("current_year", Globalizer.getDateString("yyyy", new Date()));
 
         mailManager.sendByTemplate(new MailHeader(user.getEmail(), title),
-            "mail/create-user.vm", data);
+                "mail/create-user.vm", data);
     }
 
     private Date getTokenExpired() {
@@ -106,8 +106,8 @@ public class AuthService {
         int size = rnd.nextInt((MAX_PASSWORD - MIN_PASSWORD) + 1) + MIN_PASSWORD;
 
         String userName = request.getDeviceOS() + "_"
-            + Globalizer.getDateString("yyyyMMddHHmmss", new Date()) + "_"
-            + Globalizer.generateToken("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 8);
+                + Globalizer.getDateString("yyyyMMddHHmmss", new Date()) + "_"
+                + Globalizer.generateToken("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 8);
 
         String passwordChars = securityProperties.getTokenChars() + "!@#$%^&*_+=abcdefghijklmnopqrstuvwxyz";
         String rawPassword = Globalizer.generateToken(passwordChars, size);
@@ -118,9 +118,9 @@ public class AuthService {
     @Transactional
     public String generateJWT(TokenEntity token, String userAgent) {
         String id = tokenRepository.findByDeviceIdAndDeviceOs(
-            token.getDeviceId(), token.getDeviceOs())
-            .map(existToken -> existToken.getId())
-            .orElseGet(() -> UUID.randomUUID().toString());
+                token.getDeviceId(), token.getDeviceOs())
+                .map(existToken -> existToken.getId())
+                .orElseGet(() -> UUID.randomUUID().toString());
 
         token.setId(id);
 
@@ -129,21 +129,21 @@ public class AuthService {
         tokenRepository.save(token);
 
         String compactJWT = Jwts.builder().setId(token.getId())
-            .setSubject(Long.toString(token.getUser().getId()))
-            .setIssuer(userAgent)
-            .setIssuedAt(new Date())
-            .setExpiration(token.getTokenExpired())
-            .claim("device_id", token.getDeviceId())
-            .claim("device_os", token.getDeviceOs())
-            .compressWith(CompressionCodecs.DEFLATE)
-            .signWith(SignatureAlgorithm.HS512, securityProperties.getJwtKey()).compact();
+                .setSubject(Long.toString(token.getUser().getId()))
+                .setIssuer(userAgent)
+                .setIssuedAt(new Date())
+                .setExpiration(token.getTokenExpired())
+                .claim("device_id", token.getDeviceId())
+                .claim("device_os", token.getDeviceOs())
+                .compressWith(CompressionCodecs.DEFLATE)
+                .signWith(SignatureAlgorithm.HS512, securityProperties.getJwtKey()).compact();
 
         return compactJWT;
     }
 
     private String createToken(UserEntity user, AuthRequest request, String userAgent) {
         TokenEntity token = tokenRepository.findByDeviceIdAndDeviceOs(request.getDeviceId(), request.getDeviceOS())
-            .orElseGet(() -> new TokenEntity());
+                .orElseGet(() -> new TokenEntity());
 
         token.setUser(user);
         token.setDeviceId(request.getDeviceId());
@@ -181,8 +181,8 @@ public class AuthService {
     public ResponseEntity authByPassword(AuthRequest request, String userAgent) {
         String password = securityManager.hashString(request.getPassword());
         UserEntity authUser = userRepository.authByPassword(request.getUser(), password)
-            .orElseThrow(() -> new GeneralException(
-                HttpStatus.UNAUTHORIZED, "Opp! request email or password is something wrong"));
+                .orElseThrow(() -> new GeneralException(
+                        HttpStatus.UNAUTHORIZED, "Opp! request email or password is something wrong"));
 
         this.createToken(authUser, request, userAgent);
 
@@ -193,18 +193,18 @@ public class AuthService {
     public ResponseEntity registerByUserAndEmail(RegistrationRequest request, String userAgent) {
         //Check user by user name
         userRepository.findByUserNameOrEmail(request.getUser(), request.getEmail())
-            .ifPresent(user -> {
-                if (user.getEmail().equalsIgnoreCase(request.getEmail())) {
-                    throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! someone already registered with this email");
-                } else if (user.getUserName().equalsIgnoreCase(request.getUser())) {
-                    throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! someone already registered with this username");
-                }
-            });
+                .ifPresent(user -> {
+                    if (user.getEmail().equalsIgnoreCase(request.getEmail())) {
+                        throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! someone already registered with this email");
+                    } else if (user.getUserName().equalsIgnoreCase(request.getUser())) {
+                        throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! someone already registered with this username");
+                    }
+                });
 
         UserEntity.Status status = securityProperties.isRequireConfirm() ? UserEntity.Status.PENDING : UserEntity.Status.ACTIVE;
         String password = securityManager.hashString(request.getPassword());
         UserEntity newUser = new UserEntity(request.getEmail(), request.getUser(), request.getDisplayName(),
-            password, status);
+                password, status);
         userRepository.save(newUser);
 
         this.createToken(newUser, request, userAgent);
@@ -217,7 +217,7 @@ public class AuthService {
     public ResponseEntity anonymousAuth(AnonymousRequest request, String userAgent) {
         //Check Device Registration
         UserEntity authUser = tokenRepository.findByDeviceIdAndDeviceOs(request.getDeviceId(), request.getDeviceOS())
-            .map(token -> token.getUser()).orElseGet(() -> this.createAnonymousUser(request));
+                .map(token -> token.getUser()).orElseGet(() -> this.createAnonymousUser(request));
 
         //User create / update
         setAnonymousExtras(request, authUser);
@@ -242,33 +242,33 @@ public class AuthService {
         String rawPassword = Globalizer.generateToken(passwordChars, size);
         String password = securityManager.hashString(rawPassword);
 
-        if (profileObj.has("email") && !profileObj.get("email").isJsonNull()){
-            String email=profileObj.get("email").getAsString();
+        if (profileObj.has("email") && !profileObj.get("email").isJsonNull()) {
+            String email = profileObj.get("email").getAsString();
 
             //Get Back Old User Data With Email
-            dbEntity =userRepository.findByUserNameOrEmail(email,email);
+            dbEntity = userRepository.findByUserNameOrEmail(email, email);
 
-            if(dbEntity.isPresent()){
-                userEntity=dbEntity.get();
+            if (dbEntity.isPresent()) {
+                userEntity = dbEntity.get();
                 userEntity.setDisplayName(displayName);
-            }else{
+            } else {
                 userEntity = new UserEntity(userName, displayName, password, UserEntity.Status.ACTIVE);
                 userEntity.setEmail(profileObj.get("email").getAsString());
             }
-        }else{
+        } else {
             userEntity = new UserEntity(userName, displayName, password, UserEntity.Status.ACTIVE);
             //if no email
-            userEntity.setEmail(profileObj.get("id").getAsString()+"@facebook.com");
+            userEntity.setEmail(profileObj.get("id").getAsString() + "@facebook.com");
         }
 
-        if (profileObj.has("gender") && !profileObj.get("gender").isJsonNull()){
-            userEntity.addExtra("gender",profileObj.get("gender").getAsString());
+        if (profileObj.has("gender") && !profileObj.get("gender").isJsonNull()) {
+            userEntity.addExtra("gender", profileObj.get("gender").getAsString());
         }
 
-        if (profileObj.has("age_range") && !profileObj.get("age_range").isJsonNull()){
-            JsonObject obj=profileObj.get("age_range").getAsJsonObject();
+        if (profileObj.has("age_range") && !profileObj.get("age_range").isJsonNull()) {
+            JsonObject obj = profileObj.get("age_range").getAsJsonObject();
 
-            userEntity.addExtra("age_range",obj.toString());
+            userEntity.addExtra("age_range", obj.toString());
         }
 
         userEntity.setFacebookId(profileObj.get("id").getAsString());
@@ -282,7 +282,7 @@ public class AuthService {
 
         //Check User by FacebookId
         UserEntity authUser = userRepository.findByFacebookId(id)
-            .orElseGet(() -> this.createFacebookUser(facebookProfile));
+                .orElseGet(() -> this.createFacebookUser(facebookProfile));
 
         if (authUser.getFacebookId().equalsIgnoreCase(facebookProfile.get("id").getAsString())) {
             this.createToken(authUser, request, userAgent);

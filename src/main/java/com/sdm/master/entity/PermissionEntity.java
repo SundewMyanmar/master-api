@@ -42,8 +42,8 @@ public class PermissionEntity extends DefaultEntity implements PermissionMatcher
 
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinTable(name = "tbl_route_permissions",
-        joinColumns = {@JoinColumn(name = "route_id")},
-        inverseJoinColumns = {@JoinColumn(name = "role_id")})
+            joinColumns = {@JoinColumn(name = "route_id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_id")})
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<RoleEntity> roles;
 

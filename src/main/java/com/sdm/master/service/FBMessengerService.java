@@ -17,6 +17,7 @@ public class FBMessengerService {
 
     /**
      * https://developers.facebook.com/docs/messenger-platform/reference/webhook-events
+     *
      * @param pageEntry
      */
     public void messageAnaylsis(JsonObject pageEntry, String userAgent) {
@@ -37,8 +38,8 @@ public class FBMessengerService {
 
             if (body.has("message")) {
                 JsonObject message = body.get("message").getAsJsonObject();
-                if(message.has("is_echo") && message.get("is_echo").getAsBoolean()){
-                    
+                if (message.has("is_echo") && message.get("is_echo").getAsBoolean()) {
+
                 }
             } else if (body.has("delivery")) {
 

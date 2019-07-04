@@ -42,7 +42,7 @@ public class FileController extends ReadController<FileEntity, String> {
                                  @RequestParam(value = "isTrash", required = false, defaultValue = "false") boolean isTrash) {
         fileService.remove(id, isTrash);
         MessageModel message = MessageModel.createMessage("Successfully deleted.",
-            "Deleted data on your request by : " + id);
+                "Deleted data on your request by : " + id);
         return ResponseEntity.ok(message);
     }
 
@@ -52,7 +52,7 @@ public class FileController extends ReadController<FileEntity, String> {
                                @RequestParam(value = "isTrash", required = false, defaultValue = "false") final boolean isTrash) {
         ids.forEach(id -> fileService.remove(id, isTrash));
         MessageModel message = MessageModel.createMessage("Successfully deleted.",
-            "Deleted data on your request.");
+                "Deleted data on your request.");
         return ResponseEntity.ok(message);
     }
 
@@ -67,9 +67,9 @@ public class FileController extends ReadController<FileEntity, String> {
     public ResponseEntity uploadMultipleFiles(@RequestParam("uploadedFile") MultipartFile[] files,
                                               @RequestParam(value = "isPublic", required = false, defaultValue = "true") boolean isPublic) {
         List<FileEntity> uploadedFiles = Arrays.asList(files)
-            .stream()
-            .map(file -> fileService.create(file, isPublic))
-            .collect(Collectors.toList());
+                .stream()
+                .map(file -> fileService.create(file, isPublic))
+                .collect(Collectors.toList());
 
         return new ResponseEntity(new ListModel<>(uploadedFiles), HttpStatus.CREATED);
     }

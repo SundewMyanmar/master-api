@@ -100,15 +100,15 @@ public class SecurityManager {
         return Base64.getEncoder().encodeToString(key);
     }
 
-    public String generateHashHmac(String stringData,String secretKey){
+    public String generateHashHmac(String stringData, String secretKey) {
         Mac sha512_HMAC = null;
-        try{
-            byte [] byteKey = secretKey.getBytes("UTF-8");
+        try {
+            byte[] byteKey = secretKey.getBytes("UTF-8");
             final String HMAC_SHA512 = "HmacSHA512";
             sha512_HMAC = Mac.getInstance(HMAC_SHA512);
             SecretKeySpec keySpec = new SecretKeySpec(byteKey, HMAC_SHA512);
             sha512_HMAC.init(keySpec);
-            byte [] mac_data = sha512_HMAC.
+            byte[] mac_data = sha512_HMAC.
                     doFinal(stringData.getBytes("UTF-8"));
             //result = Base64.encode(mac_data);
             return bytesToHex(mac_data);
@@ -125,9 +125,9 @@ public class SecurityManager {
     }
 
     public String bytesToHex(byte[] bytes) {
-        final  char[] hexArray = "0123456789ABCDEF".toCharArray();
+        final char[] hexArray = "0123456789ABCDEF".toCharArray();
         char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ ) {
+        for (int j = 0; j < bytes.length; j++) {
             int v = bytes[j] & 0xFF;
             hexChars[j * 2] = hexArray[v >>> 4];
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];

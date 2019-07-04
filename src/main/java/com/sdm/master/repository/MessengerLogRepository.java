@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.Optional;
 
 @Repository
-public interface MessengerLogRepository extends DefaultRepository<MessengerLogEntity,Integer> {
-    @Query(nativeQuery = true,value = "SELECT m.* FROM tbl_messenger_logs m WHERE m.sender_id=:senderId AND DATE(m.message_time)=DATE(:date) order by m.id DESC LIMIT 1")
-    Optional<MessengerLogEntity> getLastMsgLogBySenderIdAndDate(@Param("senderId") String senderId,@Param("date") Date date);
+public interface MessengerLogRepository extends DefaultRepository<MessengerLogEntity, Integer> {
+    @Query(nativeQuery = true, value = "SELECT m.* FROM tbl_messenger_logs m WHERE m.sender_id=:senderId AND DATE(m.message_time)=DATE(:date) order by m.id DESC LIMIT 1")
+    Optional<MessengerLogEntity> getLastMsgLogBySenderIdAndDate(@Param("senderId") String senderId, @Param("date") Date date);
 }

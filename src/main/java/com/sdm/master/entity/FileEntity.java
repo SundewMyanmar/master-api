@@ -72,7 +72,7 @@ public class FileEntity extends DefaultEntity implements Serializable {
     public FileEntity() {
         this.status = Status.STORAGE;
     }
-    
+
     public FileEntity(String id, String name, String extension, String type, long fileSize,
                       String storagePath, String externalUrl) {
         if (externalUrl == null || externalUrl.length() <= 0) {
@@ -91,10 +91,10 @@ public class FileEntity extends DefaultEntity implements Serializable {
     @JsonGetter("download_url")
     public String getDownloadUrl() {
         String downloadURL = ServletUriComponentsBuilder.fromCurrentContextPath()
-            .path("/files/download/")
-            .path(this.id + "/")
-            .path(this.name + "." + this.extension)
-            .toUriString();
+                .path("/files/download/")
+                .path(this.id + "/")
+                .path(this.name + "." + this.extension)
+                .toUriString();
         return downloadURL;
     }
 
@@ -104,15 +104,15 @@ public class FileEntity extends DefaultEntity implements Serializable {
             return null;
         }
 
-        if(this.externalUrl != null && this.externalUrl.length() > 0){
+        if (this.externalUrl != null && this.externalUrl.length() > 0) {
             return this.externalUrl;
         }
 
         String downloadURL = ServletUriComponentsBuilder.fromCurrentContextPath()
-            .path("/public/files/")
-            .path(this.id + "/")
-            .path(this.name + "." + this.extension)
-            .toUriString();
+                .path("/public/files/")
+                .path(this.id + "/")
+                .path(this.name + "." + this.extension)
+                .toUriString();
         return downloadURL;
     }
 

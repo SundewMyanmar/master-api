@@ -2,7 +2,6 @@ package com.sdm.core.model.facebook.type;
 
 /**
  * @author htoonlin
- *
  */
 public enum NotificationType {
     REGULAR, // will emit a sound/vibration and a phone notification

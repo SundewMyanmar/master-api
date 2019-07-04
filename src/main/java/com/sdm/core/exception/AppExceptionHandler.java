@@ -51,7 +51,7 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
         }
 
         MessageModel message = MessageModel.createWithDetail(HttpStatus.BAD_REQUEST,
-            "Invalid request fields.", errors);
+                "Invalid request fields.", errors);
         return new ResponseEntity(message, message.getStatus());
     }
 
@@ -72,8 +72,8 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
         if (ConstraintViolationException.class.isInstance(ex.getCause())) {
             ConstraintViolationException constraintViolationException = (ConstraintViolationException) ex.getCause();
             MessageModel messageModel = MessageModel.createMessage(HttpStatus.BAD_REQUEST,
-                constraintViolationException.getSQLState(),
-                constraintViolationException.getSQLException().getLocalizedMessage());
+                    constraintViolationException.getSQLState(),
+                    constraintViolationException.getSQLException().getLocalizedMessage());
             return new ResponseEntity<>(messageModel, HttpStatus.BAD_REQUEST);
         }
 

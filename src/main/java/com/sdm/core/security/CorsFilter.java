@@ -49,7 +49,6 @@ public class CorsFilter extends OncePerRequestFilter {
     }
 
 
-
     public String getAllowedOrigins() {
         return allowedOrigins;
     }

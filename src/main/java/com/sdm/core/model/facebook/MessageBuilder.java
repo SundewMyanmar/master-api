@@ -68,7 +68,6 @@ public class MessageBuilder {
     }
 
     /**
-     * 
      * @param id
      * @return
      */
@@ -77,7 +76,6 @@ public class MessageBuilder {
     }
 
     /**
-     * 
      * @param id
      * @param phone
      * @param userRef
@@ -180,14 +178,15 @@ public class MessageBuilder {
      * prominently above the composer. You can also use quick replies to request a
      * person's location, email address, and phone number.
      * Ref => https://developers.facebook.com/docs/messenger-platform/reference/send-api/quick-replies
+     *
      * @param type
      * @param title
      * @param payload
      * @param image
      */
     public void addQuickReply(QuickReplyType type, String title, String payload, String image) {
-        if(this.quickReplies==null){
-            this.quickReplies= new JsonArray();
+        if (this.quickReplies == null) {
+            this.quickReplies = new JsonArray();
         }
 
         JsonObject quickReply = new JsonObject();

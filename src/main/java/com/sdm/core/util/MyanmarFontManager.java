@@ -27,7 +27,7 @@ public class MyanmarFontManager {
     private static final ZawgyiDetector zgDetector = new ZawgyiDetector();
     private static final TransliterateZ2U z2u = new TransliterateZ2U("Zawgyi to Unicode");
     private static final TransliterateU2Z u2z = new TransliterateU2Z("Unicode to Zawgyi");
-    private static final String[] mm_numbers=new String[]{"၀",
+    private static final String[] mm_numbers = new String[]{"၀",
             "၁",
             "၂",
             "၃",

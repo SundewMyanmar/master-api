@@ -36,12 +36,12 @@ public class JwtService implements JwtAuthenticationHandler {
     @Transactional
     public boolean authByJwt(AuthInfo authInfo, HttpServletRequest request) {
         TokenEntity authToken = tokenRepository.findById(authInfo.getToken())
-            .orElseThrow(() -> new InvalidTokenExcpetion("There is no token: " + authInfo.getToken()));
+                .orElseThrow(() -> new InvalidTokenExcpetion("There is no token: " + authInfo.getToken()));
 
         if (!authInfo.isAccountNonExpired()
-            || !authInfo.getToken().equalsIgnoreCase(authToken.getId())
-            || !authInfo.getDeviceId().equalsIgnoreCase(authToken.getDeviceId())
-            || authInfo.getUserId() != authToken.getUser().getId()) {
+                || !authInfo.getToken().equalsIgnoreCase(authToken.getId())
+                || !authInfo.getDeviceId().equalsIgnoreCase(authToken.getDeviceId())
+                || authInfo.getUserId() != authToken.getUser().getId()) {
             throw new InvalidTokenExcpetion("Sorry! requested token is not valid/expired.");
         }
 
@@ -49,7 +49,7 @@ public class JwtService implements JwtAuthenticationHandler {
         authInfo.addAuthority(Constants.Auth.DEFAULT_USER_ROLE);
 
         UserEntity userEntity = userRepository.findById(authInfo.getUserId())
-            .orElseThrow(() -> new InvalidTokenExcpetion("There is no user: " + authInfo.getToken()));
+                .orElseThrow(() -> new InvalidTokenExcpetion("There is no user: " + authInfo.getToken()));
 
         if (userEntity.getStatus() != UserEntity.Status.ACTIVE) {
             throw new InvalidTokenExcpetion("Sorry! you are not active now. Pls contact to admin.");

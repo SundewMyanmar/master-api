@@ -45,7 +45,7 @@ public class FileService {
 
     public FileEntity checkFile(String id) {
         FileEntity file = fileRepository.findById(id)
-            .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "There is no file by : " + id));
+                .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "There is no file by : " + id));
 
         return file;
     }
@@ -141,7 +141,7 @@ public class FileService {
             if (downloadEntity.getType().contains("image") && dimension != null) {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 Thumbnails.of(savedPath.toFile()).size(dimension.width, dimension.height).keepAspectRatio(true)
-                    .useOriginalFormat().toOutputStream(output);
+                        .useOriginalFormat().toOutputStream(output);
                 data = output.toByteArray();
             } else {
                 data = Files.readAllBytes(savedPath);
@@ -156,9 +156,9 @@ public class FileService {
         if (is64) {
             String base64String = Base64.getMimeEncoder().encodeToString(data);
             return ResponseEntity.ok()
-                .contentType(MediaType.TEXT_PLAIN)
-                .cacheControl(cacheControl)
-                .body(base64String);
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .cacheControl(cacheControl)
+                    .body(base64String);
         }
 
         if (fileName.isEmpty() || fileName.length() < 3) {
@@ -171,9 +171,9 @@ public class FileService {
 
         Resource resource = new ByteArrayResource(data);
         return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(downloadEntity.getType()))
-            .header(HttpHeaders.CONTENT_DISPOSITION, attachment)
-            .cacheControl(cacheControl)
-            .body(resource);
+                .contentType(MediaType.parseMediaType(downloadEntity.getType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, attachment)
+                .cacheControl(cacheControl)
+                .body(resource);
     }
 }

@@ -6,11 +6,11 @@ public class TextMessageBuilder extends MessageBuilder {
 
     private String text;
 
-    public TextMessageBuilder(){
+    public TextMessageBuilder() {
         super();
     }
 
-    public TextMessageBuilder(String text){
+    public TextMessageBuilder(String text) {
         super();
         this.text = text;
     }
@@ -34,5 +34,5 @@ public class TextMessageBuilder extends MessageBuilder {
     public void setText(String text) {
         this.text = text;
     }
-    
+
 }

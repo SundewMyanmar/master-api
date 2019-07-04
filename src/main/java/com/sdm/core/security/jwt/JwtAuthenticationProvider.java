@@ -33,7 +33,7 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
         try {
             byte[] jwtKey = Base64.getDecoder().decode(securityProperties.getJwtKey());
             Claims authorizeToken = Jwts.parser().setSigningKey(jwtKey)
-                .requireIssuer(userAgent).parseClaimsJws(tokenString).getBody();
+                    .requireIssuer(userAgent).parseClaimsJws(tokenString).getBody();
 
             Date expired = authorizeToken.getExpiration();
             if (expired.before(new Date())) {
@@ -74,7 +74,7 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
             }
 
             usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                requestAuth, requestAuth.getDeviceId(), requestAuth.getAuthorities());
+                    requestAuth, requestAuth.getDeviceId(), requestAuth.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
         } else {

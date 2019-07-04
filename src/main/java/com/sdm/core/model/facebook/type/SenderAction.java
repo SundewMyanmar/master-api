@@ -4,7 +4,6 @@ package com.sdm.core.model.facebook.type;
  * Set typing indicators or send read receipts using the Send API, to let users know you are processing their request. Ref : https://developers.facebook.com/docs/messenger-platform/send-api-reference/sender-actions
  *
  * @author htoonlin
- *
  */
 public enum SenderAction {
     typing_on, // Turn typing indicators on

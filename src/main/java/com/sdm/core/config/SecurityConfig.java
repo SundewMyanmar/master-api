@@ -29,7 +29,7 @@ import java.util.Optional;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
-    prePostEnabled = true
+        prePostEnabled = true
 )
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -51,10 +51,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     private static final String[] SWAGGER_WHITE_LIST = {
-        "/swagger-ui.html",
-        "/swagger-resources/**",
-        "/v2/api-docs",
-        "/webjars/**",
+            "/swagger-ui.html",
+            "/swagger-resources/**",
+            "/v2/api-docs",
+            "/webjars/**",
     };
 
     private static final String[] ROOT_PERMISSION_LIST = {
@@ -69,24 +69,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        String[] publicUrls = ObjectArrays.concat(SWAGGER_WHITE_LIST, 
-            securityProperties.getPublicUrls(), String.class);
+        String[] publicUrls = ObjectArrays.concat(SWAGGER_WHITE_LIST,
+                securityProperties.getPublicUrls(), String.class);
 
         //1. Load default system configure
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and().exceptionHandling().authenticationEntryPoint(unauthorizeHandler)
-            .and().csrf().disable()
-            .formLogin().disable()
-            .httpBasic().disable()
-            .logout().disable()
-            .httpBasic().and()
-            //Cors Added
-            .addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class)
-            .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-            .authenticationProvider(authenticationProvider)
-            .authorizeRequests()
-            .antMatchers(publicUrls).permitAll()
-            .antMatchers(ROOT_PERMISSION_LIST).hasAuthority(Constants.Auth.ROOT_ROLE);
+                .and().exceptionHandling().authenticationEntryPoint(unauthorizeHandler)
+                .and().csrf().disable()
+                .formLogin().disable()
+                .httpBasic().disable()
+                .logout().disable()
+                .httpBasic().and()
+                //Cors Added
+                .addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class)
+                .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .authenticationProvider(authenticationProvider)
+                .authorizeRequests()
+                .antMatchers(publicUrls).permitAll()
+                .antMatchers(ROOT_PERMISSION_LIST).hasAuthority(Constants.Auth.ROOT_ROLE);
 
         //2. Load Database Permissions
         List<PermissionMatcher> permissions = permissionHandler.loadPermissions();
@@ -106,8 +106,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                     String cleanPattern = pattern.get().trim();
                     http.authorizeRequests()
-                        .antMatchers(method, cleanPattern.split(","))
-                        .hasAnyAuthority(_roles);
+                            .antMatchers(method, cleanPattern.split(","))
+                            .hasAnyAuthority(_roles);
                 }
             }
         }

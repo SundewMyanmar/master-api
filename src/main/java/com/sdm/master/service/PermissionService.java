@@ -21,7 +21,7 @@ public class PermissionService implements PermissionHandler {
         List<PermissionEntity> permissionEntities = permissionRepository.findAll();
         List<PermissionMatcher> permissionMatchers = new ArrayList<>();
 
-        permissionEntities.forEach(entity->permissionMatchers.add(entity));
+        permissionEntities.forEach(entity -> permissionMatchers.add(entity));
         /*
         PermissionEntity testPermission = new PermissionEntity();
         testPermission.setPattern("/roles/**");

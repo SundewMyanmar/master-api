@@ -26,7 +26,7 @@ public class FacebookMessengerController {
 
     @GetMapping("/")
     public ResponseEntity verifyWebhook(@RequestParam("hub.mode") String mode,
-            @RequestParam("hub.verify_token") String verify_token, @RequestParam("hub.challenge") String challenge) {
+                                        @RequestParam("hub.verify_token") String verify_token, @RequestParam("hub.challenge") String challenge) {
         if (mode.equalsIgnoreCase("subscribe") && verify_token.equalsIgnoreCase(this.properties.getWebhookToken())) {
             LOG.info("Facebook messenger platform verification success <" + challenge + ">.");
             return ResponseEntity.ok(challenge);
@@ -46,7 +46,7 @@ public class FacebookMessengerController {
 
                 JsonArray entries = body.get("entry").getAsJsonArray();
                 for (int i = 0; i < entries.size(); i++) {
-                    messengerService.messageAnaylsis(entries.get(i).getAsJsonObject(),userAgent);
+                    messengerService.messageAnaylsis(entries.get(i).getAsJsonObject(), userAgent);
                 }
             }
         } else {

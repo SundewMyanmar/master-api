@@ -32,51 +32,51 @@ public class AppConfig extends WebMvcConfigurationSupport {
     @Bean
     public SecurityConfiguration swaggerSecurity() {
         return SecurityConfigurationBuilder.builder()
-            .scopeSeparator(",")
-            .additionalQueryStringParams(null)
-            .useBasicAuthenticationWithAccessCodeGrant(false).build();
+                .scopeSeparator(",")
+                .additionalQueryStringParams(null)
+                .useBasicAuthenticationWithAccessCodeGrant(false).build();
     }
 
     private SecurityContext swaggerSecurityContext() {
         return SecurityContext.builder().securityReferences(swaggerAuth())
-            .forPaths(PathSelectors.any()).build();
+                .forPaths(PathSelectors.any()).build();
     }
 
     private List<SecurityReference> swaggerAuth() {
         AuthorizationScope authorizationScope = new AuthorizationScope(
-            "global", "accessEverything");
+                "global", "accessEverything");
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
         authorizationScopes[0] = authorizationScope;
         return Arrays.asList(new SecurityReference(Constants.Auth.PARAM_NAME,
-            authorizationScopes));
+                authorizationScopes));
     }
 
     @Bean
     public SecurityScheme swaggerAPIKey() {
         return new ApiKey(Constants.Auth.PARAM_NAME,
-            "Authorization", "header");
+                "Authorization", "header");
     }
 
     @Bean
     public Docket swaggerAPI() {
         return new Docket(DocumentationType.SWAGGER_2)
-            .select()
-            .apis(RequestHandlerSelectors.any())
-            .paths(PathSelectors.any())
-            .build()
-            .securitySchemes(Arrays.asList(swaggerAPIKey()))
-            .securityContexts(Arrays.asList(swaggerSecurityContext()))
-            .ignoredParameterTypes(ApiIgnore.class)
-            .enableUrlTemplating(true);
+                .select()
+                .apis(RequestHandlerSelectors.any())
+                .paths(PathSelectors.any())
+                .build()
+                .securitySchemes(Arrays.asList(swaggerAPIKey()))
+                .securityContexts(Arrays.asList(swaggerSecurityContext()))
+                .ignoredParameterTypes(ApiIgnore.class)
+                .enableUrlTemplating(true);
     }
 
     @Override
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("swagger-ui.html")
-            .addResourceLocations("classpath:/META-INF/resources/");
+                .addResourceLocations("classpath:/META-INF/resources/");
 
         registry.addResourceHandler("/webjars/**")
-            .addResourceLocations("classpath:/META-INF/resources/webjars/");
+                .addResourceLocations("classpath:/META-INF/resources/webjars/");
 
         super.addResourceHandlers(registry);
     }

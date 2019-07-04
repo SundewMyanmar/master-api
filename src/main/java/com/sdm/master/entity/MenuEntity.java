@@ -53,7 +53,7 @@ public class MenuEntity extends DefaultEntity implements Serializable {
     @Column(nullable = false)
     private boolean divider;
 
-    @Column(nullable = true,name = "parent_id")
+    @Column(nullable = true, name = "parent_id")
     private Integer parentId;
 
     @NotFound(action = NotFoundAction.IGNORE)
@@ -63,15 +63,15 @@ public class MenuEntity extends DefaultEntity implements Serializable {
 
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinTable(name = "tbl_menu_permissions",
-        joinColumns = {@JoinColumn(name = "menu_id")},
-        inverseJoinColumns = {@JoinColumn(name = "role_id")})
+            joinColumns = {@JoinColumn(name = "menu_id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_id")})
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<RoleEntity> roles;
 
     public MenuEntity() {
     }
 
-    public MenuEntity(int id, String name, String description, String state, String icon, String type, int priority, boolean separator,Integer parentId) {
+    public MenuEntity(int id, String name, String description, String state, String icon, String type, int priority, boolean separator, Integer parentId) {
         super();
         this.id = id;
         this.name = name;
@@ -81,7 +81,7 @@ public class MenuEntity extends DefaultEntity implements Serializable {
         this.type = type;
         this.priority = priority;
         this.divider = separator;
-        this.parentId=parentId;
+        this.parentId = parentId;
     }
 
     @Override

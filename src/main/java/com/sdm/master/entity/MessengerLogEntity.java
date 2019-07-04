@@ -7,8 +7,8 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
-@Entity(name="MessengerLogEntity")
-@Table(name="tbl_messenger_logs")
+@Entity(name = "MessengerLogEntity")
+@Table(name = "tbl_messenger_logs")
 public class MessengerLogEntity extends DefaultEntity implements Serializable {
     private static final long serialVersionUID = -4217111486935913447L;
 
@@ -16,39 +16,39 @@ public class MessengerLogEntity extends DefaultEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name="sender_id", columnDefinition = "VARCHAR(100)",length = 100,nullable = false)
+    @Column(name = "sender_id", columnDefinition = "VARCHAR(100)", length = 100, nullable = false)
     private String senderId;
 
-    @Column(name="state", columnDefinition = "VARCHAR(50)", length = 50)
+    @Column(name = "state", columnDefinition = "VARCHAR(50)", length = 50)
     private String state;
 
     @Filterable
-    @Column(name="message_type",columnDefinition = "VARCHAR(50)", length=50)
+    @Column(name = "message_type", columnDefinition = "VARCHAR(50)", length = 50)
     private String messageType;
 
     @Filterable
-    @Column(name="message",columnDefinition = "TEXT")
+    @Column(name = "message", columnDefinition = "TEXT")
     private String message;
 
-    @Column(name="payload",columnDefinition = "VARCHAR(1000)",length = 1000)
+    @Column(name = "payload", columnDefinition = "VARCHAR(1000)", length = 1000)
     private String payload;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "message_time", length = 19)
     private Date messageTime;
 
-    public MessengerLogEntity(){
+    public MessengerLogEntity() {
 
     }
 
-    public MessengerLogEntity(String senderId,String state,String messageType,String message,String payload,Date messageTime){
-        this.id=id;
-        this.senderId=senderId;
-        this.state=state;
-        this.messageType=messageType;
-        this.message=message;
-        this.payload=payload;
-        this.messageTime=messageTime;
+    public MessengerLogEntity(String senderId, String state, String messageType, String message, String payload, Date messageTime) {
+        this.id = id;
+        this.senderId = senderId;
+        this.state = state;
+        this.messageType = messageType;
+        this.message = message;
+        this.payload = payload;
+        this.messageTime = messageTime;
     }
 
     public Integer getId() {

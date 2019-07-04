@@ -29,17 +29,17 @@ public class MenuController extends ReadWriteController<MenuEntity, Integer> {
     }
 
     @RequestMapping(value = "/roles", method = RequestMethod.GET)
-    public ResponseEntity getByRoles(@RequestParam(value = "ids", defaultValue = "0") String roles){
-        try{
-            String[] strRoles= roles.split(",") ;
+    public ResponseEntity getByRoles(@RequestParam(value = "ids", defaultValue = "0") String roles) {
+        try {
+            String[] strRoles = roles.split(",");
             Integer[] intRoles = new Integer[strRoles.length];
-            for (int i = 0; i < intRoles.length; i++){
+            for (int i = 0; i < intRoles.length; i++) {
                 intRoles[i] = Integer.parseInt(strRoles[i]);
             }
 
-            List<MenuEntity> results= menuRepository.findByRoles(intRoles);
+            List<MenuEntity> results = menuRepository.findByRoles(intRoles);
             return new ResponseEntity(new ListModel(results), HttpStatus.OK);
-        }catch(Exception ex){
+        } catch (Exception ex) {
             logger.error(ex.getLocalizedMessage(), ex);
             throw ex;
         }
@@ -53,7 +53,7 @@ public class MenuController extends ReadWriteController<MenuEntity, Integer> {
         try {
             Page<MenuEntity> paging = menuRepository.findByFilter(filter, this.buildPagination(pageId, pageSize, sortString));
             return new ResponseEntity(new PaginationModel<>(paging), HttpStatus.PARTIAL_CONTENT);
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             logger.error(ex.getLocalizedMessage(), ex);
             throw ex;
         }

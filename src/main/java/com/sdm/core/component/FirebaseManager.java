@@ -32,9 +32,9 @@ public class FirebaseManager {
     public FirebaseManager(FireBaseProperties fireBaseProperties) {
         try (FileInputStream serviceAccount = new FileInputStream(fireBaseProperties.getServiceJson())) {
             FirebaseOptions options = new FirebaseOptions.Builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .setDatabaseUrl(fireBaseProperties.getProjectUrl())
-                .build();
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setDatabaseUrl(fireBaseProperties.getProjectUrl())
+                    .build();
             FirebaseApp.initializeApp(options);
         } catch (IOException ex) {
             logger.error(ex.getLocalizedMessage(), ex);
@@ -43,28 +43,28 @@ public class FirebaseManager {
 
     private AndroidConfig androidNotification(String title, String body) {
         return AndroidConfig.builder()
-            .setTtl(3600 * 1000) // 1 hour in milliseconds
-            .setPriority(AndroidConfig.Priority.HIGH)
-            .setNotification(AndroidNotification.builder()
-                .setTitle(title)
-                .setBody(body)
-                .setSound("default")
-                .build())
-            .build();
+                .setTtl(3600 * 1000) // 1 hour in milliseconds
+                .setPriority(AndroidConfig.Priority.HIGH)
+                .setNotification(AndroidNotification.builder()
+                        .setTitle(title)
+                        .setBody(body)
+                        .setSound("default")
+                        .build())
+                .build();
     }
 
     private ApnsConfig iosNotification(String title, String body, int badgeCount) {
         return ApnsConfig.builder()
-            .putHeader("apns-priority", "10")
-            .setAps(Aps.builder()
-                .setAlert(ApsAlert.builder()
-                    .setTitle(title)
-                    .setBody(body)
-                    .build())
-                .setSound("default")
-                .setBadge(badgeCount)
-                .build())
-            .build();
+                .putHeader("apns-priority", "10")
+                .setAps(Aps.builder()
+                        .setAlert(ApsAlert.builder()
+                                .setTitle(title)
+                                .setBody(body)
+                                .build())
+                        .setSound("default")
+                        .setBadge(badgeCount)
+                        .build())
+                .build();
     }
 
     public void sendMessage(String token, String title, String body, int badgeCount,
@@ -80,12 +80,12 @@ public class FirebaseManager {
         }
 
         Message message = Message.builder()
-            .setToken(token)
-            .setNotification(new Notification(zgTitle, zgBody))
-            .setApnsConfig(this.iosNotification(zgTitle, zgBody, badgeCount))
-            .setAndroidConfig(this.androidNotification(zgTitle, zgBody))
-            .putAllData(data)
-            .build();
+                .setToken(token)
+                .setNotification(new Notification(zgTitle, zgBody))
+                .setApnsConfig(this.iosNotification(zgTitle, zgBody, badgeCount))
+                .setAndroidConfig(this.androidNotification(zgTitle, zgBody))
+                .putAllData(data)
+                .build();
 
         try {
             String response = FirebaseMessaging.getInstance().send(message);

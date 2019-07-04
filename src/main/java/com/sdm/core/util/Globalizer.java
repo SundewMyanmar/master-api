@@ -39,7 +39,7 @@ public class Globalizer {
 
     public static String camelToReadable(String input) {
         return input.replaceAll(String.format("%s|%s|%s", "(?<=[A-Z])(?=[A-Z][a-z])", "(?<=[^A-Z])(?=[A-Z])",
-            "(?<=[A-Za-z])(?=[^A-Za-z])"), " ");
+                "(?<=[A-Za-z])(?=[^A-Za-z])"), " ");
     }
 
     public static String capitalize(String word) {
@@ -74,11 +74,11 @@ public class Globalizer {
         return formatter.format(date);
     }
 
-    public static Date toDate(String format, String value){
-        SimpleDateFormat formatter=new SimpleDateFormat(format);
-        try{
+    public static Date toDate(String format, String value) {
+        SimpleDateFormat formatter = new SimpleDateFormat(format);
+        try {
             return formatter.parse(value);
-        }catch(ParseException exception){
+        } catch (ParseException exception) {
             return new Date();
         }
     }

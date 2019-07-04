@@ -33,7 +33,7 @@ public class UserController extends ReadWriteController<UserEntity, Long> {
     public ResponseEntity getProfile(@PathVariable("userId") long userId,
                                      @Valid @RequestBody ChangePasswordRequest request) {
         UserEntity existUser = userRepository.findById(userId)
-            .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "There is no user for your request!"));
+                .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "There is no user for your request!"));
 
         String newPassword = securityManager.hashString(request.getNewPassword());
         existUser.setPassword(newPassword);
@@ -57,7 +57,7 @@ public class UserController extends ReadWriteController<UserEntity, Long> {
         String password = securityManager.hashString(request.getPassword());
         request.setPassword(password);
 
-        UserEntity entity=userRepository.save(request);
+        UserEntity entity = userRepository.save(request);
 
         return new ResponseEntity(entity, HttpStatus.CREATED);
     }

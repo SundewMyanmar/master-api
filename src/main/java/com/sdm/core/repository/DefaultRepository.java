@@ -12,5 +12,4 @@ import java.util.List;
 @NoRepositoryBean
 public interface DefaultRepository<T extends DefaultEntity, ID extends Serializable> extends JpaRepository<T, ID> {
     public Page<T> findAll(Pageable pageable, String filter, List<String> fields);
-    public Page<?> findByNativeQuery(Pageable pageable, String filter, List<String> fields, String tableName);
 }

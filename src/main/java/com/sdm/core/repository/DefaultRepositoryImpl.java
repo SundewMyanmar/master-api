@@ -1,8 +1,6 @@
 package com.sdm.core.repository;
 
 import com.sdm.core.model.DefaultEntity;
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.transform.Transformers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -12,14 +10,12 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,32 +65,5 @@ public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializa
         query.setMaxResults(pageable.getPageSize());
 
         return new PageImpl<>(query.getResultList(), pageable, total);
-    }
-
-    @Transactional
-    public Page<?> findByNativeQuery(Pageable pageable, String filter, List<String> filterFields, String tableName) {
-        System.out.println("Hibernate Versions : " + org.hibernate.Version.getVersionString());
-
-        String queryString = tableName + " where 1=1";
-        if (filter != null && !filter.isEmpty()) {
-            queryString += " AND LOWER(CONCAT(" + StringUtils.join(filterFields, ",") + ")) LIKE :filter";
-        }
-
-        Query query = entityManager.createNativeQuery("SELECT * FROM " + queryString);
-        //Check upcoming hibernate 6, to modify deprecated methods for future upgrade
-        query.unwrap(org.hibernate.SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-
-        Query countQuery = entityManager.createNativeQuery("SELECT COUNT(*) FROM " + queryString);
-
-        if (filter != null && !filter.isEmpty()) {
-            query.setParameter("filter", filter.toLowerCase() + "%");
-            countQuery.setParameter("filter", filter.toLowerCase() + "%");
-        }
-
-        query.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
-        query.setMaxResults(pageable.getPageSize());
-
-        BigInteger total = (BigInteger) countQuery.getSingleResult();
-        return new PageImpl<>(query.getResultList(), pageable, total.longValue());
     }
 }

@@ -8,7 +8,7 @@ public class Button {
      * The call button dials a phone number when tapped. Phone number should be in
      * the format +<COUNTRY_CODE><PHONE_NUMBER>, e.g. +15105559999.
      * https://developers.facebook.com/docs/messenger-platform/reference/buttons/call
-     * 
+     *
      * @param title
      * @param number
      * @return
@@ -29,7 +29,7 @@ public class Button {
      * which allows your bot to start the game in a specific context against a
      * single player or an existing group.
      * https://developers.facebook.com/docs/messenger-platform/reference/buttons/game-play
-     * 
+     *
      * @param title
      * @param data
      * @param playerId
@@ -64,7 +64,7 @@ public class Button {
      * which allows your bot to start the game in a specific context against a
      * single player or an existing group.
      * https://developers.facebook.com/docs/messenger-platform/reference/buttons/game-play
-     * 
+     *
      * @param title
      * @param data
      * @return
@@ -78,7 +78,7 @@ public class Button {
      * the message recipient's identity on Messenger with their account on your site
      * by directing them to your web-based login flow for authentication.
      * https://developers.facebook.com/docs/messenger-platform/reference/buttons/login
-     * 
+     *
      * @param callbackURL
      * @return
      */
@@ -93,7 +93,7 @@ public class Button {
      * The log out button is used in the account linking flow to unlink the message
      * recipient's identity on Messenger with their account on your site.
      * https://developers.facebook.com/docs/messenger-platform/reference/buttons/logout
-     * 
+     *
      * @return
      */
     public static JsonObject accountUnlink() {
@@ -110,7 +110,7 @@ public class Button {
      * can be used to query your database and return the product details as a
      * structured message.
      * https://developers.facebook.com/docs/messenger-platform/reference/buttons/postback
-     * 
+     *
      * @param title
      * @param value
      * @return
@@ -130,13 +130,13 @@ public class Button {
      * summary in-conversation, then use the URL button to open the full product
      * page on your website.
      * https://developers.facebook.com/docs/messenger-platform/reference/buttons/url
-     * 
+     *
      * @param title
      * @param url
      * @return
      */
     public static JsonObject url(String title, String webURL, String fallbackUrl, WebViewType type,
-            boolean messengerExt, boolean hideShareButton) {
+                                 boolean messengerExt, boolean hideShareButton) {
         JsonObject button = new JsonObject();
         button.addProperty("type", "web_url");
         button.addProperty("title", title);
@@ -168,7 +168,7 @@ public class Button {
      * summary in-conversation, then use the URL button to open the full product
      * page on your website.
      * https://developers.facebook.com/docs/messenger-platform/reference/buttons/url
-     * 
+     *
      * @param title
      * @param url
      * @return
@@ -183,7 +183,7 @@ public class Button {
      * appear as an attribution at the top of the shared content. The attribution
      * opens a conversation with your bot when tapped. Ref =>
      * https://developers.facebook.com/docs/messenger-platform/reference/buttons/share
-     * 
+     *
      * @param templatePayload
      * @return
      */
