@@ -1,6 +1,8 @@
 package com.sdm.core.component;
 
 import org.hibernate.transform.Transformers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -103,6 +105,8 @@ public class NativeQueryManager {
     }
 
     public static class NativeProcedureQuery {
+        protected static final Logger logger = LoggerFactory.getLogger(NativeProcedureQuery.class);
+
         private String procedure;
 
         private List<ProcedureParam> params;
@@ -142,12 +146,18 @@ public class NativeQueryManager {
         public void execute() {
             StoredProcedureQuery query = entityManager.createStoredProcedureQuery(procedure);
             this.setParameter(query);
+
+            logger.info("Execute Proc : "+this.getProcedure(),query);
+
             query.execute();
         }
 
         public Object getSingleResult() {
             StoredProcedureQuery query = entityManager.createStoredProcedureQuery(procedure);
             this.setParameter(query);
+
+            logger.info("Execute Proc [Single] : "+this.getProcedure(),query);
+
             return query.getSingleResult();
         }
 
@@ -157,6 +167,8 @@ public class NativeQueryManager {
             query.execute();
             Map<String, Object> resultMap = new HashMap<>();
             outParam.forEach(param -> resultMap.put(param, query.getOutputParameterValue(param)));
+
+            logger.info("Execute Proc [Single Map<>] : "+this.getProcedure(),query);
 
             return resultMap;
         }
@@ -183,6 +195,8 @@ public class NativeQueryManager {
             if (params != null)
                 params.forEach(param -> query.setParameter(param.getName(), param.getValue()));
 
+            logger.info("Execute Proc [List] : "+this.getProcedure(),query);
+
             return query.getResultList();
         }
 
@@ -197,6 +211,8 @@ public class NativeQueryManager {
     }
 
     public static class NativeQuery {
+        protected static final Logger logger = LoggerFactory.getLogger(NativeQuery.class);
+
         private String queryString;
         private ResultLimit limit;
         private String filter;
@@ -284,8 +300,21 @@ public class NativeQueryManager {
             this.entityManager = entityManager;
         }
 
+        public void execute(){
+            Query query=this.getQuery(false);
+
+            logger.info("Execute Query : "+this.getQueryString(),query);
+
+            int result=query.executeUpdate();
+
+            logger.info("Execute Query Status : "+result);
+        }
+
         public Object getSingleResult(){
             Query query=this.getQuery(false);
+
+            logger.info("Execute Query [Single] : "+this.getQueryString(),query);
+
             return query.getSingleResult();
         }
 
@@ -296,6 +325,8 @@ public class NativeQueryManager {
                 query.setFirstResult(limit.getFirstResult());
                 query.setMaxResults(limit.getMaxResult());
             }
+
+            logger.info("Execute Query [List] : "+this.getQueryString(),query);
 
             return query.getResultList();
         }
@@ -332,6 +363,9 @@ public class NativeQueryManager {
             query.setMaxResults(pageable.getPageSize());
 
             BigInteger total = (BigInteger) countQuery.getSingleResult();
+
+            logger.info("Execute Query [Paging] : "+nativeQuery,query);
+
             return new PageImpl<>(query.getResultList(), pageable, total.longValue());
         }
 
