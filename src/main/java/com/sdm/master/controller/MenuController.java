@@ -29,15 +29,9 @@ public class MenuController extends ReadWriteController<MenuEntity, Integer> {
     }
 
     @RequestMapping(value = "/roles", method = RequestMethod.GET)
-    public ResponseEntity getByRoles(@RequestParam(value = "ids", defaultValue = "0") String roles) {
+    public ResponseEntity getByRoles(@RequestParam("ids") Integer[] roles) {
         try {
-            String[] strRoles = roles.split(",");
-            Integer[] intRoles = new Integer[strRoles.length];
-            for (int i = 0; i < intRoles.length; i++) {
-                intRoles[i] = Integer.parseInt(strRoles[i]);
-            }
-
-            List<MenuEntity> results = menuRepository.findByRoles(intRoles);
+            List<MenuEntity> results = menuRepository.findByRoles(roles);
             return new ResponseEntity(new ListModel(results), HttpStatus.OK);
         } catch (Exception ex) {
             logger.error(ex.getLocalizedMessage(), ex);
