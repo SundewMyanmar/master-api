@@ -47,7 +47,7 @@ public class PermissionController extends ReadWriteController<PermissionEntity, 
     }
 
     @RequestMapping(value = "/routes", method=RequestMethod.GET)
-    public @ResponseBody Object showEndpointsAction() {
+    public @ResponseBody Object getAllRoutes() {
         Map<RequestMappingInfo, HandlerMethod> requestMap= requestMappingHandlerMapping.getHandlerMethods();
         List<String> neglectController= Arrays.asList(new String[]{"org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController",
                 "springfox.documentation.swagger.web.ApiResourceController"});
