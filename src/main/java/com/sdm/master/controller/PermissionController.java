@@ -6,6 +6,7 @@ import com.sdm.core.model.response.ListModel;
 import com.sdm.core.model.response.PaginationModel;
 import com.sdm.core.repository.DefaultRepository;
 import com.sdm.master.entity.PermissionEntity;
+import com.sdm.master.entity.RoleEntity;
 import com.sdm.master.repository.PermissionRepository;
 import com.sdm.master.request.PermissionRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,11 +47,23 @@ public class PermissionController extends ReadWriteController<PermissionEntity, 
             PermissionEntity entity = new PermissionEntity();
             if (item.getId() != null && item.getId()>0) {
                 entity = permissionRepository.findById(item.getId()).get();
+                entity.setRoles(item.getRoles());
+            }else{
+                Optional<PermissionEntity> dbEntity=permissionRepository.findByHttpMethodAndPattern(item.getHttpMethod(),item.getPattern());
+                if(dbEntity.isPresent()){
+                    entity=dbEntity.get();
+                    Set<RoleEntity> roles=item.getRoles();
+                    for(RoleEntity role:roles){
+                        entity.addRole(role);
+                    }
+                }else{
+                    entity.setRoles(item.getRoles());
+                }
             }
 
             entity.setPattern(item.getPattern());
             entity.setHttpMethod(item.getHttpMethod());
-            entity.setRoles(item.getRoles());
+
 
             if (item.getId() != null && item.getId()>0 && !item.isChecked()) {
                 //Role just remove or delete
@@ -100,7 +113,8 @@ public class PermissionController extends ReadWriteController<PermissionEntity, 
     public ResponseEntity getAllRoutes() {
         Map<RequestMappingInfo, HandlerMethod> requestMap= requestMappingHandlerMapping.getHandlerMethods();
         List<String> neglectController= Arrays.asList(new String[]{"org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController",
-                "springfox.documentation.swagger.web.ApiResourceController","com.sdm.core.controller.PublicController","com.sdm.master.controller.AuthController"});
+                "springfox.documentation.swagger.web.ApiResourceController","com.sdm.core.controller.PublicController","com.sdm.master.controller.AuthController",
+                "com.sdm.master.controller.MasterPublicController"});
         Map<String,Map<String,Object>> resultMap=new HashMap<>();
 
         requestMap.keySet().stream().forEach(t->{

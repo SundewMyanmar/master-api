@@ -79,6 +79,12 @@ public class PermissionEntity extends DefaultEntity implements PermissionMatcher
         this.roles = roles;
     }
 
+    public void addRole(RoleEntity role){
+        if(this.roles==null) this.roles=new HashSet<>();
+
+        this.roles.add(role);
+    }
+
     @Override
     public String getPattern() {
         return this.pattern;
