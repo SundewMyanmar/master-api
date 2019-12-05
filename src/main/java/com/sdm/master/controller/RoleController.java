@@ -18,4 +18,15 @@ public class RoleController extends ReadWriteController<RoleEntity, Integer> {
     protected DefaultRepository<RoleEntity, Integer> getRepository() {
         return repository;
     }
+    
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    public ResponseEntity getAll() {
+        try {
+            List<RoleEntity> roles = repository.findAll();
+            return new ResponseEntity(new ListModel<>(roles), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.error(ex.getLocalizedMessage(), ex);
+            throw ex;
+        }
+    }
 }
