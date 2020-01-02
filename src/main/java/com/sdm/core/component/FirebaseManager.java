@@ -24,7 +24,6 @@ import java.util.Map;
  * @author htoonlin
  */
 @Component
-@Scope("prototype")
 public class FirebaseManager {
 
     private static final Logger logger = LoggerFactory.getLogger(FirebaseManager.class);

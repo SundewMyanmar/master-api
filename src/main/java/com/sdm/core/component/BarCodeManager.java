@@ -26,7 +26,6 @@ import java.util.Hashtable;
  * @author Htoonlin
  */
 @Component
-@Scope("prototype")
 public class BarCodeManager {
     private final String FILE_TYPE = "png";
 

@@ -21,7 +21,6 @@ import java.util.logging.Logger;
  * @author htoonlin
  */
 @Component
-@Scope("prototype")
 public class VelocityTemplateManager {
 
     private static final Logger LOG = Logger.getLogger(VelocityTemplateManager.class.getName());

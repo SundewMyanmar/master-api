@@ -16,7 +16,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
-@Scope("prototype")
 public class FBGraphManager {
     public static final Logger LOG = LoggerFactory.getLogger(FBGraphManager.class);
 

@@ -24,7 +24,6 @@ import java.util.Map;
  * @author m0n-hash
  */
 @Component
-@Scope("prototype")
 public class NativeQueryManager {
 
     public static class ProcedureParam {

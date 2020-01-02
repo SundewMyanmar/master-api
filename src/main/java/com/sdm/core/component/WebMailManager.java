@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.Map;
 
 @Component
-@Scope("prototype")
 public class WebMailManager {
     @Autowired
     protected JavaMailSender mailSender;
