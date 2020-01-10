@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/files/")
+@RequestMapping("/files")
 public class FileController extends ReadController<FileEntity, String> {
 
     @Autowired

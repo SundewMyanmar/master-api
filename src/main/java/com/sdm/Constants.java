@@ -8,15 +8,6 @@ package com.sdm;
 public interface Constants {
 
     /**
-     * Facebook Constants
-     */
-    interface Facebook {
-        String GRAPH_API = "https://graph.facebook.com/";
-        String AUTH_SCOPE = "id,name,email";
-        String API_VERSION = "v3.2";
-    }
-
-    /**
      * Regex Patterns
      *
      * @author Htoonlin
@@ -123,6 +114,6 @@ public interface Constants {
         /**
          * Super Admin role for all permission
          */
-        String ROOT_ROLE = "ROOT";
+        String ROOT_ROLE = "SUPER_USER";
     }
 }

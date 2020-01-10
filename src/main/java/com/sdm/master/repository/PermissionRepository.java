@@ -1,7 +1,6 @@
 package com.sdm.master.repository;
 
 import com.sdm.core.repository.DefaultRepository;
-import com.sdm.core.security.PermissionMatcher;
 import com.sdm.master.entity.PermissionEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

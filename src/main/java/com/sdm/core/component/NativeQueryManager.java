@@ -3,7 +3,6 @@ package com.sdm.core.component;
 import org.hibernate.transform.Transformers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -146,7 +145,7 @@ public class NativeQueryManager {
             StoredProcedureQuery query = entityManager.createStoredProcedureQuery(procedure);
             this.setParameter(query);
 
-            logger.info("Execute Proc : "+this.getProcedure(),query);
+            logger.info("Execute Proc : " + this.getProcedure(), query);
 
             query.execute();
         }
@@ -155,7 +154,7 @@ public class NativeQueryManager {
             StoredProcedureQuery query = entityManager.createStoredProcedureQuery(procedure);
             this.setParameter(query);
 
-            logger.info("Execute Proc [Single] : "+this.getProcedure(),query);
+            logger.info("Execute Proc [Single] : " + this.getProcedure(), query);
 
             return query.getSingleResult();
         }
@@ -167,7 +166,7 @@ public class NativeQueryManager {
             Map<String, Object> resultMap = new HashMap<>();
             outParam.forEach(param -> resultMap.put(param, query.getOutputParameterValue(param)));
 
-            logger.info("Execute Proc [Single Map<>] : "+this.getProcedure(),query);
+            logger.info("Execute Proc [Single Map<>] : " + this.getProcedure(), query);
 
             return resultMap;
         }
@@ -194,7 +193,7 @@ public class NativeQueryManager {
             if (params != null)
                 params.forEach(param -> query.setParameter(param.getName(), param.getValue()));
 
-            logger.info("Execute Proc [List] : "+this.getProcedure(),query);
+            logger.info("Execute Proc [List] : " + this.getProcedure(), query);
 
             return query.getResultList();
         }
@@ -299,20 +298,20 @@ public class NativeQueryManager {
             this.entityManager = entityManager;
         }
 
-        public void execute(){
-            Query query=this.getQuery(false);
+        public void execute() {
+            Query query = this.getQuery(false);
 
-            logger.info("Execute Query : "+this.getQueryString(),query);
+            logger.info("Execute Query : " + this.getQueryString(), query);
 
-            int result=query.executeUpdate();
+            int result = query.executeUpdate();
 
-            logger.info("Execute Query Status : "+result);
+            logger.info("Execute Query Status : " + result);
         }
 
-        public Object getSingleResult(){
-            Query query=this.getQuery(false);
+        public Object getSingleResult() {
+            Query query = this.getQuery(false);
 
-            logger.info("Execute Query [Single] : "+this.getQueryString(),query);
+            logger.info("Execute Query [Single] : " + this.getQueryString(), query);
 
             return query.getSingleResult();
         }
@@ -325,7 +324,7 @@ public class NativeQueryManager {
                 query.setMaxResults(limit.getMaxResult());
             }
 
-            logger.info("Execute Query [List] : "+this.getQueryString(),query);
+            logger.info("Execute Query [List] : " + this.getQueryString(), query);
 
             return query.getResultList();
         }
@@ -336,18 +335,18 @@ public class NativeQueryManager {
             }
             System.out.println("Hibernate Versions : " + org.hibernate.Version.getVersionString());
 
-            String nativeQuery="SELECT * FROM " + this.queryString;
-            if(this.queryString.toUpperCase().startsWith("SELECT")){
-                nativeQuery=this.queryString;
+            String nativeQuery = "SELECT * FROM " + this.queryString;
+            if (this.queryString.toUpperCase().startsWith("SELECT")) {
+                nativeQuery = this.queryString;
             }
             Query query = entityManager.createNativeQuery(nativeQuery);
             //Check upcoming hibernate 6, to modify deprecated methods for future upgrade
             query.unwrap(org.hibernate.SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
 
-            String nativeCountQuery="SELECT COUNT(*) FROM " + this.queryString;
-            if(this.queryString.toUpperCase().startsWith("SELECT")){
-                int index=queryString.toUpperCase().indexOf(" FROM ");
-                nativeCountQuery="SELECT COUNT(*) "+this.queryString.substring(index,this.queryString.length());
+            String nativeCountQuery = "SELECT COUNT(*) FROM " + this.queryString;
+            if (this.queryString.toUpperCase().startsWith("SELECT")) {
+                int index = queryString.toUpperCase().indexOf(" FROM ");
+                nativeCountQuery = "SELECT COUNT(*) " + this.queryString.substring(index, this.queryString.length());
             }
             Query countQuery = entityManager.createNativeQuery(nativeCountQuery);
 
@@ -363,20 +362,20 @@ public class NativeQueryManager {
 
             BigInteger total = (BigInteger) countQuery.getSingleResult();
 
-            logger.info("Execute Query [Paging] : "+nativeQuery,query);
+            logger.info("Execute Query [Paging] : " + nativeQuery, query);
 
             return new PageImpl<>(query.getResultList(), pageable, total.longValue());
         }
 
         private Query getQuery(boolean mapEntity) {
-            String nativeQueryString = "SELECT * FROM " +this.queryString;
+            String nativeQueryString = "SELECT * FROM " + this.queryString;
             if (this.queryString.toUpperCase().startsWith("SELECT")) {
-                nativeQueryString =  this.queryString;
+                nativeQueryString = this.queryString;
             }
 
             Query query = this.entityManager.createNativeQuery(nativeQueryString);
             //Check upcoming hibernate 6, to modify deprecated methods for future upgrade
-            if(mapEntity)
+            if (mapEntity)
                 query.unwrap(org.hibernate.SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
 
             if (this.filter != null && !this.filter.isEmpty()) {
@@ -427,20 +426,20 @@ public class NativeQueryManager {
         return queryString;
     }
 
-    public NativeQuery customQuery(String queryString){
-        return new NativeQuery(queryString,entityManager);
+    public NativeQuery customQuery(String queryString) {
+        return new NativeQuery(queryString, entityManager);
     }
 
-    public NativeQuery customQuery(String queryString, String filter, List<String> filterFields){
-        return new NativeQuery(queryString, filter, filterFields,entityManager);
+    public NativeQuery customQuery(String queryString, String filter, List<String> filterFields) {
+        return new NativeQuery(queryString, filter, filterFields, entityManager);
     }
 
-    public NativeQuery customQuery(String queryString, String filter, List<String> filterFields, ResultLimit limit){
-        return new NativeQuery(queryString, filter, filterFields, limit,entityManager);
+    public NativeQuery customQuery(String queryString, String filter, List<String> filterFields, ResultLimit limit) {
+        return new NativeQuery(queryString, filter, filterFields, limit, entityManager);
     }
 
-    public NativeQuery customQuery(String queryString, String filter, List<String> filterFields, Pageable pageable){
-        return new NativeQuery(queryString, filter, filterFields, pageable,entityManager);
+    public NativeQuery customQuery(String queryString, String filter, List<String> filterFields, Pageable pageable) {
+        return new NativeQuery(queryString, filter, filterFields, pageable, entityManager);
     }
 
     public NativeQuery query(String tableName, String filter, List<String> filterFields) {

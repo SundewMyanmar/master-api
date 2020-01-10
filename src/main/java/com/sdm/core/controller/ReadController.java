@@ -13,6 +13,7 @@ import com.sdm.core.repository.DefaultRepository;
 import com.sdm.core.util.Globalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -92,7 +93,7 @@ public abstract class ReadController<T extends DefaultEntity, ID extends Seriali
         return PageRequest.of(pageId, pageSize, Sort.by(sorting));
     }
 
-    @GetMapping("/")
+    @GetMapping()
     ResponseEntity getPageByPage(@RequestParam(value = "page", defaultValue = "0") int pageId,
                                  @RequestParam(value = "size", defaultValue = "10") int pageSize,
                                  @RequestParam(value = "sort", defaultValue = "id:DESC") String sortString,

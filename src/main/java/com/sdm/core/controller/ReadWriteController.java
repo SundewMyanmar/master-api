@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 public abstract class ReadWriteController<T extends DefaultEntity, ID extends Serializable> extends ReadController<T, ID> {
-    @PostMapping("/")
+    @PostMapping()
     public ResponseEntity create(@Valid @RequestBody T request) {
         T entity = getRepository().save(request);
         return new ResponseEntity(entity, HttpStatus.CREATED);

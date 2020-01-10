@@ -52,14 +52,14 @@ public class FileEntity extends DefaultEntity implements Serializable {
     private String type;
 
     @JsonIgnore
-    @Column(name = "size", columnDefinition = "INT UNSIGNED", nullable = false)
+    @Column(name = "size", columnDefinition = "INT", nullable = false)
     private long fileSize;
 
     @JsonIgnore
-    @Column(name = "storage_path", columnDefinition = "varchar(1000)", length = 1000, nullable = true)
+    @Column(name = "storage_path", columnDefinition = "varchar(1000)", length = 1000)
     private String storagePath;
 
-    @Column(name = "external_url", columnDefinition = "varchar(1000)", length = 1000, nullable = true)
+    @Column(name = "external_url", columnDefinition = "varchar(1000)", length = 1000)
     private String externalUrl;
 
     @Column(name = "is_public", length = 25)

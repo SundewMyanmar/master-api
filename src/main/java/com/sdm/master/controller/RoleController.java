@@ -24,7 +24,7 @@ public class RoleController extends ReadWriteController<RoleEntity, Integer> {
     protected DefaultRepository<RoleEntity, Integer> getRepository() {
         return repository;
     }
-    
+
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public ResponseEntity getAll() {
         try {

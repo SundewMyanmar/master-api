@@ -50,6 +50,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new JwtAuthenticationFilter();
     }
 
+    private static final String[] SYSTEM_WHITE_LIST = {"/", "/error", "/facebook/messenger", "/util/**", "/public/**", "/auth/**" };
+
     private static final String[] SWAGGER_WHITE_LIST = {
             "/swagger-ui.html",
             "/swagger-resources/**",
@@ -69,8 +71,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        String[] publicUrls = ObjectArrays.concat(SWAGGER_WHITE_LIST,
-                securityProperties.getPublicUrls(), String.class);
+        String[] publicUrls = ObjectArrays.concat(SYSTEM_WHITE_LIST, SWAGGER_WHITE_LIST, String.class);
 
         //1. Load default system configure
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

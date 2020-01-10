@@ -20,8 +20,6 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
-import java.sql.SQLException;
 import java.util.*;
 
 @RestController
@@ -41,22 +39,22 @@ public class PermissionController extends ReadWriteController<PermissionEntity, 
     @Transactional
     @PostMapping("/create")
     ResponseEntity customCreate(@Valid @RequestBody List<PermissionRequest> request) {
-        List<PermissionEntity> result=new ArrayList<>();
+        List<PermissionEntity> result = new ArrayList<>();
 
-        for(PermissionRequest item:request) {
+        for (PermissionRequest item : request) {
             PermissionEntity entity = new PermissionEntity();
-            if (item.getId() != null && item.getId()>0) {
+            if (item.getId() != null && item.getId() > 0) {
                 entity = permissionRepository.findById(item.getId()).get();
                 entity.setRoles(item.getRoles());
-            }else{
-                Optional<PermissionEntity> dbEntity=permissionRepository.findByHttpMethodAndPattern(item.getHttpMethod(),item.getPattern());
-                if(dbEntity.isPresent()){
-                    entity=dbEntity.get();
-                    Set<RoleEntity> roles=item.getRoles();
-                    for(RoleEntity role:roles){
+            } else {
+                Optional<PermissionEntity> dbEntity = permissionRepository.findByHttpMethodAndPattern(item.getHttpMethod(), item.getPattern());
+                if (dbEntity.isPresent()) {
+                    entity = dbEntity.get();
+                    Set<RoleEntity> roles = item.getRoles();
+                    for (RoleEntity role : roles) {
                         entity.addRole(role);
                     }
-                }else{
+                } else {
                     entity.setRoles(item.getRoles());
                 }
             }
@@ -65,7 +63,7 @@ public class PermissionController extends ReadWriteController<PermissionEntity, 
             entity.setHttpMethod(item.getHttpMethod());
 
 
-            if (item.getId() != null && item.getId()>0 && !item.isChecked()) {
+            if (item.getId() != null && item.getId() > 0 && !item.isChecked()) {
                 //Role just remove or delete
                 if (item.getRoles().size() <= 0)
                     permissionRepository.delete(entity);
@@ -93,11 +91,11 @@ public class PermissionController extends ReadWriteController<PermissionEntity, 
         }
     }
 
-    @RequestMapping(value = "/{id}/role/", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}/role", method = RequestMethod.GET)
     public ResponseEntity getByRole(@PathVariable("id") Integer role) {
         try {
             Optional<List<PermissionEntity>> results = permissionRepository.findByRoleId(role);
-            if(!results.isPresent()){
+            if (!results.isPresent()) {
                 throw new GeneralException(HttpStatus.NO_CONTENT,
                         "There is no any data by role : " + role.toString());
             }
@@ -109,41 +107,41 @@ public class PermissionController extends ReadWriteController<PermissionEntity, 
     }
 
 
-    @RequestMapping(value = "/routes", method=RequestMethod.GET)
+    @RequestMapping(value = "/routes", method = RequestMethod.GET)
     public ResponseEntity getAllRoutes() {
-        Map<RequestMappingInfo, HandlerMethod> requestMap= requestMappingHandlerMapping.getHandlerMethods();
-        List<String> neglectController= Arrays.asList(new String[]{"org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController",
-                "springfox.documentation.swagger.web.ApiResourceController","com.sdm.core.controller.PublicController","com.sdm.master.controller.AuthController",
+        Map<RequestMappingInfo, HandlerMethod> requestMap = requestMappingHandlerMapping.getHandlerMethods();
+        List<String> neglectController = Arrays.asList(new String[]{"org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController",
+                "springfox.documentation.swagger.web.ApiResourceController", "com.sdm.core.controller.PublicController", "com.sdm.master.controller.AuthController",
                 "com.sdm.master.controller.MasterPublicController"});
-        Map<String,Map<String,Object>> resultMap=new HashMap<>();
+        Map<String, Map<String, Object>> resultMap = new HashMap<>();
 
-        requestMap.keySet().stream().forEach(t->{
-                    HandlerMethod requestMethod=requestMap.get(t);
-                    if(neglectController.contains(requestMethod.getBeanType().getName()))
+        requestMap.keySet().stream().forEach(t -> {
+                    HandlerMethod requestMethod = requestMap.get(t);
+                    if (neglectController.contains(requestMethod.getBeanType().getName()))
                         return;
 
-                    Map<String,Object> map=resultMap.get(requestMethod.getBeanType().getName());
-                    if(map==null){
-                        map=new HashMap<>();
-                        map.put("name",requestMethod.getBean().toString());
+                    Map<String, Object> map = resultMap.get(requestMethod.getBeanType().getName());
+                    if (map == null) {
+                        map = new HashMap<>();
+                        map.put("name", requestMethod.getBean().toString());
                     }
 
-                    List<Map<String,Object>> mapList=(List<Map<String,Object>>)map.get("routes");
-                    if(mapList==null){
-                        mapList=new ArrayList<>();
+                    List<Map<String, Object>> mapList = (List<Map<String, Object>>) map.get("routes");
+                    if (mapList == null) {
+                        mapList = new ArrayList<>();
                     }
 
-                    Map<String,Object> mapL=new HashMap<>();
-                    mapL.put("name",requestMethod.getMethod().getName());
-                    String method=(t.getMethodsCondition().getMethods().size() == 0 ? "GET" : t.getMethodsCondition().getMethods().toArray()[0]).toString();
-                    mapL.put("method",method);
-                    String pattern=(t.getPatternsCondition().getPatterns().size()==0?"":t.getPatternsCondition().getPatterns().toArray()[0].toString());
-                    mapL.put("pattern",pattern);
+                    Map<String, Object> mapL = new HashMap<>();
+                    mapL.put("name", requestMethod.getMethod().getName());
+                    String method = (t.getMethodsCondition().getMethods().size() == 0 ? "GET" : t.getMethodsCondition().getMethods().toArray()[0]).toString();
+                    mapL.put("method", method);
+                    String pattern = (t.getPatternsCondition().getPatterns().size() == 0 ? "" : t.getPatternsCondition().getPatterns().toArray()[0].toString());
+                    mapL.put("pattern", pattern);
 
                     mapList.add(mapL);
-                    map.put("routes",mapList);
+                    map.put("routes", mapList);
 
-                    resultMap.put(requestMethod.getBeanType().getName(),map);
+                    resultMap.put(requestMethod.getBeanType().getName(), map);
                 }
         );
 
