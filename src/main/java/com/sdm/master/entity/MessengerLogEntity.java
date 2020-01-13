@@ -30,7 +30,7 @@ public class MessengerLogEntity extends DefaultEntity implements Serializable {
     @Column(name = "message", columnDefinition = "TEXT")
     private String message;
 
-    @Column(name = "payload", columnDefinition = "MEDIUMTEXT")
+    @Column(name = "payload", columnDefinition = "TEXT")
     private String payload;
 
     @Temporal(TemporalType.TIMESTAMP)

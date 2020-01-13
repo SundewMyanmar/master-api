@@ -10,6 +10,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity(name = "TokenEntity")
 @Table(name = "tbl_user_tokens")
@@ -115,7 +116,7 @@ public class TokenEntity extends DefaultEntity implements Serializable {
 
         TokenEntity that = (TokenEntity) o;
 
-        return id != null ? id.equals(that.id) : that.id == null;
+        return Objects.equals(id, that.id);
     }
 
     @Override

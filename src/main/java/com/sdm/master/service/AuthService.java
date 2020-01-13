@@ -81,19 +81,6 @@ public class AuthService {
         return user;
     }
 
-    private void sendWelcomeUser(UserEntity user, String rawPassword, String title) {
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("title", title);
-        data.put("email", user.getEmail());
-        data.put("name", user.getDisplayName());
-        data.put("password", rawPassword);
-        data.put("current_year", Globalizer.getDateString("yyyy", new Date()));
-
-        mailManager.sendByTemplate(new MailHeader(user.getEmail(), title),
-                "mail/create-user.vm", data);
-    }
-
     private Date getTokenExpired() {
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
@@ -206,6 +193,9 @@ public class AuthService {
         UserEntity newUser = new UserEntity(request.getEmail(), request.getUser(), request.getDisplayName(),
                 password, status);
         userRepository.save(newUser);
+        if(securityProperties.isRequireConfirm()){
+
+        }
 
         this.createToken(newUser, request, userAgent);
 

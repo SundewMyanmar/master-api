@@ -7,6 +7,9 @@ package com.sdm;
  */
 public interface Constants {
 
+    String APP_NAME = "MasterAPI";
+    String INFO_MAIL = "info@sundewmyanmar.com";
+
     /**
      * Regex Patterns
      *

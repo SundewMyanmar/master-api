@@ -28,14 +28,16 @@ public class FirebaseManager {
     private static final Logger logger = LoggerFactory.getLogger(FirebaseManager.class);
 
     public FirebaseManager(FireBaseProperties fireBaseProperties) {
-        try (FileInputStream serviceAccount = new FileInputStream(fireBaseProperties.getServiceJson())) {
-            FirebaseOptions options = new FirebaseOptions.Builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setDatabaseUrl(fireBaseProperties.getProjectUrl())
-                    .build();
-            FirebaseApp.initializeApp(options);
-        } catch (IOException ex) {
-            logger.error(ex.getLocalizedMessage(), ex);
+        if(fireBaseProperties.getServiceJson().length() > 0 && fireBaseProperties.getProjectUrl().length() > 0){
+            try (FileInputStream serviceAccount = new FileInputStream(fireBaseProperties.getServiceJson())) {
+                FirebaseOptions options = new FirebaseOptions.Builder()
+                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                        .setDatabaseUrl(fireBaseProperties.getProjectUrl())
+                        .build();
+                FirebaseApp.initializeApp(options);
+            } catch (IOException ex) {
+                logger.error(ex.getLocalizedMessage(), ex);
+            }
         }
     }
 

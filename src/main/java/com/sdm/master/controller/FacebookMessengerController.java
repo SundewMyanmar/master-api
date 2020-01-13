@@ -24,7 +24,7 @@ public class FacebookMessengerController {
     @Autowired
     FBMessengerService messengerService;
 
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity verifyWebhook(@RequestParam("hub.mode") String mode,
                                         @RequestParam("hub.verify_token") String verify_token, @RequestParam("hub.challenge") String challenge) {
         if (mode.equalsIgnoreCase("subscribe") && verify_token.equalsIgnoreCase(this.properties.getWebhookToken())) {
@@ -36,7 +36,7 @@ public class FacebookMessengerController {
         return ResponseEntity.status(403).build();
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity messageReceiver(@RequestBody String request, @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) {
         LOG.info("Received from Facebook => " + request);
         JsonObject body = new Gson().fromJson(request, JsonObject.class);

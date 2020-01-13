@@ -2,9 +2,12 @@ package com.sdm.master.controller;
 
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.AuthInfo;
+import com.sdm.core.model.response.MessageModel;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.master.entity.UserEntity;
+import com.sdm.master.repository.TokenRepository;
 import com.sdm.master.repository.UserRepository;
+import com.sdm.master.request.AuthRequest;
 import com.sdm.master.request.ChangePasswordRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +25,9 @@ public class ProfileController {
     private UserRepository userRepository;
 
     @Autowired
+    private TokenRepository tokenRepository;
+
+    @Autowired
     private SecurityManager securityManager;
 
     private AuthInfo getCurrentUser() {
@@ -29,7 +35,7 @@ public class ProfileController {
     }
 
     // @UserAllowed
-    @GetMapping({"/", ""})
+    @GetMapping("")
     public ResponseEntity getProfile() {
         UserEntity user = userRepository.findById(getCurrentUser().getUserId())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "Sorry! can't find your account."));
@@ -37,7 +43,7 @@ public class ProfileController {
     }
 
     // @UserAllowed
-    @PostMapping({"/", ""})
+    @PostMapping("")
     public ResponseEntity updateProfile(@RequestBody UserEntity user) {
         UserEntity existUser = userRepository.findById(getCurrentUser().getUserId())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "Sorry! can't find your account."));
@@ -70,5 +76,16 @@ public class ProfileController {
         userRepository.save(authUser);
 
         return ResponseEntity.ok(authUser);
+    }
+
+    @DeleteMapping("/cleanToken")
+    public ResponseEntity cleanToken(){
+        AuthRequest request = new AuthRequest();
+        request.setDeviceId(getCurrentUser().getDeviceId());
+        request.setDeviceOS(getCurrentUser().getDeviceOs());
+        tokenRepository.cleanTokenByUserId(this.getCurrentUser().getUserId());
+        MessageModel message = MessageModel.createMessage("Successfully deleted.",
+                "Cleaned all token by User ID : " + this.getCurrentUser().getUserId());
+        return ResponseEntity.ok(message);
     }
 }

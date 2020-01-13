@@ -50,7 +50,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new JwtAuthenticationFilter();
     }
 
-    private static final String[] SYSTEM_WHITE_LIST = {"/", "/error", "/facebook/messenger", "/util/**", "/public/**", "/auth/**" };
+    private static final String[] SYSTEM_WHITE_LIST = {"/", "/actuator/**", "/error", "/facebook/messenger", "/util/**", "/public/**", "/auth/**" };
 
     private static final String[] SWAGGER_WHITE_LIST = {
             "/swagger-ui.html",

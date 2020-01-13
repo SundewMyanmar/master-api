@@ -1,9 +1,12 @@
 package com.sdm.master.controller;
 
+import com.sdm.core.component.WebMailManager;
 import com.sdm.core.controller.ReadWriteController;
 import com.sdm.core.exception.GeneralException;
+import com.sdm.core.model.MailHeader;
 import com.sdm.core.repository.DefaultRepository;
 import com.sdm.core.security.SecurityManager;
+import com.sdm.core.util.Globalizer;
 import com.sdm.master.entity.UserEntity;
 import com.sdm.master.repository.UserRepository;
 import com.sdm.master.request.ChangePasswordRequest;
@@ -13,6 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -22,11 +28,27 @@ public class UserController extends ReadWriteController<UserEntity, Long> {
     UserRepository userRepository;
 
     @Autowired
+    WebMailManager mailManager;
+
+    @Autowired
     private SecurityManager securityManager;
 
     @Override
     protected DefaultRepository<UserEntity, Long> getRepository() {
         return this.userRepository;
+    }
+
+    private void sendWelcomeUser(UserEntity user, String rawPassword, String title) {
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("title", title);
+        data.put("email", user.getEmail());
+        data.put("name", user.getDisplayName());
+        data.put("password", rawPassword);
+        data.put("current_year", Globalizer.getDateString("yyyy", new Date()));
+
+        mailManager.sendByTemplate(new MailHeader(user.getEmail(), title),
+                "mail/create-user.vm", data);
     }
 
     @PostMapping("/resetPassword/{userId}")
@@ -58,6 +80,7 @@ public class UserController extends ReadWriteController<UserEntity, Long> {
         request.setPassword(password);
 
         UserEntity entity = userRepository.save(request);
+        sendWelcomeUser(entity, request.getPassword(), "Welcome!");
 
         return new ResponseEntity(entity, HttpStatus.CREATED);
     }

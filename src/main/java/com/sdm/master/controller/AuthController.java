@@ -18,7 +18,7 @@ public class AuthController {
     @Autowired
     private AuthService service;
 
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity authWithEmail(@Valid @RequestBody AuthRequest request,
                                         @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) {
         return service.authByPassword(request, userAgent);
@@ -41,4 +41,9 @@ public class AuthController {
                                        @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) {
         return service.facebookAuth(request, userAgent);
     }
+
+//    @GetMapping("/forgetPassword")
+//    public ResponseEntity forgetPassword(@Valid @RequestParam("user") String user){
+//        return service.
+//    }
 }
