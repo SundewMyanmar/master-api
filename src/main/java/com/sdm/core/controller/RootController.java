@@ -2,19 +2,18 @@ package com.sdm.core.controller;
 
 import com.sdm.Constants;
 import com.sdm.core.component.VelocityTemplateManager;
-import com.sdm.core.component.WebMailManager;
-import com.sdm.core.model.MailHeader;
 import com.sdm.core.model.response.MessageModel;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.MyanmarFontManager;
-import org.apache.tomcat.util.bcel.Const;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -50,13 +49,13 @@ public class RootController implements ErrorController {
             String message = request.getAttribute(RequestDispatcher.ERROR_MESSAGE).toString();
 
             return ResponseEntity.ok(MessageModel.createMessage(status, status.series().name(), message));
-        }catch(Exception error){
+        } catch (Exception error) {
             return ResponseEntity.ok(MessageModel.createMessage("ERROR", "Our Engineers are on it!"));
         }
     }
 
     @GetMapping("/public/privacy")
-    public String privacyPolicy(){
+    public String privacyPolicy() {
         Map<String, Object> data = new HashMap<>();
         data.put("title", Constants.APP_NAME);
         data.put("email", Constants.INFO_MAIL);

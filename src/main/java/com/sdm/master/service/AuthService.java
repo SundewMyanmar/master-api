@@ -5,7 +5,6 @@ import com.sdm.core.component.FBGraphManager;
 import com.sdm.core.component.WebMailManager;
 import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.exception.GeneralException;
-import com.sdm.core.model.MailHeader;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.master.entity.TokenEntity;
@@ -193,7 +192,7 @@ public class AuthService {
         UserEntity newUser = new UserEntity(request.getEmail(), request.getUser(), request.getDisplayName(),
                 password, status);
         userRepository.save(newUser);
-        if(securityProperties.isRequireConfirm()){
+        if (securityProperties.isRequireConfirm()) {
 
         }
 

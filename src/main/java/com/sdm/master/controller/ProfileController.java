@@ -79,7 +79,7 @@ public class ProfileController {
     }
 
     @DeleteMapping("/cleanToken")
-    public ResponseEntity cleanToken(){
+    public ResponseEntity cleanToken() {
         AuthRequest request = new AuthRequest();
         request.setDeviceId(getCurrentUser().getDeviceId());
         request.setDeviceOS(getCurrentUser().getDeviceOs());
