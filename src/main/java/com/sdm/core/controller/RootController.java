@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -44,11 +45,32 @@ public class RootController implements ErrorController {
     @GetMapping("/error")
     public ResponseEntity handleError(HttpServletRequest request) {
         try {
-            int code = (int) request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
-            HttpStatus status = HttpStatus.valueOf(code);
-            String message = request.getAttribute(RequestDispatcher.ERROR_MESSAGE).toString();
+            Map<String, Object> detail = new HashMap<>();
 
-            return ResponseEntity.ok(MessageModel.createMessage(status, status.series().name(), message));
+            int code = (int) request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+            String path = request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI).toString();
+            String query = request.getAttribute(RequestDispatcher.FORWARD_QUERY_STRING).toString();
+            String message = request.getAttribute(RequestDispatcher.ERROR_MESSAGE).toString();
+            
+            if(path != null){
+                detail.put("path", path);
+            }
+
+            if(path != null){
+                detail.put("query", query);
+            }
+
+            Exception ex = (Exception)request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
+            if(ex != null){
+                if(message == null || message.length() <= 0){
+                    message = ex.getLocalizedMessage();
+                }else{
+                    detail.put("exception", ex.getMessage());
+                }
+            }
+
+            MessageModel model = MessageModel.createWithDetail(HttpStatus.valueOf(code), message, detail);
+            return ResponseEntity.ok(model);
         } catch (Exception error) {
             return ResponseEntity.ok(MessageModel.createMessage("ERROR", "Our Engineers are on it!"));
         }

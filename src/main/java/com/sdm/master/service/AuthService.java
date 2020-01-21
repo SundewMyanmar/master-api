@@ -2,6 +2,7 @@ package com.sdm.master.service;
 
 import com.google.gson.JsonObject;
 import com.sdm.core.component.FBGraphManager;
+import com.sdm.core.component.NativeQueryManager;
 import com.sdm.core.component.WebMailManager;
 import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.exception.GeneralException;
@@ -51,6 +52,9 @@ public class AuthService {
     @Autowired
     TokenRepository tokenRepository;
 
+    @Autowired
+    NativeQueryManager nativeQueryManager;
+
     private static final String FB_AUTH_FIELDS = "id,name,email,gender,age_range";
 
     private static final int MAX_PASSWORD = 32;
@@ -69,6 +73,11 @@ public class AuthService {
             user.addExtra("manufacture", request.getManufacture());
         }
     }
+
+    private void sendConfirmationMail(UserEntity entity) {
+        Map<String, Object> data = new HashMap<>();
+        
+    }   
 
     private UserEntity setOTP(UserEntity user) {
         user.setOtpToken(Globalizer.generateToken(
@@ -187,12 +196,12 @@ public class AuthService {
                     }
                 });
 
-        UserEntity.Status status = securityProperties.isRequireConfirm() ? UserEntity.Status.PENDING : UserEntity.Status.ACTIVE;
+        UserEntity.Status status = securityProperties.isMailConfirm() ? UserEntity.Status.PENDING : UserEntity.Status.ACTIVE;
         String password = securityManager.hashString(request.getPassword());
         UserEntity newUser = new UserEntity(request.getEmail(), request.getUser(), request.getDisplayName(),
                 password, status);
         userRepository.save(newUser);
-        if (securityProperties.isRequireConfirm()) {
+        if (securityProperties.isMailConfirm()) {
 
         }
 

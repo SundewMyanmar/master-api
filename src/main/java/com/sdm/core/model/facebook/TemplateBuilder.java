@@ -34,7 +34,7 @@ public class TemplateBuilder extends MessageBuilder {
     @Override
     public JsonObject build() {
         JsonObject attachment = new JsonObject();
-        attachment.addProperty("type", "template");
+        attachment.addProperty("type", "templates");
         attachment.add("payload", this.payload);
         this.getMessage().add("attachment", attachment);
         return super.build();

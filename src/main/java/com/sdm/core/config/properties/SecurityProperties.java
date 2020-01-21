@@ -22,7 +22,7 @@ public class SecurityProperties {
 
     private String jwtKey = "";
 
-    private boolean requireConfirm = false;
+    private boolean mailConfirm = false;
 
     public Set<Long> getOwnerIds() {
         return ownerIds;
@@ -72,11 +72,12 @@ public class SecurityProperties {
         this.jwtKey = jwtKey;
     }
 
-    public boolean isRequireConfirm() {
-        return requireConfirm;
-    }
+	public boolean isMailConfirm() {
+		return mailConfirm;
+	}
 
-    public void setRequireConfirm(boolean requireConfirm) {
-        this.requireConfirm = requireConfirm;
-    }
+	public void setMailConfirm(boolean mailConfirm) {
+		this.mailConfirm = mailConfirm;
+	}
+
 }

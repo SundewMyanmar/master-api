@@ -192,7 +192,7 @@ public class Button {
         button.addProperty("type", "element_share");
 
         JsonObject attachment = new JsonObject();
-        attachment.addProperty("type", "template");
+        attachment.addProperty("type", "templates");
         attachment.add("payload", templatePayload);
 
         JsonObject shareContent = new JsonObject();
