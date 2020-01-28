@@ -1,0 +1,73 @@
+package com.sdm.core.controller;
+
+import com.sdm.core.exception.GeneralException;
+import com.sdm.core.model.DefaultEntity;
+import com.sdm.core.model.response.ListResponse;
+import com.sdm.core.model.response.MessageResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.multipart.FilePart;
+
+import javax.validation.Valid;
+import java.io.Serializable;
+import java.util.List;
+
+public abstract class DefaultReadWriterController<T extends DefaultEntity, ID extends Serializable> extends DefaultReadController<T, ID> implements ReadWriterController<T, ID> {
+
+    @Override
+    public ResponseEntity<T> create(@Valid T body) {
+        T entity = getRepository().save(body);
+        return new ResponseEntity<>(entity, HttpStatus.CREATED);
+    }
+
+    @Override
+    public ResponseEntity<ListResponse<T>> multiCreate(@Valid List<T> body) {
+        List<T> data = getRepository().saveAll(body);
+        return new ResponseEntity<>(new ListResponse<>(data), HttpStatus.CREATED);
+    }
+
+    @Override
+    public ResponseEntity<T> update(@Valid T body, ID id) {
+        this.checkData(id);
+        if (!id.equals(body.getId())) {
+            throw new GeneralException(HttpStatus.CONFLICT,
+                    "Path ID and body ID aren't match.");
+        }
+
+        T entity = getRepository().save(body);
+        return ResponseEntity.ok(entity);
+    }
+
+    @Override
+    public ResponseEntity<ListResponse<T>> multiUpdate(@Valid List<T> body) {
+        List<T> data = getRepository().saveAll(body);
+        return ResponseEntity.ok(new ListResponse<>(data));
+    }
+
+    @Override
+    public ResponseEntity<T> partialUpdate(String body, ID id) {
+        throw new GeneralException(HttpStatus.SERVICE_UNAVAILABLE, "Sorry! This services is not available now.");
+    }
+
+    @Override
+    public ResponseEntity<MessageResponse> remove(ID id) {
+        T existEntity = this.checkData(id);
+        getRepository().softDelete(existEntity);
+        MessageResponse message = new MessageResponse(HttpStatus.OK, "successfully_deleted",
+                "Deleted data on your request by : " + id.toString(), null);
+        return ResponseEntity.ok(message);
+    }
+
+    @Override
+    public ResponseEntity<MessageResponse> multiRemove(@Valid List<ID> ids) {
+        ids.forEach(id -> getRepository().softDeleteById(id));
+        MessageResponse message = new MessageResponse(HttpStatus.OK, "DELETED",
+                "Deleted " + ids.size() + " data.", null);
+        return ResponseEntity.ok(message);
+    }
+
+    @Override
+    public ResponseEntity<MessageResponse> importData(FilePart filePart) {
+        throw new GeneralException(HttpStatus.SERVICE_UNAVAILABLE, "Sorry! This services is not available now.");
+    }
+}
