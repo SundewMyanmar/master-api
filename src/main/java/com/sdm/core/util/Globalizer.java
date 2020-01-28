@@ -5,12 +5,6 @@
  */
 package com.sdm.core.util;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
-import javax.servlet.http.HttpServletRequest;
 import java.security.SecureRandom;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -21,21 +15,6 @@ import java.util.regex.Pattern;
  * @author Htoonlin
  */
 public class Globalizer {
-
-    public static ObjectMapper jsonMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
-        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true);
-        mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
-
-        return mapper;
-    }
-
-    public static String camelToLowerUnderScore(String input) {
-        return (new PropertyNamingStrategy.SnakeCaseStrategy()).translate(input);
-    }
 
     public static String camelToReadable(String input) {
         return input.replaceAll(String.format("%s|%s|%s", "(?<=[A-Z])(?=[A-Z][a-z])", "(?<=[^A-Z])(?=[A-Z])",
@@ -52,21 +31,6 @@ public class Globalizer {
             return (status >= 100 && status <= 511);
         }
         return false;
-    }
-
-    public static String getSystemURL(HttpServletRequest request) {
-        String url = "";
-        String schema = request.getScheme();
-        String server = request.getServerName();
-        String contextPath = request.getContextPath();
-        int port = request.getServerPort();
-        if (port == 80 || port == 443) {
-            url = String.format("%s://%s", schema, server);
-        } else {
-            url = String.format("%s://%s:%s", schema, server, port);
-        }
-
-        return url + contextPath;
     }
 
     public static String getDateString(String format, Date date) {

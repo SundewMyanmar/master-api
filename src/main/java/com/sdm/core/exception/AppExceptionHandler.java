@@ -1,8 +1,7 @@
 package com.sdm.core.exception;
 
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import com.sdm.core.model.response.MessageModel;
-import com.sdm.core.util.Globalizer;
+import com.sdm.core.model.response.MessageResponse;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.ConversionNotSupportedException;
@@ -25,11 +24,11 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.Arrays;
@@ -37,91 +36,99 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@EnableWebMvc
 @ControllerAdvice
 public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private ResponseEntity invalidFieldErrors(List<FieldError> fieldErrors, List<ObjectError> objectErrors) {
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    private ResponseEntity<Object> invalidFieldErrors(List<FieldError> fieldErrors, List<ObjectError> objectErrors) {
         Map<String, Object> errors = new HashMap<>();
         for (FieldError error : fieldErrors) {
-            errors.put(Globalizer.camelToLowerUnderScore(error.getField()), error.getDefaultMessage());
+            errors.put(error.getField(), error.getDefaultMessage());
         }
         for (ObjectError error : objectErrors) {
             errors.put(error.getObjectName(), error.getDefaultMessage());
         }
 
-        MessageModel message = MessageModel.createWithDetail(HttpStatus.BAD_REQUEST,
-                "Invalid request fields.", errors);
-        return new ResponseEntity(message, message.getStatus());
+        MessageResponse message = new MessageResponse(HttpStatus.BAD_REQUEST, "INVALID_FIELDS", "Invalid request fields.", errors);
+        return new ResponseEntity<>(message, message.getStatus());
     }
 
-    private ResponseEntity notSupportedMessage(HttpStatus status, String request, List<?> supportedValues) {
+    private ResponseEntity<Object> notSupportedMessage(HttpStatus status, String request, List<?> supportedValues) {
         String error = "[" + request + "] is not supported.";
         Map<String, Object> details = new HashMap<>();
-        details.put("supported_values", supportedValues);
-        MessageModel message = MessageModel.createWithDetail(status, error, details);
-        return new ResponseEntity(message, message.getStatus());
+        details.put("availableFields", supportedValues);
+        MessageResponse message = new MessageResponse(status, "NOT_SUPPORTED", error, details);
+        return new ResponseEntity<>(message, message.getStatus());
     }
 
-    private ResponseEntity generalMessage(HttpStatus status, String message) {
-        return new ResponseEntity<>(new MessageModel(status, message), status);
+    private ResponseEntity<Object> generalMessage(HttpStatus status, String message) {
+        return new ResponseEntity<>(new MessageResponse(status, message), status);
     }
 
-    @ExceptionHandler(DataAccessException.class)
-    public ResponseEntity handleDataException(DataAccessException ex, WebRequest request) {
+    @ExceptionHandler({DataAccessException.class, ConstraintViolationException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleDataException(DataAccessException ex, WebRequest request) {
         if (ConstraintViolationException.class.isInstance(ex.getCause())) {
             ConstraintViolationException constraintViolationException = (ConstraintViolationException) ex.getCause();
-            MessageModel messageModel = MessageModel.createMessage(HttpStatus.BAD_REQUEST,
+            MessageResponse messageResponse = new MessageResponse(HttpStatus.BAD_REQUEST,
                     constraintViolationException.getSQLState(),
-                    constraintViolationException.getSQLException().getLocalizedMessage());
-            return new ResponseEntity<>(messageModel, HttpStatus.BAD_REQUEST);
+                    constraintViolationException.getSQLException().getLocalizedMessage(), null);
+            return new ResponseEntity<>(messageResponse, messageResponse.getStatus());
         }
 
         return this.generalMessage(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
     }
 
     @ExceptionHandler(InvalidTokenExcpetion.class)
-    public ResponseEntity handleInvalidTokenException(InvalidTokenExcpetion ex, WebRequest request) {
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<Object> handleInvalidTokenException(InvalidTokenExcpetion ex, WebRequest request) {
         return this.generalMessage(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
     @ExceptionHandler(GeneralException.class)
-    public ResponseEntity handleGeneralException(GeneralException ex, WebRequest request) {
+    public ResponseEntity<Object> handleGeneralException(GeneralException ex, WebRequest request) {
         return this.generalMessage(ex.getStatus(), ex.getMessage());
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity handleResourceNotFoundException() {
-        MessageModel message = new MessageModel(HttpStatus.NOT_FOUND, "Can't find any resource for your request.");
-        return new ResponseEntity(message, message.getStatus());
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<MessageResponse> handleResourceNotFoundException() {
+        MessageResponse message = new MessageResponse(HttpStatus.NOT_FOUND, "Can't find any resource for your request.");
+        return new ResponseEntity<>(message, message.getStatus());
     }
 
     @Override
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
     protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return this.notSupportedMessage(HttpStatus.NOT_ACCEPTABLE, ex.getContentType().toString(), ex.getSupportedMediaTypes());
     }
 
     @Override
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return this.notSupportedMessage(HttpStatus.METHOD_NOT_ALLOWED, ex.getMethod(), Arrays.asList(ex.getSupportedMethods()));
     }
 
     @Override
+    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
     protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return this.notSupportedMessage(HttpStatus.UNSUPPORTED_MEDIA_TYPE, request.getHeader(HttpHeaders.CONTENT_TYPE), ex.getSupportedMediaTypes());
     }
 
     @Override
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return this.invalidFieldErrors(ex.getBindingResult().getFieldErrors(), ex.getBindingResult().getGlobalErrors());
     }
 
     @Override
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ResponseEntity<Object> handleBindException(BindException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return this.invalidFieldErrors(ex.getFieldErrors(), ex.getGlobalErrors());
     }
 
     @Override
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         String error = ex.getVariableName() + " is missing in path.";
         return this.generalMessage(HttpStatus.BAD_REQUEST, error);
@@ -150,6 +157,7 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         if (ex.getRootCause() instanceof UnrecognizedPropertyException) {
             UnrecognizedPropertyException propertyException = (UnrecognizedPropertyException) ex.getRootCause();
@@ -165,11 +173,13 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
+    @ResponseStatus(HttpStatus.REQUEST_TIMEOUT)
     protected ResponseEntity<Object> handleAsyncRequestTimeoutException(AsyncRequestTimeoutException ex, HttpHeaders headers, HttpStatus status, WebRequest webRequest) {
         return this.generalMessage(HttpStatus.REQUEST_TIMEOUT, ex.getLocalizedMessage());
     }
 
     @Override
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         String error = "No handler found for " + ex.getHttpMethod() + " " + ex.getRequestURL();
         return this.generalMessage(HttpStatus.NOT_FOUND, error);
@@ -181,6 +191,7 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return this.generalMessage(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
     }

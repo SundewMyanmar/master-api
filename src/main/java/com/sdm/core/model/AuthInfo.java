@@ -1,78 +1,27 @@
 package com.sdm.core.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Id;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class AuthInfo implements UserDetails {
 
-    @Id
     private String token;
-    private long userId;
+    private int userId;
     private String deviceId;
     private String deviceOs;
     private Date expired;
     Collection<GrantedAuthority> authorities;
-
-    public AuthInfo() {
-    }
-
-    public AuthInfo(long userId, String token, String deviceId, Date expired, Collection<GrantedAuthority> authorities) {
-        this.userId = userId;
-        this.token = token;
-        this.deviceId = deviceId;
-        this.expired = expired;
-        this.authorities = authorities;
-    }
-
-    public long getUserId() {
-        return userId;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public String getDeviceId() {
-        return deviceId;
-    }
-
-    public String getDeviceOs() {
-        return deviceOs;
-    }
-
-    public void setDeviceOs(String deviceOs) {
-        this.deviceOs = deviceOs;
-    }
-
-    public Date getExpired() {
-        return expired;
-    }
-
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
-
-    public void setExpired(Date expired) {
-        this.expired = expired;
-    }
-
-    public void setAuthorities(Collection<GrantedAuthority> authorities) {
-        this.authorities = authorities;
-    }
 
     public void addAuthority(String authority) {
         if (authorities == null) {

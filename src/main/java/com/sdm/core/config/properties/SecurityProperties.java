@@ -1,83 +1,37 @@
 package com.sdm.core.config.properties;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.convert.DurationUnit;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Set;
 
 @Configuration
 @ConfigurationProperties(prefix = "com.sdm.security")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class SecurityProperties {
 
-    private Set<Long> ownerIds = new HashSet<>();
+    private Set<Integer> ownerIds = new HashSet<>();
 
     private String encryptSalt = "";
 
     private String tokenChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-    private int otpLife = 10;
+    @DurationUnit(ChronoUnit.MINUTES)
+    private Duration otpLife = Duration.ofMinutes(10);
 
-    private int authTokenLife = 30;
+    @DurationUnit(ChronoUnit.DAYS)
+    private Duration authTokenLife = Duration.ofDays(30);
 
     private String jwtKey = "";
 
-    private boolean mailConfirm = false;
-
-    public Set<Long> getOwnerIds() {
-        return ownerIds;
-    }
-
-    public void setOwnerIds(Set<Long> ownerIds) {
-        this.ownerIds = ownerIds;
-    }
-
-    public String getEncryptSalt() {
-        return encryptSalt;
-    }
-
-    public void setEncryptSalt(String encryptSalt) {
-        this.encryptSalt = encryptSalt;
-    }
-
-    public String getTokenChars() {
-        return tokenChars;
-    }
-
-    public void setTokenChars(String tokenChars) {
-        this.tokenChars = tokenChars;
-    }
-
-    public int getOtpLife() {
-        return otpLife;
-    }
-
-    public void setOtpLife(int otpLife) {
-        this.otpLife = otpLife;
-    }
-
-    public int getAuthTokenLife() {
-        return authTokenLife;
-    }
-
-    public void setAuthTokenLife(int authTokenLife) {
-        this.authTokenLife = authTokenLife;
-    }
-
-    public String getJwtKey() {
-        return jwtKey;
-    }
-
-    public void setJwtKey(String jwtKey) {
-        this.jwtKey = jwtKey;
-    }
-
-	public boolean isMailConfirm() {
-		return mailConfirm;
-	}
-
-	public void setMailConfirm(boolean mailConfirm) {
-		this.mailConfirm = mailConfirm;
-	}
-
+    private boolean requireConfirm = false;
 }

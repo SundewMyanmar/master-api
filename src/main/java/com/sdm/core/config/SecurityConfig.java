@@ -1,15 +1,11 @@
 package com.sdm.core.config;
 
-import com.google.common.collect.ObjectArrays;
 import com.sdm.Constants;
-import com.sdm.core.config.properties.SecurityProperties;
-import com.sdm.core.security.CorsFilter;
-import com.sdm.core.security.PermissionHandler;
-import com.sdm.core.security.PermissionMatcher;
-import com.sdm.core.security.jwt.JwtAuthenticationFilter;
-import com.sdm.core.security.jwt.JwtAuthenticationProvider;
-import com.sdm.core.security.jwt.JwtUnauthorizeHandler;
-import com.sdm.master.entity.RoleEntity;
+import com.sdm.core.util.jwt.JwtAuthenticationFilter;
+import com.sdm.core.util.jwt.JwtAuthenticationProvider;
+import com.sdm.core.util.jwt.JwtUnauthorizeHandler;
+import com.sdm.core.util.security.PermissionHandler;
+import com.sdm.core.util.security.PermissionMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,12 +15,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Configuration
 @EnableWebSecurity
@@ -34,33 +29,34 @@ import java.util.Optional;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private SecurityProperties securityProperties;
-
-    @Autowired
-    private JwtUnauthorizeHandler unauthorizeHandler;
-
-    @Autowired
-    private JwtAuthenticationProvider authenticationProvider;
+    private JwtUnauthorizeHandler jwtUnauthorizeHandler;
 
     @Autowired
     private PermissionHandler permissionHandler;
+
+    @Autowired
+    private JwtAuthenticationProvider jwtAuthenticationProvider;
 
     @Bean
     public JwtAuthenticationFilter authenticationFilter() {
         return new JwtAuthenticationFilter();
     }
 
-    private static final String[] SYSTEM_WHITE_LIST = {"/", "/actuator/**", "/error", "/facebook/messenger", "/util/**", "/public/**", "/auth/**"};
-
-    private static final String[] SWAGGER_WHITE_LIST = {
+    private static final String[] SYSTEM_WHITE_LIST = {
+            "/",
+            "/error",
+            "/facebook/messenger",
+            "/util/**",
+            "/public/**",
+            "/auth/**",
             "/swagger-ui.html",
             "/swagger-resources/**",
-            "/v2/api-docs",
             "/webjars/**",
+            "/v2/api-docs",
     };
 
     private static final String[] ROOT_PERMISSION_LIST = {
-
+            "/actuator/**",
     };
 
     /**
@@ -71,22 +67,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        String[] publicUrls = ObjectArrays.concat(SYSTEM_WHITE_LIST, SWAGGER_WHITE_LIST, String.class);
 
         //1. Load default system configure
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().exceptionHandling().authenticationEntryPoint(unauthorizeHandler)
+                .and().exceptionHandling().authenticationEntryPoint(jwtUnauthorizeHandler)
                 .and().csrf().disable()
                 .formLogin().disable()
                 .httpBasic().disable()
                 .logout().disable()
                 .httpBasic().and()
-                //Cors Added
-                .addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class)
                 .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .authenticationProvider(authenticationProvider)
+                .authenticationProvider(jwtAuthenticationProvider)
                 .authorizeRequests()
-                .antMatchers(publicUrls).permitAll()
+                .antMatchers(SYSTEM_WHITE_LIST).permitAll()
                 .antMatchers(ROOT_PERMISSION_LIST).hasAuthority(Constants.Auth.ROOT_ROLE);
 
         //2. Load Database Permissions
@@ -96,19 +89,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             for (PermissionMatcher permission : permissions) {
                 Optional<String> pattern = Optional.ofNullable(permission.getPattern());
                 HttpMethod method = permission.getMethod();
-                List<RoleEntity> roles = new ArrayList<>(permission.getRoles());
+                Set<String> roles = permission.getRoles();
+                roles.add(Constants.Auth.ROOT_ROLE);
 
                 if (pattern.isPresent() && roles.size() > 0) {
-                    String[] _roles = new String[roles.size() + 1];
-                    _roles[roles.size()] = Constants.Auth.ROOT_ROLE;
-                    for (int i = 0; i < roles.size(); i++) {
-                        _roles[i] = roles.get(i).getName();
-                    }
-
+                    String[] allowedRoles = new String[roles.size()];
+                    roles.toArray(allowedRoles);
                     String cleanPattern = pattern.get().trim();
+
                     http.authorizeRequests()
                             .antMatchers(method, cleanPattern.split(","))
-                            .hasAnyAuthority(_roles);
+                            .hasAnyAuthority(allowedRoles);
                 }
             }
         }
