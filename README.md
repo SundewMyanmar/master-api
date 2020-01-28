@@ -72,14 +72,14 @@ Run Spring Boot Application [Ref:]
 $> mvn clean spring-boot:run
 ```
 
-###Generate Salt for Encryption
+### Generate Salt for Encryption
 [http://localhost:8080/util/salt](http://localhost:8080/util/salt) <br/>
 Copy/Paste encrypt salt to application.properties at  (__line: 54__)
 ```properties
 com.sdm.security.encrypt-salt={generated_encrypt_salt}
 ```
 
-###Generate JWT Key For AccessToken
+### Generate JWT Key For AccessToken
 [http://localhost:8080/util/jwtKey](http://localhost:8080/util/jwtKey) <br/>
 Copy/Paste jwt key to application.properties at  (__line: 55__)
 ```properties
@@ -102,11 +102,11 @@ $> mvn clean package
 ```
 ___
 
-##Version 1.5
+## Version 1.5
 - Development Version
 
-##Package Structure
-###Default Package for New Module
+## Package Structure
+### Default Package for New Module
 - controller
 - model
     - request
@@ -115,7 +115,7 @@ ___
 - repository
 - service
 
-###Core System
+### Core System
 - [System Configurations](./src/main/java/com/sdm/core/config)
 - [Base Controller & Helper](./src/main/java/com/sdm/core/controller)
 - [Database Helper](./src/main/java/com/sdm/core/db)
@@ -123,31 +123,31 @@ ___
 - [Base Models](./src/main/java/com/sdm/core/model)
 - [Utils & Plugins](./src/main/java/com/sdm/core/util)
 
-###[System Authorization and Authentication](./src/main/java/com/sdm/auth)
+### [System Authorization and Authentication](./src/main/java/com/sdm/auth)
 - System auth by user:password
 - Default User Profile
 - Auth Token Management
 
-###[System Administration](./src/main/java/com/sdm/admin)
+### [System Administration](./src/main/java/com/sdm/admin)
 - User & Role Management
 - Route Permission by Role
 - Menu Management 
 - Menu Permission by Role
 
-###[File Management](./src/main/java/com/sdm/file)
+### [File Management](./src/main/java/com/sdm/file)
 - File Upload Download
 - Generated Public URL
 - Image resizing
 
-###[Facebook Messenger Bot](./src/main/java/com/sdm/facebook)
+### [Facebook Messenger Bot](./src/main/java/com/sdm/facebook)
 - Messenger Bot Activate
 - Messenger Bot Listener
 - Message Log
 ----
 
-##Default RestFUL Controller
-###ReadController
-|method|http-method|url/{path}?{query_params}|description
+## Default RestFUL Controller
+### ReadController
+|method|http-method|url/{path}?{query_params}|description|
 |------|------|------|------|
 |getPagingByFilter|GET|name(s)?{size, pageSize, page, sort, filter}|Get data by pagination
 |getAll|GET|name(s)/all|Get all data|
@@ -155,8 +155,8 @@ ___
 |exportByCsv|GET|name(s)/export|Export data as CSV file|
 |getStructure|GET|name(s)/struct|Get UI Structure|
 
-###WriteController
-|method|http-method|url/{path}?{query_params}|description
+### WriteController
+|method|http-method|url/{path}?{query_params}|description|
 |------|------|------|------|
 |create|POST|name(s)|Create new data
 |multiCreate|POST|name(s)/multi|Create multiple data|
@@ -169,8 +169,8 @@ ___
 
 ----
 
-##Java Object Naming and Example
-###Controller Class
+## Java Object Naming and Example
+### Controller Class
 ```java
 @RestController
 @RequestMapping("/module/names")
@@ -186,7 +186,7 @@ public class NameController extends DefaultReadWriterController<Model, Primary> 
 }
 ```
 
-###Repository Class
+### Repository Class
 ```java
 @Repository
 @Transactional
@@ -194,7 +194,7 @@ public interface ModelRepository extends DefaultRepository<Model, Primary> {
 }
 ```
 
-###Model Class 
+### Model Class 
 ```java
 import com.sdm.core.model.DefaultEntity;
 
@@ -203,7 +203,7 @@ public class Name extends DefaultEntity{
 }
 ```
 
-###Request Class
+### Request Class
 ```java
 public class NameRequest {
     ...
