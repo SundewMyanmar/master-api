@@ -7,10 +7,14 @@ import com.sdm.core.model.response.MessageResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.util.ReflectionUtils;
 
+import javax.persistence.Id;
 import javax.validation.Valid;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 
 public abstract class DefaultReadWriterController<T extends DefaultEntity, ID extends Serializable> extends DefaultReadController<T, ID> implements ReadWriterController<T, ID> {
 
@@ -45,8 +49,18 @@ public abstract class DefaultReadWriterController<T extends DefaultEntity, ID ex
     }
 
     @Override
-    public ResponseEntity<T> partialUpdate(String body, ID id) {
-        throw new GeneralException(HttpStatus.SERVICE_UNAVAILABLE, "Sorry! This services is not available now.");
+    public ResponseEntity<T> partialUpdate(Map<String, Object> body, ID id) {
+        T existEntity = this.checkData(id);
+
+        body.forEach((key, value) -> {
+            Field field = ReflectionUtils.findField(getEntityClass(), key);
+            if (field != null && !field.isAnnotationPresent(Id.class)) {
+                ReflectionUtils.setField(field, existEntity, value);
+            }
+        });
+
+        T entity = getRepository().save(existEntity);
+        return ResponseEntity.ok(entity);
     }
 
     @Override

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 public interface ReadWriterController<T extends DefaultEntity, ID extends Serializable> extends ReadController<T, ID> {
 
@@ -77,7 +78,7 @@ public interface ReadWriterController<T extends DefaultEntity, ID extends Serial
             @ApiResponse(code = 500, message = "Server Error.", response = MessageResponse.class),
     })
     @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<T> partialUpdate(@RequestBody String body, @PathVariable("id") ID id);
+    ResponseEntity<T> partialUpdate(@RequestBody Map<String, Object> body, @PathVariable("id") ID id);
 
 
     @ApiOperation(value = "Remove Data", notes = "Remove data by Unique ID.")
