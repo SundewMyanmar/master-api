@@ -210,13 +210,13 @@ public class NameRequest {
 }
 ```
 
-####Response Class
+### Response Class
 ```java
 public class NameResponse{
     ...
 }
 ```
-###Service Class
+### Service Class
 ```java
 @Service
 public class NameService{
@@ -224,7 +224,7 @@ public class NameService{
 }
 ```
 ----
-##Naming Notes
+## Naming Notes
 - Model without any suffix
 - Model combined (Entity, Request, Response)
 - Entity Name =>  module.EntityName
