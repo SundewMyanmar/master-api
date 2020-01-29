@@ -21,7 +21,7 @@ public interface TokenRepository extends DefaultRepository<Token, String> {
 
     Optional<Token> findByUserIdAndDeviceIdAndDeviceOs(int userId, String deviceId, String deviceOS);
 
-    Optional<Token> findByDeviceIdAndDeviceOs(String deviceId, String deviceOS);
+    Optional<Token> findByDeviceId(String deviceId);
 
     Page<Token> findByLastLoginBetween(Date fromDate, Date toDate, Pageable pageable);
 

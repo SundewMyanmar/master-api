@@ -21,21 +21,9 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FacebookAuthRequest implements Serializable {
+public class FacebookAuthRequest extends TokenInfo implements Serializable {
 
     @NotBlank(message = "Token can't be blank.")
     @Size(min = 6, max = 255)
     private String accessToken;
-
-    @NotBlank(message = "Device UniqueID is required.")
-    @Size(max = 255)
-    private String deviceId;
-
-    @NotBlank(message = "Device OS (ios, android, windows, browser) is required.")
-    @Size(max = 50)
-    private String deviceOS;
-
-    @Size(max = 255)
-    private String firebaseToken;
-
 }

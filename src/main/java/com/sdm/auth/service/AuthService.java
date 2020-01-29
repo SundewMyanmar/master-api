@@ -92,8 +92,7 @@ public class AuthService {
 
     @Transactional
     public String generateJWT(Token token, String userAgent) {
-        String id = tokenRepository.findByDeviceIdAndDeviceOs(
-                token.getDeviceId(), token.getDeviceOs())
+        String id = tokenRepository.findByDeviceId(token.getDeviceId())
                 .map(existToken -> existToken.getId())
                 .orElseGet(() -> UUID.randomUUID().toString());
 
@@ -116,33 +115,15 @@ public class AuthService {
         return compactJWT;
     }
 
-    private String createToken(User user, AuthRequest request, String userAgent) {
-        Token token = tokenRepository.findByDeviceIdAndDeviceOs(request.getDeviceId(), request.getDeviceOS())
+    private String createToken(User user, TokenInfo tokenInfo, String userAgent) {
+        Token token = tokenRepository.findByDeviceId(tokenInfo.getDeviceId())
                 .orElseGet(() -> new Token());
 
         token.setUser(user);
-        token.setDeviceId(request.getDeviceId());
-        token.setDeviceOs(request.getDeviceOS());
-        if (request.getFirebaseToken() != null && !request.getFirebaseToken().isEmpty()) {
-            token.setFirebaseToken(request.getFirebaseToken());
-        }
-
-        // Generate and store JWT
-        String tokenString = this.generateJWT(token, userAgent);
-        user.setCurrentToken(tokenString);
-
-        return tokenString;
-    }
-
-    private String createToken(User user, FacebookAuthRequest request, String userAgent) {
-        Token token = tokenRepository.findByDeviceIdAndDeviceOs(request.getDeviceId(), request.getDeviceOS())
-                .orElseGet(() -> new Token());
-
-        token.setUser(user);
-        token.setDeviceId(request.getDeviceId());
-        token.setDeviceOs(request.getDeviceOS());
-        if (request.getFirebaseToken() != null && !request.getFirebaseToken().isEmpty()) {
-            token.setFirebaseToken(request.getFirebaseToken());
+        token.setDeviceId(tokenInfo.getDeviceId());
+        token.setDeviceOs(tokenInfo.getDeviceOS());
+        if (tokenInfo.getFirebaseToken() != null && !tokenInfo.getFirebaseToken().isEmpty()) {
+            token.setFirebaseToken(tokenInfo.getFirebaseToken());
         }
 
         // Generate and store JWT
@@ -237,11 +218,11 @@ public class AuthService {
     @Transactional
     public ResponseEntity registerByUserAndEmail(RegistrationRequest request, String userAgent) {
         //Check user by user name
-        userRepository.findByPhoneNumberOrEmail(request.getUser(), request.getEmail())
+        userRepository.findByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail())
                 .ifPresent(user -> {
                     if (user.getEmail().equalsIgnoreCase(request.getEmail())) {
                         throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! someone already registered with this email.");
-                    } else if (user.getPhoneNumber().equalsIgnoreCase(request.getUser())) {
+                    } else if (user.getPhoneNumber().equalsIgnoreCase(request.getPhoneNumber())) {
                         throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! someone already registered with this phone number.");
                     }
                 });
@@ -249,7 +230,7 @@ public class AuthService {
         boolean needConfirm = securityManager.getProperties().isRequireConfirm();
         User.Status status = needConfirm ? User.Status.PENDING : User.Status.ACTIVE;
         String password = securityManager.hashString(request.getPassword());
-        User newUser = new User(request.getEmail(), request.getUser(), request.getDisplayName(),
+        User newUser = new User(request.getEmail(), request.getPhoneNumber(), request.getDisplayName(),
                 password, status);
         userRepository.save(newUser);
         if (needConfirm) {
@@ -265,7 +246,7 @@ public class AuthService {
     @Transactional
     public ResponseEntity anonymousAuth(AnonymousRequest request, String userAgent) {
         //Check Device Registration
-        User authUser = tokenRepository.findByDeviceIdAndDeviceOs(request.getDeviceId(), request.getDeviceOS())
+        User authUser = tokenRepository.findByDeviceId(request.getDeviceId())
                 .map(token -> token.getUser()).orElseGet(() -> this.createAnonymousUser(request));
 
         //User create / update

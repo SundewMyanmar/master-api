@@ -22,13 +22,20 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegistrationRequest extends AuthRequest implements Serializable {
+public class RegistrationRequest extends TokenInfo implements Serializable {
 
     @NotBlank
+    @Size(min = 5, max = 50)
+    private String phoneNumber;
+
     @Email
-    @Size(min = 6, max = 255)
+    @Size(max = 255)
     private String email;
 
     @Size(max = 255)
     private String displayName;
+
+    @NotBlank(message = "Password can't be blank.")
+    @Size(min = 2, max = 255)
+    private String password;
 }

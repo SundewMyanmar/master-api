@@ -18,9 +18,11 @@ public class AuthControllerTest extends DefaultTest {
         Map<String, Object> register = new HashMap<>();
         register.put("deviceId", "test-device-id");
         register.put("deviceOS", "TestOS");
-        register.put("user", "+95(9)123456789");
+        register.put("phoneNumber", "+95(9)123456789");
         register.put("email", "info@sundewmyanmar.com");
+        register.put("displayName", "Htoon Lin");
         register.put("password", "htoonlin");
+
         this.mockMvc.perform(MockMvcRequestBuilders
                 .post("/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -32,7 +34,12 @@ public class AuthControllerTest extends DefaultTest {
 
     @Test
     public void authWithEmail() throws Exception {
-        AuthRequest request = new AuthRequest("info@sundewmyanmar.com", "htoonlin", "test-device-id", "TestOS", null);
+        AuthRequest request = new AuthRequest();
+        request.setUser("info@sundewmyanmar.com");
+        request.setPassword("htoonlin");
+        request.setDeviceId("test-device-id");
+        request.setDeviceOS("TestOS");
+
         this.mockMvc.perform(MockMvcRequestBuilders
                 .post("/auth")
                 .contentType(MediaType.APPLICATION_JSON)

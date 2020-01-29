@@ -21,7 +21,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthRequest implements Serializable {
+public class AuthRequest extends TokenInfo implements Serializable {
 
     /**
      *
@@ -29,22 +29,11 @@ public class AuthRequest implements Serializable {
     private static final long serialVersionUID = -341416570638461653L;
 
     @NotBlank(message = "Please enter phone number or email.")
-    @Size(min = 6, max = 255)
+    @Size(min = 5, max = 255)
     private String user;
 
     @NotBlank(message = "Password can't be blank.")
     @Size(min = 2, max = 255)
     private String password;
-
-    @NotBlank(message = "Device UniqueID is required.")
-    @Size(max = 255)
-    private String deviceId;
-
-    @NotBlank(message = "Device OS (ios, android, windows, browser) is required.")
-    @Size(max = 50)
-    private String deviceOS;
-
-    @Size(max = 255)
-    private String firebaseToken;
 
 }

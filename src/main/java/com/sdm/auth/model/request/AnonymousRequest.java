@@ -14,7 +14,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AnonymousRequest extends AuthRequest implements Serializable {
+public class AnonymousRequest extends TokenInfo implements Serializable {
 
     private String brand;
 

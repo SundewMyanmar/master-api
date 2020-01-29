@@ -43,7 +43,7 @@ public class User extends DefaultEntity implements Serializable {
 
     @Filterable
     @NotBlank
-    @Size(min = 6, max = 50)
+    @Size(min = 5, max = 50)
     @Column(length = 50, unique = true, nullable = false)
     private String phoneNumber;
 
