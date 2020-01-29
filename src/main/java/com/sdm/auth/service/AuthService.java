@@ -92,12 +92,6 @@ public class AuthService {
 
     @Transactional
     public String generateJWT(Token token, String userAgent) {
-        String id = tokenRepository.findByDeviceId(token.getDeviceId())
-                .map(existToken -> existToken.getId())
-                .orElseGet(() -> UUID.randomUUID().toString());
-
-        token.setId(id);
-
         token.setTokenExpired(getTokenExpired());
         token.setLastLogin(new Date());
         tokenRepository.save(token);
@@ -117,7 +111,11 @@ public class AuthService {
 
     private String createToken(User user, TokenInfo tokenInfo, String userAgent) {
         Token token = tokenRepository.findByDeviceId(tokenInfo.getDeviceId())
-                .orElseGet(() -> new Token());
+                .orElseGet(() -> {
+                    Token newToken = new Token();
+                    newToken.setId(UUID.randomUUID().toString());
+                    return newToken;
+                });
 
         token.setUser(user);
         token.setDeviceId(tokenInfo.getDeviceId());
