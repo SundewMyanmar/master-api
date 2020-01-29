@@ -1,11 +1,13 @@
 package com.sdm.core.config;
 
+import com.google.common.base.Predicate;
 import com.sdm.Constants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import springfox.documentation.RequestHandler;
 import springfox.documentation.annotations.ApiIgnore;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -60,18 +62,46 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
                 .build();
     }
 
-    @Bean
-    public Docket defaultApi() {
+    private Docket buildDocket(String groupName, String basePackage){
+
+        Predicate<RequestHandler> findThere = null;
+
+        if(basePackage != null && basePackage.length() > 0){
+            findThere = RequestHandlerSelectors.basePackage(basePackage);
+        }else{
+            findThere = RequestHandlerSelectors.any();
+        }
+
         return new Docket(DocumentationType.SWAGGER_2)
+                .groupName(groupName)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.any())
+                .apis(findThere)
                 .paths(PathSelectors.any())
                 .build()
                 .securitySchemes(Arrays.asList(apiKey()))
                 .securityContexts(Arrays.asList(swaggerSecurityContext()))
                 .ignoredParameterTypes(ApiIgnore.class)
                 .enableUrlTemplating(true);
+    }
+
+    @Bean Docket authApi(){
+        return this.buildDocket("Auth", "com.sdm.auth");
+    }
+
+    @Bean
+    public Docket adminApi(){
+        return this.buildDocket("Admin", "com.sdm.admin");
+    }
+
+    @Bean
+    public Docket fileApi(){
+        return this.buildDocket("File", "com.sdm.file");
+    }
+
+    @Bean
+    public Docket defaultApi() {
+        return this.buildDocket("All", "com.sdm");
     }
 
     @Override

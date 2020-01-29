@@ -14,9 +14,3 @@ It is a user authentication and authentication module.
 include::{snippets}/auth-controller-test/registration/auto-section.adoc[]
 
 include::{snippets}/auth-controller-test/auth-with-email/auto-section.adoc[]
-
-== Unit of Measurement
-
-Sample CRUD API endpoints used to manipulate data registered in the application.
-
-include::{snippets}/unit-of-measurement-controller-test/get-index/auto-section.adoc[]
