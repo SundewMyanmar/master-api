@@ -3,6 +3,7 @@ package com.sdm.facebook.model;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.sdm.facebook.model.type.TemplateType;
+import org.springframework.util.StringUtils;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -82,7 +83,7 @@ public class TemplateBuilder extends MessageBuilder {
             this.payload.addProperty("sharable", sharable);
         }
 
-        if (imageRatio != null && imageRatio.length() > 0) {
+        if (!StringUtils.isEmpty(imageRatio)) {
             this.payload.addProperty("image_aspect_ratio", imageRatio);
         }
 
@@ -90,37 +91,39 @@ public class TemplateBuilder extends MessageBuilder {
     }
 
     /**
-     * The list template allows you to send a structured message with a set of items
-     * rendered vertically. Ref =>
-     * https://developers.facebook.com/docs/messenger-platform/reference/template/list
+     * The list template allows you to send a structured message with a set of items rendered vertically. Ref => https://developers.facebook.com/docs/messenger-platform/reference/template/list
      *
+     * @param recipient_name
+     * @param order_number
+     * @param currency
+     * @param payment_method
+     * @param order_url
+     * @param address
+     * @param summary
+     * @param adjustments
      * @param elements
-     * @param buttons
-     * @param topElementStyle
-     * @param sharable
      * @return
      */
-
     public JsonObject buildReceiptTemplate(String recipient_name, String order_number, String currency, String payment_method, String order_url,
                                            JsonObject address, JsonObject summary, JsonArray adjustments, JsonArray elements) {
         this.setTemplateType(TemplateType.receipt);
-        if (recipient_name != null && !recipient_name.equals("")) {
+        if (!StringUtils.isEmpty(recipient_name)) {
             this.payload.addProperty("recipient_name", recipient_name);
         }
 
-        if (order_number != null && !order_number.equals("")) {
+        if (!StringUtils.isEmpty(order_number)) {
             this.payload.addProperty("order_number", order_number);
         }
 
-        if (currency != null && !currency.equals("")) {
+        if (!StringUtils.isEmpty(currency)) {
             this.payload.addProperty("currency", currency);
         }
 
-        if (payment_method != null && !payment_method.equals("")) {
+        if (!StringUtils.isEmpty(payment_method)) {
             this.payload.addProperty("payment_method", payment_method);
         }
 
-        if (order_url != null && !order_url.equals("")) {
+        if (!StringUtils.isEmpty(order_url)) {
             this.payload.addProperty("order_url", order_url);
         }
 
@@ -164,7 +167,7 @@ public class TemplateBuilder extends MessageBuilder {
             this.payload.addProperty("sharable", sharable);
         }
 
-        if (topElementStyle != null && topElementStyle.length() > 0) {
+        if (!StringUtils.isEmpty(topElementStyle)) {
             this.payload.addProperty("top_element_style", topElementStyle);
         }
 

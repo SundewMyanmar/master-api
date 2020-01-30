@@ -4,13 +4,11 @@ import com.sdm.admin.model.User;
 import com.sdm.admin.repository.UserRepository;
 import com.sdm.auth.model.request.ChangePasswordRequest;
 import com.sdm.auth.repository.TokenRepository;
+import com.sdm.auth.service.AuthMailService;
 import com.sdm.core.controller.DefaultReadWriterController;
 import com.sdm.core.db.DefaultRepository;
 import com.sdm.core.exception.GeneralException;
-import com.sdm.core.model.MailHeader;
 import com.sdm.core.model.response.MessageResponse;
-import com.sdm.core.util.Globalizer;
-import com.sdm.core.util.WebMailManager;
 import com.sdm.core.util.security.SecurityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,12 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/admin/users")
 public class UserController extends DefaultReadWriterController<User, Integer> {
 
     @Autowired
@@ -33,7 +28,7 @@ public class UserController extends DefaultReadWriterController<User, Integer> {
     private TokenRepository tokenRepository;
 
     @Autowired
-    private WebMailManager mailManager;
+    private AuthMailService mailService;
 
     @Autowired
     private SecurityManager securityManager;
@@ -44,22 +39,9 @@ public class UserController extends DefaultReadWriterController<User, Integer> {
         return this.userRepository;
     }
 
-    private void sendWelcomeUser(User user, String rawPassword, String title) {
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("title", title);
-        data.put("email", user.getEmail());
-        data.put("name", user.getDisplayName());
-        data.put("password", rawPassword);
-        data.put("currentYear", Globalizer.getDateString("yyyy", new Date()));
-
-        mailManager.sendByTemplate(new MailHeader(user.getEmail(), title),
-                "mail/create-user.vm", data);
-    }
-
     @PostMapping("/resetPassword/{userId}")
-    public ResponseEntity getProfile(@PathVariable("userId") int userId,
-                                     @Valid @RequestBody ChangePasswordRequest request) {
+    public ResponseEntity<User> resetPassword(@PathVariable("userId") int userId,
+                                              @Valid @RequestBody ChangePasswordRequest request) {
         User existUser = this.checkData(userId);
         String newPassword = securityManager.hashString(request.getNewPassword());
         existUser.setPassword(newPassword);
@@ -69,16 +51,15 @@ public class UserController extends DefaultReadWriterController<User, Integer> {
     }
 
     @DeleteMapping("/cleanToken/{userId}")
-    public ResponseEntity cleanToken(@PathVariable("userId") int userId) {
+    public ResponseEntity<MessageResponse> cleanToken(@PathVariable("userId") int userId) {
         User existUser = this.checkData(userId);
         tokenRepository.cleanTokenByUserId(existUser.getId());
-        MessageResponse message = new MessageResponse(HttpStatus.OK, "Successfully deleted.",
-                "Cleaned all token by User ID : " + this.getCurrentUser().getUserId(), null);
+        MessageResponse message = new MessageResponse("success", "Cleaned all token by User ID : " + this.getCurrentUser().getUserId());
         return ResponseEntity.ok(message);
     }
 
     @Override
-    public ResponseEntity create(@Valid User request) {
+    public ResponseEntity<User> create(@Valid User request) {
         //Check user by user name
         userRepository.findByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail())
                 .ifPresent(user -> {
@@ -93,9 +74,9 @@ public class UserController extends DefaultReadWriterController<User, Integer> {
         request.setPassword(password);
 
         User entity = userRepository.save(request);
-        sendWelcomeUser(entity, request.getPassword(), "Welcome!");
+        mailService.welcomeUser(entity, request.getPassword(), "Welcome!");
 
-        return new ResponseEntity(entity, HttpStatus.CREATED);
+        return new ResponseEntity<>(entity, HttpStatus.CREATED);
     }
 
     @Override

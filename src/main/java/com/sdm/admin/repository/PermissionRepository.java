@@ -19,8 +19,9 @@ public interface PermissionRepository extends DefaultRepository<SystemRoute, Int
     @Query("SELECT p FROM admin.SystemRouteEntity p WHERE p.httpMethod=:httpMethod AND p.pattern=:pattern")
     Optional<SystemRoute> findByHttpMethodAndPattern(@Param("httpMethod") String method, @Param("pattern") String pattern);
 
+    @Override
     @Query("SELECT p from admin.SystemRouteEntity p JOIN p.allowRoles r WHERE lower(concat(p.pattern,p.httpMethod,r.name)) LIKE lower(concat('%' , :filter, '%'))")
-    Page<SystemRoute> findByFilter(@Param("filter") String filter, Pageable pageable);
+    Page<SystemRoute> findAll(@Param("filter") String filter, Pageable pageable);
 
     Optional<SystemRoute> findTopByOrderByIdDesc();
 }

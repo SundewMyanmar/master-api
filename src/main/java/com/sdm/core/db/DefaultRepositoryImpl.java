@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -52,7 +53,11 @@ public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializa
     }
 
     @Override
-    public Page<T> findAll(Pageable pageable, String filter) {
+    public Page<T> findAll(String filter, Pageable pageable) {
+        if (StringUtils.isEmpty(filter)) {
+            return super.findAll(pageable);
+        }
+
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 
         CriteriaQuery<T> cQuery = builder.createQuery(this.getDomainClass());

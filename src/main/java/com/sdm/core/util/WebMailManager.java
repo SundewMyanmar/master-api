@@ -10,6 +10,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.mail.Message;
 import java.util.Map;
@@ -26,17 +27,17 @@ public class WebMailManager {
     public void send(MailHeader header, String body) {
         MimeMessagePreparator mail = message -> {
             MimeMessageHelper messageHelper = new MimeMessageHelper(message);
-            if (!header.getFrom().isEmpty()) {
+            if (!StringUtils.isEmpty(header.getFrom())) {
                 message.setFrom(header.getFrom());
             } else {
                 message.setFrom(Constants.INFO_MAIL);
             }
 
-            if (!header.getCc().isEmpty()) {
+            if (!StringUtils.isEmpty(header.getCc())) {
                 message.addRecipients(Message.RecipientType.CC, header.getCc());
             }
 
-            if (!header.getBcc().isEmpty()) {
+            if (!StringUtils.isEmpty(header.getBcc())) {
                 message.addRecipients(Message.RecipientType.BCC, header.getBcc());
             }
 

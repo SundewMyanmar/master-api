@@ -96,7 +96,7 @@ public class AuthService {
         token.setLastLogin(new Date());
         tokenRepository.save(token);
 
-        String compactJWT = Jwts.builder().setId(token.getId())
+        return Jwts.builder().setId(token.getId())
                 .setSubject(Integer.toString(token.getUser().getId()))
                 .setIssuer(userAgent)
                 .setIssuedAt(new Date())
@@ -105,11 +105,9 @@ public class AuthService {
                 .claim("deviceOs", token.getDeviceOs())
                 .compressWith(CompressionCodecs.DEFLATE)
                 .signWith(SignatureAlgorithm.HS512, securityManager.getProperties().getJwtKey()).compact();
-
-        return compactJWT;
     }
 
-    private String createToken(User user, TokenInfo tokenInfo, String userAgent) {
+    private void createToken(User user, TokenInfo tokenInfo, String userAgent) {
         Token token = tokenRepository.findByDeviceId(tokenInfo.getDeviceId())
                 .orElseGet(() -> {
                     Token newToken = new Token();
@@ -120,15 +118,13 @@ public class AuthService {
         token.setUser(user);
         token.setDeviceId(tokenInfo.getDeviceId());
         token.setDeviceOs(tokenInfo.getDeviceOS());
-        if (tokenInfo.getFirebaseToken() != null && !tokenInfo.getFirebaseToken().isEmpty()) {
-            token.setFirebaseToken(tokenInfo.getFirebaseToken());
+        if (!StringUtils.isEmpty(tokenInfo.getFirebaseMessagingToken())) {
+            token.setFirebaseMessagingToken(tokenInfo.getFirebaseMessagingToken());
         }
 
         // Generate and store JWT
         String tokenString = this.generateJWT(token, userAgent);
         user.setCurrentToken(tokenString);
-
-        return tokenString;
     }
 
     private Optional<User> checkOtp(ActivateRequest request, boolean autoResend) {
@@ -159,14 +155,14 @@ public class AuthService {
     }
 
     @Transactional
-    public ResponseEntity otpActivation(ActivateRequest request) {
+    public ResponseEntity<MessageResponse> otpActivation(ActivateRequest request) {
         if (this.checkOtp(request, true).isPresent()) {
             return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "activation_success", "Your temporary request is ok.", null));
         }
         throw new GeneralException(HttpStatus.BAD_REQUEST, "Your otp is invalid. Pls try to contact admin team.");
     }
 
-    public ResponseEntity resetPasswordWithOtp(ChangePasswordRequest changePasswordRequest, ActivateRequest activateRequest) {
+    public ResponseEntity<User> resetPasswordWithOtp(ChangePasswordRequest changePasswordRequest, ActivateRequest activateRequest) {
         User user = this.checkOtp(activateRequest, false).orElseThrow(() ->
                 new GeneralException(HttpStatus.UNAUTHORIZED, "There is no user (or) otp is wrong. Pls try again.")
         );
@@ -186,7 +182,7 @@ public class AuthService {
         return ResponseEntity.ok(user);
     }
 
-    public ResponseEntity forgetPassword(String phoneOrEmail) {
+    public ResponseEntity<MessageResponse> forgetPassword(String phoneOrEmail) {
         try {
             User user = userRepository.findByPhoneNumberOrEmail(phoneOrEmail, phoneOrEmail)
                     .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "Invalid phone number (or) email address."));
@@ -202,7 +198,7 @@ public class AuthService {
     }
 
     @Transactional
-    public ResponseEntity authByPassword(AuthRequest request, String userAgent) {
+    public ResponseEntity<User> authByPassword(AuthRequest request, String userAgent) {
         String password = securityManager.hashString(request.getPassword());
         User authUser = userRepository.authByPassword(request.getUser(), password)
                 .orElseThrow(() -> new GeneralException(
@@ -214,7 +210,7 @@ public class AuthService {
     }
 
     @Transactional
-    public ResponseEntity registerByUserAndEmail(RegistrationRequest request, String userAgent) {
+    public ResponseEntity<User> registerByUserAndEmail(RegistrationRequest request, String userAgent) {
         //Check user by user name
         userRepository.findByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail())
                 .ifPresent(user -> {
@@ -232,20 +228,24 @@ public class AuthService {
                 password, status);
         userRepository.save(newUser);
         if (needConfirm) {
-
+            try {
+                mailService.activateLink(newUser);
+            } catch (JsonProcessingException ex) {
+                logger.warn(ex.getLocalizedMessage());
+            }
+        } else {
+            this.createToken(newUser, request, userAgent);
         }
 
-        this.createToken(newUser, request, userAgent);
-
-        return new ResponseEntity(newUser, HttpStatus.CREATED);
+        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
 
     @Transactional
-    public ResponseEntity anonymousAuth(AnonymousRequest request, String userAgent) {
+    public ResponseEntity<User> anonymousAuth(AnonymousRequest request, String userAgent) {
         //Check Device Registration
         User authUser = tokenRepository.findByDeviceId(request.getDeviceId())
-                .map(token -> token.getUser()).orElseGet(() -> this.createAnonymousUser(request));
+                .map(Token::getUser).orElseGet(() -> this.createAnonymousUser(request));
 
         //User create / update
         setAnonymousExtras(request, authUser);
@@ -308,7 +308,7 @@ public class AuthService {
     }
 
     @Transactional
-    public ResponseEntity facebookAuth(FacebookAuthRequest request, String userAgent) {
+    public ResponseEntity<User> facebookAuth(FacebookAuthRequest request, String userAgent) {
         JsonObject facebookProfile = facebookGraphManager.checkFacebookToken(request.getAccessToken(), FB_AUTH_FIELDS, userAgent);
         String id = facebookProfile.get("id").getAsString();
 

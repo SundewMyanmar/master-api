@@ -23,8 +23,11 @@ public class FBGraphManager {
     @Autowired
     SecurityManager securityManager;
 
+    private final RestTemplate restTemplate;
+
     public FBGraphManager(FacebookProperties properties) {
         this.properties = properties;
+        this.restTemplate = new RestTemplate();
     }
 
     public JsonObject checkFacebookToken(String accessToken, String fields, String userAgent) {
@@ -40,7 +43,6 @@ public class FBGraphManager {
         HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
 
         //Request
-        RestTemplate restTemplate = new RestTemplate();
         String str = uriBuilder.toUriString();
         ResponseEntity<String> result = restTemplate.exchange(uriBuilder.toUriString(),
                 HttpMethod.GET, requestEntity, String.class);
@@ -64,7 +66,6 @@ public class FBGraphManager {
         HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
 
         //Request
-        RestTemplate restTemplate = new RestTemplate();
         String str = uriBuilder.toUriString();
         ResponseEntity<String> result = restTemplate.exchange(uriBuilder.toUriString(),
                 HttpMethod.GET, requestEntity, String.class);
@@ -87,8 +88,8 @@ public class FBGraphManager {
         LOG.info("Send Welcome Screen Message to Facebook => " + entity.toString());
         //Build Request Body
         HttpEntity<String> requestEntity = new HttpEntity<>(entity.toString(), headers);
+
         //Request
-        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> result = restTemplate.exchange(uriBuilder.toUriString(), HttpMethod.POST,
                 requestEntity, String.class);
 
@@ -111,7 +112,6 @@ public class FBGraphManager {
         HttpEntity<String> requestEntity = new HttpEntity<>(entity.toString(), headers);
 
         //Request
-        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> result = restTemplate.exchange(uriBuilder.toUriString(), HttpMethod.POST,
                 requestEntity, String.class);
 

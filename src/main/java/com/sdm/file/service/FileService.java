@@ -62,7 +62,7 @@ public class FileService {
         }
 
         rawEntity.setPublicAccess(isPublic);
-        if (uploadFile.getContentType() == null || uploadFile.getContentType().isEmpty()) {
+        if (StringUtils.isEmpty(uploadFile.getContentType())) {
             rawEntity.setType("application/octet-stream");
         } else {
             rawEntity.setType(uploadFile.getContentType());
@@ -117,7 +117,7 @@ public class FileService {
         fileRepository.softDelete(fileEntity);
     }
 
-    public ResponseEntity downloadFile(String id, String fileName, Dimension dimension, boolean is64, boolean isPublic) {
+    public ResponseEntity<?> downloadFile(String id, String fileName, Dimension dimension, boolean is64, boolean isPublic) {
         File downloadEntity = this.checkFile(id);
 
         if (isPublic && !downloadEntity.isPublicAccess()) {
@@ -153,7 +153,7 @@ public class FileService {
                     .body(base64String);
         }
 
-        if (fileName.isEmpty() || fileName.length() < 3) {
+        if (StringUtils.isEmpty(fileName)) {
             fileName = downloadEntity.getName() + "." + downloadEntity.getExtension();
         } else if (!fileName.contains(".")) {
             fileName += "." + downloadEntity.getExtension();

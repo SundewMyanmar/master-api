@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/roles")
+@RequestMapping("/admin/roles")
 public class RoleController extends DefaultReadWriterController<Role, Integer> {
     @Autowired
-    RoleRepository repository;
+    private RoleRepository repository;
 
     @Override
     protected DefaultRepository<Role, Integer> getRepository() {

@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.envers.Audited;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.persistence.*;
@@ -80,7 +81,7 @@ public class File extends DefaultEntity implements Serializable {
 
     public File(String id, String name, String extension, String type, long fileSize,
                 String storagePath, String externalUrl) {
-        if (externalUrl == null || externalUrl.length() <= 0) {
+        if (StringUtils.isEmpty(externalUrl)) {
             this.status = Status.STORAGE;
         } else {
             this.status = Status.EXTERNAL;
@@ -112,7 +113,7 @@ public class File extends DefaultEntity implements Serializable {
         }
         urls.put("main", downloadURL);
 
-        if (this.externalUrl != null && !this.externalUrl.isEmpty()) {
+        if (!StringUtils.isEmpty(this.externalUrl)) {
             urls.put("external", this.externalUrl);
         }
 

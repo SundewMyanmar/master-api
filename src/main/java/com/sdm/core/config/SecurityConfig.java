@@ -95,7 +95,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 if (pattern.isPresent() && roles.size() > 0) {
                     String[] allowedRoles = new String[roles.size()];
                     roles.toArray(allowedRoles);
-                    String cleanPattern = pattern.get().trim();
+                    String cleanPattern = pattern.get().strip();
 
                     http.authorizeRequests()
                             .antMatchers(method, cleanPattern.split(","))

@@ -1,6 +1,5 @@
 package com.sdm.core.controller;
 
-import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.model.response.MessageResponse;
 import io.swagger.annotations.ApiOperation;
@@ -16,7 +15,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public interface ReadWriterController<T extends DefaultEntity, ID extends Serializable> extends ReadController<T, ID> {
+public interface ReadWriterController<T, ID extends Serializable> extends ReadController<T, ID> {
 
 
     @ApiOperation(value = "Create New Data", notes = "Create new data by JSON Object.")
@@ -116,5 +115,5 @@ public interface ReadWriterController<T extends DefaultEntity, ID extends Serial
             @ApiResponse(code = 500, message = "Server Error.", response = MessageResponse.class),
     })
     @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<MessageResponse> importData(@RequestPart("uploadedFile") FilePart filePart);
+    ResponseEntity<ListResponse<T>> importData(@RequestPart("uploadedFile") FilePart filePart);
 }

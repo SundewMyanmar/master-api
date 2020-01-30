@@ -23,7 +23,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PaginationResponse<T extends Serializable> implements Serializable {
+public class PaginationResponse<T> implements Serializable {
 
     /**
      * Data items.

@@ -12,8 +12,10 @@ import java.util.List;
 
 @Repository
 public interface MenuRepository extends DefaultRepository<SystemMenu, Integer> {
+
+    @Override
     @Query("SELECT distinct r from admin.SystemMenuEntity r JOIN r.roles ro  WHERE lower(concat(r.name,r.description,r.state,r.type,ro.name)) LIKE lower(concat('%', :filter, '%'))")
-    Page<SystemMenu> findByFilter(@Param("filter") String filter, Pageable pageable);
+    Page<SystemMenu> findAll(String filter, Pageable pageable);
 
     @Query("SELECT r from admin.SystemMenuEntity r JOIN r.roles ro  WHERE ro.id in :ids")
     List<SystemMenu> findByRoles(@Param("ids") Integer[] ids);

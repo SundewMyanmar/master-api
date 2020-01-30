@@ -69,19 +69,19 @@ public class MyanmarFontManager {
     }
 
     public static boolean isZawgyi(String input) {
-        if (input == null) {
+        if (StringUtils.isEmpty(input)) {
             return false;
         }
-        double result = zgDetector.getZawgyiProbability(input);
 
+        double result = zgDetector.getZawgyiProbability(input);
         return result > THRESHOLD;
     }
 
-    public static String toUnicode(String zawgyiInput) {
-        if (MyanmarFontManager.isZawgyi(zawgyiInput)) {
-            return z2u.convert(zawgyiInput);
+    public static String toUnicode(String zawgyi) {
+        if (MyanmarFontManager.isZawgyi(zawgyi)) {
+            return z2u.convert(zawgyi);
         }
-        return zawgyiInput;
+        return zawgyi;
     }
 
     public static String toZawgyi(String unicodeInput) {

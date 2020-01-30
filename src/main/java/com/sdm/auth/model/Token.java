@@ -47,7 +47,7 @@ public class Token extends DefaultEntity implements Serializable {
     private String deviceOs;
 
     @Column(length = 500)
-    private String firebaseToken;
+    private String firebaseMessagingToken;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)

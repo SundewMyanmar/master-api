@@ -81,7 +81,7 @@ public abstract class DefaultReadWriterController<T extends DefaultEntity, ID ex
     }
 
     @Override
-    public ResponseEntity<MessageResponse> importData(FilePart filePart) {
+    public ResponseEntity<ListResponse<T>> importData(FilePart filePart) {
         throw new GeneralException(HttpStatus.SERVICE_UNAVAILABLE, "Sorry! This services is not available now.");
     }
 }

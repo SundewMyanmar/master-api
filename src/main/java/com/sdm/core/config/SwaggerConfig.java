@@ -5,6 +5,7 @@ import com.sdm.Constants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import springfox.documentation.RequestHandler;
@@ -35,18 +36,16 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
                 "global", "accessEverything");
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
         authorizationScopes[0] = authorizationScope;
-        return Arrays.asList(new SecurityReference(Constants.Auth.PARAM_NAME,
-                authorizationScopes));
+        return List.of(new SecurityReference(Constants.Auth.PARAM_NAME, authorizationScopes));
     }
 
     private ApiInfo apiInfo() {
         Contact contact = new Contact("SUNDEW MYANMAR", "http://www.sundewmyanmar.com", "info@sundewmyanmar.com");
         VendorExtension springBoot = new StringVendorExtension("Spring Boot", "https://docs.spring.io/spring-boot/docs/current/reference/html/");
 
-        ApiInfo info = new ApiInfo("MasterAPI Documentation",
+        return new ApiInfo("MasterAPI Documentation",
                 "This is a master-api backend system documentation page by swagger-ui.",
-                "v1.5", "", contact, "", "", Arrays.asList(springBoot));
-        return info;
+                "v1.5", "", contact, "", "", List.of(springBoot));
     }
 
     private ApiKey apiKey() {
@@ -62,14 +61,14 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
                 .build();
     }
 
-    private Docket buildDocket(String groupName, String basePackage){
+    private Docket buildDocket(String groupName, String basePackage) {
 
         Predicate<RequestHandler> findThere = null;
 
-        if(basePackage != null && basePackage.length() > 0){
-            findThere = RequestHandlerSelectors.basePackage(basePackage);
-        }else{
+        if (StringUtils.isEmpty(basePackage)) {
             findThere = RequestHandlerSelectors.any();
+        } else {
+            findThere = RequestHandlerSelectors.basePackage(basePackage);
         }
 
         return new Docket(DocumentationType.SWAGGER_2)
@@ -85,17 +84,18 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
                 .enableUrlTemplating(true);
     }
 
-    @Bean Docket authApi(){
+    @Bean
+    Docket authApi() {
         return this.buildDocket("Auth", "com.sdm.auth");
     }
 
     @Bean
-    public Docket adminApi(){
+    public Docket adminApi() {
         return this.buildDocket("Admin", "com.sdm.admin");
     }
 
     @Bean
-    public Docket fileApi(){
+    public Docket fileApi() {
         return this.buildDocket("File", "com.sdm.file");
     }
 

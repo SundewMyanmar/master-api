@@ -1,6 +1,5 @@
 package com.sdm.admin.service;
 
-import com.sdm.admin.model.SystemRoute;
 import com.sdm.admin.repository.PermissionRepository;
 import com.sdm.core.util.security.PermissionHandler;
 import com.sdm.core.util.security.PermissionMatcher;
@@ -18,10 +17,8 @@ public class PermissionService implements PermissionHandler {
 
     @Override
     public List<PermissionMatcher> loadPermissions() {
-        List<SystemRoute> systemRoutes = permissionRepository.findAll();
         List<PermissionMatcher> permissionMatchers = new ArrayList<>();
-
-        systemRoutes.forEach(entity -> permissionMatchers.add(entity));
+        permissionRepository.findAll().forEach(permission -> permissionMatchers.add(permission));
         /*
         PermissionEntity testPermission = new PermissionEntity();
         testPermission.setPattern("/roles/**");

@@ -7,31 +7,25 @@ import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.ModelInfo;
 import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.model.response.PaginationResponse;
-import com.sdm.core.util.CsvManager;
-import com.sdm.core.util.Globalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
 
 public abstract class DefaultReadController<T extends DefaultEntity, ID extends Serializable> implements ReadController<T, ID> {
-
-    @Autowired
-    private CsvManager<T> csvManager;
 
     protected static final Logger logger = LoggerFactory.getLogger(ReadController.class);
 
@@ -54,10 +48,10 @@ public abstract class DefaultReadController<T extends DefaultEntity, ID extends 
 
     protected Pageable buildPagination(int pageId, int pageSize, String sortString) {
         List<Sort.Order> sorting = new ArrayList<>();
-        if (sortString.length() > 0) {
+        if (!StringUtils.isEmpty(sortString)) {
             String[] sorts = sortString.split(",");
             for (String sort : sorts) {
-                String[] sortParams = sort.trim().split(":", 2);
+                String[] sortParams = sort.strip().split(":", 2);
                 if (sortParams.length >= 2 && sortParams[1].equalsIgnoreCase("desc")) {
                     sorting.add(Sort.Order.desc(sortParams[0]));
                 } else {
@@ -70,41 +64,24 @@ public abstract class DefaultReadController<T extends DefaultEntity, ID extends 
 
     @Override
     public ResponseEntity<PaginationResponse<T>> getPagingByFilter(int page, int pageSize, String filter, String sort) {
-        Page<T> paging = getRepository().findAll(this.buildPagination(page, pageSize, sort), filter);
+        Page<T> paging = getRepository().findAll(filter, this.buildPagination(page, pageSize, sort));
         PaginationResponse<T> response = new PaginationResponse<>(paging);
 
         return new ResponseEntity<>(response, HttpStatus.PARTIAL_CONTENT);
     }
 
+    @Async
     @Override
-    public ResponseEntity<ListResponse<T>> getAll() {
+    public CompletableFuture<ResponseEntity<ListResponse<T>>> getAll() {
         List<T> data = getRepository().findAll();
-        return ResponseEntity.ok(new ListResponse<>(data));
+        ResponseEntity<ListResponse<T>> response = ResponseEntity.ok(new ListResponse<>(data));
+        return CompletableFuture.completedFuture(response);
     }
 
     @Override
     public ResponseEntity<T> getById(ID id) {
         T entity = this.checkData(id);
         return ResponseEntity.ok(entity);
-    }
-
-    @Override
-    public ResponseEntity<Resource> exportByCsv() {
-        List<T> data = getRepository().findAll();
-        CacheControl cacheControl = CacheControl.maxAge(7, TimeUnit.DAYS);
-        String attachment = "attachment; filename=\"" + this.getEntityClass().getName() +
-                Globalizer.getDateString("yyyy-MM-dd", new Date()) + ".csv\"";
-        try {
-            Resource outputResource = csvManager.parseEntityToCsv(data, this.getEntityClass());
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, attachment)
-                    .cacheControl(cacheControl)
-                    .body(outputResource);
-        } catch (IllegalAccessException | IOException ex) {
-            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
-        }
     }
 
     @Override

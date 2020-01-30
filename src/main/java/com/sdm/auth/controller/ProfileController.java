@@ -36,7 +36,7 @@ public class ProfileController {
 
     // @UserAllowed
     @GetMapping("")
-    public ResponseEntity getProfile() {
+    public ResponseEntity<User> getProfile() {
         User user = userRepository.findById(getCurrentUser().getUserId())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "Sorry! can't find your account."));
         return ResponseEntity.ok(user);
@@ -44,7 +44,7 @@ public class ProfileController {
 
     // @UserAllowed
     @PostMapping("")
-    public ResponseEntity updateProfile(@RequestBody User user) {
+    public ResponseEntity<User> updateProfile(@RequestBody User user) {
         User existUser = userRepository.findById(getCurrentUser().getUserId())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "Sorry! can't find your account."));
 
@@ -58,7 +58,7 @@ public class ProfileController {
 
     // @UserAllowed
     @PostMapping("/changePassword")
-    public ResponseEntity changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+    public ResponseEntity<User> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         User existUser = userRepository.findById(getCurrentUser().getUserId())
                 .orElseThrow(() -> new GeneralException(HttpStatus.UNAUTHORIZED, "Sorry! you don't have permission."));
 
@@ -79,7 +79,7 @@ public class ProfileController {
     }
 
     @DeleteMapping("/cleanToken")
-    public ResponseEntity cleanToken() {
+    public ResponseEntity<MessageResponse> cleanToken() {
         AuthRequest request = new AuthRequest();
         request.setDeviceId(getCurrentUser().getDeviceId());
         request.setDeviceOS(getCurrentUser().getDeviceOs());

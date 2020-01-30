@@ -8,6 +8,7 @@ package com.sdm.core.model.response;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 
@@ -24,7 +25,7 @@ public class RouteParamResponse implements Serializable {
     private String paramType;
 
     public boolean isRequire() {
-        return (defaultValue == null || defaultValue.length() <= 0);
+        return StringUtils.isEmpty(defaultValue);
     }
 
 }

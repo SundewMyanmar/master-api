@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authorization.isPresent() && userAgent.isPresent()) {
             String tokenString = authorization.get();
             if (isHeader) {
-                tokenString = tokenString.substring(Constants.Auth.TYPE.length()).trim();
+                tokenString = tokenString.substring(Constants.Auth.TYPE.length()).strip();
             }
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     tokenString, userAgent.get());

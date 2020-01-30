@@ -3,7 +3,6 @@ package com.sdm.auth.model.request;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -22,5 +21,5 @@ public class TokenInfo implements Serializable {
     private String deviceOS;
 
     @Size(max = 500)
-    private String firebaseToken;
+    private String firebaseMessagingToken;
 }

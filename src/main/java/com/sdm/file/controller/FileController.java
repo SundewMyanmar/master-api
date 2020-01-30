@@ -8,7 +8,6 @@ import com.sdm.file.model.File;
 import com.sdm.file.repository.FileRepository;
 import com.sdm.file.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -38,8 +37,8 @@ public class FileController extends DefaultReadController<File, String> {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity remove(@PathVariable("id") String id,
-                                 @RequestParam(value = "isTrash", required = false, defaultValue = "false") boolean isTrash) {
+    public ResponseEntity<MessageResponse> remove(@PathVariable("id") String id,
+                                                  @RequestParam(value = "isTrash", required = false, defaultValue = "false") boolean isTrash) {
         fileService.remove(id, isTrash);
         MessageResponse message = new MessageResponse(HttpStatus.OK, "Successfully deleted.",
                 "Deleted data on your request by : " + id, null);
@@ -48,8 +47,8 @@ public class FileController extends DefaultReadController<File, String> {
 
     @DeleteMapping("/multi")
     @Transactional
-    ResponseEntity multiRemove(@RequestBody Set<String> ids,
-                               @RequestParam(value = "isTrash", required = false, defaultValue = "false") final boolean isTrash) {
+    public ResponseEntity<MessageResponse> multiRemove(@RequestBody Set<String> ids,
+                                                       @RequestParam(value = "isTrash", required = false, defaultValue = "false") final boolean isTrash) {
         ids.forEach(id -> fileService.remove(id, isTrash));
         MessageResponse message = new MessageResponse(HttpStatus.OK, "Successfully deleted.",
                 "Deleted data on your request.", null);
@@ -57,15 +56,15 @@ public class FileController extends DefaultReadController<File, String> {
     }
 
     @PostMapping("upload")
-    public ResponseEntity uploadFile(@RequestParam("uploadedFile") MultipartFile file,
-                                     @RequestParam(value = "isPublic", required = false, defaultValue = "true") boolean isPublic) {
+    public ResponseEntity<File> uploadFile(@RequestParam("uploadedFile") MultipartFile file,
+                                           @RequestParam(value = "isPublic", required = false, defaultValue = "true") boolean isPublic) {
         File fileEntity = fileService.create(file, isPublic);
         return new ResponseEntity(fileEntity, HttpStatus.CREATED);
     }
 
     @PostMapping("multi/upload")
-    public ResponseEntity uploadMultipleFiles(@RequestParam("uploadedFile") MultipartFile[] files,
-                                              @RequestParam(value = "isPublic", required = false, defaultValue = "true") boolean isPublic) {
+    public ResponseEntity<ListResponse<File>> uploadMultipleFiles(@RequestParam("uploadedFile") MultipartFile[] files,
+                                                                  @RequestParam(value = "isPublic", required = false, defaultValue = "true") boolean isPublic) {
         List<File> uploadedFiles = Arrays.asList(files)
                 .stream()
                 .map(file -> fileService.create(file, isPublic))
@@ -75,18 +74,18 @@ public class FileController extends DefaultReadController<File, String> {
     }
 
     @PutMapping("upload/{id}")
-    public ResponseEntity uploadFile(@PathVariable("id") String id,
-                                     @RequestParam("uploadedFile") MultipartFile file) {
+    public ResponseEntity<File> uploadFile(@PathVariable("id") String id,
+                                           @RequestParam("uploadedFile") MultipartFile file) {
         File fileEntity = fileService.modified(id, file);
         return new ResponseEntity(fileEntity, HttpStatus.ACCEPTED);
     }
 
     @GetMapping("download/{id}/{fileName}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable("id") String id,
-                                                 @PathVariable("fileName") String fileName,
-                                                 @RequestParam(value = "width", required = false, defaultValue = "0") int width,
-                                                 @RequestParam(value = "height", required = false, defaultValue = "0") int height,
-                                                 @RequestParam(value = "is64", required = false, defaultValue = "false") boolean is64) {
+    public ResponseEntity<?> downloadFile(@PathVariable("id") String id,
+                                          @PathVariable("fileName") String fileName,
+                                          @RequestParam(value = "width", required = false, defaultValue = "0") int width,
+                                          @RequestParam(value = "height", required = false, defaultValue = "0") int height,
+                                          @RequestParam(value = "is64", required = false, defaultValue = "false") boolean is64) {
 
         Dimension dimension = null;
         if (width > 0 && height <= 0) {

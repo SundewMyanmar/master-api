@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,8 +41,8 @@ public class RootController implements ErrorController {
     }
 
     @GetMapping("")
-    public ResponseEntity<MessageResponse> welcomeUser() {
-        MessageResponse message = new MessageResponse(HttpStatus.OK, "Welcome!", "Never give up to be a warrior.", null);
+    public ResponseEntity<MessageResponse> welcome() {
+        MessageResponse message = new MessageResponse("Welcome!", "Never give up to be a warrior.");
         return ResponseEntity.ok(message);
     }
 
@@ -58,7 +59,7 @@ public class RootController implements ErrorController {
             String message = request.getAttribute(RequestDispatcher.ERROR_MESSAGE).toString();
             Exception ex = (Exception) request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
             if (ex != null) {
-                if (message == null || message.length() <= 0) {
+                if (StringUtils.isEmpty(message)) {
                     message = ex.getLocalizedMessage();
                 } else {
                     detail.put("exception", ex.getMessage());
@@ -86,10 +87,11 @@ public class RootController implements ErrorController {
 
     @GetMapping("/public/privacy")
     public String privacyPolicy() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("title", Constants.APP_NAME);
-        data.put("email", Constants.INFO_MAIL);
-        data.put("date", Globalizer.getDateString("MMMM, dd YYYY", new Date()));
+        Map<String, Object> data = Map.of(
+                "title", Constants.APP_NAME,
+                "email", Constants.INFO_MAIL,
+                "date", Globalizer.getDateString("MMMM, dd YYYY", new Date())
+        );
 
         return templateManager.buildTemplate("privacy-policy.vm", data);
     }

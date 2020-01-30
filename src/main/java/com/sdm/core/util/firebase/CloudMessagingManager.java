@@ -33,7 +33,7 @@ public class CloudMessagingManager {
 
     private static final Logger logger = LoggerFactory.getLogger(CloudMessagingManager.class);
 
-    private static final String FIREBASE_APP_NAME = "FIREBASE_CLOUD_MESSAGING_APP";
+    private static final String FIR_APP_NAME = "FIR_CLOUD_MESSAGING_APP";
 
     @Autowired
     private ObjectMapper jacksonObjectMapper;
@@ -42,14 +42,14 @@ public class CloudMessagingManager {
 
     public CloudMessagingManager(FireBaseProperties fireBaseProperties) {
         if (fireBaseProperties.getProjectUrl().length() > 0 && fireBaseProperties.getServiceJson().length() > 0) {
-            defaultApp = FirebaseApp.getInstance(FIREBASE_APP_NAME);
+            defaultApp = FirebaseApp.getInstance(FIR_APP_NAME);
             if (defaultApp == null) {
                 try (FileInputStream serviceAccount = new FileInputStream(fireBaseProperties.getServiceJson())) {
                     FirebaseOptions options = new FirebaseOptions.Builder()
                             .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                             .setDatabaseUrl(fireBaseProperties.getProjectUrl())
                             .build();
-                    defaultApp = FirebaseApp.initializeApp(options, FIREBASE_APP_NAME);
+                    defaultApp = FirebaseApp.initializeApp(options, FIR_APP_NAME);
                 } catch (IOException ex) {
                     logger.warn(ex.getLocalizedMessage(), ex);
                 }
@@ -89,16 +89,16 @@ public class CloudMessagingManager {
 
     private Map<String, String> convertToStringData(Map<String, Object> data) {
         Map<String, String> stringData = new HashMap<>();
-        data.entrySet().stream().forEach(item -> {
-            if (item.getValue().getClass() == Map.class) {
+        data.forEach((key, value) -> {
+            if (value instanceof Map) {
                 try {
-                    stringData.put(item.getKey(), jacksonObjectMapper.writeValueAsString(item.getValue()));
+                    stringData.put(key, jacksonObjectMapper.writeValueAsString(value));
                 } catch (JsonProcessingException ex) {
                     logger.warn(ex.getLocalizedMessage());
-                    stringData.put(item.getKey(), item.getValue().toString());
+                    stringData.put(key, value.toString());
                 }
             } else {
-                stringData.put(item.getKey(), item.getValue().toString());
+                stringData.put(key, value.toString());
             }
 
         });
@@ -113,7 +113,7 @@ public class CloudMessagingManager {
     }
 
     public ApiFuture<String> sendMessage(String token, String title, String body, int badgeCount,
-                                         Map<String, Object> data) throws FirebaseMessagingException {
+                                         Map<String, Object> data) {
 
         title = MyanmarFontManager.toUnicode(title);
         body = MyanmarFontManager.toUnicode(body);
@@ -132,7 +132,7 @@ public class CloudMessagingManager {
 
 
     public ApiFuture<BatchResponse> sendMessage(List<String> tokens, String title, String body, int badgeCount,
-                                                Map<String, Object> data) throws FirebaseMessagingException {
+                                                Map<String, Object> data) {
 
         title = MyanmarFontManager.toUnicode(title);
         body = MyanmarFontManager.toUnicode(body);

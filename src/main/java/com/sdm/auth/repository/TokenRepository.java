@@ -25,7 +25,6 @@ public interface TokenRepository extends DefaultRepository<Token, String> {
 
     Page<Token> findByLastLoginBetween(Date fromDate, Date toDate, Pageable pageable);
 
-
     @Modifying
     @Transactional
     @Query(value = "DELETE FROM tbl_auth_tokens WHERE user_id = :userId", nativeQuery = true)

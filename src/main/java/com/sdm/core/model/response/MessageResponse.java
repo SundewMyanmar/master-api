@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -38,6 +39,11 @@ public class MessageResponse implements Serializable {
         this.message = message;
     }
 
+    public MessageResponse(String title, String message) {
+        this(message);
+        this.title = title;
+    }
+
     public MessageResponse(HttpStatus status, String message) {
         this.status = status;
         this.message = message;
@@ -53,7 +59,7 @@ public class MessageResponse implements Serializable {
     }
 
     public String getTitle() {
-        if (title == null || title.isEmpty()) {
+        if (StringUtils.isEmpty(title)) {
             return this.status.getReasonPhrase();
         }
         return this.title;
