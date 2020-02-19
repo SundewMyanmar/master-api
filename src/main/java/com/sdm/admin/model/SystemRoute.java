@@ -14,6 +14,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 import org.springframework.http.HttpMethod;
 
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 @Audited
 @Entity(name = "admin.SystemRouteEntity")
 @Table(name = "tbl_admin_system_routes")
+@Where(clause = "deleted_at IS NULL")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

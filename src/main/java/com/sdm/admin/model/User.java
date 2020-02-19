@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
@@ -24,6 +25,7 @@ import java.util.*;
 @Audited
 @Entity(name = "admin.UserEntity")
 @Table(name = "tbl_admin_users")
+@Where(clause = "deleted_at IS NULL")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

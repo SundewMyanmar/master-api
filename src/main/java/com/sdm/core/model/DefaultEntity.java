@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 @MappedSuperclass
-@Where(clause = "deletedAt IS NULL")
 @EntityListeners({AuditingEntityListener.class})
 @JsonPropertyOrder(value = {"id", "created_at", "modified_at"}, alphabetic = true)
 @JsonIgnoreProperties(value = {"created_at", "modified_at"}, allowGetters = true)

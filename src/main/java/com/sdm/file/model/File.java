@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -30,6 +31,7 @@ import java.util.Map;
 @Audited
 @Entity(name = "FileEntity")
 @Table(name = "tbl_files")
+@Where(clause = "deleted_at IS NULL")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

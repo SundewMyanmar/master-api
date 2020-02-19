@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -17,6 +18,7 @@ import java.util.Date;
 
 @Entity(name = "auth.TokenEntity")
 @Table(name = "tbl_auth_tokens")
+@Where(clause = "deleted_at IS NULL")
 @JsonPropertyOrder(value = {"deviceId", "deviceOs", "tokenExpired"})
 @Data
 @AllArgsConstructor

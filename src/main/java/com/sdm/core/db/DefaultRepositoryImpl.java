@@ -18,9 +18,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -125,7 +125,7 @@ public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializa
 
         Root<T> root = update.from(this.getDomainClass());
 
-        update.set(DELETED_AT, LocalDateTime.now());
+        update.set(DELETED_AT, new Date());
 
         final List<Predicate> predicates = new ArrayList<Predicate>();
 
