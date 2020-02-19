@@ -1,4 +1,4 @@
-package com.sdm.core.security;
+package com.sdm.core.util.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
@@ -16,22 +16,14 @@ import java.io.IOException;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class CorsFilter extends OncePerRequestFilter {
 
-    @Value("${com.sdm.cors.allow-origins}")
     private String allowedOrigins = "*";
 
-    @Value("${com.sdm.cors.allow-methods}")
     private String allowedMethods = "GET, PUT, POST, DELETE, OPTIONS, HEAD";
 
-    @Value("${com.sdm.cors.allow-headers}")
     private String allowedHeaders = "authorization, content-type, xsrf-token,accept";
 
-    @Value("${com.sdm.cors.exposed-headers}")
     private String exposedHeaders = "xsrf-token";
 
-    @Value("${com.sdm.cors.allow-credentials}")
-    private boolean allowCredentials = true;
-
-    @Value("${com.sdm.cors.max-age}")
     private long maxAge = 36000;
 
     @Override
@@ -46,54 +38,5 @@ public class CorsFilter extends OncePerRequestFilter {
         } else {
             filterChain.doFilter(request, response);
         }
-    }
-
-
-    public String getAllowedOrigins() {
-        return allowedOrigins;
-    }
-
-    public void setAllowedOrigins(String allowedOrigins) {
-        this.allowedOrigins = allowedOrigins;
-    }
-
-    public String getAllowedMethods() {
-        return allowedMethods;
-    }
-
-    public void setAllowedMethods(String allowedMethods) {
-        this.allowedMethods = allowedMethods;
-    }
-
-    public String getAllowedHeaders() {
-        return allowedHeaders;
-    }
-
-    public void setAllowedHeaders(String allowedHeaders) {
-        this.allowedHeaders = allowedHeaders;
-    }
-
-    public String getExposedHeaders() {
-        return exposedHeaders;
-    }
-
-    public void setExposedHeaders(String exposedHeaders) {
-        this.exposedHeaders = exposedHeaders;
-    }
-
-    public boolean isAllowCredentials() {
-        return allowCredentials;
-    }
-
-    public void setAllowCredentials(boolean allowCredentials) {
-        this.allowCredentials = allowCredentials;
-    }
-
-    public long getMaxAge() {
-        return maxAge;
-    }
-
-    public void setMaxAge(long maxAge) {
-        this.maxAge = maxAge;
     }
 }

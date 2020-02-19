@@ -11,7 +11,6 @@ import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.util.FBGraphManager;
 import com.sdm.core.util.Globalizer;
-import com.sdm.core.util.VelocityTemplateManager;
 import com.sdm.core.util.security.SecurityManager;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
@@ -24,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.*;
 
@@ -44,12 +44,9 @@ public class AuthService {
     private TokenRepository tokenRepository;
 
     @Autowired
-    private VelocityTemplateManager templateManager;
-
-    @Autowired
     private AuthMailService mailService;
 
-    private static final String FB_AUTH_FIELDS = "id,name,email,gender,age_range";
+    private static final String FB_AUTH_FIELDS = "id,name,picture{url},phone,email";
 
     private static final int MAX_PASSWORD = 32;
     private static final int MIN_PASSWORD = 16;
@@ -127,71 +124,66 @@ public class AuthService {
         user.setCurrentToken(tokenString);
     }
 
-    private Optional<User> checkOtp(ActivateRequest request, boolean autoResend) {
+    @Transactional
+    public ResponseEntity<MessageResponse> accountActivation(ActivateRequest request) {
         User user = userRepository.checkOTP(request.getUser(), request.getToken())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
-                        "Invalid request token."));
+                        "Your OTP is invalid. Pls try to contact admin team."));
 
+        //Resend OTP to User
         if (user.getOtpExpired().before(new Date())) {
-            if (autoResend) {
-                try {
-                    this.mailService.activateLink(user);
-                } catch (JsonProcessingException ex) {
-                    throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
-                }
-                userRepository.save(user);
+            try {
+                String callbackUrl = ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/activate/").toUriString();
+                this.mailService.activateLink(user, callbackUrl);
+            } catch (JsonProcessingException ex) {
+                throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
             }
+            userRepository.save(user);
             throw new GeneralException(HttpStatus.NOT_ACCEPTABLE,
                     "Sorry! Your token has expired. We send new token to your email.");
         }
 
         user.setOtpToken(null);
         user.setOtpExpired(null);
+
         if (securityManager.getProperties().isRequireConfirm()) {
             user.setStatus(User.Status.ACTIVE);
         }
         userRepository.save(user);
-        return Optional.of(user);
+        return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "activation_success", "Your account is ready.", null));
     }
 
-    @Transactional
-    public ResponseEntity<MessageResponse> otpActivation(ActivateRequest request) {
-        if (this.checkOtp(request, true).isPresent()) {
-            return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "activation_success", "Your temporary request is ok.", null));
-        }
-        throw new GeneralException(HttpStatus.BAD_REQUEST, "Your otp is invalid. Pls try to contact admin team.");
-    }
+    public ResponseEntity<User> resetPasswordByOtp(ChangePasswordRequest changePasswordRequest, ActivateRequest activateRequest) {
+        User user = userRepository.checkOTP(activateRequest.getUser(), activateRequest.getToken())
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
+                        "Your OTP is invalid. Pls try to contact admin team."));
 
-    public ResponseEntity<User> resetPasswordWithOtp(ChangePasswordRequest changePasswordRequest, ActivateRequest activateRequest) {
-        User user = this.checkOtp(activateRequest, false).orElseThrow(() ->
-                new GeneralException(HttpStatus.UNAUTHORIZED, "There is no user (or) otp is wrong. Pls try again.")
-        );
-
-        User authUser = userRepository.authByPassword(changePasswordRequest.getUser(), user.getPassword()).orElseThrow(
-                () -> new GeneralException(HttpStatus.UNAUTHORIZED, "Sorry! you old password are not correct."));
-
-        if (!authUser.getId().equals(user.getId())) {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED,
-                    "There is no user (or) otp is wrong. Pls try again.");
+        if (user.getOtpExpired().before(new Date()) || !user.getOtpToken().equals(activateRequest.getToken())) {    
+            user.setOtpToken(null);
+            user.setOtpExpired(null);
+            userRepository.save(user);
+            throw new GeneralException(HttpStatus.NOT_ACCEPTABLE,
+                    "Your OTP is invalid. Pls try to contact admin team.");
         }
 
         String newPassword = securityManager.hashString(changePasswordRequest.getNewPassword());
         user.setPassword(newPassword);
+        user.setOtpToken(null);
+        user.setOtpExpired(null);
         userRepository.save(user);
 
         return ResponseEntity.ok(user);
     }
 
-    public ResponseEntity<MessageResponse> forgetPassword(String phoneOrEmail) {
+    public ResponseEntity<MessageResponse> forgetPassword(ForgetPassword request) {
+        User user = userRepository.findByPhoneNumberAndEmail(request.getPhoneNumber(), request.getEmail())
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Invalid phone number (or) email address."));
         try {
-            User user = userRepository.findByPhoneNumberOrEmail(phoneOrEmail, phoneOrEmail)
-                    .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "Invalid phone number (or) email address."));
-
-            mailService.forgetPasswordLink(user);
+            mailService.forgetPasswordLink(user, request.getCallback());
             userRepository.save(user);
 
             return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "send_otp", "We send the reset password link to your e-mail.", null));
-        } catch (JsonProcessingException ex) {
+        } catch (Exception ex) {
             logger.error(ex.getLocalizedMessage());
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
@@ -229,7 +221,7 @@ public class AuthService {
         userRepository.save(newUser);
         if (needConfirm) {
             try {
-                mailService.activateLink(newUser);
+                mailService.activateLink(newUser, ServletUriComponentsBuilder.fromCurrentContextPath().toUriString());
             } catch (JsonProcessingException ex) {
                 logger.warn(ex.getLocalizedMessage());
             }
@@ -261,7 +253,8 @@ public class AuthService {
         Optional<User> dbEntity;
         User userEntity;
 
-        String userName = "FB" + profileObj.get("id").getAsString();
+        String phoneNumber = "FB_" + profileObj.get("id").getAsString();
+        String email = "fb" + profileObj.get("id").getAsString() + "@facebook.com";
         String displayName = profileObj.get("name").getAsString();
 
         Random rnd = new Random();
@@ -270,37 +263,23 @@ public class AuthService {
         String rawPassword = Globalizer.generateToken(passwordChars, size);
         String password = securityManager.hashString(rawPassword);
 
-        if (profileObj.has("email") && !profileObj.get("email").isJsonNull()) {
-            String email = profileObj.get("email").getAsString();
-            String phone = email;
-            if (profileObj.has("phone")) {
-                phone = profileObj.get("phone").getAsString();
-            }
+        if(profileObj.has("email")){
+            profileObj.get("email").getAsString();
+        }
 
-            //Get Back Old User Data With Email
-            dbEntity = userRepository.findByPhoneNumberOrEmail(phone, email);
+        if (profileObj.has("phone")) {
+            phoneNumber = profileObj.get("phone").getAsString();
+        }
 
-            if (dbEntity.isPresent()) {
-                userEntity = dbEntity.get();
-                userEntity.setDisplayName(displayName);
-            } else {
-                userEntity = new User(userName, displayName, password, User.Status.ACTIVE);
-                userEntity.setEmail(profileObj.get("email").getAsString());
-            }
+        //Get Back Old User Data With Email
+        dbEntity = userRepository.findByPhoneNumberOrEmail(phoneNumber, email);
+
+        if (dbEntity.isPresent()) {
+            userEntity = dbEntity.get();
+            userEntity.setDisplayName(displayName);
         } else {
-            userEntity = new User(userName, displayName, password, User.Status.ACTIVE);
-            //if no email
-            userEntity.setEmail(profileObj.get("id").getAsString() + "@facebook.com");
-        }
-
-        if (profileObj.has("gender") && !profileObj.get("gender").isJsonNull()) {
-            userEntity.addExtra("gender", profileObj.get("gender").getAsString());
-        }
-
-        if (profileObj.has("age_range") && !profileObj.get("age_range").isJsonNull()) {
-            JsonObject obj = profileObj.get("age_range").getAsJsonObject();
-
-            userEntity.addExtra("age_range", obj.toString());
+            userEntity = new User(phoneNumber, displayName, password, User.Status.ACTIVE);
+            userEntity.setEmail(profileObj.get("email").getAsString());
         }
 
         userEntity.setFacebookId(profileObj.get("id").getAsString());

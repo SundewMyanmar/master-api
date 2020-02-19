@@ -82,7 +82,7 @@ public class UserController extends DefaultReadWriterController<User, Integer> {
     @Override
     public ResponseEntity<User> update(@Valid User body, Integer id) {
         User dbEntity = this.getRepository().findById(id)
-                .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT,
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
                         "There is no any data by : " + Integer.toString(id)));
 
         if (id != body.getId()) {

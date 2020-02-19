@@ -37,7 +37,7 @@ So, you have to know about these frameworks and libraries. [Getting Started](#ge
 - Edit require properties from **application.properties** and **logback-spring.xml** files.
 
 ### Require config to edit in **logback-spring.xml**
-Modified output directory at (__line: 5__)
+Modified output directory.
 ```xml
 <property name="logPath" value="{log_directory}"/>
 ```
@@ -46,7 +46,6 @@ Modified output directory at (__line: 5__)
 [Ref: Spring Boot application.properties](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-application-properties.html)
 
 #### Database Setting
-Modified application.properties file at (__line: 8-10__)
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/{database_name}
 spring.datasource.username={db_user}
@@ -54,14 +53,12 @@ spring.datasource.password={db_password}
 ```
 
 #### Path Setting
-Modified application.properties file at (__line: 68-69__)
 ```properties
 com.sdm.path.template={mail_template_directory}
 com.sdm.path.upload={file_upload_directory}
 ```
 
 #### Mail Server Setting
-Modified application.properties file at (__line: 24-25__)
 ```properties
 spring.mail.username={mail-server:username}
 spring.mail.password={mail-server:password}
@@ -74,14 +71,14 @@ $> mvn clean spring-boot:run
 
 ### Generate Salt for Encryption
 [http://localhost:8080/util/salt](http://localhost:8080/util/salt) <br/>
-Copy/Paste encrypt salt to application.properties at  (__line: 54__)
+Copy/Paste encrypt salt to application.properties.
 ```properties
 com.sdm.security.encrypt-salt={generated_encrypt_salt}
 ```
 
 ### Generate JWT Key For AccessToken
 [http://localhost:8080/util/jwtKey](http://localhost:8080/util/jwtKey) <br/>
-Copy/Paste jwt key to application.properties at  (__line: 55__)
+Copy/Paste jwt key to application.properties.
 ```properties
 com.sdm.security.jwt-key={generated_jwt_key}
 ```

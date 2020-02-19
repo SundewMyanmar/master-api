@@ -7,6 +7,7 @@ package com.sdm.core.util.security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
@@ -18,6 +19,7 @@ import java.util.Base64;
 /**
  * @author Htoonlin
  */
+@Component
 public class AESManager {
 
     private static final Logger logger = LoggerFactory.getLogger(AESManager.class.getName());

@@ -7,12 +7,18 @@ import com.sdm.auth.model.request.ActivateRequest;
 import com.sdm.core.model.MailHeader;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.WebMailManager;
+import com.sdm.core.util.security.AESManager;
 import com.sdm.core.util.security.SecurityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -28,24 +34,26 @@ public class AuthMailService {
     SecurityManager securityManager;
 
     @Autowired
+    AESManager aesManager;
+
+    @Autowired
     WebMailManager mailManager;
+
+    @Autowired
+    HttpServletRequest servletRequest;
 
     private static final int OTP_LENGTH = 8;
 
     private void sendOtpMail(User user, String template, String subject, String otpLink) {
-        Map<String, Object> data = Map.of(
-                "expire", user.getOtpExpired(),
-                "user", user.getDisplayName(),
-                "token_url", ServletUriComponentsBuilder.fromCurrentContextPath().path(otpLink).toUriString(),
-                "current_year", Globalizer.getDateString("yyyy", new Date())
-        );
 
-        mailManager.sendByTemplate(new MailHeader(user.getEmail(), subject),
-                template, data);
+        Map<String, Object> data = Map.of("expire", user.getOtpExpired(), "user", user.getDisplayName(), "token_url",
+                otpLink, "current_year", Globalizer.getDateString("yyyy", new Date()));
+
+        mailManager.sendByTemplate(new MailHeader(user.getEmail(), subject), template, data);
     }
 
     private ActivateRequest buildRequest(User user) {
-        //setToken
+        // setToken
         String otpToken = Globalizer.generateToken(securityManager.getProperties().getTokenChars(), OTP_LENGTH);
 
         long minutes = securityManager.getProperties().getOtpLife().toMinutes();
@@ -54,7 +62,7 @@ public class AuthMailService {
         cal.setTime(new Date());
         cal.add(Calendar.MINUTE, Integer.parseInt(String.valueOf(minutes)));
 
-        //Set Otp Info in User
+        // Set Otp Info in User
         user.setOtpToken(otpToken);
         user.setOtpExpired(cal.getTime());
 
@@ -71,24 +79,28 @@ public class AuthMailService {
     }
 
     @Async
-    public void forgetPasswordLink(User user) throws JsonProcessingException {
+    public void forgetPasswordLink(User user, String contextPath)
+            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
         ActivateRequest request = buildRequest(user);
-        String token = securityManager.base64Encode(jacksonObjectMapper.writeValueAsString(request));
+        String token = aesManager.encrypt(jacksonObjectMapper.writeValueAsString(request), user.getEmail());
+
+        String link = contextPath + "?token=" + token + "&user=" + user.getEmail();
 
         // Send mail with Forget Password Link
         this.sendOtpMail(user, "mail/forget-password.vm",
                 "Forget password activation link.",
-                "/auth/resetPassword/?token=" + token);
+                link);
     }
 
     @Async
-    public void activateLink(User user) throws JsonProcessingException {
+    public void activateLink(User user, String callbackUrl) throws JsonProcessingException {
         ActivateRequest request = buildRequest(user);
         String token = securityManager.base64Encode(jacksonObjectMapper.writeValueAsString(request));
+        
+        String link = callbackUrl + "?token=" + token;
         // Send mail with activation link
         this.sendOtpMail(user, "mail/auth-activate.vm",
-                "Activate your account.",
-                "/auth/activate/?token=" + token);
+                "Activate your account.", link);
     }
 
     @Async

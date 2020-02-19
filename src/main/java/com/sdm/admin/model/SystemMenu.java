@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -52,7 +53,7 @@ public class SystemMenu extends DefaultEntity implements Serializable {
     @Filterable
     @Size(max = 500)
     @Column(length = 500)
-    private String state;
+    private String path;
 
     @Filterable
     @Size(max = 100)
@@ -76,6 +77,7 @@ public class SystemMenu extends DefaultEntity implements Serializable {
     @Column
     private Integer parentId;
 
+    @NotAudited
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "parentId")
     @OneToMany(fetch = FetchType.EAGER)

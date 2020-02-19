@@ -7,6 +7,7 @@ import com.sdm.auth.model.request.*;
 import com.sdm.auth.service.AuthService;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
+import com.sdm.core.util.security.AESManager;
 import com.sdm.core.util.security.SecurityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.bind.DefaultValue;
@@ -26,6 +27,9 @@ public class AuthController {
 
     @Autowired
     private SecurityManager securityManager;
+
+    @Autowired
+    private AESManager aesManager;
 
     @Autowired
     private ObjectMapper jacksonObjectMapper;
@@ -54,35 +58,29 @@ public class AuthController {
         return service.facebookAuth(request, userAgent);
     }
 
-    @GetMapping("/forgetPassword")
-    public ResponseEntity<MessageResponse> forgetPassword(@Valid @RequestParam("user") String user) {
-        return service.forgetPassword(user);
-    }
-
-    @PostMapping("/activate")
-    public ResponseEntity<MessageResponse> postActivate(@Valid ActivateRequest request) {
-        return service.otpActivation(request);
+    @PostMapping("/forgetPassword")
+    public ResponseEntity<MessageResponse> forgetPassword(@Valid @RequestBody ForgetPassword request) {
+        return service.forgetPassword(request);
     }
 
     @GetMapping("/activate")
-    public ResponseEntity<MessageResponse> getActivate(@DefaultValue("") @RequestParam("token") String activateToken) {
+    public ResponseEntity<MessageResponse> activateUser(@DefaultValue("") @RequestParam("token") String activateToken) {
         try {
             activateToken = securityManager.base64Decode(activateToken);
             ActivateRequest activateRequest = jacksonObjectMapper.readValue(activateToken, ActivateRequest.class);
-            return service.otpActivation(activateRequest);
+            return service.accountActivation(activateRequest);
         } catch (JsonProcessingException ex) {
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
     }
 
     @PostMapping("/resetPassword")
-    public ResponseEntity<User> resetPasswordWithOtp(@Valid @RequestBody ChangePasswordRequest request,
-                                                     @DefaultValue("") @RequestParam("token") String activateToken) {
+    public ResponseEntity<User> resetPasswordWithOtp(@Valid @RequestBody ChangePasswordRequest request) {
         try {
-            activateToken = securityManager.base64Decode(activateToken);
+            String activateToken = aesManager.decrypt(request.getOldPassword(), request.getUser());
             ActivateRequest activateRequest = jacksonObjectMapper.readValue(activateToken, ActivateRequest.class);
-            return service.resetPasswordWithOtp(request, activateRequest);
-        } catch (JsonProcessingException ex) {
+            return service.resetPasswordByOtp(request, activateRequest);
+        } catch (Exception ex) {
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
     }

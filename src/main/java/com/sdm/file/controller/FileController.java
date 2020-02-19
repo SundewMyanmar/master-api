@@ -57,14 +57,14 @@ public class FileController extends DefaultReadController<File, String> {
 
     @PostMapping("upload")
     public ResponseEntity<File> uploadFile(@RequestParam("uploadedFile") MultipartFile file,
-                                           @RequestParam(value = "isPublic", required = false, defaultValue = "true") boolean isPublic) {
+                                           @RequestParam(value = "isPublic", required = false, defaultValue = "false") boolean isPublic) {
         File fileEntity = fileService.create(file, isPublic);
         return new ResponseEntity(fileEntity, HttpStatus.CREATED);
     }
 
     @PostMapping("multi/upload")
     public ResponseEntity<ListResponse<File>> uploadMultipleFiles(@RequestParam("uploadedFile") MultipartFile[] files,
-                                                                  @RequestParam(value = "isPublic", required = false, defaultValue = "true") boolean isPublic) {
+                                                                  @RequestParam(value = "isPublic", required = false, defaultValue = "false") boolean isPublic) {
         List<File> uploadedFiles = Arrays.asList(files)
                 .stream()
                 .map(file -> fileService.create(file, isPublic))

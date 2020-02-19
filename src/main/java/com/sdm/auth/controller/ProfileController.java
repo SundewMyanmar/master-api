@@ -34,19 +34,17 @@ public class ProfileController {
         return (AuthInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
-    // @UserAllowed
     @GetMapping("")
     public ResponseEntity<User> getProfile() {
         User user = userRepository.findById(getCurrentUser().getUserId())
-                .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "Sorry! can't find your account."));
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
         return ResponseEntity.ok(user);
     }
 
-    // @UserAllowed
     @PostMapping("")
     public ResponseEntity<User> updateProfile(@RequestBody User user) {
         User existUser = userRepository.findById(getCurrentUser().getUserId())
-                .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "Sorry! can't find your account."));
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
 
         existUser.setProfileImage(user.getProfileImage());
         existUser.setMMDisplayName(user.getDisplayName());
@@ -55,13 +53,9 @@ public class ProfileController {
 
         return ResponseEntity.ok(existUser);
     }
-
-    // @UserAllowed
+    
     @PostMapping("/changePassword")
     public ResponseEntity<User> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
-        User existUser = userRepository.findById(getCurrentUser().getUserId())
-                .orElseThrow(() -> new GeneralException(HttpStatus.UNAUTHORIZED, "Sorry! you don't have permission."));
-
         String oldPassword = securityManager.hashString(request.getOldPassword());
         User authUser = userRepository.authByPassword(request.getUser(), oldPassword).orElseThrow(
                 () -> new GeneralException(HttpStatus.UNAUTHORIZED, "Sorry! you old password are not correct."));

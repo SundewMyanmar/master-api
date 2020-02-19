@@ -19,7 +19,7 @@ import java.util.List;
  * @author Htoonlin
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder(value = {"total", "count", "currentPage", "data", "pageSize", "pageCount", "sorts"})
+@JsonPropertyOrder(value = {"total", "count", "currentPage", "data", "pageSize", "pageCount", "sort"})
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -44,11 +44,11 @@ public class PaginationResponse<T> implements Serializable {
     /**
      * Sortable Data Info
      */
-    private String sorts;
+    private String sort;
 
     public PaginationResponse(Page<T> page) {
         this.data = page.getContent();
-        this.sorts = page.getPageable().getSort().toString();
+        this.sort = page.getPageable().getSort().toString();
         this.total = page.getTotalElements();
         this.pageSize = page.getPageable().getPageSize();
         this.currentPage = page.getPageable().getPageNumber();

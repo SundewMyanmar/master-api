@@ -1,5 +1,6 @@
 package com.sdm.core.util.jwt;
 
+import org.apache.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import java.io.IOException;
 public class JwtUnauthorizeHandler implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
+        httpServletResponse.setStatus(HttpStatus.SC_UNAUTHORIZED);
         httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Sorry! you don't have permission the resource.");
     }
 }

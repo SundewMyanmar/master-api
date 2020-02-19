@@ -27,7 +27,7 @@ public interface ReadController<T, ID extends Serializable> {
     })
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<PaginationResponse<T>> getPagingByFilter(@RequestParam(value = "page", defaultValue = "0") int page,
-                                                            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+                                                            @RequestParam(value = "size", defaultValue = "10") int pageSize,
                                                             @RequestParam(value = "filter", defaultValue = "") String filter,
                                                             @RequestParam(value = "sort", defaultValue = "id:DESC") String sort);
 

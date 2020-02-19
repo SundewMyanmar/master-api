@@ -68,7 +68,7 @@ public class PermissionController extends DefaultReadWriterController<SystemRout
     @RequestMapping(value = "/{id}/role", method = RequestMethod.GET)
     public ResponseEntity<ListResponse<SystemRoute>> getByRole(@PathVariable("id") Integer role) {
         var results = permissionRepository.findByRoleId(role)
-                .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT,
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
                         "There is no any data by role : " + role.toString()));
 
         return ResponseEntity.ok(new ListResponse<>(results));

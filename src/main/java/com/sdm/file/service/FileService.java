@@ -44,7 +44,7 @@ public class FileService {
 
     public File checkFile(String id) {
         File file = fileRepository.findById(id)
-                .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT, "There is no file by : " + id));
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "There is no file by : " + id));
 
         return file;
     }

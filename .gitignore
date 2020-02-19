@@ -40,3 +40,5 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 /bin/
+*.sql
+*.http

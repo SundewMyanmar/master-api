@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -21,20 +22,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        boolean isHeader = true;
         Optional<String> authorization = Optional.ofNullable(httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION));
         Optional<String> userAgent = Optional.ofNullable(httpServletRequest.getHeader(HttpHeaders.USER_AGENT));
-
-        if (!authorization.isPresent()) {
-            authorization = Optional.ofNullable(httpServletRequest.getParameter(Constants.Auth.PARAM_NAME));
-            isHeader = false;
+        String tokenString;
+        if(authorization.isPresent()){
+            tokenString = authorization.get().substring(Constants.Auth.TYPE.length()).strip();
+        }else{
+            tokenString = httpServletRequest.getParameter(Constants.Auth.PARAM_NAME);
         }
 
-        if (authorization.isPresent() && userAgent.isPresent()) {
-            String tokenString = authorization.get();
-            if (isHeader) {
-                tokenString = tokenString.substring(Constants.Auth.TYPE.length()).strip();
-            }
+        if (!StringUtils.isEmpty(tokenString) && userAgent.isPresent()) {
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     tokenString, userAgent.get());
             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));

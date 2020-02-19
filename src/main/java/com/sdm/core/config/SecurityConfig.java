@@ -55,6 +55,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/v2/api-docs",
     };
 
+    private static final String[] USER_PERMISSION_LIST = {
+        "/me/**"
+    };
+
     private static final String[] ROOT_PERMISSION_LIST = {
             "/actuator/**",
     };

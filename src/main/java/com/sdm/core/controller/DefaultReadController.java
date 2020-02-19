@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import javax.transaction.Transactional;
+
 public abstract class DefaultReadController<T extends DefaultEntity, ID extends Serializable> implements ReadController<T, ID> {
 
     protected static final Logger logger = LoggerFactory.getLogger(ReadController.class);
@@ -42,11 +44,12 @@ public abstract class DefaultReadController<T extends DefaultEntity, ID extends 
 
     protected T checkData(ID id) {
         return this.getRepository().findById(id)
-                .orElseThrow(() -> new GeneralException(HttpStatus.NO_CONTENT,
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
                         "There is no any data by : " + id.toString()));
     }
 
     protected Pageable buildPagination(int pageId, int pageSize, String sortString) {
+        sortString = sortString.replaceAll("\\s+", "");
         List<Sort.Order> sorting = new ArrayList<>();
         if (!StringUtils.isEmpty(sortString)) {
             String[] sorts = sortString.split(",");
@@ -62,6 +65,7 @@ public abstract class DefaultReadController<T extends DefaultEntity, ID extends 
         return PageRequest.of(pageId, pageSize, Sort.by(sorting));
     }
 
+    @Transactional
     @Override
     public ResponseEntity<PaginationResponse<T>> getPagingByFilter(int page, int pageSize, String filter, String sort) {
         Page<T> paging = getRepository().findAll(filter, this.buildPagination(page, pageSize, sort));

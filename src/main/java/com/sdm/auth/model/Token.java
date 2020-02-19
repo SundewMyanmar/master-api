@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
-import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -16,7 +15,6 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 
-@Audited
 @Entity(name = "auth.TokenEntity")
 @Table(name = "tbl_auth_tokens")
 @JsonPropertyOrder(value = {"deviceId", "deviceOs", "tokenExpired"})

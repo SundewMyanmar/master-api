@@ -28,7 +28,7 @@
         </rollingPolicy>
     </appender>
 
-    <root level="WARN" additivity="false">
+    <root level="warn" additivity="false">
         <appender-ref ref="RollingFile"/>
         <appender-ref ref="Console"/>
     </root>

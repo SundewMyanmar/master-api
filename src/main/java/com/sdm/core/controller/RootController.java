@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,7 +48,7 @@ public class RootController implements ErrorController {
         return ResponseEntity.ok(message);
     }
 
-    @GetMapping("/error")
+    @RequestMapping(value = "/error", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.PATCH, RequestMethod.DELETE})
     public ResponseEntity<MessageResponse> handleError(HttpServletRequest request) {
         MessageResponse response = new MessageResponse();
         try {
@@ -82,7 +84,7 @@ public class RootController implements ErrorController {
             response.setTitle("SYSTEM_ERROR");
             response.setMessage(error.getLocalizedMessage());
         }
-        return ResponseEntity.ok(response);
+        return new ResponseEntity<>(response, response.getStatus());
     }
 
     @GetMapping("/public/privacy")

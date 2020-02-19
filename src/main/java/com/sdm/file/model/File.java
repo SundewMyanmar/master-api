@@ -13,6 +13,7 @@ import com.sdm.core.util.FileManager;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import org.hibernate.envers.Audited;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -97,21 +98,19 @@ public class File extends DefaultEntity implements Serializable {
     @JsonGetter("urls")
     public Map<String, String> getUrls() {
         Map<String, String> urls = new HashMap<>();
-        String downloadURL = "";
         if (this.publicAccess) {
-            downloadURL = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/public/files/")
-                    .path(this.id + "/")
-                    .path(this.name + "." + this.extension)
-                    .toUriString();
+            urls.put("public", ServletUriComponentsBuilder.fromCurrentContextPath()
+                                .path("/public/files/")
+                                .path(this.id + "/")
+                                .path(this.name + "." + this.extension)
+                                .toUriString());
         } else {
-            downloadURL = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/files/download/")
-                    .path(this.id + "/")
-                    .path(this.name + "." + this.extension)
-                    .toUriString();
+            urls.put("private", ServletUriComponentsBuilder.fromCurrentContextPath()
+                                    .path("/files/download/")
+                                    .path(this.id + "/")
+                                    .path(this.name + "." + this.extension)
+                                    .toUriString());
         }
-        urls.put("main", downloadURL);
 
         if (!StringUtils.isEmpty(this.externalUrl)) {
             urls.put("external", this.externalUrl);

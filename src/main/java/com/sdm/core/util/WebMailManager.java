@@ -12,7 +12,6 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import javax.mail.Message;
 import java.util.Map;
 
 @Component
@@ -26,24 +25,25 @@ public class WebMailManager {
 
     public void send(MailHeader header, String body) {
         MimeMessagePreparator mail = message -> {
-            MimeMessageHelper messageHelper = new MimeMessageHelper(message);
+            MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
             if (!StringUtils.isEmpty(header.getFrom())) {
-                message.setFrom(header.getFrom());
+                messageHelper.setFrom(header.getFrom());
             } else {
-                message.setFrom(Constants.INFO_MAIL);
+                messageHelper.setFrom(Constants.INFO_MAIL);
             }
 
             if (!StringUtils.isEmpty(header.getCc())) {
-                message.addRecipients(Message.RecipientType.CC, header.getCc());
+                messageHelper.setCc(header.getCc());
             }
 
             if (!StringUtils.isEmpty(header.getBcc())) {
-                message.addRecipients(Message.RecipientType.BCC, header.getBcc());
+                messageHelper.setBcc(header.getBcc());
             }
 
-            message.addRecipients(Message.RecipientType.TO, header.getTo());
-            message.setSubject(header.getSubject());
-            message.setText(body);
+            messageHelper.setTo(header.getTo());
+            messageHelper.setPriority(1);
+            messageHelper.setSubject(header.getSubject());
+            messageHelper.setText(body, true);
         };
         try {
             mailSender.send(mail);

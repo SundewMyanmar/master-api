@@ -1,7 +1,6 @@
-package com.sdm.core.component;
+package com.sdm.core.exception;
 
-import com.sdm.core.model.DefaultResponse;
-import com.sdm.core.model.response.MessageModel;
+import com.sdm.core.model.response.MessageResponse;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -58,16 +57,16 @@ public class ResponseWrapper implements ResponseBodyAdvice<Object> {
             status = this.getStatus(HttpStatus.valueOf(code));
         }
 
-        if (body instanceof MessageModel) {
-            MessageModel message = (MessageModel) body;
+        if (body instanceof MessageResponse) {
+            MessageResponse message = (MessageResponse) body;
             code = message.getStatus().value();
             status = this.getStatus(message.getStatus());
             if (code == 204) {
-                serverHttpResponse.setStatusCode(HttpStatus.OK);
+                serverHttpResponse.setStatusCode(HttpStatus.NOT_ACCEPTABLE);
                 status = "WARNING";
             }
         }
 
-        return new DefaultResponse(code, status, body);
+        return body;
     }
 }
