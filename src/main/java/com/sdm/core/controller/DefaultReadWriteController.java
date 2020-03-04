@@ -16,7 +16,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
-public abstract class DefaultReadWriterController<T extends DefaultEntity, ID extends Serializable> extends DefaultReadController<T, ID> implements ReadWriterController<T, ID> {
+public abstract class DefaultReadWriteController<T extends DefaultEntity, ID extends Serializable> extends DefaultReadController<T, ID> implements ReadWriteController<T, ID> {
 
     @Override
     public ResponseEntity<T> create(@Valid T body) {

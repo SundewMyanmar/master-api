@@ -53,7 +53,7 @@ public class SystemRoute extends DefaultEntity implements PermissionMatcher {
     private String httpMethod;
 
     @NotFound(action = NotFoundAction.IGNORE)
-    @JoinTable(name = "tbl_admin_route_permissions",
+    @JoinTable(name = "tbl_admin_system_route_permissions",
             joinColumns = {@JoinColumn(name = "routeId")},
             inverseJoinColumns = {@JoinColumn(name = "roleId")})
     @ManyToMany(fetch = FetchType.EAGER)

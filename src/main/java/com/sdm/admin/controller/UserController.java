@@ -94,7 +94,7 @@ public class UserController extends DefaultReadController<User, Integer> {
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
                         "There is no any data by : " + Integer.toString(id)));
 
-        if (id != body.getId()) {
+        if (!id.equals(body.getId())) {
             throw new GeneralException(HttpStatus.CONFLICT, "Path ID and body ID aren't match.");
         }
 

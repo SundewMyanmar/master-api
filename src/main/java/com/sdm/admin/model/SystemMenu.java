@@ -86,7 +86,7 @@ public class SystemMenu extends DefaultEntity implements Serializable {
     private Set<SystemMenu> children;
 
     @NotFound(action = NotFoundAction.IGNORE)
-    @JoinTable(name = "tbl_admin_menu_permissions",
+    @JoinTable(name = "tbl_admin_system_menu_permissions",
             joinColumns = {@JoinColumn(name = "menuId")},
             inverseJoinColumns = {@JoinColumn(name = "roleId")})
     @ManyToMany(fetch = FetchType.EAGER)

@@ -17,6 +17,9 @@ public interface MenuRepository extends DefaultRepository<SystemMenu, Integer> {
     @Query("SELECT distinct r from admin.SystemMenuEntity r JOIN r.roles ro  WHERE lower(concat(r.name,r.description,r.path,r.type,ro.name)) LIKE lower(concat('%', :filter, '%'))")
     Page<SystemMenu> findAll(String filter, Pageable pageable);
 
+    @Query("SELECT distinct r from admin.SystemMenuEntity r JOIN r.roles ro  WHERE r.parentId IS NULL AND lower(concat(r.name,r.description,r.path,r.type,ro.name)) LIKE lower(concat('%', :filter, '%'))")
+    List<SystemMenu> findParentMenu(String filter);
+
     @Query("SELECT r from admin.SystemMenuEntity r JOIN r.roles ro  WHERE ro.id in :ids")
     List<SystemMenu> findByRoles(@Param("ids") Integer[] ids);
 }

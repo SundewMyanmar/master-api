@@ -2,7 +2,7 @@ package com.sdm.admin.controller;
 
 import com.sdm.admin.model.SystemRoute;
 import com.sdm.admin.repository.PermissionRepository;
-import com.sdm.core.controller.DefaultReadWriterController;
+import com.sdm.core.controller.DefaultReadWriteController;
 import com.sdm.core.db.DefaultRepository;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.ListResponse;
@@ -22,7 +22,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/admin/permissions")
-public class PermissionController extends DefaultReadWriterController<SystemRoute, Integer> {
+public class PermissionController extends DefaultReadWriteController<SystemRoute, Integer> {
     @Autowired
     private PermissionRepository permissionRepository;
 
