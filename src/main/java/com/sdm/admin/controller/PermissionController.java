@@ -44,7 +44,7 @@ public class PermissionController extends DefaultReadWriterController<SystemRout
             if (item.getId() != null && item.getId() > 0) {
                 entity = permissionRepository.findById(item.getId()).get();
             } else {
-                Optional<SystemRoute> dbEntity = permissionRepository.findByHttpMethodAndPattern(item.getHttpMethod(), item.getPattern());
+                Optional<SystemRoute> dbEntity = permissionRepository.findOneByHttpMethodAndPattern(item.getHttpMethod(), item.getPattern());
                 if (dbEntity.isPresent()) {
                     entity = dbEntity.get();
                 }

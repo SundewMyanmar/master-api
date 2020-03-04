@@ -69,7 +69,7 @@ public class UserController extends DefaultReadController<User, Integer> {
     @PostMapping
     public ResponseEntity<User> create(@Valid @RequestBody User request) {
         // Check user by user name
-        userRepository.findByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail()).ifPresent(user -> {
+        userRepository.findOneByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail()).ifPresent(user -> {
             if (user.getEmail().equalsIgnoreCase(request.getEmail())) {
                 throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! someone already registered with this email");
             } else if (user.getPhoneNumber().equalsIgnoreCase(request.getPhoneNumber())) {
@@ -78,11 +78,12 @@ public class UserController extends DefaultReadController<User, Integer> {
             }
         });
 
-        String password = securityManager.hashString(request.getPassword());
+        String rawPassword = request.getPassword();
+        String password = securityManager.hashString(rawPassword);
         request.setPassword(password);
 
         User entity = userRepository.save(request);
-        mailService.welcomeUser(entity, request.getPassword(), "Welcome!");
+        mailService.welcomeUser(entity, rawPassword, "Welcome!");
 
         return new ResponseEntity<>(entity, HttpStatus.CREATED);
     }
