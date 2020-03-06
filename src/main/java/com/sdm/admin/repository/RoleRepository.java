@@ -12,7 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface RoleRepository extends DefaultRepository<Role, Integer> {
-
     @Query(value = "SELECT r.* FROM tbl_admin_roles r INNER JOIN tbl_admin_user_roles ur ON r.id = ur.role_id" +
             " AND ur.user_id = :userId and r.name <> '" + Constants.Auth.ROOT_ROLE + "'", nativeQuery = true)
     Optional<List<Role>> findByUserId(@Param("userId") int userId);

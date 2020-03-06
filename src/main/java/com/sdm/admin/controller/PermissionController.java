@@ -1,7 +1,7 @@
 package com.sdm.admin.controller;
 
 import com.sdm.admin.model.SystemRoute;
-import com.sdm.admin.repository.PermissionRepository;
+import com.sdm.admin.repository.SystemRouteRepository;
 import com.sdm.core.controller.DefaultReadWriteController;
 import com.sdm.core.db.DefaultRepository;
 import com.sdm.core.exception.GeneralException;
@@ -24,14 +24,14 @@ import java.util.*;
 @RequestMapping("/admin/permissions")
 public class PermissionController extends DefaultReadWriteController<SystemRoute, Integer> {
     @Autowired
-    private PermissionRepository permissionRepository;
+    private SystemRouteRepository systemRouteRepository;
 
     @Autowired
     private RequestMappingHandlerMapping requestMappingHandlerMapping;
 
     @Override
     protected DefaultRepository<SystemRoute, Integer> getRepository() {
-        return permissionRepository;
+        return systemRouteRepository;
     }
 
     @Override
@@ -42,9 +42,9 @@ public class PermissionController extends DefaultReadWriteController<SystemRoute
         for (var item : request) {
             SystemRoute entity = new SystemRoute();
             if (item.getId() != null && item.getId() > 0) {
-                entity = permissionRepository.findById(item.getId()).get();
+                entity = systemRouteRepository.findById(item.getId()).get();
             } else {
-                Optional<SystemRoute> dbEntity = permissionRepository.findOneByHttpMethodAndPattern(item.getHttpMethod(), item.getPattern());
+                Optional<SystemRoute> dbEntity = systemRouteRepository.findOneByHttpMethodAndPattern(item.getHttpMethod(), item.getPattern());
                 if (dbEntity.isPresent()) {
                     entity = dbEntity.get();
                 }
@@ -55,11 +55,11 @@ public class PermissionController extends DefaultReadWriteController<SystemRoute
             if (item.getId() != null && item.getId() > 0 && !item.isChecked()) {
                 //Role just remove or delete
                 if (item.getRoles().size() <= 0)
-                    permissionRepository.softDelete(entity);
+                    systemRouteRepository.softDelete(entity);
                 else
-                    permissionRepository.save(entity);
+                    systemRouteRepository.save(entity);
             } else if (item.isChecked()) {
-                result.add(permissionRepository.save(entity));
+                result.add(systemRouteRepository.save(entity));
             }
         }
         return new ResponseEntity<>(new ListResponse<>(result), HttpStatus.CREATED);
@@ -67,7 +67,7 @@ public class PermissionController extends DefaultReadWriteController<SystemRoute
 
     @RequestMapping(value = "/{id}/role", method = RequestMethod.GET)
     public ResponseEntity<ListResponse<SystemRoute>> getByRole(@PathVariable("id") Integer role) {
-        var results = permissionRepository.findByRoleId(role)
+        var results = systemRouteRepository.findByRoleId(role)
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
                         "There is no any data by role : " + role.toString()));
 

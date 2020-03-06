@@ -63,6 +63,10 @@ com.sdm.path.upload={file_upload_directory}
 spring.mail.username={mail-server:username}
 spring.mail.password={mail-server:password}
 ```
+Run Spring Boot Application With Fork Mode for Debug [Ref:]
+```bash
+$> mvn clean spring-boot:run -Dspring-boot.run.fork=false
+```
 
 Run Spring Boot Application [Ref:]
 ```bash

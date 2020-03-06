@@ -1,7 +1,7 @@
 package com.sdm.admin.controller;
 
 import com.sdm.admin.model.SystemMenu;
-import com.sdm.admin.repository.MenuRepository;
+import com.sdm.admin.repository.SystemMenuRepository;
 import com.sdm.core.controller.DefaultReadWriteController;
 import com.sdm.core.db.DefaultRepository;
 import com.sdm.core.model.response.ListResponse;
@@ -18,22 +18,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin/menus")
 public class MenuController extends DefaultReadWriteController<SystemMenu, Integer> {
     @Autowired
-    private MenuRepository menuRepository;
+    private SystemMenuRepository systemMenuRepository;
 
     @Override
     protected DefaultRepository<SystemMenu, Integer> getRepository() {
-        return menuRepository;
+        return systemMenuRepository;
     }
 
     @GetMapping("/tree")
     public ResponseEntity<ListResponse<SystemMenu>> getSystemMenuTree(@DefaultValue("") @RequestParam("filter") String filter) {
-        var results = menuRepository.findParentMenu(filter);
+        var results = systemMenuRepository.findParentMenu(filter);
         return ResponseEntity.ok(new ListResponse<>(results));
     }
 
     @RequestMapping(value = "/roles", method = RequestMethod.GET)
     public ResponseEntity<ListResponse<SystemMenu>> getByRoles(@RequestParam("ids") Integer[] roles) {
-        var results = menuRepository.findByRoles(roles);
+        var results = systemMenuRepository.findByRoles(roles);
         return ResponseEntity.ok(new ListResponse<>(results));
     }
 }

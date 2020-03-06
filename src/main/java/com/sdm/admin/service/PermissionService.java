@@ -1,6 +1,6 @@
 package com.sdm.admin.service;
 
-import com.sdm.admin.repository.PermissionRepository;
+import com.sdm.admin.repository.SystemRouteRepository;
 import com.sdm.core.util.security.PermissionHandler;
 import com.sdm.core.util.security.PermissionMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +13,12 @@ import java.util.List;
 public class PermissionService implements PermissionHandler {
 
     @Autowired
-    private PermissionRepository permissionRepository;
+    private SystemRouteRepository systemRouteRepository;
 
     @Override
     public List<PermissionMatcher> loadPermissions() {
         List<PermissionMatcher> permissionMatchers = new ArrayList<>();
-        permissionRepository.findAll().forEach(permission -> permissionMatchers.add(permission));
+        systemRouteRepository.findAll().forEach(permission -> permissionMatchers.add(permission));
         /*
         PermissionEntity testPermission = new PermissionEntity();
         testPermission.setPattern("/roles/**");

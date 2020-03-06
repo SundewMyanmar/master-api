@@ -26,12 +26,6 @@ import java.util.Set;
 @NoArgsConstructor
 public class SystemMenu extends DefaultEntity implements Serializable {
 
-    public enum Type {
-        MODULE,
-        TOGGLE,
-        LINK
-    }
-
     /**
      *
      */
@@ -43,9 +37,9 @@ public class SystemMenu extends DefaultEntity implements Serializable {
 
     @Filterable
     @NotBlank
-    @Size(min = 1, max = 50)
-    @Column(nullable = false, length = 50)
-    private String name;
+    @Size(min = 1, max = 250)
+    @Column(nullable = false, length = 250)
+    private String label;
 
     @Filterable
     @Size(max = 500)
@@ -62,14 +56,6 @@ public class SystemMenu extends DefaultEntity implements Serializable {
     @Column(length = 100)
     private String icon;
 
-    /**
-     * Supported Types : module, toggle, link
-     */
-    @Filterable
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Type type;
-
     @Column(nullable = false)
     private int priority;
 
@@ -83,7 +69,7 @@ public class SystemMenu extends DefaultEntity implements Serializable {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "parentId")
     @OneToMany(fetch = FetchType.EAGER)
-    private Set<SystemMenu> children;
+    private Set<SystemMenu> items;
 
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinTable(name = "tbl_admin_system_menu_permissions",

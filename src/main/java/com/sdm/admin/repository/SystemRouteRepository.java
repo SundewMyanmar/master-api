@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PermissionRepository extends DefaultRepository<SystemRoute, Integer> {
+public interface SystemRouteRepository extends DefaultRepository<SystemRoute, Integer> {
     @Query("SELECT distinct p FROM admin.SystemRouteEntity p JOIN p.allowRoles r WHERE r.id = :roleId")
     Optional<List<SystemRoute>> findByRoleId(@Param("roleId") int roleId);
 
