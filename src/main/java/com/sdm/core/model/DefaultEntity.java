@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Where;
@@ -25,6 +27,7 @@ import java.util.Date;
 @EntityListeners({AuditingEntityListener.class})
 @JsonPropertyOrder(value = {"id", "created_at", "modified_at"}, alphabetic = true)
 @JsonIgnoreProperties(value = {"created_at", "modified_at"}, allowGetters = true)
+@EqualsAndHashCode
 public abstract class DefaultEntity implements Serializable {
     public abstract <T extends Serializable> T getId();
 
@@ -63,4 +66,5 @@ public abstract class DefaultEntity implements Serializable {
     @Getter
     @Setter
     private Date deletedAt;
+
 }

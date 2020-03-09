@@ -21,8 +21,8 @@ import javax.validation.Valid;
 import java.util.*;
 
 @RestController
-@RequestMapping("/admin/permissions")
-public class PermissionController extends DefaultReadWriteController<SystemRoute, Integer> {
+@RequestMapping("/admin/routes")
+public class SystemRouteController extends DefaultReadWriteController<SystemRoute, Integer> {
     @Autowired
     private SystemRouteRepository systemRouteRepository;
 
