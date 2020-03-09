@@ -48,6 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/facebook/messenger",
             "/util/**",
             "/public/**",
+            "/docs/**",
             "/auth/**",
             "/swagger-ui.html",
             "/swagger-resources/**",

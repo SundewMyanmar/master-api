@@ -70,8 +70,7 @@ public class DefaultTest {
                                 AutoDocumentation.requestParameters(),
                                 AutoDocumentation.description(),
                                 AutoDocumentation.methodAndPath(),
-                                AutoDocumentation.sectionBuilder()
-                                        .skipEmpty(true).build()
+                                AutoDocumentation.section()
                         )
                 ).build();
     }

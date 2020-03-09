@@ -4,21 +4,30 @@ This RESTful framework was developed by following:
 ### Reference Documentation
 For further reference, please consider the following sections:
 
-* [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
-* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/2.2.3.RELEASE/maven-plugin/)
-* [Spring Data JPA](https://docs.spring.io/spring-boot/docs/2.2.3.BUILD-SNAPSHOT/reference/htmlsingle/#boot-features-jpa-and-spring-data)
-* [Java Mail Sender](https://docs.spring.io/spring-boot/docs/2.2.3.BUILD-SNAPSHOT/reference/htmlsingle/#boot-features-email)
-* [Spring Security](https://docs.spring.io/spring-boot/docs/2.2.3.BUILD-SNAPSHOT/reference/htmlsingle/#boot-features-security)
-* [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/2.2.3.BUILD-SNAPSHOT/reference/htmlsingle/#production-ready)
+* [Official Gradle documentation](https://docs.gradle.org)
+* [Spring Boot Gradle Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/gradle-plugin/reference/html/)
+* [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#production-ready)
+* [Spring Web](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#boot-features-developing-web-applications)
+* [Spring Data JPA](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#boot-features-jpa-and-spring-data)
+* [Java Mail Sender](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#boot-features-email)
+* [Spring Security](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#boot-features-security)
 
 ### Guides
 The following guides illustrate how to use some features concretely:
 
+* [Building a RESTful Web Service with Spring Boot Actuator](https://spring.io/guides/gs/actuator-service/)
+* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
+* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
+* [Building REST services with Spring](https://spring.io/guides/tutorials/bookmarks/)
 * [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
 * [Securing a Web Application](https://spring.io/guides/gs/securing-web/)
 * [Spring Boot and OAuth2](https://spring.io/guides/tutorials/spring-boot-oauth2/)
 * [Authenticating a User with LDAP](https://spring.io/guides/gs/authenticating-ldap/)
-* [Building a RESTful Web Service with Spring Boot Actuator](https://spring.io/guides/gs/actuator-service/)
+
+### Additional Links
+These additional references should also help you:
+
+* [Gradle Build Scans – insights for your project's build](https://scans.gradle.com#gradle)
 
 So, you have to know about these frameworks and libraries. [Getting Started](#getting_started)
 
@@ -63,14 +72,10 @@ com.sdm.path.upload={file_upload_directory}
 spring.mail.username={mail-server:username}
 spring.mail.password={mail-server:password}
 ```
-Run Spring Boot Application With Fork Mode for Debug [Ref:]
-```bash
-$> mvn clean spring-boot:run -Dspring-boot.run.fork=false
-```
 
 Run Spring Boot Application [Ref:]
 ```bash
-$> mvn clean spring-boot:run
+> mvn clean spring-boot:run
 ```
 
 ### Generate Salt for Encryption
@@ -90,16 +95,16 @@ com.sdm.security.jwt-key={generated_jwt_key}
 ### Ready for your API system now!
 Stop and Run Spring Boot again to test
 ```bash
-$> mvn clean spring-boot:run
+> mvn clean spring-boot:run
 ```
 Ready Output log:
 ```bash
-2020-01-28 13:41:44.597  INFO 2727 --- [           main] com.sdm.Application                      : System is running...
+2020-01-28 13:41:44.597  INFO 2727 --- [main] com.sdm.Application   : System is running...
 ```
 
 ### Generate war file to upload web server!
 ```bash
-$> mvn clean package
+> mvn clean package
 ```
 ___
 

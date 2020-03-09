@@ -227,6 +227,12 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.sdm.Application</mainClass>
+                    <layout>war</layout>
+                    <!--Fixed debug problem in intellij Community-->
+                    <fork>false</fork>
+                </configuration>
             </plugin>
         </plugins>
         <resources>
