@@ -14,12 +14,12 @@ import java.util.List;
 public interface SystemMenuRepository extends DefaultRepository<SystemMenu, Integer> {
 
     @Override
-    @Query("SELECT distinct m from admin.SystemMenuEntity m JOIN m.roles ro  WHERE lower(concat(m.label,m.description,m.path,ro.name)) LIKE lower(concat('%', :filter, '%'))")
+    @Query("SELECT distinct m from admin.SystemMenuEntity m WHERE lower(concat(m.label,COALESCE(m.description, ''),COALESCE(m.path, ''))) LIKE lower(concat(:filter, '%'))")
     Page<SystemMenu> findAll(String filter, Pageable pageable);
 
-    @Query("SELECT distinct m from admin.SystemMenuEntity m JOIN m.roles ro  WHERE m.parentId IS NULL AND lower(concat(m.label,m.description,m.path,ro.name)) LIKE lower(concat('%', :filter, '%'))")
+    @Query("SELECT distinct m from admin.SystemMenuEntity m WHERE m.parentId IS NULL AND lower(concat(m.label,COALESCE(m.description, ''),COALESCE(m.path, ''))) LIKE lower(concat(:filter, '%')) ORDER BY m.priority")
     List<SystemMenu> findParentMenu(String filter);
 
-    @Query("SELECT m from admin.SystemMenuEntity m JOIN m.roles ro  WHERE ro.id in :ids")
-    List<SystemMenu> findByRoles(@Param("ids") Integer[] ids);
+    @Query("SELECT distinct m from admin.SystemMenuEntity m JOIN m.roles ro WHERE ro.id in :ids ORDER BY m.priority")
+    List<SystemMenu> findByRoles(@Param("ids") List<Integer> ids);
 }

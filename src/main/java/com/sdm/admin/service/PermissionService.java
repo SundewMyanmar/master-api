@@ -23,7 +23,7 @@ public class PermissionService implements PermissionHandler {
         PermissionEntity testPermission = new PermissionEntity();
         testPermission.setPattern("/roles/**");
         testPermission.setHttpMethod("GET");
-        testPermission.setRole(new RoleEntity("ADMIN"));
+        testPermission.setRole(new RoleEntity(Constants.Auth.AUTHORITY_PREFIX + "1"));
         List<PermissionMatcher> permissions = new ArrayList<>();
         permissions.add(testPermission);
         return permissions;*/

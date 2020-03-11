@@ -8,6 +8,7 @@ import com.sdm.auth.repository.TokenRepository;
 import com.sdm.core.exception.InvalidTokenExcpetion;
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.util.jwt.JwtAuthenticationHandler;
+import org.apache.tomcat.util.bcel.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,7 @@ public class JwtService implements JwtAuthenticationHandler {
         }
 
         try {
-            userEntity.getRoles().forEach(role -> authInfo.addAuthority(role.getName()));
+            userEntity.getRoles().forEach(role -> authInfo.addAuthority(Constants.Auth.AUTHORITY_PREFIX + role.getId()));
         } catch (Exception ex) {
             logger.warn(ex.getLocalizedMessage(), ex);
         }

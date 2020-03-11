@@ -116,6 +116,11 @@ public interface Constants {
         String DEFAULT_USER_ROLE = "BASIC_USER";
 
         /**
+         * User Authority Prefix
+         */
+        String AUTHORITY_PREFIX = "AUTHORITY_";
+
+        /**
          * Super Admin role for all permission
          */
         String ROOT_ROLE = "SUPER_USER";

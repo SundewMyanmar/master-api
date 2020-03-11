@@ -6,6 +6,7 @@
 package com.sdm.admin.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sdm.Constants;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Filterable;
 import com.sdm.core.util.security.PermissionMatcher;
@@ -92,6 +93,6 @@ public class SystemRoute extends DefaultEntity implements PermissionMatcher {
         if (this.allowRoles == null) {
             return new HashSet<>();
         }
-        return allowRoles.stream().map((role -> role.getName())).collect(Collectors.toSet());
+        return allowRoles.stream().map((role -> Constants.Auth.AUTHORITY_PREFIX + role.getId())).collect(Collectors.toSet());
     }
 }
