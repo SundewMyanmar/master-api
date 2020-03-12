@@ -67,7 +67,7 @@ public class SystemMenu extends DefaultEntity implements Serializable {
 
     @NotAudited
     @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "parentId")
+    @JoinColumn(name = "parentId", updatable = false)
     @OneToMany(fetch = FetchType.EAGER)
     @OrderBy("priority")
     private Set<SystemMenu> items;
