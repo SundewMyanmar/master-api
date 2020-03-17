@@ -1,26 +1,21 @@
 package com.sdm.auth;
 
 import com.github.javafaker.Faker;
-import com.github.javafaker.service.FakeValuesService;
-import com.github.javafaker.service.RandomService;
-import com.sdm.auth.controller.AuthController;
 import com.sdm.auth.model.request.AnonymousRequest;
 import com.sdm.auth.model.request.AuthRequest;
 import com.sdm.core.DefaultTest;
-import com.sdm.core.util.Globalizer;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 public class AuthControllerTest extends DefaultTest {
     private final Faker faker;
 
-    public AuthControllerTest(){
+    public AuthControllerTest() {
         faker = new Faker();
     }
 
@@ -45,7 +40,7 @@ public class AuthControllerTest extends DefaultTest {
                 .content(objectMapper.writeValueAsString(register)))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isCreated());
-}
+    }
 
     @Test
     public void authWithEmail() throws Exception {

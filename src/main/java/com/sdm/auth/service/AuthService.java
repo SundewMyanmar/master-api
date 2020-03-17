@@ -158,7 +158,7 @@ public class AuthService {
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
                         "Your OTP is invalid. Pls try to contact admin team."));
 
-        if (user.getOtpExpired().before(new Date()) || !user.getOtpToken().equals(activateRequest.getToken())) {    
+        if (user.getOtpExpired().before(new Date()) || !user.getOtpToken().equals(activateRequest.getToken())) {
             user.setOtpToken(null);
             user.setOtpExpired(null);
             userRepository.save(user);
@@ -263,7 +263,7 @@ public class AuthService {
         String rawPassword = Globalizer.generateToken(passwordChars, size);
         String password = securityManager.hashString(rawPassword);
 
-        if(profileObj.has("email")){
+        if (profileObj.has("email")) {
             profileObj.get("email").getAsString();
         }
 

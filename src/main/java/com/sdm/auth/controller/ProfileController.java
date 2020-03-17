@@ -53,7 +53,7 @@ public class ProfileController {
 
         return ResponseEntity.ok(existUser);
     }
-    
+
     @PostMapping("/changePassword")
     public ResponseEntity<User> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         String oldPassword = securityManager.hashString(request.getOldPassword());

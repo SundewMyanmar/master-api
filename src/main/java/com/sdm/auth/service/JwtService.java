@@ -8,7 +8,6 @@ import com.sdm.auth.repository.TokenRepository;
 import com.sdm.core.exception.InvalidTokenExcpetion;
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.util.jwt.JwtAuthenticationHandler;
-import org.apache.tomcat.util.bcel.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,10 +57,7 @@ public class JwtService implements JwtAuthenticationHandler {
             logger.warn(ex.getLocalizedMessage(), ex);
         }
 
-        authToken.setLastLogin(new Date());
         logger.info(authToken.getUser().getDisplayName() + " login by " + authToken.getId());
-        tokenRepository.save(authToken);
-
         return true;
     }
 }

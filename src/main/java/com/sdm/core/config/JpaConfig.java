@@ -1,5 +1,6 @@
 package com.sdm.core.config;
 
+import com.sdm.Constants;
 import com.sdm.core.model.AuthInfo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +36,7 @@ public class JpaConfig {
                 AuthInfo authInfo = (AuthInfo) authentication.getPrincipal();
                 return Optional.of(authInfo.getToken());
             }
-            return Optional.of("system-default-generated-auth-token!");
+            return Optional.of(Constants.Auth.DEFAULT_AUTH_TOKEN);
         };
     }
 }

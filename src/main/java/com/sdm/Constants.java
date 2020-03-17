@@ -123,6 +123,11 @@ public interface Constants {
         /**
          * Super Admin role for all permission
          */
-        String ROOT_ROLE = "SUPER_USER";
+        String ROOT_ROLE = "ROOT_USER";
+
+        /**
+         * System default generated auth token
+         */
+        String DEFAULT_AUTH_TOKEN = "system-default-generated-auth-token!";
     }
 }

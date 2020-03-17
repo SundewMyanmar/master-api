@@ -1,5 +1,6 @@
 package com.sdm.admin.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Filterable;
 import lombok.AllArgsConstructor;
@@ -72,6 +73,7 @@ public class SystemMenu extends DefaultEntity implements Serializable {
     @OrderBy("priority")
     private Set<SystemMenu> items;
 
+    @NotAudited
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinTable(name = "tbl_admin_system_menu_permissions",
             joinColumns = {@JoinColumn(name = "menuId")},

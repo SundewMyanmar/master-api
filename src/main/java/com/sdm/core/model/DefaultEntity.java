@@ -3,28 +3,22 @@ package com.sdm.core.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
-import lombok.Data;
+import com.sdm.core.db.DataLogging;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Column;
-import javax.persistence.EntityListeners;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
 @MappedSuperclass
-@EntityListeners({AuditingEntityListener.class})
+@EntityListeners({DataLogging.class, AuditingEntityListener.class})
 @JsonPropertyOrder(value = {"id", "created_at", "modified_at"}, alphabetic = true)
 @JsonIgnoreProperties(value = {"created_at", "modified_at"}, allowGetters = true)
 @EqualsAndHashCode
@@ -58,7 +52,6 @@ public abstract class DefaultEntity implements Serializable {
     @Getter
     @Setter
     private Date modifiedAt;
-
 
     @JsonIgnore
     @Temporal(TemporalType.TIMESTAMP)

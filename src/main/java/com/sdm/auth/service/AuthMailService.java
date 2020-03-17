@@ -13,13 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
@@ -96,7 +93,7 @@ public class AuthMailService {
     public void activateLink(User user, String callbackUrl) throws JsonProcessingException {
         ActivateRequest request = buildRequest(user);
         String token = securityManager.base64Encode(jacksonObjectMapper.writeValueAsString(request));
-        
+
         String link = callbackUrl + "?token=" + token;
         // Send mail with activation link
         this.sendOtpMail(user, "mail/auth-activate.vm",

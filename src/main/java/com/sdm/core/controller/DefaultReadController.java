@@ -19,13 +19,12 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
+import javax.transaction.Transactional;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
-import javax.transaction.Transactional;
 
 public abstract class DefaultReadController<T extends DefaultEntity, ID extends Serializable> implements ReadController<T, ID> {
 

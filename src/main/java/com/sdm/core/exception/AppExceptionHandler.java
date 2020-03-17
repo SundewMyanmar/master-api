@@ -95,7 +95,7 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
-        return this.generalMessage(ex, HttpStatus.NOT_FOUND,  "Can't find any resource for your request.");
+        return this.generalMessage(ex, HttpStatus.NOT_FOUND, "Can't find any resource for your request.");
     }
 
     @Override

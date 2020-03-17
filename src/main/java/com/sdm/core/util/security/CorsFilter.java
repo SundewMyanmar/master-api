@@ -1,6 +1,5 @@
 package com.sdm.core.util.security;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;

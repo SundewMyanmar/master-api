@@ -1,5 +1,6 @@
 package com.sdm.core.db;
 
+import com.sdm.Constants;
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.model.SundewAuditEntity;
 import org.hibernate.envers.RevisionListener;
@@ -25,7 +26,7 @@ public class HibernateAuditListener implements RevisionListener {
                 auditEntity.setUserId(authInfo.getUserId());
             } else {
                 auditEntity.setUserId(0);
-                auditEntity.setToken("sys-generated-token-for-without-auth");
+                auditEntity.setToken(Constants.Auth.DEFAULT_AUTH_TOKEN);
             }
         } catch (Exception ex) {
             logger.error(ex.getLocalizedMessage(), ex.getCause());

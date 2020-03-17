@@ -10,7 +10,6 @@ import com.sdm.core.model.annotation.Filterable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 

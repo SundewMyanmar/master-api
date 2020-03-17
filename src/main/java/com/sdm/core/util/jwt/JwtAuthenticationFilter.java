@@ -25,9 +25,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Optional<String> authorization = Optional.ofNullable(httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION));
         Optional<String> userAgent = Optional.ofNullable(httpServletRequest.getHeader(HttpHeaders.USER_AGENT));
         String tokenString;
-        if(authorization.isPresent()){
+        if (authorization.isPresent()) {
             tokenString = authorization.get().substring(Constants.Auth.TYPE.length()).strip();
-        }else{
+        } else {
             tokenString = httpServletRequest.getParameter(Constants.Auth.PARAM_NAME);
         }
 

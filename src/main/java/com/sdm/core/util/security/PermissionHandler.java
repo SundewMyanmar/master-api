@@ -1,7 +1,9 @@
 package com.sdm.core.util.security;
 
-import java.util.List;
+import org.springframework.security.core.Authentication;
+
+import javax.servlet.http.HttpServletRequest;
 
 public interface PermissionHandler {
-    List<PermissionMatcher> loadPermissions();
+    boolean check(Authentication authentication, HttpServletRequest request);
 }

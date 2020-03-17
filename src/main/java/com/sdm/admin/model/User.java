@@ -14,6 +14,7 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -66,6 +67,7 @@ public class User extends DefaultEntity implements Serializable {
     @Column(length = 500, nullable = false)
     private String password;
 
+    @NotAudited
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinTable(name = "tbl_admin_user_roles",
             joinColumns = {@JoinColumn(name = "userId")},

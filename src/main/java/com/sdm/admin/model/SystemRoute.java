@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sdm.Constants;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Filterable;
-import com.sdm.core.util.security.PermissionMatcher;
+import com.sdm.file.model.File;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,9 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -34,7 +36,7 @@ import java.util.stream.Collectors;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SystemRoute extends DefaultEntity implements PermissionMatcher {
+public class SystemRoute extends DefaultEntity implements Comparable<SystemRoute>{
 
     /**
      *
@@ -50,9 +52,14 @@ public class SystemRoute extends DefaultEntity implements PermissionMatcher {
     private String pattern;
 
     @Filterable
-    @Column
+    @Column(nullable =  false)
+    private String module;
+
+    @Filterable
+    @Column(nullable =  false)
     private String httpMethod;
 
+    @NotAudited
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinTable(name = "tbl_admin_system_route_permissions",
             joinColumns = {@JoinColumn(name = "routeId")},
@@ -60,39 +67,42 @@ public class SystemRoute extends DefaultEntity implements PermissionMatcher {
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> allowRoles;
 
-    @Transient
-    private boolean checked;
-
-    public SystemRoute(String pattern) {
-        this.pattern = pattern;
-    }
-
     @Override
     public Integer getId() {
         return id;
     }
 
-    @Override
-    public String getPattern() {
-        return this.pattern;
+    @JsonIgnore
+    public String getSqlPattern(){
+        return this.pattern.replaceAll("\\{.*}", "%");
     }
 
-    @JsonIgnore
-    @Override
-    public HttpMethod getMethod() {
-        if (this.httpMethod == null) {
-            return null;
+    public void addRole(Role role){
+        if(this.allowRoles == null){
+            this.allowRoles = new HashSet<>();
         }
 
-        return HttpMethod.valueOf(this.httpMethod);
+        this.allowRoles.add(role);
     }
 
-    @JsonIgnore
+    public boolean checkPermission(GrantedAuthority authority){
+        return this.allowRoles.stream().anyMatch(r -> (Constants.Auth.AUTHORITY_PREFIX + r.getId()).equals(authority.getAuthority()));
+    }
+
+
+    /**
+     * Need to sort for Route Permission
+     * @return
+     */
+    public Long getPercentCount(){
+        return getSqlPattern().chars().filter(c -> c == '%').count();
+    }
+
     @Override
-    public Set<String> getRoles() {
-        if (this.allowRoles == null) {
-            return new HashSet<>();
+    public int compareTo(SystemRoute o) {
+        if(getSqlPattern() == null || o.getSqlPattern() == null){
+            return 0;
         }
-        return allowRoles.stream().map((role -> Constants.Auth.AUTHORITY_PREFIX + role.getId())).collect(Collectors.toSet());
+        return getPercentCount().compareTo(o.getPercentCount());
     }
 }

@@ -15,9 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/admin/users")
@@ -42,7 +41,7 @@ public class UserController extends DefaultReadController<User, Integer> {
 
     @PutMapping("/resetPassword/{userId}")
     public ResponseEntity<User> resetPassword(@PathVariable("userId") int userId,
-            @Valid @RequestBody ChangePasswordRequest request) {
+                                              @Valid @RequestBody ChangePasswordRequest request) {
         User adminUser = this.checkData(getCurrentUser().getUserId());
         String adminPassword = securityManager.hashString(request.getOldPassword());
         if (!adminUser.getPassword().equals(adminPassword)) {
@@ -106,7 +105,7 @@ public class UserController extends DefaultReadController<User, Integer> {
         User entity = getRepository().save(body);
         return ResponseEntity.ok(entity);
     }
-    
+
     @DeleteMapping
     public ResponseEntity<MessageResponse> remove(Integer id) {
         User existEntity = this.checkData(id);

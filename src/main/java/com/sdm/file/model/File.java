@@ -13,7 +13,6 @@ import com.sdm.core.util.FileManager;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 import org.springframework.util.StringUtils;
@@ -102,16 +101,16 @@ public class File extends DefaultEntity implements Serializable {
         Map<String, String> urls = new HashMap<>();
         if (this.publicAccess) {
             urls.put("public", ServletUriComponentsBuilder.fromCurrentContextPath()
-                                .path("/public/files/")
-                                .path(this.id + "/")
-                                .path(this.name + "." + this.extension)
-                                .toUriString());
+                    .path("/public/files/")
+                    .path(this.id + "/")
+                    .path(this.name + "." + this.extension)
+                    .toUriString());
         } else {
             urls.put("private", ServletUriComponentsBuilder.fromCurrentContextPath()
-                                    .path("/files/download/")
-                                    .path(this.id + "/")
-                                    .path(this.name + "." + this.extension)
-                                    .toUriString());
+                    .path("/files/download/")
+                    .path(this.id + "/")
+                    .path(this.name + "." + this.extension)
+                    .toUriString());
         }
 
         if (!StringUtils.isEmpty(this.externalUrl)) {

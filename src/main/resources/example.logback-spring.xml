@@ -4,6 +4,7 @@
 
     <property name="logPath" value="/var/www/master-api/log/"/>
     <property name="logFile" value="master-api.log"/>
+    <property name="dataLogFile" value="data-audit.log"/>
 
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
@@ -28,7 +29,21 @@
         </rollingPolicy>
     </appender>
 
-    <root level="warn" additivity="false">
+    <appender name="DataLogging" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logPath}/${dataLogFile}</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d [%-8marker] %m%n</Pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logPath}/archived/${dataLogFile}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>20MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <root level="WARN" additivity="false">
         <appender-ref ref="RollingFile"/>
         <appender-ref ref="Console"/>
     </root>
@@ -42,6 +57,11 @@
     <logger name="com.sdm" level="info" additivity="false">
         <appender-ref ref="RollingFile"/>
         <appender-ref ref="Console"/>
+    </logger>
+
+    <!-- Data Logging -->
+    <logger name="com.sdm.core.db.DataLogging" level="info" additivity="false">
+        <appender-ref ref="DataLogging"/>
     </logger>
 
 </configuration>
