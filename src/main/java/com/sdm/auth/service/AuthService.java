@@ -2,6 +2,7 @@ package com.sdm.auth.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.JsonObject;
+import com.sdm.Constants;
 import com.sdm.admin.model.User;
 import com.sdm.admin.repository.UserRepository;
 import com.sdm.auth.model.Token;
@@ -15,6 +16,7 @@ import com.sdm.core.util.security.SecurityManager;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jdk.jfr.Frequency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpSession;
 import java.util.*;
 
 @Service
@@ -46,10 +49,23 @@ public class AuthService {
     @Autowired
     private AuthMailService mailService;
 
+    @Autowired
+    private HttpSession session;
+
     private static final String FB_AUTH_FIELDS = "id,name,picture{url},phone,email";
 
     private static final int MAX_PASSWORD = 32;
     private static final int MIN_PASSWORD = 16;
+
+    private int increaseFailedCount(){
+        Integer count = (Integer) session.getAttribute(Constants.SESSION.AUTH_FAILED_COUNT);
+        if(count == null){
+            count = 0;
+        }
+        count++;
+        session.setAttribute(Constants.SESSION.AUTH_FAILED_COUNT, count);
+        return count;
+    }
 
     private void setAnonymousExtras(AnonymousRequest request, User user) {
         if (!StringUtils.isEmpty(request.getBrand())) {
@@ -191,10 +207,14 @@ public class AuthService {
 
     @Transactional
     public ResponseEntity<User> authByPassword(AuthRequest request, String userAgent) {
+
         String password = securityManager.hashString(request.getPassword());
         User authUser = userRepository.authByPassword(request.getUser(), password)
-                .orElseThrow(() -> new GeneralException(
-                        HttpStatus.UNAUTHORIZED, "Opp! request email or password is something wrong"));
+                .orElseThrow(() -> {
+                    increaseFailedCount();
+                    return new GeneralException(HttpStatus.UNAUTHORIZED,
+                            "Opp! request email or password is something wrong");
+                });
 
         this.createToken(authUser, request, userAgent);
 

@@ -130,4 +130,11 @@ public interface Constants {
          */
         String DEFAULT_AUTH_TOKEN = "system-default-generated-auth-token!";
     }
+
+    interface SESSION {
+        /**
+         * Count Auth failed
+         */
+        String AUTH_FAILED_COUNT = "AUTH_FAILED_COUNT_SESSION";
+    }
 }

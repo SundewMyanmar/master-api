@@ -34,4 +34,6 @@ public class SecurityProperties {
     private String jwtKey = "";
 
     private boolean requireConfirm = false;
+
+    private int authFailedCount = 3;
 }

@@ -1,5 +1,7 @@
 package com.sdm.core.util.security;
 
+import com.sdm.core.config.properties.CORSProperties;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -15,23 +17,20 @@ import java.io.IOException;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class CorsFilter extends OncePerRequestFilter {
 
-    private String allowedOrigins = "*";
+    private CORSProperties properties;
 
-    private String allowedMethods = "GET, PUT, POST, DELETE, OPTIONS, HEAD";
-
-    private String allowedHeaders = "authorization, content-type, xsrf-token,accept";
-
-    private String exposedHeaders = "xsrf-token";
-
-    private long maxAge = 36000;
+    public CorsFilter(CORSProperties properties) {
+        this.properties = properties;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        response.setHeader("Access-Control-Allow-Origin", this.allowedOrigins);
-        response.setHeader("Access-Control-Allow-Methods", this.allowedMethods);
-        response.setHeader("Access-Control-Max-Age", String.valueOf(this.maxAge));
-        response.setHeader("Access-Control-Allow-Headers", this.allowedHeaders);
-        response.addHeader("Access-Control-Expose-Headers", this.exposedHeaders);
+        response.setHeader("Access-Control-Allow-Origin", properties.getAllowedOrigins());
+        response.setHeader("Access-Control-Allow-Methods", properties.getAllowedMethods());
+        response.setHeader("Access-Control-Max-Age", String.valueOf(properties.getMaxAge()));
+        response.setHeader("Access-Control-Allow-Headers", properties.getAllowedHeaders());
+        response.addHeader("Access-Control-Expose-Headers", properties.getExposedHeaders());
+        response.addHeader("Access-Control-Allow-Credentials", String.valueOf(properties.getAllowedCredentials()));
         if ("OPTIONS".equals(request.getMethod())) {
             response.setStatus(HttpServletResponse.SC_OK);
         } else {
