@@ -1,6 +1,5 @@
 package com.sdm.admin.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Filterable;
 import lombok.AllArgsConstructor;

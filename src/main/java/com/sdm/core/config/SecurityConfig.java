@@ -1,7 +1,6 @@
 package com.sdm.core.config;
 
 import com.sdm.Constants;
-import com.sdm.admin.service.PermissionService;
 import com.sdm.core.util.jwt.JwtAuthenticationFilter;
 import com.sdm.core.util.jwt.JwtAuthenticationProvider;
 import com.sdm.core.util.jwt.JwtUnauthorizeHandler;
@@ -9,15 +8,11 @@ import com.sdm.core.util.security.PermissionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.PermissionEvaluator;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration

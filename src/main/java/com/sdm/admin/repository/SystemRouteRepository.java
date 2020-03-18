@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +19,9 @@ public interface SystemRouteRepository extends DefaultRepository<SystemRoute, In
     Optional<List<SystemRoute>> findByRoleId(@Param("roleId") int roleId);
 
     @Query("SELECT p FROM admin.SystemRouteEntity p WHERE lower(p.httpMethod) = lower(:httpMethod) AND :pattern like p.pattern")
-    Optional<List<SystemRoute>> findByHttpMethodAndPattern(@Param("httpMethod") String method, @Param("pattern") String pattern);
+    Optional<List<SystemRoute>> checkPermissionRequest(@Param("httpMethod") String method, @Param("pattern") String pattern);
+
+    Optional<SystemRoute> findOneByHttpMethodAndPattern(String method, String pattern);
 
     @Modifying
     @Query(value = "DELETE FROM tbl_admin_system_route_permissions p WHERE p.role_id = :roleId", nativeQuery = true)

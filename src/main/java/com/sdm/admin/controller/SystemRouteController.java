@@ -5,7 +5,6 @@ import com.sdm.admin.model.SystemRoute;
 import com.sdm.admin.repository.RoleRepository;
 import com.sdm.admin.repository.SystemRouteRepository;
 import com.sdm.core.controller.DefaultReadController;
-import com.sdm.core.controller.DefaultReadWriteController;
 import com.sdm.core.db.DefaultRepository;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.ListResponse;
@@ -19,7 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.function.Consumer;
 
 @RestController
 @RequestMapping("/admin/routes")
@@ -53,18 +52,24 @@ public class SystemRouteController extends DefaultReadController<SystemRoute, In
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
                 "There is no any data by role : " + roleId.toString()));
         List<SystemRoute> savedRoutes = new ArrayList<>();
-
         systemRouteRepository.clearPermissionByRoleId(roleId);
 
-        request.forEach(route -> {
-            List<SystemRoute> dbRoutes = systemRouteRepository.findByHttpMethodAndPattern(route.getHttpMethod(), route.getPattern())
-                    .orElse(new ArrayList<>());
-            for (SystemRoute entityRoute : dbRoutes) {
-                entityRoute.addRole(role);
-                entityRoute = systemRouteRepository.save(entityRoute);
-                savedRoutes.add(entityRoute);
-            }
-        });
+        Consumer<SystemRoute> addRole = (entityRoute) -> {
+            entityRoute.setPattern(entityRoute.getSqlPattern());
+            entityRoute.addRole(role);
+            entityRoute = systemRouteRepository.save(entityRoute);
+            savedRoutes.add(entityRoute);
+        };
+
+        for (SystemRoute route : request) {
+            systemRouteRepository.findById(route.getId())
+                    .ifPresentOrElse(addRole, () -> {
+                        SystemRoute dbRoute = systemRouteRepository
+                                .findOneByHttpMethodAndPattern(route.getHttpMethod(), route.getSqlPattern())
+                                .orElse(route);
+                        addRole.accept(dbRoute);
+                    });
+        }
 
         return new ResponseEntity<>(new ListResponse<>(savedRoutes), HttpStatus.CREATED);
     }
