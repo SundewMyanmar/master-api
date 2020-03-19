@@ -47,15 +47,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ClientService clientService;
 
     /**
-     * Set Secrurity Context
-     * @param request
-     * @param auth
+     * Prevent Bruteforce attack
+     * @return
      */
-    private void storeAuthInfo (HttpServletRequest request, AuthInfo auth) {
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                auth, auth.getDeviceId(), auth.getAuthorities());
-        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authToken);
+    private int increaseFailedCount(HttpSession session){
+        Integer count = (Integer) session.getAttribute(Constants.SESSION.JWT_FAILED_COUNT);
+        if(count == null){
+            count = 0;
+        }
+        count++;
+        session.setAttribute(Constants.SESSION.JWT_FAILED_COUNT, count);
+        return count;
     }
 
     /**
@@ -92,32 +94,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    /**
-     * Check Requested Authorization Header or AccessToken
-     * @param request
-     */
-    private void checkAuthToken(HttpServletRequest request){
-        String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-        String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
-
-        if (StringUtils.isEmpty(authorization)) {
-            authorization = request.getParameter(Constants.Auth.PARAM_NAME);
-        }else if(authorization.length() > Constants.Auth.TYPE.length()){
-            authorization = authorization.substring(Constants.Auth.TYPE.length()).strip();
-        }
-
-        if (!StringUtils.isEmpty(authorization) && !StringUtils.isEmpty(userAgent)) {
-            AuthInfo requestAuth = this.getAuth(authorization, userAgent);
-            boolean isAllow = jwtAuthHandler.authByJwt(requestAuth, null);
-            if (isAllow) {
-                storeAuthInfo(request, requestAuth);
-            } else {
-                SecurityContextHolder.clearContext();
-                throw new InvalidTokenExcpetion("Sorry! your authorization token hasn't permission to the resource.");
-            }
-        }
-    }
-
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         if(httpServletRequest.getMethod().equalsIgnoreCase("options")){
@@ -132,9 +108,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        this.checkAuthToken(httpServletRequest);
+        String authorization = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+        String userAgent = httpServletRequest.getHeader(HttpHeaders.USER_AGENT);
+
+        if (StringUtils.isEmpty(authorization)) {
+            authorization = httpServletRequest.getParameter(Constants.Auth.PARAM_NAME);
+        }else if(authorization.length() > Constants.Auth.TYPE.length()){
+            authorization = authorization.substring(Constants.Auth.TYPE.length()).strip();
+        }
+
+        //Check Request with Authorization?
+        if (!StringUtils.isEmpty(authorization) && !StringUtils.isEmpty(userAgent)) {
+            try {
+                AuthInfo requestAuth = this.getAuth(authorization, userAgent);
+                boolean isAllow = jwtAuthHandler.authByJwt(requestAuth, null);
+                if (isAllow) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            requestAuth, requestAuth.getDeviceId(), requestAuth.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    SecurityContextHolder.clearContext();
+                    throw new InvalidTokenExcpetion("Failed authorize by DB.");
+                }
+            }catch(InvalidTokenExcpetion ex){
+                increaseFailedCount(httpServletRequest.getSession());
+                httpServletResponse.sendError(HttpStatus.UNAUTHORIZED.value(), "Sorry! your authorization token hasn't permission to the resource.");
+                return;
+            }
+        }
+
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
-
-
 }

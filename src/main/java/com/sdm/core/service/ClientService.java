@@ -17,6 +17,8 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
 
@@ -35,12 +37,20 @@ public class ClientService {
         logger.info(marker, "{} => {}", remoteAddress, url);
     }
 
+    private String readBody(BufferedReader buffIn) throws IOException {
+        StringBuilder everything = new StringBuilder();
+        String line;
+        while( (line = buffIn.readLine()) != null) {
+            everything.append(line);
+        }
+        return everything.toString();
+    }
+
     @Transactional
     public boolean isBlocked(HttpServletRequest request){
         String type = request.getMethod();
         String url = request.getRequestURI();
         String remoteAddress = Globalizer.getRemoteAddress(request);
-
         writeLog(type, remoteAddress, url);
 
         Date now = new Date();
@@ -50,21 +60,30 @@ public class ClientService {
         client.setLastRequestAt(now);
         boolean blocked = client.getBlockedExpiry() != null && client.getBlockedExpiry().after(now);
 
-        //Checked Failed Count
-        int failedCount = 0;
+
         HttpSession session = request.getSession(false);
+
+        //Check Auth failed Count
+        int authCount = 0;
         if(session != null && session.getAttribute(Constants.SESSION.AUTH_FAILED_COUNT) != null){
-            failedCount = (int) session.getAttribute(Constants.SESSION.AUTH_FAILED_COUNT);
+            authCount = (int) session.getAttribute(Constants.SESSION.AUTH_FAILED_COUNT);
         }
 
-        if(failedCount >= securityProperties.getAuthFailedCount()){
+        //Check JWT failed count
+        int jwtCount = 0;
+        if(session != null && session.getAttribute(Constants.SESSION.JWT_FAILED_COUNT) != null){
+            jwtCount = (int) session.getAttribute(Constants.SESSION.JWT_FAILED_COUNT);
+        }
+
+        //Blocked Client if Failed count reached limit.
+        if(authCount >= securityProperties.getAuthFailedCount() || jwtCount >= securityProperties.getAuthFailedCount()){
             Date blockedDate = Globalizer.addDate(new Date(), securityProperties.getBlockedTime());
             client.setBlockedExpiry(blockedDate);
             blocked = true;
         }
 
         //Unblock Client
-        if(!blocked && failedCount < securityProperties.getAuthFailedCount()){
+        if(!blocked && authCount < securityProperties.getAuthFailedCount() && jwtCount < securityProperties.getAuthFailedCount()){
             client.setBlockedExpiry(null);
         }
 
