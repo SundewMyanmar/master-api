@@ -10,6 +10,7 @@ import com.sdm.auth.model.request.*;
 import com.sdm.auth.repository.TokenRepository;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
+import com.sdm.core.service.ClientService;
 import com.sdm.core.util.FBGraphManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.security.SecurityManager;
@@ -20,6 +21,7 @@ import jdk.jfr.Frequency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.*;
 
@@ -52,6 +55,9 @@ public class AuthService {
     @Autowired
     private HttpSession session;
 
+    @Autowired
+    private HttpServletRequest request;
+
     private static final String FB_AUTH_FIELDS = "id,name,picture{url},phone,email";
 
     private static final int MAX_PASSWORD = 32;
@@ -65,6 +71,14 @@ public class AuthService {
         count++;
         session.setAttribute(Constants.SESSION.AUTH_FAILED_COUNT, count);
         return count;
+    }
+
+    private String getUserAgent() {
+        String agent = request.getHeader(HttpHeaders.USER_AGENT);
+        if(StringUtils.isEmpty(agent)){
+            throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
+        }
+        return agent;
     }
 
     private void setAnonymousExtras(AnonymousRequest request, User user) {
@@ -82,11 +96,7 @@ public class AuthService {
     }
 
     private Date getTokenExpired() {
-        long days = securityManager.getProperties().getAuthTokenLife().toDays();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date());
-        cal.add(Calendar.DAY_OF_YEAR, Integer.parseInt(String.valueOf(days)));
-        return cal.getTime();
+        return Globalizer.addDate(new Date(), securityManager.getProperties().getAuthTokenLife());
     }
 
     private User createAnonymousUser(AnonymousRequest request) {
@@ -120,7 +130,7 @@ public class AuthService {
                 .signWith(SignatureAlgorithm.HS512, securityManager.getProperties().getJwtKey()).compact();
     }
 
-    private void createToken(User user, TokenInfo tokenInfo, String userAgent) {
+    private void createToken(User user, TokenInfo tokenInfo) {
         Token token = tokenRepository.findOneByDeviceId(tokenInfo.getDeviceId())
                 .orElseGet(() -> {
                     Token newToken = new Token();
@@ -136,7 +146,7 @@ public class AuthService {
         }
 
         // Generate and store JWT
-        String tokenString = this.generateJWT(token, userAgent);
+        String tokenString = this.generateJWT(token, getUserAgent());
         user.setCurrentToken(tokenString);
     }
 
@@ -206,7 +216,7 @@ public class AuthService {
     }
 
     @Transactional
-    public ResponseEntity<User> authByPassword(AuthRequest request, String userAgent) {
+    public ResponseEntity<User> authByPassword(AuthRequest request) {
 
         String password = securityManager.hashString(request.getPassword());
         User authUser = userRepository.authByPassword(request.getUser(), password)
@@ -216,13 +226,13 @@ public class AuthService {
                             "Opp! request email or password is something wrong");
                 });
 
-        this.createToken(authUser, request, userAgent);
+        this.createToken(authUser, request);
 
         return ResponseEntity.ok(authUser);
     }
 
     @Transactional
-    public ResponseEntity<User> registerByUserAndEmail(RegistrationRequest request, String userAgent) {
+    public ResponseEntity<User> registerByUserAndEmail(RegistrationRequest request) {
         //Check user by user name
         userRepository.findOneByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail())
                 .ifPresent(user -> {
@@ -246,7 +256,7 @@ public class AuthService {
                 logger.warn(ex.getLocalizedMessage());
             }
         } else {
-            this.createToken(newUser, request, userAgent);
+            this.createToken(newUser, request);
         }
 
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
@@ -254,7 +264,7 @@ public class AuthService {
 
 
     @Transactional
-    public ResponseEntity<User> anonymousAuth(AnonymousRequest request, String userAgent) {
+    public ResponseEntity<User> anonymousAuth(AnonymousRequest request) {
         //Check Device Registration
         User authUser = tokenRepository.findOneByDeviceId(request.getDeviceId())
                 .map(Token::getUser).orElseGet(() -> this.createAnonymousUser(request));
@@ -263,7 +273,7 @@ public class AuthService {
         setAnonymousExtras(request, authUser);
         userRepository.save(authUser);
 
-        this.createToken(authUser, request, userAgent);
+        this.createToken(authUser, request);
 
         return ResponseEntity.ok(authUser);
     }
@@ -307,8 +317,8 @@ public class AuthService {
     }
 
     @Transactional
-    public ResponseEntity<User> facebookAuth(FacebookAuthRequest request, String userAgent) {
-        JsonObject facebookProfile = facebookGraphManager.checkFacebookToken(request.getAccessToken(), FB_AUTH_FIELDS, userAgent);
+    public ResponseEntity<User> facebookAuth(FacebookAuthRequest request) {
+        JsonObject facebookProfile = facebookGraphManager.checkFacebookToken(request.getAccessToken(), FB_AUTH_FIELDS, getUserAgent());
         String id = facebookProfile.get("id").getAsString();
 
         //Check User by FacebookId
@@ -316,7 +326,7 @@ public class AuthService {
                 .orElseGet(() -> this.createFacebookUser(facebookProfile));
 
         if (authUser.getFacebookId().equalsIgnoreCase(facebookProfile.get("id").getAsString())) {
-            this.createToken(authUser, request, userAgent);
+            this.createToken(authUser, request);
         } else {
             throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
         }

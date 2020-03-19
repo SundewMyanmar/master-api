@@ -1,4 +1,4 @@
-package com.sdm.core.db;
+package com.sdm.core.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

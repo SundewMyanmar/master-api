@@ -2,6 +2,7 @@ package com.sdm.core.db;
 
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Filterable;
+import com.sdm.core.repository.DefaultRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;

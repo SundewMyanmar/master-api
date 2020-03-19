@@ -36,4 +36,7 @@ public class SecurityProperties {
     private boolean requireConfirm = false;
 
     private int authFailedCount = 3;
+
+    @DurationUnit(ChronoUnit.MINUTES)
+    private Duration blockedTime = Duration.ofMinutes(30);
 }

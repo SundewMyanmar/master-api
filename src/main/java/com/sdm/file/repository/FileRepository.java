@@ -1,6 +1,6 @@
 package com.sdm.file.repository;
 
-import com.sdm.core.db.DefaultRepository;
+import com.sdm.core.repository.DefaultRepository;
 import com.sdm.file.model.File;
 import org.springframework.stereotype.Repository;
 

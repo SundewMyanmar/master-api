@@ -52,16 +52,11 @@ public class AuthMailService {
     private ActivateRequest buildRequest(User user) {
         // setToken
         String otpToken = Globalizer.generateToken(securityManager.getProperties().getTokenChars(), OTP_LENGTH);
-
-        long minutes = securityManager.getProperties().getOtpLife().toMinutes();
-
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date());
-        cal.add(Calendar.MINUTE, Integer.parseInt(String.valueOf(minutes)));
+        Date expiredDate = Globalizer.addDate(new Date(), securityManager.getProperties().getOtpLife());
 
         // Set Otp Info in User
         user.setOtpToken(otpToken);
-        user.setOtpExpired(cal.getTime());
+        user.setOtpExpired(expiredDate);
 
         // Create Activate Request
         ActivateRequest request = new ActivateRequest();

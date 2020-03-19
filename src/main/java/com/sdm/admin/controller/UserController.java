@@ -6,7 +6,7 @@ import com.sdm.auth.model.request.ChangePasswordRequest;
 import com.sdm.auth.repository.TokenRepository;
 import com.sdm.auth.service.AuthMailService;
 import com.sdm.core.controller.DefaultReadController;
-import com.sdm.core.db.DefaultRepository;
+import com.sdm.core.repository.DefaultRepository;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.util.security.SecurityManager;

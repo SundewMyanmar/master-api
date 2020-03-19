@@ -36,27 +36,23 @@ public class AuthController {
     private ObjectMapper jacksonObjectMapper;
 
     @PostMapping("")
-    public ResponseEntity<User> authWithEmail(@Valid @RequestBody AuthRequest request,
-                                              @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) {
-        return service.authByPassword(request, userAgent);
+    public ResponseEntity<User> authWithEmail(@Valid @RequestBody AuthRequest request) {
+        return service.authByPassword(request);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> registerByUserAndPassword(@Valid @RequestBody RegistrationRequest request,
-                                                          @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) {
-        return service.registerByUserAndEmail(request, userAgent);
+    public ResponseEntity<User> registerByUserAndPassword(@Valid @RequestBody RegistrationRequest request) {
+        return service.registerByUserAndEmail(request);
     }
 
     @PostMapping("/anonymous")
-    public ResponseEntity<User> anonymousAuth(@Valid @RequestBody AnonymousRequest request,
-                                              @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) {
-        return service.anonymousAuth(request, userAgent);
+    public ResponseEntity<User> anonymousAuth(@Valid @RequestBody AnonymousRequest request) {
+        return service.anonymousAuth(request);
     }
 
     @PostMapping("/facebook")
-    public ResponseEntity<User> facebookAuth(@Valid @RequestBody FacebookAuthRequest request,
-                                             @RequestHeader(HttpHeaders.USER_AGENT) String userAgent) {
-        return service.facebookAuth(request, userAgent);
+    public ResponseEntity<User> facebookAuth(@Valid @RequestBody FacebookAuthRequest request) {
+        return service.facebookAuth(request);
     }
 
     @PostMapping("/forgetPassword")

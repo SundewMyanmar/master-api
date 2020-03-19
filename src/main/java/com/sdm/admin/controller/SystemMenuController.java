@@ -4,7 +4,7 @@ import com.sdm.Constants;
 import com.sdm.admin.model.SystemMenu;
 import com.sdm.admin.repository.SystemMenuRepository;
 import com.sdm.core.controller.DefaultReadWriteController;
-import com.sdm.core.db.DefaultRepository;
+import com.sdm.core.repository.DefaultRepository;
 import com.sdm.core.model.response.ListResponse;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

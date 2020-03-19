@@ -132,9 +132,20 @@ public interface Constants {
     }
 
     interface SESSION {
+
+        /**
+         * Authentication Info
+         */
+        String AUTH_INFO = "SPRING_SECURITY_CONTEXT";
+
         /**
          * Count Auth failed
          */
         String AUTH_FAILED_COUNT = "AUTH_FAILED_COUNT_SESSION";
+
+        /**
+         * Count JWT Token Failed
+         */
+        String JWT_FAILED_COUNT = "JWT_FAILED_COUNT_SESSION";
     }
 }

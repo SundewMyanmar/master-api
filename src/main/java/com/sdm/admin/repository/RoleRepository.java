@@ -2,7 +2,7 @@ package com.sdm.admin.repository;
 
 import com.sdm.Constants;
 import com.sdm.admin.model.Role;
-import com.sdm.core.db.DefaultRepository;
+import com.sdm.core.repository.DefaultRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;

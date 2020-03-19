@@ -1,6 +1,6 @@
 package com.sdm.core.controller;
 
-import com.sdm.core.db.DefaultRepository;
+import com.sdm.core.repository.DefaultRepository;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.model.DefaultEntity;

@@ -1,8 +1,8 @@
 package com.sdm.core.config;
 
 import com.sdm.Constants;
+import com.sdm.core.config.properties.CorsProperties;
 import com.sdm.core.util.jwt.JwtAuthenticationFilter;
-import com.sdm.core.util.jwt.JwtAuthenticationProvider;
 import com.sdm.core.util.jwt.JwtUnauthorizeHandler;
 import com.sdm.core.util.security.PermissionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +14,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -24,17 +30,33 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private JwtUnauthorizeHandler jwtUnauthorizeHandler;
 
     @Autowired
-    private JwtAuthenticationProvider jwtAuthenticationProvider;
-
-    @Autowired
     private PermissionHandler permissionHandler;
 
+    @Autowired
+    private CorsProperties corsProperties;
+
     @Bean
-    public JwtAuthenticationFilter authenticationFilter() {
+    JwtAuthenticationFilter authenticationFilter() {
         return new JwtAuthenticationFilter();
     }
 
-    private static final String[] SYSTEM_WHITE_LIST = {
+    @Bean
+    CorsConfigurationSource corsConfigurationSource()
+    {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList(corsProperties.getAllowedOrigins()));
+        configuration.setAllowedMethods(Arrays.asList(corsProperties.getAllowedMethods()));
+        configuration.setAllowedHeaders(Arrays.asList(corsProperties.getAllowedHeaders()));
+        configuration.setExposedHeaders(Arrays.asList(corsProperties.getExposedHeaders()));
+        configuration.setMaxAge(corsProperties.getMaxAge());
+        configuration.setAllowCredentials(corsProperties.getAllowedCredential());
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    public static final String[] SYSTEM_WHITE_LIST = {
             "/",
             "/error",
             "/facebook/messenger",
@@ -47,13 +69,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/v2/api-docs",
     };
 
-    private static final String[] USER_PERMISSION_LIST = {
+    public static final String[] USER_PERMISSION_LIST = {
             "/me/**",
             "/admin/menus/me",
             "/files/**"
     };
 
-    private static final String[] ROOT_PERMISSION_LIST = {
+    public static final String[] ROOT_PERMISSION_LIST = {
             "/actuator/**",
     };
 
@@ -65,21 +87,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                .and().exceptionHandling().authenticationEntryPoint(jwtUnauthorizeHandler)
-                .and().formLogin().disable()
-                .httpBasic().disable()
-                .logout().disable()
-                .csrf().disable()
-                .httpBasic()
-                .and().addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .authenticationProvider(jwtAuthenticationProvider)
-                .authorizeRequests(authorize -> authorize
-                        .antMatchers(SYSTEM_WHITE_LIST).permitAll()
-                        .antMatchers(USER_PERMISSION_LIST).hasAuthority(Constants.Auth.DEFAULT_USER_ROLE)
-                        .antMatchers(ROOT_PERMISSION_LIST).hasAuthority(Constants.Auth.ROOT_ROLE)
-                        .anyRequest().access("@permissionHandler.check(authentication, request)")
-                );
+            http.formLogin().disable().httpBasic().disable().logout().disable()
+                    .cors().and()
+                    .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
+                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).and()
+                    .exceptionHandling().authenticationEntryPoint(jwtUnauthorizeHandler).and()
+                    .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                    .authorizeRequests(authorize -> authorize
+                            .antMatchers(SYSTEM_WHITE_LIST).permitAll()
+                            .antMatchers(USER_PERMISSION_LIST).hasAuthority(Constants.Auth.DEFAULT_USER_ROLE)
+                            .antMatchers(ROOT_PERMISSION_LIST).hasAuthority(Constants.Auth.ROOT_ROLE)
+                            .anyRequest().access("@permissionHandler.check(authentication, request)")
+                    );
     }
+
+
 }

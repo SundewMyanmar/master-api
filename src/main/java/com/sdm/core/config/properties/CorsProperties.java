@@ -17,16 +17,17 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CORSProperties {
-    private String allowedOrigins = "*";
+public class CorsProperties {
+    private String[] allowedOrigins = {"*"};
 
-    private String allowedMethods = "GET, PUT, POST, DELETE, OPTIONS, HEAD";
+    private String[] allowedMethods = {"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"};
 
-    private Boolean allowedCredentials = true;
+    private String[] allowedHeaders = {"authorization", "content-type","x-requested-with", "x-xsrf-token","x-forwarded-for", "accept"};
 
-    private String allowedHeaders = "authorization, content-type, xsrf-token, accept";
+    private String[] exposedHeaders = {"xsrf-token"};
 
-    private String exposedHeaders = "xsrf-token";
+    private Boolean allowedCredential = true;
 
-    private long maxAge = 36000;
+    @DurationUnit(ChronoUnit.MINUTES)
+    private Duration maxAge = Duration.ofHours(1);
 }

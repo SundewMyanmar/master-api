@@ -5,6 +5,7 @@
     <property name="logPath" value="/var/www/master-api/log/"/>
     <property name="logFile" value="master-api.log"/>
     <property name="dataLogFile" value="data-audit.log"/>
+    <property name="requestLogFile" value="client-request.log"/>
 
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
@@ -22,7 +23,7 @@
         </encoder>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${logPath}/archived/${logFile}_%d{yyyyMMdd}_%i.log</fileNamePattern>
+            <fileNamePattern>${logPath}/archived/${logFile}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxFileSize>32MB</maxFileSize>
             <totalSizeCap>5GB</totalSizeCap>
             <maxHistory>60</maxHistory>
@@ -35,11 +36,25 @@
             <Pattern>%d [%-8marker] %m%n</Pattern>
         </encoder>
 
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${logPath}/archived/${dataLogFile}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>20MB</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>32MB</maxFileSize>
+            <totalSizeCap>5GB</totalSizeCap>
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="RequestLogging" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logPath}/${requestLogFile}</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d [%-8marker] %m%n</Pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${logPath}/archived/${requestLogFile}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>32MB</maxFileSize>
+            <totalSizeCap>5GB</totalSizeCap>
+            <maxHistory>60</maxHistory>
         </rollingPolicy>
     </appender>
 
@@ -62,6 +77,11 @@
     <!-- Data Logging -->
     <logger name="com.sdm.core.db.DataLogging" level="info" additivity="false">
         <appender-ref ref="DataLogging"/>
+    </logger>
+
+    <!-- Request Logging -->
+    <logger name="com.sdm.core.service.ClientService" level="info" additivity="false">
+        <appender-ref ref="RequestLogging"/>
     </logger>
 
 </configuration>
