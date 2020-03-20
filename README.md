@@ -165,13 +165,11 @@ ___
 |method|http-method|url/{path}?{query_params}|description|
 |------|------|------|------|
 |create|POST|name(s)|Create new data
-|multiCreate|POST|name(s)/multi|Create multiple data|
 |update|PUT|name(s)/{id}|Modified data by unique id(PK)|
-|multiUpdate|PUT|name(s)/multi|Modified multiple data|
 |partialUpdate|PATCH|name(s)/{id}|Partially modified data by unique id(PK)|
 |remove|DELETE|name(s)/{id}|Remove data by unique id(PK)|
 |multiRemove|DELETE|name(s)|Remove multiple data|
-|importByCSV|POST|name(s)/import|Create, Modified, Remove data by upload csv file.|
+|import|POST|name(s)/import|Create, Modified data by data list.|
 
 ----
 

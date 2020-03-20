@@ -80,7 +80,7 @@ public interface ReadWriteController<T, ID extends Serializable> extends ReadCon
     ResponseEntity<MessageResponse> multiRemove(@Valid @RequestBody List<ID> ids);
 
 
-    @ApiOperation(value = "Import Data", notes = "It will process data by json array.")
+    @ApiOperation(value = "Import Data", notes = "Create, Modified data by data list.")
     @ApiResponses({
             @ApiResponse(code = 400, message = "Invalid Data.", response = MessageResponse.class),
             @ApiResponse(code = 401, message = "Permission Denied.", response = MessageResponse.class),
