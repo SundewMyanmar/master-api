@@ -41,8 +41,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource()
-    {
+    CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(corsProperties.getAllowedOrigins()));
         configuration.setAllowedMethods(Arrays.asList(corsProperties.getAllowedMethods()));
@@ -87,18 +86,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-            http.formLogin().disable().httpBasic().disable().logout().disable()
-                    .cors().and()
-                    .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).and()
-                    .exceptionHandling().authenticationEntryPoint(jwtUnauthorizeHandler).and()
-                    .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                    .authorizeRequests(authorize -> authorize
-                            .antMatchers(SYSTEM_WHITE_LIST).permitAll()
-                            .antMatchers(USER_PERMISSION_LIST).hasAuthority(Constants.Auth.DEFAULT_USER_ROLE)
-                            .antMatchers(ROOT_PERMISSION_LIST).hasAuthority(Constants.Auth.ROOT_ROLE)
-                            .anyRequest().access("@permissionHandler.check(authentication, request)")
-                    );
+        http.formLogin().disable().httpBasic().disable().logout().disable()
+                .cors().and()
+                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).and()
+                .exceptionHandling().authenticationEntryPoint(jwtUnauthorizeHandler).and()
+                .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .authorizeRequests(authorize -> authorize
+                        .antMatchers(SYSTEM_WHITE_LIST).permitAll()
+                        .antMatchers(USER_PERMISSION_LIST).hasAuthority(Constants.Auth.DEFAULT_USER_ROLE)
+                        .antMatchers(ROOT_PERMISSION_LIST).hasAuthority(Constants.Auth.ROOT_ROLE)
+                        .anyRequest().access("@permissionHandler.check(authentication, request)")
+                );
     }
 
 

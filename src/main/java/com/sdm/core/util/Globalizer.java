@@ -22,8 +22,8 @@ import java.util.regex.Pattern;
 public class Globalizer {
 
     public static String camelToReadable(String input) {
-        return input.replaceAll(String.format("%s|%s|%s", "(?<=[A-Z])(?=[A-Z][a-z])", "(?<=[^A-Z])(?=[A-Z])",
-                "(?<=[A-Za-z])(?=[^A-Za-z])"), " ");
+        return capitalize(input.replaceAll(String.format("%s|%s|%s", "(?<=[A-Z])(?=[A-Z][a-z])", "(?<=[^A-Z])(?=[A-Z])",
+                "(?<=[A-Za-z])(?=[^A-Za-z])"), " "));
     }
 
     public static String capitalize(String word) {
@@ -60,12 +60,12 @@ public class Globalizer {
         return cal.getTime();
     }
 
-    public static String getRemoteAddress(HttpServletRequest request){
+    public static String getRemoteAddress(HttpServletRequest request) {
         String remoteAddress = "";
 
-        if(request != null){
+        if (request != null) {
             remoteAddress = request.getHeader("x-forwarded-for");
-            if(StringUtils.isEmpty(remoteAddress)){
+            if (StringUtils.isEmpty(remoteAddress)) {
                 remoteAddress = request.getRemoteAddr();
             }
         }

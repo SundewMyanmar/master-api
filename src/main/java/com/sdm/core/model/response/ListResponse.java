@@ -23,7 +23,7 @@ import java.util.Collection;
 @NoArgsConstructor
 public class ListResponse<T> implements Serializable {
 
-    private Collection<T> data;
+    private Collection<T> data = new ArrayList<>();
 
     public int getCount() {
         return this.data.size();

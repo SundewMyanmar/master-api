@@ -6,7 +6,6 @@ import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.model.response.MessageResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.util.ReflectionUtils;
 
 import javax.persistence.Id;
@@ -25,12 +24,6 @@ public abstract class DefaultReadWriteController<T extends DefaultEntity, ID ext
     }
 
     @Override
-    public ResponseEntity<ListResponse<T>> multiCreate(@Valid List<T> body) {
-        List<T> data = getRepository().saveAll(body);
-        return new ResponseEntity<>(new ListResponse<>(data), HttpStatus.CREATED);
-    }
-
-    @Override
     public ResponseEntity<T> update(@Valid T body, ID id) {
         this.checkData(id);
         if (!id.equals(body.getId())) {
@@ -40,12 +33,6 @@ public abstract class DefaultReadWriteController<T extends DefaultEntity, ID ext
 
         T entity = getRepository().save(body);
         return ResponseEntity.ok(entity);
-    }
-
-    @Override
-    public ResponseEntity<ListResponse<T>> multiUpdate(@Valid List<T> body) {
-        List<T> data = getRepository().saveAll(body);
-        return ResponseEntity.ok(new ListResponse<>(data));
     }
 
     @Override
@@ -81,7 +68,8 @@ public abstract class DefaultReadWriteController<T extends DefaultEntity, ID ext
     }
 
     @Override
-    public ResponseEntity<ListResponse<T>> importData(FilePart filePart) {
-        throw new GeneralException(HttpStatus.SERVICE_UNAVAILABLE, "Sorry! This services is not available now.");
+    public ResponseEntity<ListResponse<T>> importData(@Valid List<T> body) {
+        List<T> data = getRepository().saveAll(body);
+        return new ResponseEntity<>(new ListResponse<>(data), HttpStatus.OK);
     }
 }

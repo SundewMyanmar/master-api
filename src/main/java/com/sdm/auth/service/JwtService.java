@@ -56,7 +56,7 @@ public class JwtService implements JwtAuthenticationHandler {
         authInfo.addAuthority(Constants.Auth.DEFAULT_USER_ROLE);
 
         //Is Root?
-        if(securityProperties.getOwnerIds().contains(authInfo.getUserId())){
+        if (securityProperties.getOwnerIds().contains(authInfo.getUserId())) {
             authInfo.addAuthority(Constants.Auth.ROOT_ROLE);
         }
 

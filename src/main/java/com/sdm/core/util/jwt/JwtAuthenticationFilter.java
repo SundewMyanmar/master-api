@@ -2,21 +2,17 @@ package com.sdm.core.util.jwt;
 
 import com.sdm.Constants;
 import com.sdm.core.config.properties.SecurityProperties;
-import com.sdm.core.exception.GeneralException;
 import com.sdm.core.exception.InvalidTokenExcpetion;
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.service.ClientService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import org.apache.tomcat.util.bcel.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
@@ -31,7 +27,6 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Date;
-import java.util.Optional;
 
 @Service
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -48,11 +43,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     /**
      * Prevent Bruteforce attack
+     *
      * @return
      */
-    private int increaseFailedCount(HttpSession session){
+    private int increaseFailedCount(HttpSession session) {
         Integer count = (Integer) session.getAttribute(Constants.SESSION.JWT_FAILED_COUNT);
-        if(count == null){
+        if (count == null) {
             count = 0;
         }
         count++;
@@ -62,6 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     /**
      * Extract JWT Auth Token by UserAgent
+     *
      * @param tokenString
      * @param userAgent
      * @return
@@ -96,13 +93,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        if(httpServletRequest.getMethod().equalsIgnoreCase("options")){
+        if (httpServletRequest.getMethod().equalsIgnoreCase("options")) {
             filterChain.doFilter(httpServletRequest, httpServletResponse);
             return;
         }
 
         //Check Client Info
-        if(clientService.isBlocked(httpServletRequest)){
+        if (clientService.isBlocked(httpServletRequest)) {
             SecurityContextHolder.clearContext();
             httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "Blocked! Please contact to authority person.");
             return;
@@ -113,7 +110,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (StringUtils.isEmpty(authorization)) {
             authorization = httpServletRequest.getParameter(Constants.Auth.PARAM_NAME);
-        }else if(authorization.length() > Constants.Auth.TYPE.length()){
+        } else if (authorization.length() > Constants.Auth.TYPE.length()) {
             authorization = authorization.substring(Constants.Auth.TYPE.length()).strip();
         }
 
@@ -131,7 +128,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.clearContext();
                     throw new InvalidTokenExcpetion("Failed authorize by DB.");
                 }
-            }catch(InvalidTokenExcpetion ex){
+            } catch (InvalidTokenExcpetion ex) {
                 increaseFailedCount(httpServletRequest.getSession());
                 httpServletResponse.sendError(HttpStatus.UNAUTHORIZED.value(), "Sorry! your authorization token hasn't permission to the resource.");
                 return;

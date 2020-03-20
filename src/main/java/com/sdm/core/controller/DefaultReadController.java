@@ -1,14 +1,16 @@
 package com.sdm.core.controller;
 
-import com.sdm.core.repository.DefaultRepository;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.ModelInfo;
 import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.model.response.PaginationResponse;
+import com.sdm.core.repository.DefaultRepository;
+import com.sdm.core.service.StructureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +33,9 @@ public abstract class DefaultReadController<T extends DefaultEntity, ID extends 
     protected static final Logger logger = LoggerFactory.getLogger(ReadController.class);
 
     protected abstract DefaultRepository<T, ID> getRepository();
+
+    @Autowired
+    protected StructureService structureService;
 
     protected Class<T> getEntityClass() {
         ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
@@ -88,7 +93,8 @@ public abstract class DefaultReadController<T extends DefaultEntity, ID extends 
     }
 
     @Override
-    public ResponseEntity<ModelInfo> getStructure() {
-        throw new GeneralException(HttpStatus.SERVICE_UNAVAILABLE, "Sorry! This services is not available now.");
+    public ResponseEntity<ListResponse<ModelInfo>> getStructure() {
+        var structure = structureService.buildStructure(this.getEntityClass());
+        return ResponseEntity.ok(new ListResponse<>(structure));
     }
 }

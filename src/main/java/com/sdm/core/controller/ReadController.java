@@ -61,5 +61,5 @@ public interface ReadController<T, ID extends Serializable> {
             @ApiResponse(code = 500, message = "Server Error.", response = MessageResponse.class),
     })
     @GetMapping(value = "/struct", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<ModelInfo> getStructure();
+    ResponseEntity<ListResponse<ModelInfo>> getStructure();
 }

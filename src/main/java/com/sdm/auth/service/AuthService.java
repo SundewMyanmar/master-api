@@ -10,14 +10,12 @@ import com.sdm.auth.model.request.*;
 import com.sdm.auth.repository.TokenRepository;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
-import com.sdm.core.service.ClientService;
 import com.sdm.core.util.FBGraphManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.security.SecurityManager;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import jdk.jfr.Frequency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +29,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.*;
+import java.util.Date;
+import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -63,9 +64,9 @@ public class AuthService {
     private static final int MAX_PASSWORD = 32;
     private static final int MIN_PASSWORD = 16;
 
-    private int increaseFailedCount(){
+    private int increaseFailedCount() {
         Integer count = (Integer) session.getAttribute(Constants.SESSION.AUTH_FAILED_COUNT);
-        if(count == null){
+        if (count == null) {
             count = 0;
         }
         count++;
@@ -75,7 +76,7 @@ public class AuthService {
 
     private String getUserAgent() {
         String agent = request.getHeader(HttpHeaders.USER_AGENT);
-        if(StringUtils.isEmpty(agent)){
+        if (StringUtils.isEmpty(agent)) {
             throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
         }
         return agent;

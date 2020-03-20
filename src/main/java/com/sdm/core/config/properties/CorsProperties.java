@@ -9,8 +9,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
-import java.util.Set;
 
 @Configuration
 @ConfigurationProperties(prefix = "com.sdm.cors")
@@ -22,7 +20,7 @@ public class CorsProperties {
 
     private String[] allowedMethods = {"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"};
 
-    private String[] allowedHeaders = {"authorization", "content-type","x-requested-with", "x-xsrf-token","x-forwarded-for", "accept"};
+    private String[] allowedHeaders = {"authorization", "content-type", "x-requested-with", "x-xsrf-token", "x-forwarded-for", "accept"};
 
     private String[] exposedHeaders = {"xsrf-token"};
 
