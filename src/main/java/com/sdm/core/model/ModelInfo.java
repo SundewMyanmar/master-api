@@ -16,9 +16,7 @@ public class ModelInfo {
         left,
         center,
         right
-    }
-
-    ;
+    };
 
     public enum GridType {
         text,
@@ -26,13 +24,15 @@ public class ModelInfo {
         icon,
         bool,
         raw
-    }
+    };
 
-    ;
-
+    @Data
+    @NoArgsConstructor
     public class GridInfo {
         private Alignment alignment;
+        private String label;
         private GridType type;
+        private String onLoad;
         private int minWidth;
         private boolean filterable;
         private boolean sortable;
@@ -46,7 +46,7 @@ public class ModelInfo {
     private boolean required;
     private int min;
     private int max;
-    private GridInfo grid;
+    private GridInfo grid = new GridInfo();
     private Map<String, Object> extras;
 
     public void addExtra(String key, Object value) {

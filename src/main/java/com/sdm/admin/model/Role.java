@@ -7,6 +7,7 @@ package com.sdm.admin.model;
 
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Filterable;
+import com.sdm.core.model.annotation.Grid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -42,11 +43,13 @@ public class Role extends DefaultEntity implements Serializable {
     @Filterable
     @NotBlank
     @Size(min = 1, max = 255)
+    @Grid(value = "Role Name", minWidth = 150, sortable = true)
     @Column(unique = true, length = 255, nullable = false)
     private String name;
 
     @Filterable
     @Size(max = 500)
+    @Grid(value = "Full Description", minWidth = 350, sortable = true)
     @Column(columnDefinition = "varchar(500)", length = 500, nullable = false)
     private String description;
 

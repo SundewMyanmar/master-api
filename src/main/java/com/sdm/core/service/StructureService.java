@@ -1,7 +1,10 @@
 package com.sdm.core.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sdm.Constants;
 import com.sdm.core.model.ModelInfo;
+import com.sdm.core.model.annotation.Filterable;
+import com.sdm.core.model.annotation.Grid;
 import com.sdm.core.util.Globalizer;
 import com.sdm.file.model.File;
 import org.slf4j.Logger;
@@ -30,10 +33,14 @@ public class StructureService {
      * @return
      */
     private boolean checkField(Field field) {
+        if(field.isAnnotationPresent(Transient.class) || field.isAnnotationPresent(JsonIgnore.class)){
+            return false;
+        }
+
         return (field.isAnnotationPresent(Column.class) || field.isAnnotationPresent(Id.class) ||
                 field.isAnnotationPresent(ManyToOne.class) || field.isAnnotationPresent(ManyToMany.class) ||
                 field.isAnnotationPresent(OneToOne.class) || field.isAnnotationPresent(OneToMany.class) ||
-                field.isAnnotationPresent(ElementCollection.class));
+                field.isAnnotationPresent(ElementCollection.class) || field.isAnnotationPresent(Embedded.class));
     }
 
     private boolean isModel(String packageName) {
@@ -44,11 +51,18 @@ public class StructureService {
         model.setName(field.getName());
         model.setDataType(field.getType().getSimpleName());
         model.setLabel(Globalizer.camelToReadable(field.getName()));
+        model.getGrid().setLabel(Globalizer.camelToReadable(field.getName()));
+        model.getGrid().setAlignment(ModelInfo.Alignment.center);
+        model.getGrid().setType(ModelInfo.GridType.text);
 
         if (model.getDataType().matches("[sS]tring|[cC]har")) {
             model.setType("text");
+            model.getGrid().setAlignment(ModelInfo.Alignment.left);
+            model.getGrid().setSortable(true);
         } else if (model.getDataType().matches("([iI]nt.*)|[lL]ong|[dD]ecimal|[dD]ouble|[fF]loat|[sS]hort")) {
             model.setType("number");
+            model.getGrid().setAlignment(ModelInfo.Alignment.right);
+            model.getGrid().setSortable(true);
         } else if (model.getDataType().equalsIgnoreCase("date")) {
             Temporal temporal = field.getAnnotation(Temporal.class);
             if (temporal != null) {
@@ -58,6 +72,7 @@ public class StructureService {
                     model.setType(temporal.value().toString().toLowerCase());
                 }
             }
+            model.getGrid().setSortable(true);
         } else if (field.getType().getPackageName().equals("java.util")) {
             ParameterizedType wrapperType = (ParameterizedType) field.getGenericType();
             if (wrapperType.getActualTypeArguments().length == 1) {
@@ -88,17 +103,21 @@ public class StructureService {
                 model.addExtra("data", field.getType().getEnumConstants());
             } else if (field.getType().isAssignableFrom(File.class)) {
                 model.setType("file");
+                model.getGrid().setType(ModelInfo.GridType.image);
             } else {
                 model.setType("table");
             }
         } else if (model.getDataType().equalsIgnoreCase("boolean")) {
             model.setType("checkbox");
+            model.getGrid().setType(ModelInfo.GridType.bool);
+            model.getGrid().setSortable(true);
         }
 
 
         if (field.isAnnotationPresent(Id.class)) {
             model.setPrimaryKey(true);
             model.setRequired(true);
+            model.getGrid().setLabel("#");
         }
 
         if (field.isAnnotationPresent(Column.class)) {
@@ -109,6 +128,27 @@ public class StructureService {
 
             if (!column.nullable()) {
                 model.setRequired(true);
+            }
+        }
+
+        if (field.isAnnotationPresent(Filterable.class)) {
+           model.getGrid().setFilterable(true);
+        }
+
+        /**
+         * Grid Info
+         */
+        if(field.isAnnotationPresent(Grid.class)){
+            Grid grid = field.getAnnotation(Grid.class);
+            if(grid.hide()){
+                model.setGrid(null);
+            }else{
+                model.getGrid().setLabel(grid.value());
+                model.getGrid().setAlignment(grid.alignment());
+                model.getGrid().setSortable(grid.sortable());
+                model.getGrid().setMinWidth(grid.minWidth());
+                model.getGrid().setType(grid.type());
+                model.getGrid().setOnLoad(grid.onLoad());
             }
         }
     }

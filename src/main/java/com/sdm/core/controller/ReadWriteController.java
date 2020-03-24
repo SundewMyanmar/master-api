@@ -23,6 +23,7 @@ public interface ReadWriteController<T, ID extends Serializable> extends ReadCon
             @ApiResponse(code = 401, message = "Permission Denied.", response = MessageResponse.class),
             @ApiResponse(code = 403, message = "Access Forbidden.", response = MessageResponse.class),
             @ApiResponse(code = 404, message = "URL Not Found.", response = MessageResponse.class),
+            @ApiResponse(code = 406, message = "Unauthorize Token", response = MessageResponse.class),
             @ApiResponse(code = 500, message = "Server Error.", response = MessageResponse.class),
     })
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -35,6 +36,7 @@ public interface ReadWriteController<T, ID extends Serializable> extends ReadCon
             @ApiResponse(code = 401, message = "Permission Denied.", response = MessageResponse.class),
             @ApiResponse(code = 403, message = "Access Forbidden.", response = MessageResponse.class),
             @ApiResponse(code = 404, message = "URL Not Found.", response = MessageResponse.class),
+            @ApiResponse(code = 406, message = "Unauthorize Token", response = MessageResponse.class),
             @ApiResponse(code = 409, message = "Invalid Request.", response = MessageResponse.class),
             @ApiResponse(code = 500, message = "Server Error.", response = MessageResponse.class),
     })
@@ -48,6 +50,7 @@ public interface ReadWriteController<T, ID extends Serializable> extends ReadCon
             @ApiResponse(code = 401, message = "Permission Denied.", response = MessageResponse.class),
             @ApiResponse(code = 403, message = "Access Forbidden.", response = MessageResponse.class),
             @ApiResponse(code = 404, message = "URL Not Found.", response = MessageResponse.class),
+            @ApiResponse(code = 406, message = "Unauthorize Token", response = MessageResponse.class),
             @ApiResponse(code = 409, message = "Invalid Request.", response = MessageResponse.class),
             @ApiResponse(code = 500, message = "Server Error.", response = MessageResponse.class),
     })
@@ -61,6 +64,7 @@ public interface ReadWriteController<T, ID extends Serializable> extends ReadCon
             @ApiResponse(code = 401, message = "Permission Denied.", response = MessageResponse.class),
             @ApiResponse(code = 403, message = "Access Forbidden.", response = MessageResponse.class),
             @ApiResponse(code = 404, message = "URL Not Found.", response = MessageResponse.class),
+            @ApiResponse(code = 406, message = "Unauthorize Token", response = MessageResponse.class),
             @ApiResponse(code = 409, message = "Invalid Request.", response = MessageResponse.class),
             @ApiResponse(code = 500, message = "Server Error.", response = MessageResponse.class),
     })
@@ -73,10 +77,11 @@ public interface ReadWriteController<T, ID extends Serializable> extends ReadCon
             @ApiResponse(code = 401, message = "Permission Denied.", response = MessageResponse.class),
             @ApiResponse(code = 403, message = "Access Forbidden.", response = MessageResponse.class),
             @ApiResponse(code = 404, message = "URL Not Found.", response = MessageResponse.class),
+            @ApiResponse(code = 406, message = "Unauthorize Token", response = MessageResponse.class),
             @ApiResponse(code = 409, message = "Invalid Request.", response = MessageResponse.class),
             @ApiResponse(code = 500, message = "Server Error.", response = MessageResponse.class),
     })
-    @DeleteMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<MessageResponse> multiRemove(@Valid @RequestBody List<ID> ids);
 
 
@@ -86,9 +91,10 @@ public interface ReadWriteController<T, ID extends Serializable> extends ReadCon
             @ApiResponse(code = 401, message = "Permission Denied.", response = MessageResponse.class),
             @ApiResponse(code = 403, message = "Access Forbidden.", response = MessageResponse.class),
             @ApiResponse(code = 404, message = "URL Not Found.", response = MessageResponse.class),
+            @ApiResponse(code = 406, message = "Unauthorize Token", response = MessageResponse.class),
             @ApiResponse(code = 409, message = "Invalid Request.", response = MessageResponse.class),
             @ApiResponse(code = 500, message = "Server Error.", response = MessageResponse.class),
     })
-    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/import", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<ListResponse<T>> importData(@Valid @RequestBody List<T> body);
 }

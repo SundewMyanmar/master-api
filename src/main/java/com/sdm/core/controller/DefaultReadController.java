@@ -15,7 +15,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +26,7 @@ import org.springframework.util.StringUtils;
 import javax.transaction.Transactional;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -95,6 +98,10 @@ public abstract class DefaultReadController<T extends DefaultEntity, ID extends 
     @Override
     public ResponseEntity<ListResponse<ModelInfo>> getStructure() {
         var structure = structureService.buildStructure(this.getEntityClass());
-        return ResponseEntity.ok(new ListResponse<>(structure));
+        CacheControl cacheControl = CacheControl.maxAge(Duration.ofDays(365));
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .cacheControl(cacheControl)
+                .body(new ListResponse<>(structure));
     }
 }
