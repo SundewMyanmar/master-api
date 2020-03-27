@@ -19,11 +19,11 @@ public interface TokenRepository extends DefaultRepository<Token, String> {
 
     Optional<List<Token>> findByUserId(int userId);
 
-    Optional<Token> findOneByUserIdAndDeviceIdAndDeviceOs(int userId, String deviceId, String deviceOS);
+    Optional<Token> findFirstByUserIdAndDeviceIdAndDeviceOs(int userId, String deviceId, String deviceOS);
 
-    Optional<Token> findOneByDeviceId(String deviceId);
+    Optional<Token> findFirstByDeviceId(String deviceId);
 
-    Page<Token> findOneByLastLoginBetween(Date fromDate, Date toDate, Pageable pageable);
+    Page<Token> findByLastLoginBetween(Date fromDate, Date toDate, Pageable pageable);
 
     @Modifying
     @Transactional

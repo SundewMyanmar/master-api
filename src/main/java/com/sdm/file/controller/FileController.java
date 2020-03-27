@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.*;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/files")
@@ -45,7 +42,7 @@ public class FileController extends DefaultReadController<File, String> {
         return ResponseEntity.ok(message);
     }
 
-    @DeleteMapping("/multi")
+    @DeleteMapping("")
     @Transactional
     public ResponseEntity<MessageResponse> multiRemove(@RequestBody Set<String> ids,
                                                        @RequestParam(value = "isTrash", required = false, defaultValue = "false") final boolean isTrash) {
@@ -56,29 +53,19 @@ public class FileController extends DefaultReadController<File, String> {
     }
 
     @PostMapping("upload")
-    public ResponseEntity<File> uploadFile(@RequestParam("uploadedFile") MultipartFile file,
-                                           @RequestParam(value = "isPublic", required = false, defaultValue = "false") boolean isPublic) {
-        File fileEntity = fileService.create(file, isPublic);
-        return new ResponseEntity(fileEntity, HttpStatus.CREATED);
-    }
-
-    @PostMapping("multi/upload")
-    public ResponseEntity<ListResponse<File>> uploadMultipleFiles(@RequestParam("uploadedFile") MultipartFile[] files,
+    @Transactional
+    public ResponseEntity<ListResponse<File>> uploadFiles(@RequestParam("uploadedFile") MultipartFile[] files,
                                                                   @RequestParam(value = "isPublic", required = false, defaultValue = "false") boolean isPublic) {
-        List<File> uploadedFiles = Arrays.asList(files)
-                .stream()
-                .map(file -> fileService.create(file, isPublic))
-                .collect(Collectors.toList());
 
-        return new ResponseEntity(new ListResponse<>(uploadedFiles), HttpStatus.CREATED);
+        ListResponse<File> uploadedFiles = new ListResponse<>();
+        for(MultipartFile file : files){
+            File savedFile = fileService.create(file, isPublic);
+            uploadedFiles.addData(savedFile);
+        }
+
+        return new ResponseEntity(uploadedFiles, HttpStatus.CREATED);
     }
 
-    @PutMapping("upload/{id}")
-    public ResponseEntity<File> uploadFile(@PathVariable("id") String id,
-                                           @RequestParam("uploadedFile") MultipartFile file) {
-        File fileEntity = fileService.modified(id, file);
-        return new ResponseEntity(fileEntity, HttpStatus.ACCEPTED);
-    }
 
     @GetMapping("download/{id}/{fileName}")
     public ResponseEntity<?> downloadFile(@PathVariable("id") String id,

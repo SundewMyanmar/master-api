@@ -1,6 +1,7 @@
 package com.sdm.core.config;
 
 import com.sdm.Constants;
+import com.sdm.core.model.Auditor;
 import com.sdm.core.model.AuthInfo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,14 +30,18 @@ public class JpaConfig {
 
 
     @Bean
-    public AuditorAware<String> auditorProvider() {
+    public AuditorAware<Auditor> auditorProvider() {
         return () -> {
+            Auditor auditor = new Auditor(0, Constants.Auth.DEFAULT_AUTH_TOKEN);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.getPrincipal() instanceof AuthInfo) {
                 AuthInfo authInfo = (AuthInfo) authentication.getPrincipal();
-                return Optional.of(authInfo.getToken());
+                if(authInfo != null){
+                    auditor.setId(authInfo.getUserId());
+                    auditor.setToken(authInfo.getToken());
+                }
             }
-            return Optional.of(Constants.Auth.DEFAULT_AUTH_TOKEN);
+            return Optional.of(auditor);
         };
     }
 }

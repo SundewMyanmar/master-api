@@ -14,6 +14,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,6 +50,7 @@ public class FileService {
         return file;
     }
 
+    @Transactional
     public File create(MultipartFile uploadFile, boolean isPublic) {
         String fileName = StringUtils.cleanPath(uploadFile.getOriginalFilename());
 

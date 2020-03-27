@@ -65,7 +65,7 @@ public class SystemRouteController extends DefaultReadController<SystemRoute, In
             systemRouteRepository.findById(route.getId())
                     .ifPresentOrElse(addRole, () -> {
                         SystemRoute dbRoute = systemRouteRepository
-                                .findOneByHttpMethodAndPattern(route.getHttpMethod(), route.getSqlPattern())
+                                .findFirstByHttpMethodAndPattern(route.getHttpMethod(), route.getSqlPattern())
                                 .orElse(route);
                         addRole.accept(dbRoute);
                     });

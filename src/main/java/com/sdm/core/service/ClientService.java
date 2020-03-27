@@ -53,7 +53,7 @@ public class ClientService {
 
         Date now = new Date();
 
-        ClientInfo client = repository.findOneByRemoteAddress(remoteAddress)
+        ClientInfo client = repository.findFirstByRemoteAddress(remoteAddress)
                 .orElse(new ClientInfo(UUID.randomUUID().toString(), remoteAddress, null, null));
         client.setLastRequestAt(now);
         boolean blocked = client.getBlockedExpiry() != null && client.getBlockedExpiry().after(now);

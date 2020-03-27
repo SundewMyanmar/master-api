@@ -11,15 +11,15 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends DefaultRepository<User, Integer> {
-    Optional<User> findOneByPhoneNumberOrEmail(String phoneNumber, String email);
+    Optional<User> findFirstByPhoneNumberOrEmail(String phoneNumber, String email);
 
-    Optional<User> findOneByPhoneNumberAndEmail(String phoneNumber, String email);
+    Optional<User> findFirstByPhoneNumberAndEmail(String phoneNumber, String email);
 
-    @Query("SELECT u FROM admin.UserEntity u WHERE u.status = 'ACTIVE' AND (u.email = :user OR u.phoneNumber = :user) AND u.otpToken = :token")
+    @Query("SELECT u FROM #{#entityName} u WHERE u.status = 'ACTIVE' AND (u.email = :user OR u.phoneNumber = :user) AND u.otpToken = :token")
     Optional<User> checkOTP(@Param("user") String user, @Param("token") String token);
 
-    Optional<User> findOneByFacebookId(String facebookId);
+    Optional<User> findFirstByFacebookId(String facebookId);
 
-    @Query("SELECT u FROM admin.UserEntity u WHERE u.status = 'ACTIVE' AND (u.email = :user OR u.phoneNumber = :user) AND u.password = :password")
+    @Query("SELECT u FROM #{#entityName} u WHERE u.status = 'ACTIVE' AND (u.email = :user OR u.phoneNumber = :user) AND u.password = :password")
     Optional<User> authByPassword(@Param("user") String user, @Param("password") String password);
 }

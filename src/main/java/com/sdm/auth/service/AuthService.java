@@ -132,7 +132,7 @@ public class AuthService {
     }
 
     private void createToken(User user, TokenInfo tokenInfo) {
-        Token token = tokenRepository.findOneByDeviceId(tokenInfo.getDeviceId())
+        Token token = tokenRepository.findFirstByDeviceId(tokenInfo.getDeviceId())
                 .orElseGet(() -> {
                     Token newToken = new Token();
                     newToken.setId(UUID.randomUUID().toString());
@@ -203,7 +203,7 @@ public class AuthService {
     }
 
     public ResponseEntity<MessageResponse> forgetPassword(ForgetPassword request) {
-        User user = userRepository.findOneByPhoneNumberAndEmail(request.getPhoneNumber(), request.getEmail())
+        User user = userRepository.findFirstByPhoneNumberAndEmail(request.getPhoneNumber(), request.getEmail())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Invalid phone number (or) email address."));
         try {
             mailService.forgetPasswordLink(user, request.getCallback());
@@ -235,7 +235,7 @@ public class AuthService {
     @Transactional
     public ResponseEntity<User> registerByUserAndEmail(RegistrationRequest request) {
         //Check user by user name
-        userRepository.findOneByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail())
+        userRepository.findFirstByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail())
                 .ifPresent(user -> {
                     if (user.getEmail().equalsIgnoreCase(request.getEmail())) {
                         throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! someone already registered with this email.");
@@ -267,7 +267,7 @@ public class AuthService {
     @Transactional
     public ResponseEntity<User> anonymousAuth(AnonymousRequest request) {
         //Check Device Registration
-        User authUser = tokenRepository.findOneByDeviceId(request.getDeviceId())
+        User authUser = tokenRepository.findFirstByDeviceId(request.getDeviceId())
                 .map(Token::getUser).orElseGet(() -> this.createAnonymousUser(request));
 
         //User create / update
@@ -303,7 +303,7 @@ public class AuthService {
         }
 
         //Get Back Old User Data With Email
-        dbEntity = userRepository.findOneByPhoneNumberOrEmail(phoneNumber, email);
+        dbEntity = userRepository.findFirstByPhoneNumberOrEmail(phoneNumber, email);
 
         if (dbEntity.isPresent()) {
             userEntity = dbEntity.get();
@@ -323,7 +323,7 @@ public class AuthService {
         String id = facebookProfile.get("id").getAsString();
 
         //Check User by FacebookId
-        User authUser = userRepository.findOneByFacebookId(id)
+        User authUser = userRepository.findFirstByFacebookId(id)
                 .orElseGet(() -> this.createFacebookUser(facebookProfile));
 
         if (authUser.getFacebookId().equalsIgnoreCase(facebookProfile.get("id").getAsString())) {

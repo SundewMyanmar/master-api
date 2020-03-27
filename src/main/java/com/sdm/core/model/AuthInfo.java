@@ -42,7 +42,7 @@ public class AuthInfo implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.deviceId;
+        return this.deviceOs;
     }
 
     @Override

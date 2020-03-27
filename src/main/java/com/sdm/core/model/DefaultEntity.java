@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.sdm.core.db.DataLogging;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.NotAudited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -21,43 +21,58 @@ import java.util.Date;
 @EntityListeners({DataLogging.class, AuditingEntityListener.class})
 @JsonPropertyOrder(value = {"id", "created_at", "modified_at"}, alphabetic = true)
 @JsonIgnoreProperties(value = {"created_at", "modified_at"}, allowGetters = true)
-@EqualsAndHashCode
 public abstract class DefaultEntity implements Serializable {
     public abstract <T extends Serializable> T getId();
 
-    @JsonIgnore
+    @Getter
+    @Setter
+    @NotAudited
     @CreatedBy
-    @Column(length = 36, columnDefinition = "CHAR(36)", updatable = false)
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "id", column = @Column(name="created_user_id", updatable = false)),
+            @AttributeOverride(name = "token", column = @Column(name="created_token", length = 36, columnDefinition = "char(36)", updatable = false))
+    })
+    private Auditor createdBy;
+
     @Getter
     @Setter
-    private String createdBy;
-
-    @JsonIgnore
+    @NotAudited
     @LastModifiedBy
-    @Column(length = 36, columnDefinition = "CHAR(36)", updatable = false)
-    @Getter
-    @Setter
-    private String modifiedBy;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "id", column = @Column(name="modified_user_id")),
+            @AttributeOverride(name = "token", column = @Column(name="modified_token", length = 36, columnDefinition = "char(36)"))
+    })
+    private Auditor modifiedBy;
 
     @Getter
     @Setter
+    @NotAudited
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
     private Date createdAt;
 
+    @Getter
+    @Setter
+    @NotAudited
     @Column(updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
-    @Getter
-    @Setter
     private Date modifiedAt;
 
+    @Getter
+    @Setter
+    @NotAudited
+    @Version
+    private int version;
+
+    @Getter
+    @Setter
     @JsonIgnore
     @Temporal(TemporalType.TIMESTAMP)
     @Column
-    @Getter
-    @Setter
     private Date deletedAt;
 
 }

@@ -10,43 +10,16 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ModelInfo {
+    public class ModelInfo {
 
-    public enum Alignment {
-        left,
-        center,
-        right
-    };
-
-    public enum GridType {
-        text,
-        image,
-        icon,
-        bool,
-        raw
-    };
-
-    @Data
-    @NoArgsConstructor
-    public class GridInfo {
-        private Alignment alignment;
+        private String name;
+        private String dataType;
+        private String type;
         private String label;
-        private GridType type;
-        private String onLoad;
-        private int minWidth;
-        private boolean filterable;
-        private boolean sortable;
-    }
-
-    private String name;
-    private String dataType;
-    private String type;
-    private String label;
     private boolean primaryKey;
     private boolean required;
     private int min;
     private int max;
-    private GridInfo grid = new GridInfo();
     private Map<String, Object> extras;
 
     public void addExtra(String key, Object value) {

@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface ClientRepository extends JpaRepository<ClientInfo, String> {
-    Optional<ClientInfo> findOneByRemoteAddress(String remoteAddress);
+    Optional<ClientInfo> findFirstByRemoteAddress(String remoteAddress);
 }
