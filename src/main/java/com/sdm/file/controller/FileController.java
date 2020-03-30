@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.*;
+import java.util.List;
 import java.util.Set;
 
 @Controller
@@ -54,15 +55,13 @@ public class FileController extends DefaultReadController<File, String> {
 
     @PostMapping("upload")
     @Transactional
-    public ResponseEntity<ListResponse<File>> uploadFiles(@RequestParam("uploadedFile") MultipartFile[] files,
-                                                                  @RequestParam(value = "isPublic", required = false, defaultValue = "false") boolean isPublic) {
-
+    public ResponseEntity<ListResponse<File>> uploadFile(@RequestParam("uploadedFile") List<MultipartFile> files,
+                                                         @RequestParam(value = "isPublic", required = false, defaultValue = "false") boolean isPublic) {
         ListResponse<File> uploadedFiles = new ListResponse<>();
-        for(MultipartFile file : files){
-            File savedFile = fileService.create(file, isPublic);
-            uploadedFiles.addData(savedFile);
-        }
-
+        files.forEach(file -> {
+            File fileEntity = fileService.create(file, isPublic);
+            uploadedFiles.addData(fileEntity);
+        });
         return new ResponseEntity(uploadedFiles, HttpStatus.CREATED);
     }
 

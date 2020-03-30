@@ -1,5 +1,6 @@
 package com.sdm.core.model;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -24,6 +25,7 @@ import java.util.Date;
 public abstract class DefaultEntity implements Serializable {
     public abstract <T extends Serializable> T getId();
 
+    @JsonIgnore
     @Getter
     @Setter
     @NotAudited
@@ -35,6 +37,15 @@ public abstract class DefaultEntity implements Serializable {
     })
     private Auditor createdBy;
 
+    @JsonGetter("createdBy")
+    public int getCreatedUserId(){
+        if(this.createdBy != null){
+            return this.createdBy.getId();
+        }
+        return 0;
+    }
+
+    @JsonIgnore
     @Getter
     @Setter
     @NotAudited
@@ -45,6 +56,14 @@ public abstract class DefaultEntity implements Serializable {
             @AttributeOverride(name = "token", column = @Column(name="modified_token", length = 36, columnDefinition = "char(36)"))
     })
     private Auditor modifiedBy;
+
+    @JsonGetter("modifiedBy")
+    public int getModifiedUserId(){
+        if(this.modifiedBy != null){
+            return this.modifiedBy.getId();
+        }
+        return 0;
+    }
 
     @Getter
     @Setter

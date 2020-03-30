@@ -36,7 +36,6 @@ public class AuthControllerTest extends DefaultTest {
         this.mockMvc.perform(MockMvcRequestBuilders
                 .post("/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("User-Agent", "spring-boot-testing")
                 .content(objectMapper.writeValueAsString(register)))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isCreated());
