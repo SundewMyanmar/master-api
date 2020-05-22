@@ -1,5 +1,6 @@
 package com.sdm.core.config;
 
+import com.sdm.Constants;
 import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
@@ -23,7 +24,7 @@ public class PropertyConfig {
     public StringEncryptor stringEncryptor() {
         PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
         SimpleStringPBEConfig config = new SimpleStringPBEConfig();
-        config.setPassword(env.getProperty("ENCRYPT_KEY", "N3v3RG!v3up"));
+        config.setPassword(env.getProperty(Constants.ENCRYPT_KEY, "N3v3RG!v3up"));
         config.setAlgorithm("PBEWITHHMACSHA512ANDAES_256");
         config.setKeyObtentionIterations("1000");
         config.setPoolSize("1");
