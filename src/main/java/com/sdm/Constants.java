@@ -9,7 +9,6 @@ public interface Constants {
 
     String APP_NAME = "MasterAPI";
     String INFO_MAIL = "info@sundewmyanmar.com";
-    String DOCS_SNIPPETS = "target/snippets";
 
     /**
      * Regex Patterns

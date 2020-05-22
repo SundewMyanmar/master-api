@@ -17,7 +17,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableWebMvc
 @EnableJpaRepositories(repositoryBaseClass = DefaultRepositoryImpl.class)
 public class Application extends SpringBootServletInitializer {
-
     private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
     public static void main(String[] args) {

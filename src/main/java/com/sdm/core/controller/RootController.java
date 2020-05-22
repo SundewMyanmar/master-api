@@ -1,6 +1,7 @@
 package com.sdm.core.controller;
 
 import com.sdm.Constants;
+import com.sdm.core.config.PropertyConfig;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.MyanmarFontManager;
@@ -28,6 +29,9 @@ public class RootController implements ErrorController {
 
     @Autowired
     SecurityManager securityManager;
+
+    @Autowired
+    private PropertyConfig appConfig;
 
     @Autowired
     protected VelocityTemplateManager templateManager;
@@ -105,10 +109,16 @@ public class RootController implements ErrorController {
         return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "ENCRYPT_SALT", generated, null));
     }
 
-    @GetMapping("/util/passwordGenerate/{len}")
+    @GetMapping("/util/generate/{len}")
     public ResponseEntity<MessageResponse> generateRandomLetter(@PathVariable("len") int len) {
         String generated = securityManager.randomPassword(len);
         return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "GENERATE", generated, null));
+    }
+
+    @GetMapping("/util/encryptProperty")
+    public ResponseEntity<MessageResponse> encryptProperty(@RequestParam("input") String input) {
+        String encrypted = "ENC(" + appConfig.stringEncryptor().encrypt(input) + ")";
+        return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "ENCRYPTED", encrypted, null));
     }
 
     @GetMapping("/util/mmConverter")
