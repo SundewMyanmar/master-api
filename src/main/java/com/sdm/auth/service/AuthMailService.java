@@ -41,7 +41,6 @@ public class AuthMailService {
     private static final int OTP_LENGTH = 8;
 
     private void sendOtpMail(User user, String template, String subject, String otpLink) {
-
         Map<String, Object> data = Map.of("expire", user.getOtpExpired(), "user", user.getDisplayName(), "token_url",
                 otpLink, "current_year", Globalizer.getDateString("yyyy", new Date()));
 
@@ -78,7 +77,7 @@ public class AuthMailService {
         String link = contextPath + "?token=" + token + "&user=" + user.getEmail();
 
         // Send mail with Forget Password Link
-        this.sendOtpMail(user, "mail/forget-password.vm",
+        this.sendOtpMail(user, "mail/forget-password",
                 "Forget password activation link.",
                 link);
     }
@@ -90,7 +89,7 @@ public class AuthMailService {
 
         String link = callbackUrl + "?token=" + token;
         // Send mail with activation link
-        this.sendOtpMail(user, "mail/auth-activate.vm",
+        this.sendOtpMail(user, "mail/auth-activate",
                 "Activate your account.", link);
     }
 
@@ -104,6 +103,6 @@ public class AuthMailService {
                 "current_year", Globalizer.getDateString("yyyy", new Date())
         );
         mailManager.sendByTemplate(new MailHeader(user.getEmail(), "Your account info!"),
-                "mail/create-user.vm", data);
+                "mail/create-user", data);
     }
 }

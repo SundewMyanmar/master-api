@@ -3,9 +3,7 @@ package com.sdm.core.controller;
 import com.sdm.Constants;
 import com.sdm.core.config.PropertyConfig;
 import com.sdm.core.model.response.MessageResponse;
-import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.MyanmarFontManager;
-import com.sdm.core.util.VelocityTemplateManager;
 import com.sdm.core.util.security.SecurityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +13,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +34,7 @@ public class RootController implements ErrorController {
     private PropertyConfig appConfig;
 
     @Autowired
-    protected VelocityTemplateManager templateManager;
+    private SpringTemplateEngine templateEngine;
 
     @Override
     public String getErrorPath() {
@@ -88,13 +88,9 @@ public class RootController implements ErrorController {
 
     @GetMapping("/public/privacy")
     public String privacyPolicy() {
-        Map<String, Object> data = Map.of(
-                "title", Constants.APP_NAME,
-                "email", Constants.INFO_MAIL,
-                "date", Globalizer.getDateString("MMMM, dd YYYY", new Date())
-        );
-
-        return templateManager.buildTemplate("privacy-policy.vm", data);
+        Context context = new Context();
+        context.setVariables(Map.of("title", Constants.APP_NAME, "email", Constants.INFO_MAIL, "today", Calendar.getInstance()));
+        return templateEngine.process("privacy-policy", context);
     }
 
     @GetMapping("/util/jwtKey")

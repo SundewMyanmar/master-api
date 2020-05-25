@@ -3,9 +3,9 @@ package com.sdm.core.util;
 import com.google.myanmartools.TransliterateU2Z;
 import com.google.myanmartools.TransliterateZ2U;
 import com.google.myanmartools.ZawgyiDetector;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,33 +27,19 @@ public class MyanmarFontManager {
     private static final ZawgyiDetector zgDetector = new ZawgyiDetector();
     private static final TransliterateZ2U z2u = new TransliterateZ2U("Zawgyi to Unicode");
     private static final TransliterateU2Z u2z = new TransliterateU2Z("Unicode to Zawgyi");
-    private static final String[] mm_numbers = new String[]{"၀",
-            "၁",
-            "၂",
-            "၃",
-            "၄",
-            "၅",
-            "၆",
-            "၇",
-            "၈",
-            "၉"};
+    private static final String[] mm_numbers = new String[]{"၀", "၁", "၂", "၃", "၄", "၅", "၆", "၇", "၈", "၉"};
 
     public static String convertToMMNumber(String nums) {
-        String result = "";
-        String txt = nums.toString();
-
-        for (int i = 0; i < txt.length(); i++) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < nums.length(); i++) {
             //don't translate, if not number
-
-            if (!StringUtils.isNumeric(String.valueOf(txt.charAt(i)))) {
-                result += txt.charAt(i);
-                continue;
+            if (Character.isDigit(nums.charAt(i))) {
+                builder.append(mm_numbers[(int) nums.charAt(i) - 48]);
+            } else {
+                builder.append(nums.charAt(i));
             }
-
-            result += mm_numbers[Integer.parseInt(String.valueOf(txt.charAt(i)))];
         }
-
-        return result;
+        return builder.toString();
     }
 
     // These Pattern Ref => http://novasteps.com/shake-n-break.html

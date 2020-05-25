@@ -11,17 +11,20 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import java.util.Map;
 
 @Component
 public class WebMailManager {
     private static final Logger logger = LoggerFactory.getLogger(WebMailManager.class);
+
     @Autowired
     protected JavaMailSender mailSender;
 
     @Autowired
-    protected VelocityTemplateManager templateManager;
+    private SpringTemplateEngine templateEngine;
 
     public void send(MailHeader header, String body) {
         MimeMessagePreparator mail = message -> {
@@ -53,7 +56,9 @@ public class WebMailManager {
     }
 
     public void sendByTemplate(MailHeader header, String template, Map<String, Object> data) {
-        String body = templateManager.buildTemplate(template, data);
+        Context context = new Context();
+        context.setVariables(data);
+        String body = templateEngine.process(template, context);
         this.send(header, body);
     }
 }

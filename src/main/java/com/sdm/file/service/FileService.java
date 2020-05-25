@@ -38,9 +38,14 @@ public class FileService {
 
     private final String fileUploadedPath;
 
+    private final CacheControl cacheControl;
+
     @Autowired
     public FileService(PathProperties pathProperties) {
         this.fileUploadedPath = pathProperties.getUpload();
+        this.cacheControl = CacheControl
+                .maxAge(180, TimeUnit.DAYS)
+                .cachePublic();
     }
 
     public File checkFile(String id) {
@@ -144,8 +149,6 @@ public class FileService {
             logger.error(ex.getMessage(), ex);
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
-
-        CacheControl cacheControl = CacheControl.maxAge(7, TimeUnit.DAYS);
 
         if (is64) {
             String base64String = Base64.getMimeEncoder().encodeToString(data);

@@ -7,13 +7,13 @@
 package com.sdm.core.db;
 
 import org.hibernate.dialect.InnoDBStorageEngine;
-import org.hibernate.dialect.MySQLDialect;
+import org.hibernate.dialect.MySQL8Dialect;
 import org.hibernate.dialect.MySQLStorageEngine;
 
 /**
  * @author Htoonlin
  */
-public class SundewMySQLDialect extends MySQLDialect {
+public class SundewMySQLDialect extends MySQL8Dialect {
 
     public SundewMySQLDialect() {
         super();

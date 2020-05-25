@@ -9,7 +9,7 @@ buildscript {
 }
 
 plugins {
-    id 'org.springframework.boot' version '2.2.5.RELEASE'
+    id 'org.springframework.boot' version '2.3.0.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id 'java'
     id 'war'
@@ -17,7 +17,7 @@ plugins {
 }
 
 group = 'com.sdm'
-version = '1.5.2-SNAPSHOT'
+version = '1.5.3-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
@@ -47,6 +47,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.session:spring-session-core'
     implementation 'org.springframework.session:spring-session-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     //Swagger Config
     compile 'io.springfox:springfox-swagger2:2.9.2'
@@ -76,9 +78,6 @@ dependencies {
 
     //Thumbnailtor
     implementation 'net.coobird:thumbnailator:0.4.11'
-
-    //Velocity
-    implementation 'org.apache.velocity:velocity:1.7'
 
     //PostgreSQL
     runtimeOnly 'org.postgresql:postgresql'

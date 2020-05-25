@@ -11,10 +11,8 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @SpringBootApplication
-@EnableWebMvc
 @EnableJpaRepositories(repositoryBaseClass = DefaultRepositoryImpl.class)
 public class Application extends SpringBootServletInitializer {
     private static final Logger logger = LoggerFactory.getLogger(Application.class);

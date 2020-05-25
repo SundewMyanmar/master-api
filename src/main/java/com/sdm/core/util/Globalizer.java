@@ -5,6 +5,7 @@
  */
 package com.sdm.core.util;
 
+import com.sdm.Constants;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -52,6 +53,14 @@ public class Globalizer {
         }
     }
 
+    public static Integer toInt(String input, int defultValue) {
+        Pattern pattern = Pattern.compile(Constants.Pattern.INTEGER);
+        if (pattern.matcher(input).matches()) {
+            return Integer.parseInt(input);
+        }
+        return defultValue;
+    }
+
     public static Date addDate(Date date, Duration duration) {
         long seconds = duration.toSeconds();
         Calendar cal = Calendar.getInstance();
@@ -72,18 +81,8 @@ public class Globalizer {
         return remoteAddress.split(",")[0];
     }
 
-    public static String generateToken(String chars, int length) {
-        SecureRandom rnd = new SecureRandom();
-        StringBuilder pass = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            pass.append(chars.charAt(rnd.nextInt(chars.length())));
-        }
-
-        return pass.toString();
-    }
-
     public static boolean isEmail(String email) {
-        Pattern pattern = Pattern.compile("^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+        Pattern pattern = Pattern.compile(Constants.Pattern.EMAIL);
         return pattern.matcher(email).matches();
     }
 
@@ -112,4 +111,13 @@ public class Globalizer {
         return prefix + incString;
     }
 
+    public static String generateToken(String chars, int length) {
+        SecureRandom rnd = new SecureRandom();
+        StringBuilder pass = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            pass.append(chars.charAt(rnd.nextInt(chars.length())));
+        }
+
+        return pass.toString();
+    }
 }

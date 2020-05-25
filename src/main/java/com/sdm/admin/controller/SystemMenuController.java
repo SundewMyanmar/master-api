@@ -6,7 +6,7 @@ import com.sdm.admin.repository.SystemMenuRepository;
 import com.sdm.core.controller.DefaultReadWriteController;
 import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.repository.DefaultRepository;
-import org.apache.commons.lang.StringUtils;
+import com.sdm.core.util.Globalizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.http.ResponseEntity;
@@ -40,9 +40,7 @@ public class SystemMenuController extends DefaultReadWriteController<SystemMenu,
         List<Integer> roles = new ArrayList<>();
         getCurrentUser().getAuthorities().forEach(aut -> {
             String roleId = aut.getAuthority().replaceAll(Constants.Auth.AUTHORITY_PREFIX, "");
-            if (StringUtils.isNumeric(roleId)) {
-                roles.add(Integer.parseInt(roleId));
-            }
+            roles.add(Globalizer.toInt(roleId, 0));
         });
 
         var results = systemMenuRepository.findByRoles(roles);
