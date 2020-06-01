@@ -74,7 +74,7 @@
             <AppenderRef ref="RequestLog"/>
         </Logger>
 
-        <Root level="warn" additivity="false">
+        <Root level="info" additivity="false">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="GeneralLog"/>
         </Root>
