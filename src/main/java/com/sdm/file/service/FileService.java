@@ -6,9 +6,8 @@ import com.sdm.core.util.FileManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.file.model.File;
 import com.sdm.file.repository.FileRepository;
+import lombok.extern.log4j.Log4j2;
 import net.coobird.thumbnailator.Thumbnails;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -30,8 +29,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@Log4j2
 public class FileService {
-    private static final Logger logger = LoggerFactory.getLogger(FileService.class);
 
     @Autowired
     FileRepository fileRepository;
@@ -146,7 +145,7 @@ public class FileService {
                 data = Files.readAllBytes(savedPath);
             }
         } catch (IOException ex) {
-            logger.error(ex.getMessage(), ex);
+            log.error(ex.getMessage(), ex);
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
 

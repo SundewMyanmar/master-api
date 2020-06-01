@@ -24,12 +24,17 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+}
+
+ext {
+    set('snippetsDir', file("build/generated-snippets"))
 }
 
 asciidoctor {
-    sourceDir 'src/main/asciidoc'
-    outputDir 'build/docs'
-    options doctype: 'book'
+    inputs.dir snippetsDir
     dependsOn test
 }
 
@@ -39,16 +44,20 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    // implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.session:spring-session-core'
     implementation 'org.springframework.session:spring-session-jdbc'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation(group: 'org.springframework.boot', name: 'spring-boot-starter-log4j2')
+
+    //BIRT
+    //compile group: 'com.innoventsolutions.birt.runtime', name: 'org.eclipse.birt.runtime_4.8.0-20180626', version: '4.8.0'
 
     //Swagger Config
     compile 'io.springfox:springfox-swagger2:2.9.2'
@@ -82,29 +91,32 @@ dependencies {
     //PostgreSQL
     runtimeOnly 'org.postgresql:postgresql'
 
-    compileOnly 'org.projectlombok:lombok'
+    //MySQL Runtime
+    runtimeOnly 'mysql:mysql-connector-java'
+
+    //lombok
     annotationProcessor 'org.projectlombok:lombok'
+
+    //Tomcat
     providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    testCompile group: 'capital.scalable', name: 'spring-auto-restdocs-core', version: '2.0.8'
+    asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 
-    //Lombok
-    testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
     //Fake Data http://dius.github.io/java-faker/
     testCompile group: 'com.github.javafaker', name: 'javafaker', version: '0.12'
-
-    //Auto Rest Docs
-    asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
-    testCompile 'org.springframework.restdocs:spring-restdocs-mockmvc'
-    testCompile group: 'capital.scalable', name: 'spring-auto-restdocs-core', version: '2.0.8'
 }
 
 test {
     useJUnitPlatform()
+    outputs.dir snippetsDir
 }
 
 bootWar {

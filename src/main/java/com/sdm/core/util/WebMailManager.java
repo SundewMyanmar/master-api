@@ -2,8 +2,7 @@ package com.sdm.core.util;
 
 import com.sdm.Constants;
 import com.sdm.core.model.MailHeader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -17,8 +16,8 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import java.util.Map;
 
 @Component
+@Log4j2
 public class WebMailManager {
-    private static final Logger logger = LoggerFactory.getLogger(WebMailManager.class);
 
     @Autowired
     protected JavaMailSender mailSender;
@@ -51,7 +50,7 @@ public class WebMailManager {
         try {
             mailSender.send(mail);
         } catch (MailException ex) {
-            logger.warn(ex.getLocalizedMessage());
+            log.warn(ex.getLocalizedMessage());
         }
     }
 

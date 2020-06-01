@@ -9,8 +9,7 @@ package com.sdm.core.util.security;
 import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.util.Globalizer;
 import io.jsonwebtoken.impl.crypto.MacProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,9 +30,9 @@ import java.util.Base64;
  * @author Htoonlin
  */
 @Component
+@Log4j2
 public class SecurityManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(SecurityManager.class);
 
     @Autowired
     private SecurityProperties securityProperties;
@@ -47,7 +46,7 @@ public class SecurityManager {
         try {
             random = SecureRandom.getInstance("SHA1PRNG");
         } catch (NoSuchAlgorithmException ex) {
-            logger.error(ex.getLocalizedMessage(), ex);
+            log.error(ex.getLocalizedMessage(), ex);
             random = new SecureRandom();
         }
         byte salt[] = new byte[64];
@@ -58,7 +57,7 @@ public class SecurityManager {
     public String hashString(String input) {
         String systemSalt = this.securityProperties.getEncryptSalt();
 
-        logger.info("Preparing to encrypt data....");
+        log.info("Preparing to encrypt data....");
         final int iterations = 1000;
         final int keyLength = 512;
         char[] password = input.toCharArray();
@@ -67,10 +66,10 @@ public class SecurityManager {
             PBEKeySpec spec = new PBEKeySpec(password, staticSalt, iterations, keyLength);
             SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
             String inputHex = DatatypeConverter.printHexBinary(skf.generateSecret(spec).getEncoded());
-            logger.info("Successfully encrypted data.");
+            log.info("Successfully encrypted data.");
             return inputHex;
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            logger.error(e.getLocalizedMessage(), e);
+            log.error(e.getLocalizedMessage(), e);
         }
 
         return base64Encode(input + systemSalt);

@@ -2,11 +2,10 @@ package com.sdm.core.config;
 
 import com.sdm.Constants;
 import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
+import lombok.extern.log4j.Log4j2;
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,8 +13,8 @@ import org.springframework.core.env.Environment;
 
 @Configuration
 @EnableEncryptableProperties
+@Log4j2
 public class PropertyConfig {
-    private Logger logger = LoggerFactory.getLogger(PropertyConfig.class);
 
     @Autowired
     private Environment env;

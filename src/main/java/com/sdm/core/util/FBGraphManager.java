@@ -6,8 +6,7 @@ import com.google.gson.JsonObject;
 import com.sdm.core.config.properties.FacebookProperties;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.util.security.SecurityManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -15,8 +14,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
+@Log4j2
 public class FBGraphManager {
-    public static final Logger LOG = LoggerFactory.getLogger(FBGraphManager.class);
 
     private final FacebookProperties properties;
 
@@ -85,7 +84,7 @@ public class FBGraphManager {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
 
-        LOG.info("Send Welcome Screen Message to Facebook => " + entity.toString());
+        log.info("Send Welcome Screen Message to Facebook => " + entity.toString());
         //Build Request Body
         HttpEntity<String> requestEntity = new HttpEntity<>(entity.toString(), headers);
 
@@ -93,7 +92,7 @@ public class FBGraphManager {
         ResponseEntity<String> result = restTemplate.exchange(uriBuilder.toUriString(), HttpMethod.POST,
                 requestEntity, String.class);
 
-        LOG.info("Facebook Response => " + result.getBody());
+        log.info("Facebook Response => " + result.getBody());
         return result;
     }
 
@@ -106,7 +105,7 @@ public class FBGraphManager {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
 
-        LOG.info("Send Message to Facebook => " + entity.toString());
+        log.info("Send Message to Facebook => " + entity.toString());
 
         //Build Request Body
         HttpEntity<String> requestEntity = new HttpEntity<>(entity.toString(), headers);
@@ -115,7 +114,7 @@ public class FBGraphManager {
         ResponseEntity<String> result = restTemplate.exchange(uriBuilder.toUriString(), HttpMethod.POST,
                 requestEntity, String.class);
 
-        LOG.info("Facebook Response => " + result.getBody());
+        log.info("Facebook Response => " + result.getBody());
         return result;
     }
 

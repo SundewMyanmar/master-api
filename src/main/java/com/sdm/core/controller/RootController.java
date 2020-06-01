@@ -5,8 +5,7 @@ import com.sdm.core.config.PropertyConfig;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.util.MyanmarFontManager;
 import com.sdm.core.util.security.SecurityManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
@@ -23,9 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@Log4j2
 public class RootController implements ErrorController {
-
-    private static final Logger logger = LoggerFactory.getLogger(RootController.class);
 
     @Autowired
     SecurityManager securityManager;

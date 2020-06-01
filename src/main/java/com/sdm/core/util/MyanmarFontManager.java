@@ -3,8 +3,7 @@ package com.sdm.core.util;
 import com.google.myanmartools.TransliterateU2Z;
 import com.google.myanmartools.TransliterateZ2U;
 import com.google.myanmartools.ZawgyiDetector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
@@ -19,9 +18,8 @@ import java.util.regex.Pattern;
  * and Mon as Zawgyi when it is actually Unicode. Ref =>
  * https://github.com/googlei18n/myanmar-tools
  */
+@Log4j2
 public class MyanmarFontManager {
-
-    private static final Logger logger = LoggerFactory.getLogger(MyanmarFontManager.class);
 
     private static final double THRESHOLD = 0.2;
     private static final ZawgyiDetector zgDetector = new ZawgyiDetector();

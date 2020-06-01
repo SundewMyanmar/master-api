@@ -63,19 +63,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return source;
     }
 
-    @Bean
-    public CookieSerializer cookieSerializer() {
-        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        if (!StringUtils.isEmpty(securityProperties.getCookieDomain())) {
-            serializer.setDomainName(securityProperties.getCookieDomain());
-        }
-
-        if (StringUtils.isEmpty(securityProperties.getCookiePath())) {
-            serializer.setCookiePath(securityProperties.getCookieDomain());
-        }
-        return serializer;
-    }
-
     public static final String[] SYSTEM_WHITE_LIST = {
             "/",
             "/error",
@@ -84,11 +71,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/public/**",
             "/auth/**",
             "/install/**",
+            "/report/**",
             "/swagger-ui.html",
             "/swagger-resources/**",
             "/webjars/**",
             "/v2/api-docs",
     };
+
+    @Bean
+    public CookieSerializer cookieSerializer() {
+        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+        if (!StringUtils.isEmpty(securityProperties.getCookieDomain())) {
+            serializer.setDomainName(securityProperties.getCookieDomain());
+        }
+
+        if (!StringUtils.isEmpty(securityProperties.getCookiePath())) {
+            serializer.setCookiePath(securityProperties.getCookiePath());
+        }
+        return serializer;
+    }
 
     public static final String[] USER_PERMISSION_LIST = {
             "/me/**",
@@ -111,8 +112,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             csrfTokenRepository.setCookieDomain(securityProperties.getCookieDomain());
         }
 
-        if (StringUtils.isEmpty(securityProperties.getCookiePath())) {
-            csrfTokenRepository.setCookiePath(securityProperties.getCookieDomain());
+        if (!StringUtils.isEmpty(securityProperties.getCookiePath())) {
+            csrfTokenRepository.setCookiePath(securityProperties.getCookiePath());
         }
         return csrfTokenRepository;
     }

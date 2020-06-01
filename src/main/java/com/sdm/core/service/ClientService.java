@@ -5,10 +5,9 @@ import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.model.ClientInfo;
 import com.sdm.core.repository.ClientRepository;
 import com.sdm.core.util.Globalizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,8 +20,8 @@ import java.util.Date;
 import java.util.UUID;
 
 @Service
+@Log4j2
 public class ClientService {
-    private static final Logger logger = LoggerFactory.getLogger(ClientService.class);
 
     @Autowired
     private ClientRepository repository;
@@ -31,8 +30,8 @@ public class ClientService {
     private SecurityProperties securityProperties;
 
     private void writeLog(String type, String remoteAddress, String url) {
-        Marker marker = MarkerFactory.getMarker(type.toUpperCase());
-        logger.info(marker, "{} => {}", remoteAddress, url);
+        Marker marker = MarkerManager.getMarker(type.toUpperCase());
+        log.info(marker, "{} => {}", remoteAddress, url);
     }
 
     private String readBody(BufferedReader buffIn) throws IOException {

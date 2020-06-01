@@ -8,8 +8,7 @@ import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.model.response.PaginationResponse;
 import com.sdm.core.repository.DefaultRepository;
 import com.sdm.core.service.StructureService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,9 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+@Log4j2
 public abstract class DefaultReadController<T extends DefaultEntity, ID extends Serializable> implements ReadController<T, ID> {
-
-    protected static final Logger logger = LoggerFactory.getLogger(ReadController.class);
 
     protected abstract DefaultRepository<T, ID> getRepository();
 
