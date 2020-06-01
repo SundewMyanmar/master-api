@@ -68,8 +68,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui
     compile group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.4.0'
 
-    // https://mvnrepository.com/artifact/com.innoventsolutions.birt-spring-boot/birt-spring-boot-starter
-    compile group: 'com.innoventsolutions.birt-spring-boot', name: 'birt-spring-boot-starter', version: '0.0.6'
+    //compile group: 'com.innoventsolutions.birt-spring-boot', name: 'birt-spring-boot-starter', version: '0.0.6'
+    compile group: 'com.innoventsolutions.birt.runtime', name: 'org.eclipse.birt.runtime_4.8.0-20180626', version: '4.8.0'
+
 
     // implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
