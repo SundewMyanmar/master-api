@@ -36,19 +36,19 @@ So, you have to know about these frameworks and libraries. [Getting Started](#ge
 - Open project in Java IDE such as Intellij, Eclipse, NetBeans, etc ...
 - Clone following setting files:
 	- [example.application.properties](./src/main/resources/example.application.properties) => __application.properties__
-	- [example.logback-spring.xml](./src/main/resources/example.logback-spring.xml) => __logback-spring.xml__
+	- [example.log4j2.xml](./src/main/resources/example.log4j2.xml) => __log4j2.xml__
 - Create system directories:
     - File upload directory. (Example: /var/www/master-api/upload/)
     - Template directory. (Example: /var/www/master-api/template/)
     - Log directory. (Example: /var/www/master-api/log/)
 - Copy/Paste templates files:
     - [templates](./src/main/resources/templates) => __Template directory__
-- Edit require properties from **application.properties** and **logback-spring.xml** files.
+- Edit require properties from **application.properties** and **log4j2.xml** files.
 
-### Require config to edit in **logback-spring.xml**
+### Require config to edit in **log4j2.xml**
 Modified output directory.
 ```xml
-<property name="logPath" value="{log_directory}"/>
+<Property name="LOG_ROOT">{log directory path}/</Property>
 ```
 
 ### Require properties to edit in **application.properties** 
@@ -63,7 +63,6 @@ spring.datasource.password={db_password}
 
 #### Path Setting
 ```properties
-com.sdm.path.template={mail_template_directory}
 com.sdm.path.upload={file_upload_directory}
 ```
 

@@ -44,29 +44,6 @@ repositories {
 }
 
 dependencies {
-    // implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-mail'
-    implementation 'org.springframework.boot:spring-boot-starter-quartz'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.session:spring-session-core'
-    implementation 'org.springframework.session:spring-session-jdbc'
-    implementation(group: 'org.springframework.boot', name: 'spring-boot-starter-log4j2')
-
-    //BIRT
-    //compile group: 'com.innoventsolutions.birt.runtime', name: 'org.eclipse.birt.runtime_4.8.0-20180626', version: '4.8.0'
-
-    //Swagger Config
-    compile 'io.springfox:springfox-swagger2:2.9.2'
-    compile 'io.springfox:springfox-swagger-ui:2.9.2'
-    compile "io.projectreactor:reactor-core:3.3.3.RELEASE"
-
-    //Hibernate Audit
-    implementation 'org.hibernate:hibernate-envers'
-
     //JWT
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
@@ -74,7 +51,7 @@ dependencies {
     implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.2'
 
     //Firebase
-    implementation 'com.google.firebase:firebase-admin:6.12.2'
+    implementation 'com.google.firebase:firebase-admin:6.13.0'
 
     //Barcode
     implementation 'com.google.zxing:core:3.4.0'
@@ -87,6 +64,29 @@ dependencies {
 
     //Thumbnailtor
     implementation 'net.coobird:thumbnailator:0.4.11'
+
+    // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui
+    compile group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.4.0'
+
+    // https://mvnrepository.com/artifact/com.innoventsolutions.birt-spring-boot/birt-spring-boot-starter
+    compile group: 'com.innoventsolutions.birt-spring-boot', name: 'birt-spring-boot-starter', version: '0.0.6'
+
+    // implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-quartz'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.session:spring-session-core'
+    implementation 'org.springframework.session:spring-session-jdbc'
+    implementation(group: 'org.springframework.boot', name: 'spring-boot-starter-log4j2') {
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl'
+    }
+
+    //Hibernate Audit
+    implementation 'org.hibernate:hibernate-envers'
 
     //PostgreSQL
     runtimeOnly 'org.postgresql:postgresql'
@@ -111,7 +111,7 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
 
     //Fake Data http://dius.github.io/java-faker/
-    testCompile group: 'com.github.javafaker', name: 'javafaker', version: '0.12'
+    testCompile group: 'com.github.javafaker', name: 'javafaker', version: '1.0.2'
 }
 
 test {
