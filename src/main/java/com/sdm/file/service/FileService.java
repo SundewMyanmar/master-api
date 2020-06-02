@@ -81,7 +81,7 @@ public class FileService {
         String storageName = rawEntity.getId() + "." + rawEntity.getExtension();
 
         Path savePath = Paths.get(this.fileUploadedPath, storagePath).normalize();
-        java.io.File savedFile = new java.io.File(savePath + "/" + storageName);
+        java.io.File savedFile = new java.io.File(savePath + java.io.File.separator + storageName);
         try {
             Files.createDirectories(savePath);
             uploadFile.transferTo(savedFile);

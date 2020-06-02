@@ -1,14 +1,16 @@
 package com.sdm.report.controller;
 
-import com.sdm.report.request.OutputType;
-import com.sdm.report.request.Report;
+import com.sdm.report.model.Report;
 import com.sdm.report.service.ReportService;
 import lombok.extern.log4j.Log4j2;
 import org.eclipse.birt.report.engine.api.EngineException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,12 +43,9 @@ public class ReportController {
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{name}")
+    @RequestMapping(method = RequestMethod.GET, value = "/{id}")
     @ResponseBody
-    public void generateFullReport(HttpServletResponse response, HttpServletRequest request,
-                                   @PathVariable("name") String name, @RequestParam("output") String output) {
-        log.info("Generating full report: " + name + "; format: " + output);
-        OutputType format = OutputType.from(output);
-        reportService.generateMainReport(name, format, response, request);
+    public void generateFullReport(HttpServletResponse response, HttpServletRequest request, @PathVariable("id") String id) {
+        reportService.generatePDF(id, request, response);
     }
 }
