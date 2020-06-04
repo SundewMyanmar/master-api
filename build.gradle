@@ -41,6 +41,8 @@ asciidoctor {
 repositories {
     mavenCentral()
     jcenter()
+    maven{url "http://jasperreports.sourceforge.net/maven2/"}
+    maven{url "http://jaspersoft.artifactoryonline.com/jaspersoft/third-party-ce-artifacts/"}
 }
 
 dependencies {
@@ -68,11 +70,12 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui
     compile group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.4.0'
 
-    //compile group: 'com.innoventsolutions.birt-spring-boot', name: 'birt-spring-boot-starter', version: '0.0.6'
-    compile group: 'com.innoventsolutions.birt.runtime', name: 'org.eclipse.birt.runtime_4.8.0-20180626', version: '4.8.0'
+    // Reporting
+    // https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports
+    compile group: 'net.sf.jasperreports', name: 'jasperreports', version: '6.12.2'
 
 
-    // implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
@@ -82,9 +85,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.session:spring-session-core'
     implementation 'org.springframework.session:spring-session-jdbc'
-    implementation(group: 'org.springframework.boot', name: 'spring-boot-starter-log4j2') {
-        exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl'
-    }
+    implementation(group: 'org.springframework.boot', name: 'spring-boot-starter-log4j2')
 
     //Hibernate Audit
     implementation 'org.hibernate:hibernate-envers'

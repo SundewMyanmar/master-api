@@ -40,7 +40,6 @@ public class CloudMessagingManager {
 
     public CloudMessagingManager(FireBaseProperties fireBaseProperties) {
         if (fireBaseProperties.getProjectUrl().length() > 0 && fireBaseProperties.getServiceJson().length() > 0) {
-            defaultApp = FirebaseApp.getInstance(FIR_APP_NAME);
             if (defaultApp == null) {
                 try (FileInputStream serviceAccount = new FileInputStream(fireBaseProperties.getServiceJson())) {
                     FirebaseOptions options = new FirebaseOptions.Builder()
