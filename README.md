@@ -39,10 +39,8 @@ So, you have to know about these frameworks and libraries. [Getting Started](#ge
 	- [example.log4j2.xml](./src/main/resources/example.log4j2.xml) => __log4j2.xml__
 - Create system directories:
     - File upload directory. (Example: /var/www/master-api/upload/)
-    - Template directory. (Example: /var/www/master-api/template/)
+    - Report directory. (Example: /var/www/master-api/reports/)
     - Log directory. (Example: /var/www/master-api/log/)
-- Copy/Paste templates files:
-    - [templates](./src/main/resources/templates) => __Template directory__
 - Edit require properties from **application.properties** and **log4j2.xml** files.
 
 ### Require config to edit in **log4j2.xml**
@@ -56,7 +54,7 @@ Modified output directory.
 
 #### Database Setting
 ```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/{database_name}
+spring.datasource.url=jdbc:{mysql|postgresql}://{db_host}:{db_port}/{db_name}
 spring.datasource.username={db_user}
 spring.datasource.password={db_password}
 ```
@@ -64,6 +62,7 @@ spring.datasource.password={db_password}
 #### Path Setting
 ```properties
 com.sdm.path.upload={file_upload_directory}
+com.sdm.path.report={jasper_report_directory}
 ```
 
 #### Mail Server Setting
@@ -127,6 +126,7 @@ ___
 - [Exception Handling](./src/main/java/com/sdm/core/exception)
 - [Base Models](./src/main/java/com/sdm/core/model)
 - [Utils & Plugins](./src/main/java/com/sdm/core/util)
+- [Jasper Reporting](https://en.wikipedia.org/wiki/JasperReports)
 
 ### [System Authorization and Authentication](./src/main/java/com/sdm/auth)
 - System auth by user:password
