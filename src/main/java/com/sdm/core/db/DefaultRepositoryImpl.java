@@ -3,8 +3,7 @@ package com.sdm.core.db;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Filterable;
 import com.sdm.core.repository.DefaultRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -21,9 +20,8 @@ import javax.persistence.criteria.*;
 import java.io.Serializable;
 import java.util.*;
 
+@Log4j2
 public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializable> extends SimpleJpaRepository<T, ID> implements DefaultRepository<T, ID> {
-
-    private static final Logger logger = LoggerFactory.getLogger(DefaultRepositoryImpl.class);
 
     private final JpaEntityInformation<T, ?> entityInformation;
     private final EntityManager entityManager;

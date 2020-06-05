@@ -16,8 +16,7 @@ import com.sdm.core.util.security.SecurityManager;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,8 +34,8 @@ import java.util.Random;
 import java.util.UUID;
 
 @Service
+@Log4j2
 public class AuthService {
-    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     @Autowired
     private FBGraphManager facebookGraphManager;
@@ -211,7 +210,7 @@ public class AuthService {
 
             return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "send_otp", "We send the reset password link to your e-mail.", null));
         } catch (Exception ex) {
-            logger.error(ex.getLocalizedMessage());
+            log.error(ex.getLocalizedMessage());
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
     }
@@ -254,7 +253,7 @@ public class AuthService {
             try {
                 mailService.activateLink(newUser, ServletUriComponentsBuilder.fromCurrentContextPath().toUriString());
             } catch (JsonProcessingException ex) {
-                logger.warn(ex.getLocalizedMessage());
+                log.warn(ex.getLocalizedMessage());
             }
         } else {
             this.createToken(newUser, request);

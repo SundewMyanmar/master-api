@@ -12,6 +12,6 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PathProperties {
-    private String template = "/var/www/master-api/template/";
     private String upload = "/var/www/master-api/upload/";
+    private String report = "/var/www/master-api/report/";
 }

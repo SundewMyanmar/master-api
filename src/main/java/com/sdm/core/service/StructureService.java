@@ -6,8 +6,7 @@ import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.ModelInfo;
 import com.sdm.core.util.Globalizer;
 import com.sdm.file.model.File;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.*;
@@ -21,9 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Log4j2
 public class StructureService {
-
-    public static final Logger logger = LoggerFactory.getLogger(StructureService.class);
 
     /**
      * Check Field need to Process
@@ -163,7 +161,7 @@ public class StructureService {
                 this.loadGeneralInfo(field, model);
                 this.loadCondition(field, model);
             } catch (Exception ex) {
-                logger.warn(ex.getLocalizedMessage());
+                log.warn(ex.getLocalizedMessage());
             }
 
             structure.add(model);

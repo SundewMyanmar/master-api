@@ -62,7 +62,6 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
     }
 
     private Docket buildDocket(String groupName, String basePackage) {
-
         Predicate<RequestHandler> findThere = null;
 
         if (StringUtils.isEmpty(basePackage)) {
@@ -85,23 +84,28 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
     }
 
     @Bean
+    public Docket coreApi() {
+        return this.buildDocket("1. Core", "com.sdm.core");
+    }
+
+    @Bean
     Docket authApi() {
-        return this.buildDocket("Auth", "com.sdm.auth");
+        return this.buildDocket("2. Auth", "com.sdm.auth");
     }
 
     @Bean
     public Docket adminApi() {
-        return this.buildDocket("Admin", "com.sdm.admin");
+        return this.buildDocket("3. Admin", "com.sdm.admin");
     }
 
     @Bean
     public Docket fileApi() {
-        return this.buildDocket("File", "com.sdm.file");
+        return this.buildDocket("4. File", "com.sdm.file");
     }
 
     @Bean
-    public Docket defaultApi() {
-        return this.buildDocket("All", "com.sdm");
+    public Docket allApi() {
+        return this.buildDocket("5. All", "com.sdm");
     }
 
     @Override

@@ -1,36 +1,38 @@
 package com.sdm.core.controller;
 
 import com.sdm.Constants;
+import com.sdm.core.config.PropertyConfig;
 import com.sdm.core.model.response.MessageResponse;
-import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.MyanmarFontManager;
-import com.sdm.core.util.VelocityTemplateManager;
 import com.sdm.core.util.security.SecurityManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@Log4j2
 public class RootController implements ErrorController {
-
-    private static final Logger logger = LoggerFactory.getLogger(RootController.class);
 
     @Autowired
     SecurityManager securityManager;
 
     @Autowired
-    protected VelocityTemplateManager templateManager;
+    private PropertyConfig appConfig;
+
+    @Autowired
+    private SpringTemplateEngine templateEngine;
 
     @Override
     public String getErrorPath() {
@@ -84,13 +86,9 @@ public class RootController implements ErrorController {
 
     @GetMapping("/public/privacy")
     public String privacyPolicy() {
-        Map<String, Object> data = Map.of(
-                "title", Constants.APP_NAME,
-                "email", Constants.INFO_MAIL,
-                "date", Globalizer.getDateString("MMMM, dd YYYY", new Date())
-        );
-
-        return templateManager.buildTemplate("privacy-policy.vm", data);
+        Context context = new Context();
+        context.setVariables(Map.of("title", Constants.APP_NAME, "email", Constants.INFO_MAIL, "today", Calendar.getInstance()));
+        return templateEngine.process("privacy-policy", context);
     }
 
     @GetMapping("/util/jwtKey")
@@ -105,10 +103,16 @@ public class RootController implements ErrorController {
         return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "ENCRYPT_SALT", generated, null));
     }
 
-    @GetMapping("/util/passwordGenerate/{len}")
+    @GetMapping("/util/generate/{len}")
     public ResponseEntity<MessageResponse> generateRandomLetter(@PathVariable("len") int len) {
         String generated = securityManager.randomPassword(len);
         return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "GENERATE", generated, null));
+    }
+
+    @GetMapping("/util/encryptProperty")
+    public ResponseEntity<MessageResponse> encryptProperty(@RequestParam("input") String input) {
+        String encrypted = "ENC(" + appConfig.stringEncryptor().encrypt(input) + ")";
+        return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "ENCRYPTED", encrypted, null));
     }
 
     @GetMapping("/util/mmConverter")

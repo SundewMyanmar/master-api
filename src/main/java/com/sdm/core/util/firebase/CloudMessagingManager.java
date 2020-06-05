@@ -14,8 +14,7 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.*;
 import com.sdm.core.config.properties.FireBaseProperties;
 import com.sdm.core.util.MyanmarFontManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,9 +28,8 @@ import java.util.Map;
  * @author htoonlin
  */
 @Component
+@Log4j2
 public class CloudMessagingManager {
-
-    private static final Logger logger = LoggerFactory.getLogger(CloudMessagingManager.class);
 
     private static final String FIR_APP_NAME = "FIR_CLOUD_MESSAGING_APP";
 
@@ -42,7 +40,6 @@ public class CloudMessagingManager {
 
     public CloudMessagingManager(FireBaseProperties fireBaseProperties) {
         if (fireBaseProperties.getProjectUrl().length() > 0 && fireBaseProperties.getServiceJson().length() > 0) {
-            defaultApp = FirebaseApp.getInstance(FIR_APP_NAME);
             if (defaultApp == null) {
                 try (FileInputStream serviceAccount = new FileInputStream(fireBaseProperties.getServiceJson())) {
                     FirebaseOptions options = new FirebaseOptions.Builder()
@@ -51,7 +48,7 @@ public class CloudMessagingManager {
                             .build();
                     defaultApp = FirebaseApp.initializeApp(options, FIR_APP_NAME);
                 } catch (IOException ex) {
-                    logger.warn(ex.getLocalizedMessage(), ex);
+                    log.warn(ex.getLocalizedMessage(), ex);
                 }
             }
         }
@@ -94,7 +91,7 @@ public class CloudMessagingManager {
                 try {
                     stringData.put(key, jacksonObjectMapper.writeValueAsString(value));
                 } catch (JsonProcessingException ex) {
-                    logger.warn(ex.getLocalizedMessage());
+                    log.warn(ex.getLocalizedMessage());
                     stringData.put(key, value.toString());
                 }
             } else {

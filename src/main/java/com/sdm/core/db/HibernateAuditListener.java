@@ -3,17 +3,15 @@ package com.sdm.core.db;
 import com.sdm.Constants;
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.model.SundewAuditEntity;
+import lombok.extern.log4j.Log4j2;
 import org.hibernate.envers.RevisionListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
+@Log4j2
 public class HibernateAuditListener implements RevisionListener {
-
-    private static final Logger logger = LoggerFactory.getLogger(HibernateAuditListener.class);
 
     @Override
     public void newRevision(Object revisionEntity) {
@@ -29,7 +27,7 @@ public class HibernateAuditListener implements RevisionListener {
                 auditEntity.setToken(Constants.Auth.DEFAULT_AUTH_TOKEN);
             }
         } catch (Exception ex) {
-            logger.error(ex.getLocalizedMessage(), ex.getCause());
+            log.error(ex.getLocalizedMessage(), ex.getCause());
         }
     }
 

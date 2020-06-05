@@ -1,8 +1,7 @@
 package com.sdm.core.config;
 
 import com.sdm.core.exception.AsyncException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
@@ -13,8 +12,8 @@ import java.util.concurrent.Executor;
 
 @Configuration
 @EnableAsync
+@Log4j2
 public class AsyncConfig implements AsyncConfigurer {
-    private static final Logger logger = LoggerFactory.getLogger(AsyncConfig.class);
 
     private static final int POOL_SIZE = 3;
 

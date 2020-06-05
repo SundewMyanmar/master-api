@@ -40,9 +40,12 @@ build/
 .DS_Store
 
 # Misc
-*.swp
 /src/main/resources/application.properties
 /src/main/resources/logback-spring.xml
+/src/main/resources/log4j2-spring.xml
+/src/main/resources/log4j2.xml
+
+*.swp
 pom.xml.releaseBackup
 pom.xml.tag
 dependency-reduced-pom.xml
@@ -52,3 +55,4 @@ buildNumber.properties
 *.sql
 *.http
 src/main/resources/static/
+src/main/resources/templates/reports/

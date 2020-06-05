@@ -2,8 +2,7 @@ package com.sdm.core.util;
 
 import com.sdm.Constants;
 import com.sdm.core.model.MailHeader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -11,17 +10,20 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import java.util.Map;
 
 @Component
+@Log4j2
 public class WebMailManager {
-    private static final Logger logger = LoggerFactory.getLogger(WebMailManager.class);
+
     @Autowired
     protected JavaMailSender mailSender;
 
     @Autowired
-    protected VelocityTemplateManager templateManager;
+    private SpringTemplateEngine templateEngine;
 
     public void send(MailHeader header, String body) {
         MimeMessagePreparator mail = message -> {
@@ -48,12 +50,14 @@ public class WebMailManager {
         try {
             mailSender.send(mail);
         } catch (MailException ex) {
-            logger.warn(ex.getLocalizedMessage());
+            log.warn(ex.getLocalizedMessage());
         }
     }
 
     public void sendByTemplate(MailHeader header, String template, Map<String, Object> data) {
-        String body = templateManager.buildTemplate(template, data);
+        Context context = new Context();
+        context.setVariables(data);
+        String body = templateEngine.process(template, context);
         this.send(header, body);
     }
 }

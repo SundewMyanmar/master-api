@@ -28,7 +28,6 @@ public class JpaConfig {
         return transactionManager;
     }
 
-
     @Bean
     public AuditorAware<Auditor> auditorProvider() {
         return () -> {

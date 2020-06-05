@@ -4,108 +4,123 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.9.2'
+        classpath "org.asciidoctor:asciidoctor-gradle-plugin:1.5.9.2"
     }
 }
 
 plugins {
-    id 'org.springframework.boot' version '2.2.5.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-    id 'java'
-    id 'war'
-    id 'org.asciidoctor.convert' version '1.5.9.2'
+    id "org.springframework.boot" version "2.3.0.RELEASE"
+    id "io.spring.dependency-management" version "1.0.9.RELEASE"
+    id "java"
+    id "war"
+    id "org.asciidoctor.convert" version "1.5.9.2"
 }
 
-group = 'com.sdm'
-version = '1.5.2-SNAPSHOT'
-sourceCompatibility = '11'
+group = "com.sdm"
+version = "1.5.3-SNAPSHOT"
+sourceCompatibility = "11"
 
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    all {
+        exclude group: "org.springframework.boot", module: "spring-boot-starter-logging"
+    }
+}
+
+ext {
+    set("snippetsDir", file("build/generated-snippets"))
 }
 
 asciidoctor {
-    sourceDir 'src/main/asciidoc'
-    outputDir 'build/docs'
-    options doctype: 'book'
+    inputs.dir snippetsDir
     dependsOn test
 }
 
 repositories {
     mavenCentral()
     jcenter()
+    maven{url "http://jasperreports.sourceforge.net/maven2/"}
+    maven{url "http://jaspersoft.artifactoryonline.com/jaspersoft/third-party-ce-artifacts/"}
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-mail'
-    implementation 'org.springframework.boot:spring-boot-starter-quartz'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.session:spring-session-core'
-    implementation 'org.springframework.session:spring-session-jdbc'
-
-    //Swagger Config
-    compile 'io.springfox:springfox-swagger2:2.9.2'
-    compile 'io.springfox:springfox-swagger-ui:2.9.2'
-    compile "io.projectreactor:reactor-core:3.3.3.RELEASE"
-
-    //Hibernate Audit
-    implementation 'org.hibernate:hibernate-envers'
-
     //JWT
-    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+    implementation "io.jsonwebtoken:jjwt:0.9.1"
+
+    //jasypt
+    implementation "com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.2"
 
     //Firebase
-    implementation 'com.google.firebase:firebase-admin:6.12.2'
+    implementation "com.google.firebase:firebase-admin:6.13.0"
 
     //Barcode
-    implementation 'com.google.zxing:core:3.4.0'
+    implementation "com.google.zxing:core:3.4.0"
 
     //Gson
-    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation "com.google.code.gson:gson:2.8.6"
 
     //Myanmar Tool
-    compile 'com.google.myanmartools:myanmar-tools:1.1.3'
+    compile "com.google.myanmartools:myanmar-tools:1.1.3"
 
     //Thumbnailtor
-    implementation 'net.coobird:thumbnailator:0.4.11'
+    implementation "net.coobird:thumbnailator:0.4.11"
 
-    //Velocity
-    implementation 'org.apache.velocity:velocity:1.7'
+    //Swagger Config
+    compile "io.springfox:springfox-swagger2:2.9.2"
+    compile "io.springfox:springfox-swagger-ui:2.9.2"
+    compile "io.projectreactor:reactor-core:3.3.3.RELEASE"
+
+    // Reporting
+    // https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports
+    compile group: "net.sf.jasperreports", name: "jasperreports", version: "6.12.2"
+
+
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    implementation "org.springframework.boot:spring-boot-starter-mail"
+    implementation "org.springframework.boot:spring-boot-starter-quartz"
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.session:spring-session-core"
+    implementation "org.springframework.session:spring-session-jdbc"
+    implementation(group: "org.springframework.boot", name: "spring-boot-starter-log4j2")
+
+    //Hibernate Audit
+    implementation "org.hibernate:hibernate-envers"
 
     //PostgreSQL
-    //runtimeOnly 'org.postgresql:postgresql'
-    //MySQL
-    runtimeOnly 'mysql:mysql-connector-java'
+    runtimeOnly "org.postgresql:postgresql"
 
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    //MySQL Runtime
+    runtimeOnly "mysql:mysql-connector-java"
 
-    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    //lombok
+    annotationProcessor "org.projectlombok:lombok"
+
+    //Tomcat
+    providedRuntime "org.springframework.boot:spring-boot-starter-tomcat"
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude group: "org.junit.vintage", module: "junit-vintage-engine"
     }
-    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation "org.springframework.security:spring-security-test"
+    testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc"
+    testCompile group: "capital.scalable", name: "spring-auto-restdocs-core", version: "2.0.8"
+    asciidoctor "org.springframework.restdocs:spring-restdocs-asciidoctor"
 
-    //Lombok
-    testCompileOnly 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.projectlombok:lombok'
+    testAnnotationProcessor "org.projectlombok:lombok"
 
     //Fake Data http://dius.github.io/java-faker/
-    testCompile group: 'com.github.javafaker', name: 'javafaker', version: '0.12'
-
-    //Auto Rest Docs
-    asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
-    testCompile 'org.springframework.restdocs:spring-restdocs-mockmvc'
-    testCompile group: 'capital.scalable', name: 'spring-auto-restdocs-core', version: '2.0.8'
+    testCompile group: "com.github.javafaker", name: "javafaker", version: "1.0.2"
 }
 
 test {
     useJUnitPlatform()
+    outputs.dir snippetsDir
 }
 
 bootWar {

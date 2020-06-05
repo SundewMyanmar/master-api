@@ -39,4 +39,8 @@ public class SecurityProperties {
 
     @DurationUnit(ChronoUnit.MINUTES)
     private Duration blockedTime = Duration.ofMinutes(30);
+
+    private String cookieDomain = "";
+
+    private String cookiePath = "";
 }

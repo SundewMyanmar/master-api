@@ -9,8 +9,7 @@ import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.exception.InvalidTokenExcpetion;
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.util.jwt.JwtAuthenticationHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 
 @Service("jwtAuthHandler")
+@Log4j2
 public class JwtService implements JwtAuthenticationHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
 
     @Autowired
     UserRepository userRepository;
@@ -63,10 +61,10 @@ public class JwtService implements JwtAuthenticationHandler {
         try {
             userEntity.getRoles().forEach(role -> authInfo.addAuthority(Constants.Auth.AUTHORITY_PREFIX + role.getId()));
         } catch (Exception ex) {
-            logger.warn(ex.getLocalizedMessage(), ex);
+            log.warn(ex.getLocalizedMessage(), ex);
         }
 
-        logger.info(authToken.getUser().getDisplayName() + " login by " + authToken.getId());
+        log.info(authToken.getUser().getDisplayName() + " login by " + authToken.getId());
         return true;
     }
 }

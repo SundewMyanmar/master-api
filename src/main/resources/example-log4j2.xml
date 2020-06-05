@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <Properties>
+        <Property name="LOG_ROOT">/var/www/master-api/log/</Property>
+        <Property name="GENERAL_LOG">master-api</Property>
+        <Property name="DATA_LOG">data-audit</Property>
+        <Property name="REQUEST_LOG">client-request</Property>
+
+        <Property name="CONSOLE_PATTERN">
+            %style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%C{1.}}{bright,Magenta}: %msg%n%throwable
+        </Property>
+        <Property name="FILE_PATTERN">%d %p %C{1.} [%t] %m%n</Property>
+        <Property name="MAX_FILE_SIZE">32MB</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout pattern="${CONSOLE_PATTERN}"/>
+        </Console>
+
+        <RollingFile name="GeneralLog"
+                     fileName="${LOG_ROOT}/${GENERAL_LOG}.log"
+                     filePattern="${LOG_ROOT}/$${date:yyyy-MM}/${GENERAL_LOG}-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${FILE_PATTERN}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <DefaultRolloverStrategy max="1"/>
+        </RollingFile>
+
+        <RollingFile name="DataLog"
+                     fileName="${LOG_ROOT}/${DATA_LOG}.log"
+                     filePattern="${LOG_ROOT}/$${date:yyyy-MM}/${DATA_LOG}-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${FILE_PATTERN}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <DefaultRolloverStrategy max="1"/>
+        </RollingFile>
+
+        <RollingFile name="RequestLog"
+                     fileName="${LOG_ROOT}/${REQUEST_LOG}.log"
+                     filePattern="${LOG_ROOT}/$${date:yyyy-MM}/${REQUEST_LOG}-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${FILE_PATTERN}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}"/>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <DefaultRolloverStrategy max="1"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- Hibernate Logging -->
+        <Logger name="org.hibernate.jdbc" level="warn" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <!-- General Logging -->
+        <Logger name="com.sdm" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="GeneralLog"/>
+        </Logger>
+
+        <!-- Data Logging -->
+        <Logger name="com.sdm.core.db.DataLogging" level="info" additivity="false">
+            <AppenderRef ref="DataLog"/>
+        </Logger>
+
+        <!-- Client Request Logging -->
+        <Logger name="com.sdm.core.service.ClientService" level="info" additivity="false">
+            <AppenderRef ref="RequestLog"/>
+        </Logger>
+
+        <Root level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="GeneralLog"/>
+        </Root>
+    </Loggers>
+</Configuration>

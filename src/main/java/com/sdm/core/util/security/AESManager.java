@@ -5,8 +5,7 @@
  */
 package com.sdm.core.util.security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.*;
@@ -20,9 +19,8 @@ import java.util.Base64;
  * @author Htoonlin
  */
 @Component
+@Log4j2
 public class AESManager {
-
-    private static final Logger logger = LoggerFactory.getLogger(AESManager.class.getName());
 
     private final String CRYPTO_METHOD = "AES";
     private final String CRYPTO_PAIR = "AES/CBC/PKCS5Padding";
@@ -48,7 +46,7 @@ public class AESManager {
             IvParameterSpec ivSpec = new IvParameterSpec(keyBytes);
             AESCipher.init(mode, keySpec, ivSpec);
         } catch (Exception ex) {
-            logger.error(ex.getLocalizedMessage(), ex);
+            log.error(ex.getLocalizedMessage(), ex);
         }
     }
 
@@ -59,7 +57,7 @@ public class AESManager {
             SecretKey secKey = keyGenerator.generateKey();
             return Base64.getEncoder().encodeToString(secKey.getEncoded());
         } catch (NoSuchAlgorithmException ex) {
-            logger.error(ex.getLocalizedMessage(), ex);
+            log.error(ex.getLocalizedMessage(), ex);
             throw ex;
         }
     }
@@ -71,7 +69,7 @@ public class AESManager {
             byte[] byteCipher = AESCipher.doFinal(encryptBytes);
             return Base64.getEncoder().encodeToString(byteCipher);
         } catch (IllegalBlockSizeException | BadPaddingException ex) {
-            logger.error(ex.getLocalizedMessage(), ex);
+            log.error(ex.getLocalizedMessage(), ex);
             throw ex;
         }
     }
@@ -83,7 +81,7 @@ public class AESManager {
             byte[] bytePlain = AESCipher.doFinal(decryptBytes);
             return new String(bytePlain);
         } catch (GeneralSecurityException ex) {
-            logger.error(ex.getLocalizedMessage(), ex);
+            log.error(ex.getLocalizedMessage(), ex);
             throw ex;
         }
     }

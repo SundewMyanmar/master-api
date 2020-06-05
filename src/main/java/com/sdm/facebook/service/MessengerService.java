@@ -3,14 +3,13 @@ package com.sdm.facebook.service;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.sdm.core.util.FBGraphManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Log4j2
 public class MessengerService {
-    private static final Logger LOG = LoggerFactory.getLogger(MessengerService.class);
 
     @Autowired
     FBGraphManager graphManager;

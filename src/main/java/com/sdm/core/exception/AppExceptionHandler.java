@@ -2,7 +2,7 @@ package com.sdm.core.exception;
 
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.sdm.core.model.response.MessageResponse;
-import org.apache.velocity.exception.ResourceNotFoundException;
+import lombok.extern.log4j.Log4j2;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 @ControllerAdvice
+@Log4j2
 public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -62,7 +63,7 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     private ResponseEntity<Object> generalMessage(Exception ex, HttpStatus status, String message) {
-        logger.warn(ex.getLocalizedMessage(), ex);
+        log.warn(ex.getLocalizedMessage(), ex);
         return new ResponseEntity<>(new MessageResponse(status, message), status);
     }
 
@@ -70,7 +71,7 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Object> handleDataException(DataAccessException ex, WebRequest request) {
         if (ConstraintViolationException.class.isInstance(ex.getCause())) {
-            logger.warn(ex.getLocalizedMessage(), ex);
+            log.warn(ex.getLocalizedMessage(), ex);
             ConstraintViolationException constraintViolationException = (ConstraintViolationException) ex.getCause();
             MessageResponse messageResponse = new MessageResponse(HttpStatus.BAD_REQUEST,
                     constraintViolationException.getSQLState(),
@@ -92,12 +93,6 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
         return this.generalMessage(ex, ex.getStatus(), ex.getMessage());
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
-        return this.generalMessage(ex, HttpStatus.NOT_FOUND, "Can't find any resource for your request.");
-    }
-
     @Override
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
     protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
@@ -117,7 +112,6 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return this.invalidFieldErrors(ex.getBindingResult().getFieldErrors(), ex.getBindingResult().getGlobalErrors());
     }
