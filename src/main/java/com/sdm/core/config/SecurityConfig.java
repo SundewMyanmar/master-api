@@ -70,11 +70,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/util/**",
             "/public/**",
             "/auth/**",
+            "/webjars/**",
 
             //Don't forget to remove in Production Mode
-            "/v3/api-docs/**",
+            "/v2/api-docs",
             "/swagger-ui.html",
-            "/swagger-ui/**"
+            "/swagger-resources/**",
     };
 
     @Bean

@@ -6,13 +6,11 @@ import com.sdm.core.exception.GeneralException;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.export.HtmlExporter;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.engine.util.JRSaver;
-import net.sf.jasperreports.export.SimpleExporterInput;
-import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
-import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
-import net.sf.jasperreports.export.SimplePdfReportConfiguration;
+import net.sf.jasperreports.export.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -35,6 +33,9 @@ import java.util.Objects;
 
 @Service
 @Log4j2
+/**
+ * https://community.jaspersoft.com/documentation/jasperreports-server-user-guide/exporting-report
+ */
 public class JasperReportService {
 
     @Autowired
@@ -75,31 +76,44 @@ public class JasperReportService {
         }
     }
 
-    public JasperPrint loadReport(File compileFile, Map<String, Object> parameters) {
+    public JasperPrint loadReport(String reportId, Map<String, Object> parameters) {
+        File compileFile = new File(this.reports.get(reportId));
         log.info("Load Report " + compileFile.getName());
         try (FileInputStream inputStream = new FileInputStream(compileFile)) {
             JasperReport jasperReport = (JasperReport) JRLoader.loadObject(inputStream);
-            return JasperFillManager.fillReport(jasperReport, parameters, dataSource.getConnection("root", "htoonlin"));
+            return JasperFillManager.fillReport(jasperReport, parameters, dataSource.getConnection());
         } catch (IOException | JRException | SQLException ex) {
             log.warn(ex.getLocalizedMessage());
         }
         throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load report.");
     }
 
+    public String generateToHTML(String reportId, Map<String, Object> parameters) {
+        JasperPrint print = loadReport(reportId, parameters);
+        HtmlExporter exporter = new HtmlExporter();
+        exporter.setExporterInput(new SimpleExporterInput(print));
+        StringBuilder html = new StringBuilder();
+        exporter.setExporterOutput(new SimpleHtmlExporterOutput(html));
+        try {
+            exporter.exportReport();
+        } catch (JRException ex) {
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
+        }
+
+        return html.toString();
+    }
+
     public ResponseEntity<?> generateToPDF(String reportId, Map<String, Object> parameters) {
-        File compileFile = new File(this.reports.get(reportId));
-        JasperPrint print = loadReport(compileFile, parameters);
+        JasperPrint print = loadReport(reportId, parameters);
         JRPdfExporter exporter = new JRPdfExporter();
         exporter.setExporterInput(new SimpleExporterInput(print));
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(output));
-        SimplePdfReportConfiguration reportConfig
-                = new SimplePdfReportConfiguration();
+        SimplePdfReportConfiguration reportConfig = new SimplePdfReportConfiguration();
         reportConfig.setSizePageToContent(true);
         reportConfig.setForceLineBreakPolicy(false);
 
-        SimplePdfExporterConfiguration exportConfig
-                = new SimplePdfExporterConfiguration();
+        SimplePdfExporterConfiguration exportConfig = new SimplePdfExporterConfiguration();
         exportConfig.setMetadataAuthor(Constants.INFO_MAIL);
         exportConfig.setEncrypted(true);
         exportConfig.setAllowedPermissionsHint("PRINTING");
