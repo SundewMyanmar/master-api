@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.export.HtmlExporter;
+import net.sf.jasperreports.engine.export.HtmlResourceHandler;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.engine.util.JRSaver;
@@ -27,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -44,6 +46,24 @@ public class JasperReportService {
     private DataSource dataSource;
     @Getter
     private Map<String, String> reports;
+
+    public String generateToHTML(String reportId, Map<String, Object> parameters) {
+        JasperPrint print = loadReport(reportId, parameters);
+        HtmlExporter exporter = new HtmlExporter();
+        exporter.setExporterInput(new SimpleExporterInput(print));
+
+        StringBuilder html = new StringBuilder();
+        SimpleHtmlExporterOutput output = new SimpleHtmlExporterOutput(html);
+        output.setImageHandler(new Base64ResourceHandler());
+        exporter.setExporterOutput(output);
+        try {
+            exporter.exportReport();
+        } catch (JRException ex) {
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
+        }
+
+        return html.toString();
+    }
 
     @PostConstruct
     protected void init() {
@@ -88,19 +108,22 @@ public class JasperReportService {
         throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load report.");
     }
 
-    public String generateToHTML(String reportId, Map<String, Object> parameters) {
-        JasperPrint print = loadReport(reportId, parameters);
-        HtmlExporter exporter = new HtmlExporter();
-        exporter.setExporterInput(new SimpleExporterInput(print));
-        StringBuilder html = new StringBuilder();
-        exporter.setExporterOutput(new SimpleHtmlExporterOutput(html));
-        try {
-            exporter.exportReport();
-        } catch (JRException ex) {
-            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
+    public class Base64ResourceHandler implements HtmlResourceHandler {
+        final Map<String, String> images;
+
+        public Base64ResourceHandler() {
+            this.images = new HashMap<>();
         }
 
-        return html.toString();
+        @Override
+        public String getResourcePath(String id) {
+            return images.get(id);
+        }
+
+        @Override
+        public void handleResource(String id, byte[] data) {
+            images.put(id, "data:image/png;base64," + new String(Base64.getEncoder().encode(data)));
+        }
     }
 
     public ResponseEntity<?> generateToPDF(String reportId, Map<String, Object> parameters) {
