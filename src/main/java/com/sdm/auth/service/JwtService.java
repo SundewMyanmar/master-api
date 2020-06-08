@@ -4,67 +4,181 @@ import com.sdm.Constants;
 import com.sdm.admin.model.User;
 import com.sdm.admin.repository.UserRepository;
 import com.sdm.auth.model.Token;
+import com.sdm.auth.model.request.TokenInfo;
 import com.sdm.auth.repository.TokenRepository;
 import com.sdm.core.config.properties.SecurityProperties;
+import com.sdm.core.exception.GeneralException;
 import com.sdm.core.exception.InvalidTokenExcpetion;
 import com.sdm.core.model.AuthInfo;
+import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.jwt.JwtAuthenticationHandler;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.CompressionCodecs;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 @Service("jwtAuthHandler")
 @Log4j2
 public class JwtService implements JwtAuthenticationHandler {
 
+    private static final String CLAIM_DEVICE_ID = "deviceId";
+    private static final String CLAIM_DEVICE_OS = "deviceOs";
+    private static final String CLAIM_ROLES = "roles";
     @Autowired
-    UserRepository userRepository;
-
+    HttpServletResponse response;
     @Autowired
-    TokenRepository tokenRepository;
-
+    private UserRepository userRepository;
     @Autowired
-    SecurityProperties securityProperties;
+    private SecurityProperties securityProperties;
+    @Autowired
+    private TokenRepository tokenRepository;
 
-    @Override
-    @Transactional
-    public boolean authByJwt(AuthInfo authInfo, HttpServletRequest request) {
-        Token authToken = tokenRepository.findById(authInfo.getToken())
-                .orElseThrow(() -> new InvalidTokenExcpetion("There is no token: " + authInfo.getToken()));
+    private Date getTokenExpired() {
+        return Globalizer.addDate(new Date(), securityProperties.getAuthTokenLife());
+    }
 
-        if (!authInfo.isAccountNonExpired()
-                || !authInfo.getToken().equalsIgnoreCase(authToken.getId())
-                || !authInfo.getDeviceId().equalsIgnoreCase(authToken.getDeviceId())
-                || authInfo.getUserId() != authToken.getUser().getId()) {
-            throw new InvalidTokenExcpetion("Sorry! requested token is not valid/expired.");
+    private String getAudience(HttpServletRequest request) {
+        String ip = Globalizer.getRemoteAddress(request);
+        String agent = request.getHeader(HttpHeaders.USER_AGENT);
+        if (StringUtils.isEmpty(agent) || StringUtils.isEmpty(ip)) {
+            throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
         }
+        return String.format("IP=%s; Agent=%s", ip, agent);
+    }
 
-        authInfo.setExpired(authToken.getTokenExpired());
+    private String getIssuer(HttpServletRequest request) {
+        return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+    }
 
-        User userEntity = userRepository.findById(authInfo.getUserId())
-                .orElseThrow(() -> new InvalidTokenExcpetion("There is no user: " + authInfo.getToken()));
+    public SecretKey getKey() {
+        byte[] decodeKey = Decoders.BASE64.decode(securityProperties.getJwtKey());
+        return Keys.hmacShaKeyFor(decodeKey);
+    }
 
-        if (userEntity.getStatus() != User.Status.ACTIVE) {
-            throw new InvalidTokenExcpetion("Sorry! you are not active now. Pls contact to admin.");
-        }
-
-        authInfo.addAuthority(Constants.Auth.DEFAULT_USER_ROLE);
+    private String buildRoles(User user) {
+        Set<String> roles = new HashSet<>();
+        //Set Default User Role
+        roles.add(Constants.Auth.DEFAULT_USER_ROLE);
 
         //Is Root?
-        if (securityProperties.getOwnerIds().contains(authInfo.getUserId())) {
-            authInfo.addAuthority(Constants.Auth.ROOT_ROLE);
+        if (securityProperties.getOwnerIds().contains(user.getId())) {
+            roles.add(Constants.Auth.ROOT_ROLE);
         }
 
+        //Set DB Roles
         try {
-            userEntity.getRoles().forEach(role -> authInfo.addAuthority(Constants.Auth.AUTHORITY_PREFIX + role.getId()));
+            user.getRoles().forEach(role -> roles.add(Constants.Auth.AUTHORITY_PREFIX + role.getId()));
         } catch (Exception ex) {
             log.warn(ex.getLocalizedMessage(), ex);
         }
+        return String.join(",", roles);
+    }
 
-        log.info(authToken.getUser().getDisplayName() + " login by " + authToken.getId());
-        return true;
+    @Transactional
+    private String generateJWT(Token token, HttpServletRequest request) {
+        token.setTokenExpired(getTokenExpired());
+        token.setLastLogin(new Date());
+        tokenRepository.save(token);
+
+        String userId = token.getUser().getId().toString();
+        String roles = buildRoles(token.getUser());
+        String aud = getAudience(request);
+        String iss = getIssuer(request);
+
+        return Jwts.builder().setId(token.getId())
+                .setSubject(userId)
+                .claim(CLAIM_DEVICE_ID, token.getDeviceId())
+                .claim(CLAIM_DEVICE_OS, token.getDeviceOs())
+                .claim(CLAIM_ROLES, roles)
+                .setAudience(aud)
+                .setIssuer(iss)
+                .setIssuedAt(new Date())
+                .setExpiration(token.getTokenExpired())
+                .compressWith(CompressionCodecs.DEFLATE)
+                .signWith(getKey()).compact();
+    }
+
+    public void createToken(User user, TokenInfo tokenInfo, HttpServletRequest request) {
+        Token token = tokenRepository.findFirstByDeviceId(tokenInfo.getDeviceId())
+                .orElseGet(() -> {
+                    Token newToken = new Token();
+                    newToken.setId(UUID.randomUUID().toString());
+                    return newToken;
+                });
+
+        token.setUser(user);
+        token.setDeviceId(tokenInfo.getDeviceId());
+        token.setDeviceOs(tokenInfo.getDeviceOS());
+        if (!StringUtils.isEmpty(tokenInfo.getFirebaseMessagingToken())) {
+            token.setFirebaseMessagingToken(tokenInfo.getFirebaseMessagingToken());
+        }
+
+        // Generate and store JWT
+        String tokenString = this.generateJWT(token, request);
+        user.setCurrentToken(tokenString);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    @Transactional
+    public AuthInfo authByJwt(String jwtString, HttpServletRequest request) throws InvalidTokenExcpetion {
+        try {
+            String aud = getAudience(request);
+            String iss = getIssuer(request);
+            Claims authorizeToken = Jwts.parserBuilder()
+                    .setSigningKey(getKey())
+                    .requireAudience(aud)
+                    .requireIssuer(iss)
+                    .build().parseClaimsJws(jwtString).getBody();
+
+            Date expired = authorizeToken.getExpiration();
+            if (expired.before(new Date())) {
+                throw new InvalidTokenExcpetion("Token has expired.");
+            }
+
+            int userId = Integer.parseInt(authorizeToken.getSubject());
+            String tokenId = authorizeToken.getId();
+            String deviceId = authorizeToken.get(CLAIM_DEVICE_ID).toString();
+            String deviceOs = authorizeToken.get(CLAIM_DEVICE_OS).toString();
+            String roles = authorizeToken.get(CLAIM_ROLES).toString();
+
+            boolean allowed = tokenRepository.existsByIdAndUserIdAndDeviceIdAndDeviceOs(
+                    tokenId, userId, deviceId, deviceOs);
+            if (!allowed) {
+                throw new InvalidTokenExcpetion("Invalid access token.");
+            }
+
+            log.info(String.format("User Id [%d] login by => %s", userId, tokenId));
+
+            AuthInfo authInfo = new AuthInfo();
+            authInfo.setUserId(userId);
+            authInfo.setToken(authorizeToken.getId());
+            authInfo.setDeviceId(deviceId);
+            authInfo.setDeviceOs(deviceOs);
+            authInfo.setExpired(expired);
+            for (String role : roles.split(",")) {
+                authInfo.addAuthority(role);
+            }
+
+            return authInfo;
+        } catch (Exception ex) {
+            throw new InvalidTokenExcpetion(ex.getLocalizedMessage());
+        }
     }
 }

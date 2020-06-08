@@ -8,18 +8,20 @@ package com.sdm.core.util.security;
 
 import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.util.Globalizer;
-import io.jsonwebtoken.impl.crypto.MacProvider;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Encoders;
+import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
+import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -49,7 +51,7 @@ public class SecurityManager {
             log.error(ex.getLocalizedMessage(), ex);
             random = new SecureRandom();
         }
-        byte salt[] = new byte[64];
+        byte[] salt = new byte[64];
         random.nextBytes(salt);
         return Base64.getEncoder().encodeToString(salt);
     }
@@ -85,11 +87,7 @@ public class SecurityManager {
 
     public String base64Encode(String normal) {
         byte[] data;
-        try {
-            data = normal.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException ex) {
-            data = normal.getBytes(Charset.defaultCharset());
-        }
+        data = normal.getBytes(StandardCharsets.UTF_8);
         return Base64.getEncoder().encodeToString(data);
     }
 
@@ -99,28 +97,23 @@ public class SecurityManager {
     }
 
     public String generateJWTKey() {
-        byte[] key = MacProvider.generateKey().getEncoded();
-        return Base64.getEncoder().encodeToString(key);
+        SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+        return Encoders.BASE64.encode(key.getEncoded());
     }
 
     public String generateHashHmac(String stringData, String secretKey) {
         Mac sha512_HMAC = null;
         try {
-            byte[] byteKey = secretKey.getBytes("UTF-8");
+            byte[] byteKey = secretKey.getBytes(StandardCharsets.UTF_8);
             final String HMAC_SHA512 = "HmacSHA512";
             sha512_HMAC = Mac.getInstance(HMAC_SHA512);
             SecretKeySpec keySpec = new SecretKeySpec(byteKey, HMAC_SHA512);
             sha512_HMAC.init(keySpec);
             byte[] mac_data = sha512_HMAC.
-                    doFinal(stringData.getBytes("UTF-8"));
+                    doFinal(stringData.getBytes(StandardCharsets.UTF_8));
             //result = Base64.encode(mac_data);
             return bytesToHex(mac_data);
-        } catch (UnsupportedEncodingException e) {
-
-        } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

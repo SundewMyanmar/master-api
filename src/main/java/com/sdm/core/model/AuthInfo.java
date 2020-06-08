@@ -15,7 +15,6 @@ import java.util.HashSet;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthInfo implements UserDetails {
-
     private String token;
     private int userId;
     private String deviceId;

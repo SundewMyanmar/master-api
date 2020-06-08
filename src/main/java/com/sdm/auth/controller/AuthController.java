@@ -43,11 +43,6 @@ public class AuthController {
         return service.registerByUserAndEmail(request);
     }
 
-    @PostMapping("/anonymous")
-    public ResponseEntity<User> anonymousAuth(@Valid @RequestBody AnonymousRequest request) {
-        return service.anonymousAuth(request);
-    }
-
     @PostMapping("/facebook")
     public ResponseEntity<User> facebookAuth(@Valid @RequestBody FacebookAuthRequest request) {
         return service.facebookAuth(request);

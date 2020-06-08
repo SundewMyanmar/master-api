@@ -19,9 +19,11 @@ public interface TokenRepository extends DefaultRepository<Token, String> {
 
     Optional<List<Token>> findByUserId(int userId);
 
-    Optional<Token> findFirstByUserIdAndDeviceIdAndDeviceOs(int userId, String deviceId, String deviceOS);
+    Optional<Token> findFirstByUserIdAndDeviceIdAndDeviceOs(int userId, String deviceId, String deviceOs);
 
     Optional<Token> findFirstByDeviceId(String deviceId);
+
+    boolean existsByIdAndUserIdAndDeviceIdAndDeviceOs(String id, int userId, String deviceId, String deviceOs);
 
     Page<Token> findByLastLoginBetween(Date fromDate, Date toDate, Pageable pageable);
 
@@ -29,5 +31,4 @@ public interface TokenRepository extends DefaultRepository<Token, String> {
     @Transactional
     @Query(value = "DELETE FROM tbl_auth_tokens WHERE user_id = :userId", nativeQuery = true)
     void cleanTokenByUserId(@Param("userId") int userId);
-
 }

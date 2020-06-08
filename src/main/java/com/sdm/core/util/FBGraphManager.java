@@ -29,7 +29,7 @@ public class FBGraphManager {
         this.restTemplate = new RestTemplate();
     }
 
-    public JsonObject checkFacebookToken(String accessToken, String fields, String userAgent) {
+    public JsonObject checkFacebookToken(String accessToken, String fields) {
         //Build Facebook Auth URL
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(this.properties.getGraphURL() + "me")
                 .queryParam("fields", fields)
@@ -37,7 +37,7 @@ public class FBGraphManager {
 
         //Build Request Headers
         HttpHeaders headers = new HttpHeaders();
-        headers.add("User-Agent", userAgent);
+//        headers.add("User-Agent", userAgent);
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
 

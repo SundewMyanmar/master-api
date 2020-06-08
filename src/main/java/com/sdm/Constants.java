@@ -7,7 +7,7 @@ package com.sdm;
  */
 public interface Constants {
 
-    String APP_NAME = "MasterAPI";
+    String APP_NAME = "master-api";
     String INFO_MAIL = "info@sundewmyanmar.com";
     String ENCRYPT_KEY = "MASTER_API_ENCRYPT_KEY";
 

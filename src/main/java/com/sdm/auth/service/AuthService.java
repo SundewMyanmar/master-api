@@ -5,20 +5,14 @@ import com.google.gson.JsonObject;
 import com.sdm.Constants;
 import com.sdm.admin.model.User;
 import com.sdm.admin.repository.UserRepository;
-import com.sdm.auth.model.Token;
 import com.sdm.auth.model.request.*;
-import com.sdm.auth.repository.TokenRepository;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.util.FBGraphManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.security.SecurityManager;
-import io.jsonwebtoken.CompressionCodecs;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -31,7 +25,6 @@ import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Random;
-import java.util.UUID;
 
 @Service
 @Log4j2
@@ -47,16 +40,16 @@ public class AuthService {
     private UserRepository userRepository;
 
     @Autowired
-    private TokenRepository tokenRepository;
+    private AuthMailService mailService;
 
     @Autowired
-    private AuthMailService mailService;
+    private JwtService jwtService;
 
     @Autowired
     private HttpSession session;
 
     @Autowired
-    private HttpServletRequest request;
+    private HttpServletRequest httpServletRequest;
 
     private static final String FB_AUTH_FIELDS = "id,name,picture{url},phone,email";
 
@@ -73,14 +66,6 @@ public class AuthService {
         return count;
     }
 
-    private String getUserAgent() {
-        String agent = request.getHeader(HttpHeaders.USER_AGENT);
-        if (StringUtils.isEmpty(agent)) {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
-        }
-        return agent;
-    }
-
     private void setAnonymousExtras(AnonymousRequest request, User user) {
         if (!StringUtils.isEmpty(request.getBrand())) {
             user.addExtra("brand", request.getBrand());
@@ -95,9 +80,6 @@ public class AuthService {
         }
     }
 
-    private Date getTokenExpired() {
-        return Globalizer.addDate(new Date(), securityManager.getProperties().getAuthTokenLife());
-    }
 
     private User createAnonymousUser(AnonymousRequest request) {
         Random rnd = new Random();
@@ -111,43 +93,6 @@ public class AuthService {
         String rawPassword = Globalizer.generateToken(passwordChars, size);
         String password = securityManager.hashString(rawPassword);
         return new User(userName, "Anonymous", password, User.Status.ACTIVE);
-    }
-
-    @Transactional
-    public String generateJWT(Token token, String userAgent) {
-        token.setTokenExpired(getTokenExpired());
-        token.setLastLogin(new Date());
-        tokenRepository.save(token);
-
-        return Jwts.builder().setId(token.getId())
-                .setSubject(Integer.toString(token.getUser().getId()))
-                .setIssuer(userAgent)
-                .setIssuedAt(new Date())
-                .setExpiration(token.getTokenExpired())
-                .claim("deviceId", token.getDeviceId())
-                .claim("deviceOs", token.getDeviceOs())
-                .compressWith(CompressionCodecs.DEFLATE)
-                .signWith(SignatureAlgorithm.HS512, securityManager.getProperties().getJwtKey()).compact();
-    }
-
-    private void createToken(User user, TokenInfo tokenInfo) {
-        Token token = tokenRepository.findFirstByDeviceId(tokenInfo.getDeviceId())
-                .orElseGet(() -> {
-                    Token newToken = new Token();
-                    newToken.setId(UUID.randomUUID().toString());
-                    return newToken;
-                });
-
-        token.setUser(user);
-        token.setDeviceId(tokenInfo.getDeviceId());
-        token.setDeviceOs(tokenInfo.getDeviceOS());
-        if (!StringUtils.isEmpty(tokenInfo.getFirebaseMessagingToken())) {
-            token.setFirebaseMessagingToken(tokenInfo.getFirebaseMessagingToken());
-        }
-
-        // Generate and store JWT
-        String tokenString = this.generateJWT(token, getUserAgent());
-        user.setCurrentToken(tokenString);
     }
 
     @Transactional
@@ -217,7 +162,6 @@ public class AuthService {
 
     @Transactional
     public ResponseEntity<User> authByPassword(AuthRequest request) {
-
         String password = securityManager.hashString(request.getPassword());
         User authUser = userRepository.authByPassword(request.getUser(), password)
                 .orElseThrow(() -> {
@@ -226,7 +170,7 @@ public class AuthService {
                             "Opp! request email or password is something wrong");
                 });
 
-        this.createToken(authUser, request);
+        jwtService.createToken(authUser, request, httpServletRequest);
 
         return ResponseEntity.ok(authUser);
     }
@@ -256,28 +200,11 @@ public class AuthService {
                 log.warn(ex.getLocalizedMessage());
             }
         } else {
-            this.createToken(newUser, request);
+            jwtService.createToken(newUser, request, httpServletRequest);
         }
 
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
-
-
-    @Transactional
-    public ResponseEntity<User> anonymousAuth(AnonymousRequest request) {
-        //Check Device Registration
-        User authUser = tokenRepository.findFirstByDeviceId(request.getDeviceId())
-                .map(Token::getUser).orElseGet(() -> this.createAnonymousUser(request));
-
-        //User create / update
-        setAnonymousExtras(request, authUser);
-        userRepository.save(authUser);
-
-        this.createToken(authUser, request);
-
-        return ResponseEntity.ok(authUser);
-    }
-
 
     public User createFacebookUser(JsonObject profileObj) {
         Optional<User> dbEntity;
@@ -318,7 +245,7 @@ public class AuthService {
 
     @Transactional
     public ResponseEntity<User> facebookAuth(FacebookAuthRequest request) {
-        JsonObject facebookProfile = facebookGraphManager.checkFacebookToken(request.getAccessToken(), FB_AUTH_FIELDS, getUserAgent());
+        JsonObject facebookProfile = facebookGraphManager.checkFacebookToken(request.getAccessToken(), FB_AUTH_FIELDS);
         String id = facebookProfile.get("id").getAsString();
 
         //Check User by FacebookId
@@ -326,7 +253,7 @@ public class AuthService {
                 .orElseGet(() -> this.createFacebookUser(facebookProfile));
 
         if (authUser.getFacebookId().equalsIgnoreCase(facebookProfile.get("id").getAsString())) {
-            this.createToken(authUser, request);
+            jwtService.createToken(authUser, request, httpServletRequest);
         } else {
             throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
         }

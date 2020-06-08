@@ -73,6 +73,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/webjars/**",
 
             //Don't forget to remove in Production Mode
+            "/reports/**",
             "/v2/api-docs",
             "/swagger-ui.html",
             "/swagger-resources/**",
@@ -97,9 +98,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/files/**"
     };
 
-    public static final String[] ROOT_PERMISSION_LIST = {
-            "/actuator/**",
-    };
+    public static final String[] ROOT_PERMISSION_LIST = {};
 
     /**
      * To fix XSRF cookie error if admin panel and API domain is not much.

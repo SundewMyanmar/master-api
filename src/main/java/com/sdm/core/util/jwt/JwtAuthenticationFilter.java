@@ -5,8 +5,6 @@ import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.exception.InvalidTokenExcpetion;
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.service.ClientService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -24,8 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Base64;
-import java.util.Date;
 
 @Service
 @Log4j2
@@ -55,41 +51,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return count;
     }
 
-    /**
-     * Extract JWT Auth Token by UserAgent
-     *
-     * @param tokenString
-     * @param userAgent
-     * @return
-     */
-    private AuthInfo getAuth(String tokenString, String userAgent) {
-        try {
-            byte[] jwtKey = Base64.getDecoder().decode(securityProperties.getJwtKey());
-            Claims authorizeToken = Jwts.parser().setSigningKey(jwtKey)
-                    .requireIssuer(userAgent).parseClaimsJws(tokenString).getBody();
-
-            Date expired = authorizeToken.getExpiration();
-            if (expired.before(new Date())) {
-                throw new InvalidTokenExcpetion("Token has expired.");
-            }
-
-            int userId = Integer.parseInt(authorizeToken.getSubject());
-            String deviceId = authorizeToken.get("deviceId").toString();
-            String deviceOs = authorizeToken.get("deviceOs").toString();
-
-            AuthInfo authInfo = new AuthInfo();
-            authInfo.setUserId(userId);
-            authInfo.setToken(authorizeToken.getId());
-            authInfo.setDeviceId(deviceId);
-            authInfo.setDeviceOs(deviceOs);
-            authInfo.setExpired(expired);
-
-            return authInfo;
-        } catch (Exception ex) {
-            throw new InvalidTokenExcpetion(ex.getLocalizedMessage());
-        }
-    }
-
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         if (httpServletRequest.getMethod().equalsIgnoreCase("options")) {
@@ -116,17 +77,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         //Check Request with Authorization?
         if (!StringUtils.isEmpty(authorization) && !StringUtils.isEmpty(userAgent)) {
             try {
-                AuthInfo requestAuth = this.getAuth(authorization, userAgent);
-                boolean isAllow = jwtAuthHandler.authByJwt(requestAuth, null);
-                if (isAllow) {
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            requestAuth, requestAuth.getDeviceId(), requestAuth.getAuthorities());
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                } else {
-                    SecurityContextHolder.clearContext();
-                    throw new InvalidTokenExcpetion("Failed authorize by DB.");
-                }
+                AuthInfo authInfo = jwtAuthHandler.authByJwt(authorization, httpServletRequest);
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        authInfo, authInfo.getDeviceId(), authInfo.getAuthorities());
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             } catch (InvalidTokenExcpetion ex) {
                 increaseFailedCount(httpServletRequest.getSession());
                 httpServletResponse.sendError(HttpStatus.UNAUTHORIZED.value(), "Sorry! your authorization token hasn't permission to the resource.");
