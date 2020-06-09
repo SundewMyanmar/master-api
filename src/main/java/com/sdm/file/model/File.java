@@ -47,6 +47,26 @@ public class File extends DefaultEntity implements Serializable {
         TRASH
     }
 
+
+    public enum ImageSize {
+        large(1024),
+        medium(512),
+        small(256),
+        thumb(64);
+
+        private final int maxSize;
+
+        ImageSize(int size) {
+            this.maxSize = size;
+        }
+
+        public int getMaxSize() {
+            return maxSize;
+        }
+    }
+
+    ;
+
     @Id
     @Column(columnDefinition = "char(36)", length = 36, unique = true, nullable = false)
     private String id;

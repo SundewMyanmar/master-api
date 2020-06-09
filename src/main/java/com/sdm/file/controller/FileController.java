@@ -15,8 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
+import javax.validation.constraints.Size;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Controller
@@ -34,8 +35,8 @@ public class FileController extends DefaultReadController<File, String> {
         return this.fileRepository;
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<MessageResponse> remove(@PathVariable("id") String id,
+    @DeleteMapping("/{id}")
+    public ResponseEntity<MessageResponse> remove(@PathVariable("id") @Size(min = 36, max = 36) String id,
                                                   @RequestParam(value = "isTrash", required = false, defaultValue = "false") boolean isTrash) {
         fileService.remove(id, isTrash);
         MessageResponse message = new MessageResponse(HttpStatus.OK, "Successfully deleted.",
@@ -53,7 +54,7 @@ public class FileController extends DefaultReadController<File, String> {
         return ResponseEntity.ok(message);
     }
 
-    @PostMapping("upload")
+    @PostMapping("/upload")
     @Transactional
     public ResponseEntity<ListResponse<File>> uploadFile(@RequestParam("uploadedFile") List<MultipartFile> files,
                                                          @RequestParam(value = "isPublic", required = false, defaultValue = "false") boolean isPublic) {
@@ -65,23 +66,11 @@ public class FileController extends DefaultReadController<File, String> {
         return new ResponseEntity(uploadedFiles, HttpStatus.CREATED);
     }
 
+    @GetMapping("/download/{id}/{name}")
+    public ResponseEntity<?> downloadFile(@PathVariable("id") @Size(max = 36, min = 36) String id,
+                                          @PathVariable("name") String filename,
+                                          @RequestParam("size") Optional<File.ImageSize> imageSize) {
 
-    @GetMapping("download/{id}/{fileName}")
-    public ResponseEntity<?> downloadFile(@PathVariable("id") String id,
-                                          @PathVariable("fileName") String fileName,
-                                          @RequestParam(value = "width", required = false, defaultValue = "0") int width,
-                                          @RequestParam(value = "height", required = false, defaultValue = "0") int height,
-                                          @RequestParam(value = "is64", required = false, defaultValue = "false") boolean is64) {
-
-        Dimension dimension = null;
-        if (width > 0 && height <= 0) {
-            dimension = new Dimension(width, width);
-        } else if (height > 0 && width <= 0) {
-            dimension = new Dimension(height, height);
-        } else if (width > 0 && height > 0) {
-            dimension = new Dimension(width, height);
-        }
-
-        return fileService.downloadFile(id, fileName, dimension, is64, false);
+        return fileService.downloadFile(id, filename, imageSize.orElse(File.ImageSize.medium), false);
     }
 }

@@ -1,5 +1,6 @@
 package com.sdm.file.controller;
 
+import com.sdm.file.model.File;
 import com.sdm.file.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.awt.*;
+import javax.validation.constraints.Size;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/public")
@@ -17,22 +19,11 @@ public class PublicController {
     @Autowired
     private FileService fileService;
 
-    @GetMapping("/files/{id}/{fileName}")
-    public ResponseEntity<?> downloadFile(@PathVariable("id") String id,
-                                          @PathVariable("fileName") String fileName,
-                                          @RequestParam(value = "width", required = false, defaultValue = "0") int width,
-                                          @RequestParam(value = "height", required = false, defaultValue = "0") int height,
-                                          @RequestParam(value = "is64", required = false, defaultValue = "false") boolean is64) {
+    @GetMapping("/files/{id}/{name}")
+    public ResponseEntity<?> downloadFile(@PathVariable("id") @Size(max = 36, min = 36) String id,
+                                          @PathVariable("name") String filename,
+                                          @RequestParam("size") Optional<File.ImageSize> imageSize) {
 
-        Dimension dimension = null;
-        if (width > 0 && height <= 0) {
-            dimension = new Dimension(width, width);
-        } else if (height > 0 && width <= 0) {
-            dimension = new Dimension(height, height);
-        } else if (width > 0 && height > 0) {
-            dimension = new Dimension(width, height);
-        }
-
-        return fileService.downloadFile(id, fileName, dimension, is64, true);
+        return fileService.downloadFile(id, filename, imageSize.orElse(File.ImageSize.medium), true);
     }
 }
