@@ -60,12 +60,11 @@ public class FileService {
             String fileName = size.name().toLowerCase() + "." + ext;
             java.io.File saveFile = new java.io.File(storagePath + java.io.File.separator + fileName);
             log.info(String.format("Generating %s size image => %s", size, saveFile.getName()));
-            if (image.getHeight() <= size.getMaxSize() && image.getWidth() <= size.getMaxSize()) {
-                uploadFile.transferTo(saveFile);
-                continue;
-            }
+
             Double scale;
-            if (image.getHeight() > image.getWidth()) {
+            if (image.getHeight() <= size.getMaxSize() && image.getWidth() <= size.getMaxSize()) {
+                scale = 1.0;
+            } else if (image.getHeight() > image.getWidth()) {
                 scale = Double.valueOf(size.getMaxSize()) / Double.valueOf(image.getHeight());
             } else {
                 scale = Double.valueOf(size.getMaxSize()) / Double.valueOf(image.getWidth());

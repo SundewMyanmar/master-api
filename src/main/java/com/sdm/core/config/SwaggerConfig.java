@@ -105,7 +105,7 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
 
     @Bean
     public Docket allApi() {
-        return this.buildDocket("5. All", "com.sdm");
+        return this.buildDocket("All", "com.sdm");
     }
 
     @Override
