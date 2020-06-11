@@ -87,6 +87,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 httpServletResponse.sendError(HttpStatus.UNAUTHORIZED.value(), "Sorry! your authorization token hasn't permission to the resource.");
                 return;
             }
+        } else {
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(httpServletRequest, httpServletResponse);
