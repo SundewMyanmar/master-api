@@ -3,8 +3,10 @@ package com.sdm.core.config;
 import com.sdm.Constants;
 import com.sdm.core.config.properties.CorsProperties;
 import com.sdm.core.config.properties.SecurityProperties;
-import com.sdm.core.util.jwt.JwtAuthenticationFilter;
-import com.sdm.core.util.jwt.JwtUnauthorizeHandler;
+import com.sdm.core.jwt.JwtAuthenticationFilter;
+import com.sdm.core.jwt.JwtAuthenticationHandler;
+import com.sdm.core.jwt.JwtUnauthorizeHandler;
+import com.sdm.core.service.ClientService;
 import com.sdm.core.util.security.PermissionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +37,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private JwtUnauthorizeHandler jwtUnauthorizeHandler;
 
     @Autowired
+    private JwtAuthenticationHandler jwtAuthenticationHandler;
+
+    @Autowired
+    private ClientService clientService;
+
+    @Autowired
     private PermissionHandler permissionHandler;
 
     @Autowired
@@ -44,8 +52,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private SecurityProperties securityProperties;
 
     @Bean
-    JwtAuthenticationFilter authenticationFilter() {
-        return new JwtAuthenticationFilter();
+    JwtAuthenticationFilter authenticationFilter() throws Exception {
+        return new JwtAuthenticationFilter(authenticationManager(), jwtAuthenticationHandler, clientService);
     }
 
     @Bean

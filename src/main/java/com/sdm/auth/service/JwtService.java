@@ -7,11 +7,10 @@ import com.sdm.auth.model.Token;
 import com.sdm.auth.model.request.TokenInfo;
 import com.sdm.auth.repository.TokenRepository;
 import com.sdm.core.config.properties.SecurityProperties;
-import com.sdm.core.exception.GeneralException;
 import com.sdm.core.exception.InvalidTokenExcpetion;
+import com.sdm.core.jwt.JwtAuthenticationHandler;
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.util.Globalizer;
-import com.sdm.core.util.jwt.JwtAuthenticationHandler;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
@@ -20,7 +19,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -57,7 +56,7 @@ public class JwtService implements JwtAuthenticationHandler {
         String ip = Globalizer.getRemoteAddress(request);
         String agent = request.getHeader(HttpHeaders.USER_AGENT);
         if (StringUtils.isEmpty(agent) || StringUtils.isEmpty(ip)) {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
+            throw new InvalidTokenExcpetion("Invalid request audience!");
         }
         return String.format("IP=%s; Agent=%s", ip, agent);
     }
@@ -137,10 +136,10 @@ public class JwtService implements JwtAuthenticationHandler {
     @SuppressWarnings("unchecked")
     @Override
     @Transactional
-    public AuthInfo authByJwt(String jwtString, HttpServletRequest request) throws InvalidTokenExcpetion {
+    public UsernamePasswordAuthenticationToken authByJwt(String jwtString, HttpServletRequest request) throws InvalidTokenExcpetion {
+        String aud = getAudience(request);
+        String iss = getIssuer(request);
         try {
-            String aud = getAudience(request);
-            String iss = getIssuer(request);
             Claims authorizeToken = Jwts.parserBuilder()
                     .setSigningKey(getKey())
                     .requireAudience(aud)
@@ -175,8 +174,7 @@ public class JwtService implements JwtAuthenticationHandler {
             for (String role : roles.split(",")) {
                 authInfo.addAuthority(role);
             }
-
-            return authInfo;
+            return new UsernamePasswordAuthenticationToken(authInfo, aud, authInfo.getAuthorities());
         } catch (Exception ex) {
             throw new InvalidTokenExcpetion(ex.getLocalizedMessage());
         }
