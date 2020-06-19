@@ -3,6 +3,7 @@ package com.sdm.core;
 import com.sdm.Constants;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -17,7 +18,7 @@ public abstract class DefaultReadTest extends DefaultTest {
         this.mockMvc.perform(MockMvcRequestBuilders
                 .get(getUrl()+"struct")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("User-Agent", Constants.TEST_CASE.userAgent))
+                .header("User-Agent", this.userAgent))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
@@ -27,7 +28,7 @@ public abstract class DefaultReadTest extends DefaultTest {
         this.mockMvc.perform(MockMvcRequestBuilders
                 .get(getUrl()+ getDefaultId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("User-Agent", Constants.TEST_CASE.userAgent))
+                .header("User-Agent", this.userAgent))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
@@ -37,18 +38,16 @@ public abstract class DefaultReadTest extends DefaultTest {
         this.mockMvc.perform(MockMvcRequestBuilders
                 .get(getUrl())
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("User-Agent", Constants.TEST_CASE.userAgent))
+                .header("User-Agent", this.userAgent))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isPartialContent());
     }
 
     @Test
     public void GetAll()throws Exception{
-        this.mockMvc.perform(MockMvcRequestBuilders
-                .get(getUrl()+"allData")
+        ResultActions result=this.mockMvc.perform(MockMvcRequestBuilders
+                .get(getUrl()+"all")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("User-Agent", Constants.TEST_CASE.userAgent))
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .header("User-Agent", this.userAgent)).andExpect(MockMvcResultMatchers.status().isOk());
     }
 }

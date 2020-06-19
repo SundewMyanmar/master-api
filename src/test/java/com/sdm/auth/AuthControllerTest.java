@@ -4,14 +4,16 @@ import com.github.javafaker.Faker;
 import com.sdm.auth.model.request.AnonymousRequest;
 import com.sdm.auth.model.request.AuthRequest;
 import com.sdm.core.DefaultTest;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import java.util.Properties;
 
-import java.util.HashMap;
-import java.util.Map;
-
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AuthControllerTest extends DefaultTest {
     private final Faker faker;
 
@@ -20,21 +22,26 @@ public class AuthControllerTest extends DefaultTest {
     }
 
     @Test
+    @Order(1)
     public void registration() throws Exception {
         String displayName = faker.name().fullName();
         String emailAccount = faker.internet().emailAddress();
         String phoneNumber = faker.phoneNumber().phoneNumber();
 
-        Map<String, Object> register = new HashMap<>();
-        register.put("deviceId", "test-device-id");
-        register.put("deviceOS", "TestOS");
+        Properties register=new Properties();
+        register.put("deviceId", this.deviceId);
+        register.put("deviceOS", this.deviceOs);
         register.put("phoneNumber", phoneNumber);
         register.put("email", emailAccount);
         register.put("displayName", displayName);
-        register.put("password", "p@$$W0rd");
+        register.put("password", faker.regexify("[A-Za-z0-9]{12,25}"));
+
+        System.setProperties(register);
 
         this.mockMvc.perform(MockMvcRequestBuilders
                 .post("/auth/register")
+                .header("user-agent",faker.internet().userAgentAny())
+                .header("x-forwarded-for",faker.internet().ipV4Address())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(register)))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
@@ -42,21 +49,21 @@ public class AuthControllerTest extends DefaultTest {
     }
 
     @Test
+    @Order(2)
     public void authWithEmail() throws Exception {
         AuthRequest request = new AuthRequest();
-        request.setUser("blink.hack@gmail.com");
-        request.setPassword("htoonlin");
-        request.setDeviceId("test-device-id");
-        request.setDeviceOS("TestOS");
-
+        request.setUser(System.getProperty("email").toString());
+        request.setPassword(System.getProperty("password").toString());
+        request.setDeviceId(System.getProperty("deviceId").toString());
+        request.setDeviceOS(System.getProperty("deviceOS").toString());
         this.mockMvc.perform(MockMvcRequestBuilders
                 .post("/auth")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("User-Agent", "spring-boot-testing")
+                .header("user-agent",faker.internet().userAgentAny())
+                .header("x-forwarded-for",faker.internet().ipV4Address())
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk());
-
+                .andExpect(MockMvcResultMatchers.status().isOk());;
     }
 
     @Test

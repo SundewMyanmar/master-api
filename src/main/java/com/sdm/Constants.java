@@ -131,21 +131,6 @@ public interface Constants {
         String DEFAULT_AUTH_TOKEN = "system-default-generated-auth-token!";
     }
 
-    interface TEST_CASE{
-        String scheme="http";
-        String host="localhost";
-        int port=8080;
-        String token="vS04RUDUkfvDV1Lsuz";
-        int userId=1;
-        String user="sample@gmail.com";
-        String password="password";
-        String deviceId="TEST_DEIVCE";
-        String deviceOs="TEST_OS";
-        String userAgent="SPRING_BOOT_TEST";
-        String uploadFile="var/www/sample.jpg";
-        String uploadFileName="sample.jpg";
-    }
-
     interface SESSION {
 
         /**

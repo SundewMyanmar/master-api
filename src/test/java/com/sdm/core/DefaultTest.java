@@ -43,6 +43,18 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
 @SpringBootTest
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
 public class DefaultTest {
+    public final String scheme="http";
+    public final String host="localhost";
+    public final int port=8080;
+    public final String token="vS04RUDUkfvDV1Lsuz";
+    public final int userId=1;
+    public final String user="sample@gmail.com";
+    public final String password="password";
+    public final String deviceId="TEST_BROWSER";
+    public final String deviceOs="TEST_DEVICE";
+    public final String userAgent="SPRING_BOOT_TEST";
+    public final String uploadFile="var/www/sample.jpg";
+    public final String uploadFileName="sample.jpg";
 
     public Faker FAKER(){
         return new Faker();
@@ -57,15 +69,15 @@ public class DefaultTest {
 
     protected ResultActions authenticate() throws Exception{
         AuthRequest request = new AuthRequest();
-        request.setUser(Constants.TEST_CASE.user);
-        request.setPassword(Constants.TEST_CASE.password);
-        request.setDeviceId(Constants.TEST_CASE.deviceId);
-        request.setDeviceOS(Constants.TEST_CASE.deviceOs);
+        request.setUser(this.user);
+        request.setPassword(this.password);
+        request.setDeviceId(this.deviceId);
+        request.setDeviceOS(this.deviceOs);
 
         ResultActions result=this.mockMvc.perform(MockMvcRequestBuilders
                 .post("/auth/")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("User-Agent", Constants.TEST_CASE.userAgent)
+                .header("User-Agent", this.userAgent)
                 .content(objectMapper.writeValueAsString(request))
         );
 
@@ -101,10 +113,10 @@ public class DefaultTest {
 
     private void setSecurityContext(){
         AuthInfo authInfo=new AuthInfo();
-        authInfo.setToken(Constants.TEST_CASE.token);
-        authInfo.setUserId(Constants.TEST_CASE.userId);
-        authInfo.setDeviceId(Constants.TEST_CASE.deviceId);
-        authInfo.setDeviceOs(Constants.TEST_CASE.deviceOs);
+        authInfo.setToken(this.token);
+        authInfo.setUserId(this.userId);
+        authInfo.setDeviceId(this.deviceId);
+        authInfo.setDeviceOs(this.deviceOs);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(authInfo,null);
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -114,7 +126,6 @@ public class DefaultTest {
     public void setUp(WebApplicationContext webApplicationContext,
                       RestDocumentationContextProvider restDocumentation) {
         this.setSecurityContext();
-        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
 
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .alwaysDo(JacksonResultHandlers.prepareJackson(objectMapper))
@@ -128,9 +139,9 @@ public class DefaultTest {
                         )))
                 .apply(MockMvcRestDocumentation.documentationConfiguration(restDocumentation)
                         .uris()
-                        .withScheme(Constants.TEST_CASE.scheme)
-                        .withHost(Constants.TEST_CASE.host)
-                        .withPort(Constants.TEST_CASE.port)
+                        .withScheme(this.scheme)
+                        .withHost(this.host)
+                        .withPort(this.port)
                         .and().snippets()
                         .withDefaults(
                                 CliDocumentation.curlRequest(),
