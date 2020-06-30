@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.ReflectionUtils;
 
 import javax.persistence.Id;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -42,6 +43,7 @@ public abstract class DefaultReadWriteController<T extends DefaultEntity, ID ext
         body.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(getEntityClass(), key);
             if (field != null && !field.isAnnotationPresent(Id.class)) {
+                ReflectionUtils.makeAccessible(field);
                 ReflectionUtils.setField(field, existEntity, value);
             }
         });
@@ -60,6 +62,7 @@ public abstract class DefaultReadWriteController<T extends DefaultEntity, ID ext
     }
 
     @Override
+    @Transactional
     public ResponseEntity<MessageResponse> multiRemove(@Valid List<ID> ids) {
         ids.forEach(id -> getRepository().softDeleteById(id));
         MessageResponse message = new MessageResponse(HttpStatus.OK, "DELETED",
@@ -68,6 +71,7 @@ public abstract class DefaultReadWriteController<T extends DefaultEntity, ID ext
     }
 
     @Override
+    @Transactional
     public ResponseEntity<ListResponse<T>> importData(@Valid List<T> body) {
         List<T> data = getRepository().saveAll(body);
         return new ResponseEntity<>(new ListResponse<>(data), HttpStatus.OK);

@@ -27,7 +27,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Base64;
 import java.util.HashMap;
@@ -102,12 +101,8 @@ public class JasperReportService {
         log.info("Load Report " + compileFile.getName());
         try (FileInputStream inputStream = new FileInputStream(compileFile)) {
             JasperReport jasperReport = (JasperReport) JRLoader.loadObject(inputStream);
-            try (Connection connection = dataSource.getConnection()) {
-                return JasperFillManager.fillReport(jasperReport, parameters, connection);
-            } catch (SQLException ex) {
-                log.warn(ex.getLocalizedMessage());
-            }
-        } catch (IOException | JRException ex) {
+            return JasperFillManager.fillReport(jasperReport, parameters, dataSource.getConnection());
+        } catch (IOException | JRException | SQLException ex) {
             log.warn(ex.getLocalizedMessage());
         }
         throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load report.");

@@ -49,7 +49,7 @@ public class AuthController {
     }
 
     @PostMapping("/forgetPassword")
-    public ResponseEntity<MessageResponse> forgetPassword(@Valid @RequestBody ForgetPassword request) {
+    public ResponseEntity<MessageResponse> forgetPassword(@Valid @RequestBody ForgetPasswordRequest request) {
         return service.forgetPassword(request);
     }
 

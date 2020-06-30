@@ -146,7 +146,7 @@ public class AuthService {
         return ResponseEntity.ok(user);
     }
 
-    public ResponseEntity<MessageResponse> forgetPassword(ForgetPassword request) {
+    public ResponseEntity<MessageResponse> forgetPassword(ForgetPasswordRequest request) {
         User user = userRepository.findFirstByPhoneNumberAndEmail(request.getPhoneNumber(), request.getEmail())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Invalid phone number (or) email address."));
         try {

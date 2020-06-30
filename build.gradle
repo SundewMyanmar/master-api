@@ -34,6 +34,7 @@ ext {
 }
 
 asciidoctor {
+    sourceDir 'src/main/asciidoc'
     inputs.dir snippetsDir
     dependsOn test
 }
@@ -43,9 +44,15 @@ repositories {
     jcenter()
     maven{url "http://jasperreports.sourceforge.net/maven2/"}
     maven{url "http://jaspersoft.artifactoryonline.com/jaspersoft/third-party-ce-artifacts/"}
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 dependencies {
+    //Master-annotations
+//    annotationProcessor 'com.sdm:master-annotation'
+
     //JWT
     compile 'io.jsonwebtoken:jjwt-api:0.11.1'
     runtime 'io.jsonwebtoken:jjwt-impl:0.11.1'
@@ -88,6 +95,9 @@ dependencies {
     implementation "org.springframework.session:spring-session-core"
     implementation "org.springframework.session:spring-session-jdbc"
     implementation(group: "org.springframework.boot", name: "spring-boot-starter-log4j2")
+
+    //H2 DB
+    implementation 'com.h2database:h2'
 
     //Hibernate Audit
     implementation "org.hibernate:hibernate-envers"

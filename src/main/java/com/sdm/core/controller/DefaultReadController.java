@@ -1,5 +1,6 @@
 package com.sdm.core.controller;
 
+import com.sdm.Constants;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.model.DefaultEntity;
@@ -96,7 +97,7 @@ public abstract class DefaultReadController<T extends DefaultEntity, ID extends 
     @Override
     public ResponseEntity<ListResponse<ModelInfo>> getStructure() {
         var structure = structureService.buildStructure(this.getEntityClass());
-        CacheControl cacheControl = CacheControl.maxAge(Duration.ofDays(365));
+        CacheControl cacheControl = CacheControl.maxAge(Duration.ofDays(Constants.STRUCT_CACHE_DAYS));
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .cacheControl(cacheControl)

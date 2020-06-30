@@ -10,6 +10,7 @@ public interface Constants {
     String APP_NAME = "master-api";
     String INFO_MAIL = "info@sundewmyanmar.com";
     String ENCRYPT_KEY = "MASTER_API_ENCRYPT_KEY";
+    int STRUCT_CACHE_DAYS = 365;
 
     /**
      * Regex Patterns

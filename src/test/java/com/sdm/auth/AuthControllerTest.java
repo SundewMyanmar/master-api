@@ -1,93 +1,101 @@
 package com.sdm.auth;
 
-import com.github.javafaker.Faker;
-import com.sdm.auth.model.request.AnonymousRequest;
 import com.sdm.auth.model.request.AuthRequest;
+import com.sdm.auth.model.request.ForgetPasswordRequest;
+import com.sdm.auth.model.request.RegistrationRequest;
 import com.sdm.core.DefaultTest;
-import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import java.util.Properties;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AuthControllerTest extends DefaultTest {
-    private final Faker faker;
 
-    public AuthControllerTest() {
-        faker = new Faker();
+    private static String displayName;
+    private static String email;
+    private static String phone;
+    private static String password;
+
+    @BeforeAll
+    public static void fakeUser() {
+        displayName = faker.name().fullName();
+        email = faker.internet().emailAddress();
+        phone = faker.phoneNumber().phoneNumber();
+        password = faker.regexify("[A-Za-z0-9]{12,25}");
     }
 
+    @AfterAll
+    public static void clearUser() {
+        displayName = null;
+        email = null;
+        phone = null;
+        password = null;
+    }
+
+    /**
+     * User Registration on System
+     *
+     * @throws Exception
+     */
     @Test
     @Order(1)
     public void registration() throws Exception {
-        String displayName = faker.name().fullName();
-        String emailAccount = faker.internet().emailAddress();
-        String phoneNumber = faker.phoneNumber().phoneNumber();
-
-        Properties register=new Properties();
-        register.put("deviceId", this.deviceId);
-        register.put("deviceOS", this.deviceOs);
-        register.put("phoneNumber", phoneNumber);
-        register.put("email", emailAccount);
-        register.put("displayName", displayName);
-        register.put("password", faker.regexify("[A-Za-z0-9]{12,25}"));
-
-        System.setProperties(register);
-
-        this.mockMvc.perform(MockMvcRequestBuilders
-                .post("/auth/register")
-                .header("user-agent",faker.internet().userAgentAny())
-                .header("x-forwarded-for",faker.internet().ipV4Address())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(register)))
+        RegistrationRequest request = new RegistrationRequest();
+        request.setDisplayName(displayName);
+        request.setPhoneNumber(phone);
+        request.setEmail(email);
+        request.setPassword(password);
+        request.setDeviceId(DEVICE_ID);
+        request.setDeviceOS(DEVICE_OS);
+        this.test("/auth/register", HttpMethod.POST, request)
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isCreated());
     }
 
+    /**
+     * User login by registered email/phone and password.
+     *
+     * @throws Exception
+     */
     @Test
     @Order(2)
     public void authWithEmail() throws Exception {
         AuthRequest request = new AuthRequest();
-        request.setUser(System.getProperty("email").toString());
-        request.setPassword(System.getProperty("password").toString());
-        request.setDeviceId(System.getProperty("deviceId").toString());
-        request.setDeviceOS(System.getProperty("deviceOS").toString());
-        this.mockMvc.perform(MockMvcRequestBuilders
-                .post("/auth")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("user-agent",faker.internet().userAgentAny())
-                .header("x-forwarded-for",faker.internet().ipV4Address())
-                .content(objectMapper.writeValueAsString(request)))
+        request.setUser(email);
+        request.setPassword(password);
+        request.setDeviceId(DEVICE_ID);
+        request.setDeviceOS(DEVICE_OS);
+        this.test("/auth", HttpMethod.POST, request)
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk());;
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
-    public void anonymousAuth() {
-        AnonymousRequest request = new AnonymousRequest();
-    }
-
-    @Test
-    public void facebookAuth() {
+    public void facebookAuthTest() {
 
     }
 
+    /**
+     * Request reset password link.
+     *
+     * @throws Exception
+     */
     @Test
-    public void forgetPassword() {
-
+    public void forgetPassword() throws Exception {
+        ForgetPasswordRequest request = new ForgetPasswordRequest();
+        request.setPhoneNumber(phone);
+        request.setEmail(email);
+        request.setCallback(faker.internet().url());
+        this.test("/auth/forgetPassword", HttpMethod.POST, request)
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
-    public void otpActivateByGet() {
-
-    }
-
-    @Test
-    public void otpActivateByPost() {
+    public void activateUser() {
 
     }
 

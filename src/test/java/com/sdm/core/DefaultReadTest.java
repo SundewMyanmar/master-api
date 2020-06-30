@@ -1,53 +1,51 @@
 package com.sdm.core;
 
-import com.sdm.Constants;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.io.Serializable;
 
 public abstract class DefaultReadTest extends DefaultTest {
     protected abstract String getUrl();
-    protected abstract String getDefaultId();
+
+    protected abstract Serializable getId();
 
     //READ CONTROLLER
     @Test
-    public void getStructure()throws Exception{
-        this.mockMvc.perform(MockMvcRequestBuilders
-                .get(getUrl()+"struct")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("User-Agent", this.userAgent))
+    @Order(1)
+    public void getStructure() throws Exception {
+        String url = getUrl() + "/struct";
+        this.test(url, HttpMethod.GET, null)
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
-    public void getById()throws Exception{
-        this.mockMvc.perform(MockMvcRequestBuilders
-                .get(getUrl()+ getDefaultId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("User-Agent", this.userAgent))
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk());
-    }
-
-    @Test
-    public void getPageByPage()throws Exception{
-        this.mockMvc.perform(MockMvcRequestBuilders
-                .get(getUrl())
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("User-Agent", this.userAgent))
+    @Order(10)
+    public void getPageByPage() throws Exception {
+        String url = getUrl();
+        this.test(url, HttpMethod.GET, null)
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isPartialContent());
     }
 
     @Test
-    public void GetAll()throws Exception{
-        ResultActions result=this.mockMvc.perform(MockMvcRequestBuilders
-                .get(getUrl()+"all")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("User-Agent", this.userAgent)).andExpect(MockMvcResultMatchers.status().isOk());
+    @Order(11)
+    public void getById() throws Exception {
+        String url = getUrl() + "/" + getId();
+        this.test(url, HttpMethod.GET, null)
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    @Order(12)
+    public void getAll() throws Exception {
+        String url = getUrl() + "/all";
+        this.test(url, HttpMethod.GET, null)
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }

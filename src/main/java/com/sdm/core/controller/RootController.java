@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.context.Context;
@@ -21,7 +22,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestController
+@Controller
 @Log4j2
 public class RootController implements ErrorController {
 
@@ -34,6 +35,8 @@ public class RootController implements ErrorController {
     @Autowired
     private SpringTemplateEngine templateEngine;
 
+
+    @SuppressWarnings("unchecked")
     @Override
     public String getErrorPath() {
         return "/error";
@@ -136,4 +139,5 @@ public class RootController implements ErrorController {
         MessageResponse message = new MessageResponse(HttpStatus.BAD_REQUEST, "No! It is not myanmar font.");
         return ResponseEntity.ok(message);
     }
+
 }

@@ -75,7 +75,6 @@ public class User extends DefaultEntity implements Serializable {
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles = new HashSet<>();
 
-    @NotBlank
     @Size(min = 6)
     @Column(length = 500, nullable = false)
     private String password;

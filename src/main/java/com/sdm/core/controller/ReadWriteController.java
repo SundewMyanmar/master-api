@@ -86,7 +86,7 @@ public interface ReadWriteController<T, ID extends Serializable> extends ReadCon
             @ApiResponse(code = 409, message = "Invalid Request.", response = MessageResponse.class),
             @ApiResponse(code = 500, message = "Server Error.", response = MessageResponse.class),
     })
-    @DeleteMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<MessageResponse> multiRemove(@Valid @RequestBody List<ID> ids);
 
 
