@@ -9,13 +9,15 @@ import com.sdm.core.model.SundewAuditEntity;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.RevisionListener;
-import org.hibernate.envers.boot.internal.EnversService;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.*;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.persister.entity.EntityPersister;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -38,11 +40,16 @@ public class HibernateAuditListener implements RevisionListener, PostInsertEvent
         log.info(marker, String.format("%s => %s", entityName, message));
     }
 
+    @Bean
+    AuditReader auditReader() {
+        return AuditReaderFactory.get(entityManagerFactory.createEntityManager());
+    }
+
     @PostConstruct
     protected void init() {
         SessionFactoryImpl sessionFactory = entityManagerFactory.unwrap(SessionFactoryImpl.class);
         EventListenerRegistry registry = sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
-        EnversService enversService = sessionFactory.getServiceRegistry().getService(EnversService.class);
+
         registry.getEventListenerGroup(EventType.POST_INSERT).appendListener(this);
         registry.getEventListenerGroup(EventType.POST_UPDATE).appendListener(this);
         registry.getEventListenerGroup(EventType.POST_DELETE).appendListener(this);

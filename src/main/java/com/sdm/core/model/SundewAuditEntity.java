@@ -1,5 +1,6 @@
 package com.sdm.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sdm.core.db.HibernateAuditListener;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,6 +11,7 @@ import org.hibernate.envers.RevisionTimestamp;
 
 import javax.persistence.*;
 
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity(name = "AuditEntity")
 @Table(name = "tbl_audit_info")
 @RevisionEntity(HibernateAuditListener.class)
@@ -21,7 +23,7 @@ public class SundewAuditEntity {
     @Id
     @GeneratedValue
     @RevisionNumber
-    private Long version;
+    private Long id;
 
     @RevisionTimestamp
     private long timestamp;
