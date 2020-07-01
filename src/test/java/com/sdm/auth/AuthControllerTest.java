@@ -12,6 +12,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class AuthControllerTest extends DefaultTest {
 
     private static String displayName;
@@ -74,8 +77,14 @@ public class AuthControllerTest extends DefaultTest {
     }
 
     @Test
-    public void facebookAuthTest() {
+    public void facebookAuthTest() throws Exception {
+        Map<String, Object> request = new HashMap<>();
+        request.put("accessToken", faker.regexify("[A-Za-z0-9]{32}"));
+        request.put("deviceId", DEVICE_ID);
+        request.put("deviceOS", DEVICE_OS);
 
+        this.test("/auth/activate", HttpMethod.POST, request)
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 
     /**
@@ -95,12 +104,19 @@ public class AuthControllerTest extends DefaultTest {
     }
 
     @Test
-    public void activateUser() {
-
+    public void activateUser() throws Exception {
+        this.test("/auth/activate", HttpMethod.GET, null)
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test
-    public void resetPasswordWithOtp() {
+    public void resetPasswordWithOtp() throws Exception {
+        Map<String, Object> request = new HashMap<>();
+        request.put("user", faker.internet().emailAddress());
+        request.put("oldPassword", faker.regexify("[A-Za-z0-9]{12,25}"));
+        request.put("newPassword", faker.regexify("[A-Za-z0-9]{12,25}"));
 
+        this.test("/auth/activate", HttpMethod.POST, request)
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
     }
 }

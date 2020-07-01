@@ -1,6 +1,11 @@
 package com.sdm.admin;
 
 import com.sdm.core.DefaultReadWriteTest;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,5 +38,23 @@ public class SystemMenuControllerTest extends DefaultReadWriteTest {
     @Override
     protected String getUrl() {
         return "/admin/menus";
+    }
+
+    @Test
+    @Order(15)
+    public void getAllMenuAsTreeView() throws Exception {
+        String url = getUrl() + "/tree?filter=";
+        this.test(url, HttpMethod.GET, null)
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    @Order(16)
+    public void getMenuByCurrentUser() throws Exception {
+        String url = getUrl() + "/me";
+        this.test(url, HttpMethod.GET, null)
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }
