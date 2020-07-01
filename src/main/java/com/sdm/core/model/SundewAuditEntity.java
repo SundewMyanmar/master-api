@@ -4,12 +4,11 @@ import com.sdm.core.db.HibernateAuditListener;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.RevisionEntity;
+import org.hibernate.envers.RevisionNumber;
+import org.hibernate.envers.RevisionTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity(name = "AuditEntity")
 @Table(name = "tbl_audit_info")
@@ -17,11 +16,20 @@ import javax.persistence.Table;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SundewAuditEntity extends DefaultRevisionEntity {
+public class SundewAuditEntity {
 
-    @Column
-    private int userId;
+    @Id
+    @GeneratedValue
+    @RevisionNumber
+    private Long version;
 
-    @Column
-    private String token;
+    @RevisionTimestamp
+    private long timestamp;
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "id", column = @Column(name = "user_id", updatable = false)),
+            @AttributeOverride(name = "token", column = @Column(name = "auth_token", length = 36, columnDefinition = "char(36)", updatable = false))
+    })
+    private Auditor auditor;
 }

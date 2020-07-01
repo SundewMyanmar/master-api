@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.sdm.core.db.DataLogging;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.envers.NotAudited;
@@ -12,14 +11,12 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
 @MappedSuperclass
-@EntityListeners({DataLogging.class, AuditingEntityListener.class})
 @JsonPropertyOrder(value = {"id", "created_at", "modified_at"}, alphabetic = true)
 @JsonIgnoreProperties(value = {"created_at", "modified_at"}, allowGetters = true)
 public abstract class DefaultEntity implements Serializable {

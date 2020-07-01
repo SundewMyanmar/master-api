@@ -65,7 +65,7 @@
         </Logger>
 
         <!-- Data Logging -->
-        <Logger name="com.sdm.core.db.DataLogging" level="info" additivity="false">
+        <Logger name="com.sdm.core.db.HibernateAuditListener" level="info" additivity="false">
             <AppenderRef ref="DataLog"/>
         </Logger>
 

@@ -66,6 +66,10 @@ public class AuthService {
         return count;
     }
 
+    private String getActivateCallbackURL() {
+        return ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/activate").toUriString();
+    }
+
     private void setAnonymousExtras(AnonymousRequest request, User user) {
         if (!StringUtils.isEmpty(request.getBrand())) {
             user.addExtra("brand", request.getBrand());
@@ -79,7 +83,6 @@ public class AuthService {
             user.addExtra("manufacture", request.getManufacture());
         }
     }
-
 
     private User createAnonymousUser(AnonymousRequest request) {
         Random rnd = new Random();
@@ -104,8 +107,7 @@ public class AuthService {
         //Resend OTP to User
         if (user.getOtpExpired().before(new Date())) {
             try {
-                String callbackUrl = ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/activate/").toUriString();
-                this.mailService.activateLink(user, callbackUrl);
+                this.mailService.activateLink(user, getActivateCallbackURL());
             } catch (JsonProcessingException ex) {
                 throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
             }
@@ -195,7 +197,7 @@ public class AuthService {
         userRepository.save(newUser);
         if (needConfirm) {
             try {
-                mailService.activateLink(newUser, ServletUriComponentsBuilder.fromCurrentContextPath().toUriString());
+                mailService.activateLink(newUser, getActivateCallbackURL());
             } catch (JsonProcessingException ex) {
                 log.warn(ex.getLocalizedMessage());
             }
