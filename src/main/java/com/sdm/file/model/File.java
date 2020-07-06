@@ -83,6 +83,12 @@ public class File extends DefaultEntity implements Serializable {
     @Column(columnDefinition = "varchar(50)", length = 50, nullable = false)
     private String type;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @MapKeyColumn(name = "name")
+    @CollectionTable(name = "tbl_file_attributes",
+            joinColumns = @JoinColumn(name = "fileId", nullable = false))
+    private Map<String, String> attributes;
+
     @JsonIgnore
     @Column(columnDefinition = "INT", nullable = false)
     private long fileSize;
@@ -90,9 +96,6 @@ public class File extends DefaultEntity implements Serializable {
     @JsonIgnore
     @Column(columnDefinition = "varchar(1000)", length = 1000)
     private String storagePath;
-
-    @Column(columnDefinition = "varchar(1000)", length = 1000)
-    private String externalUrl;
 
     @Column(nullable = false)
     private boolean publicAccess;
@@ -133,10 +136,6 @@ public class File extends DefaultEntity implements Serializable {
                     .toUriString());
         }
 
-        if (!StringUtils.isEmpty(this.externalUrl)) {
-            urls.put("external", this.externalUrl);
-        }
-
         return urls;
     }
 
@@ -148,6 +147,13 @@ public class File extends DefaultEntity implements Serializable {
     @Override
     public String getId() {
         return id;
+    }
+
+    public void addAttribute(String key, String value) {
+        if (this.attributes == null) {
+            this.attributes = new HashMap<>();
+        }
+        this.attributes.put(key, value);
     }
 
 }

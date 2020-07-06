@@ -20,20 +20,17 @@ public class Application extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(Application.class);
-        app.setBannerMode(Banner.Mode.OFF);
         app.run(args);
     }
 
     @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        application.bannerMode(Banner.Mode.OFF);
-        return application.sources(Application.class);
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        builder.bannerMode(Banner.Mode.OFF);
+        return builder.sources(Application.class);
     }
 
     @EventListener(ApplicationReadyEvent.class)
     public void systemStartup() {
         log.info("System is running...");
     }
-
-
 }

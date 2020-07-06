@@ -90,9 +90,9 @@ public class AuthService {
 
         String userName = request.getDeviceOS() + "_"
                 + Globalizer.getDateString("yyyyMMddHHmmss", new Date()) + "_"
-                + Globalizer.generateToken("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 8);
+                + Globalizer.generateToken(Constants.Auth.GENERATED_TOKEN_CHARS, 8);
 
-        String passwordChars = securityManager.getProperties().getTokenChars() + "!@#$%^&*_+=abcdefghijklmnopqrstuvwxyz";
+        String passwordChars = securityManager.randomPassword(25);
         String rawPassword = Globalizer.generateToken(passwordChars, size);
         String password = securityManager.hashString(rawPassword);
         return new User(userName, "Anonymous", password, User.Status.ACTIVE);
@@ -218,7 +218,7 @@ public class AuthService {
 
         Random rnd = new Random();
         int size = rnd.nextInt((MAX_PASSWORD - MIN_PASSWORD) + 1) + MIN_PASSWORD;
-        String passwordChars = securityManager.getProperties().getTokenChars() + "!@#$%^&*_+=abcdefghijklmnopqrstuvwxyz";
+        String passwordChars = securityManager.randomPassword(25);
         String rawPassword = Globalizer.generateToken(passwordChars, size);
         String password = securityManager.hashString(rawPassword);
 

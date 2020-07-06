@@ -79,6 +79,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/public/**",
             "/auth/**",
             "/webjars/**",
+            "/setup",
 
             //Don't forget to remove in Production Mode
             "/reports/**",

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="base :: common_header(${title} + ' | Success')">
+    <title th:text="${title}">Master API Setp Success</title>
+</head>
+<body>
+<div class="container">
+    <h1>Generated application.properties</h1>
+    <hr/>
+    <p>
+        Copy following code and replace in your system <strong>{classpath:/application.properties}</strong> file.
+    </p>
+    <textarea class="form-control" readonly rows="30">
+#Core
+spring.application.name=<th:block th:text="${appName}"/>
+
+#server
+server.compression.enabled=true
+server.error.path=/error
+server.error.whitelabel.enabled=false
+
+#Path
+com.sdm.path.upload=<th:block th:text="${uploadPath}"/>
+com.sdm.path.report=<th:block th:text="${reportPath}"/>
+
+#Database
+spring.datasource.url=jdbc:<th:block th:text="${dbType}"/>://<th:block th:text="${dbHost}"/>:<th:block
+            th:text="${dbPort}"/>/<th:block th:text="${dbName}"/>
+spring.datasource.username=<th:block th:text="${dbUser}"/>
+spring.datasource.password=<th:block th:text="${dbPassword}"/>
+spring.jdbc.template.fetch-size=1000
+spring.jdbc.template.max-rows=100
+spring.jdbc.template.query-timeout=180s
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.open-in-view=false
+spring.jpa.properties.org.hibernate.envers.audit_table_suffix=_aud_history
+#spring.jpa.properties.org.hibernate.envers.audit_strategy=org.hibernate.envers.strategy.DefaultAuditStrategy
+
+#Sessiong Management
+spring.session.store-type=jdbc
+spring.session.jdbc.initialize-schema=always
+spring.session.timeout=<th:block th:text="${sessionTimeout}"/>
+
+#JSON
+spring.jackson.time-zone=<th:block th:text="${appTimezone}"/>
+spring.jackson.default-property-inclusion=NON_NULL
+spring.jackson.serialization.write-enums-using-to-string=true
+spring.jackson.serialization.write-dates-as-timestamps=true
+spring.jackson.serialization.ORDER_MAP_ENTRIES_BY_KEYS=true
+
+#HTTP
+spring.http.log-request-details=true
+spring.servlet.multipart.enabled=true
+spring.servlet.multipart.file-size-threshold=2KB
+spring.servlet.multipart.max-file-size=<th:block th:text="${maxFileSize}"/>
+spring.servlet.multipart.max-request-size=<th:block th:text="${maxRequestSize}"/>
+spring.resources.static-locations=classpath:/static/
+
+#Async
+com.sdm.async.pool-size=3
+com.sdm.async.queue-size=100
+
+#Security
+jasypt.encryptor.bean=jasyptEncryptor
+com.sdm.security.auth-failed-count=3
+com.sdm.security.blocked-time=30m
+com.sdm.security.require-confirm=false
+com.sdm.security.owner-ids=<th:block th:text="${ownerIds}"/>
+com.sdm.security.otp-life=10m
+com.sdm.security.auth-token-life=<th:block th:text="${tokenLife}"/>
+com.sdm.security.encrypt-salt=<th:block th:text="${encryptSalt}"/>
+com.sdm.security.jwt-key=<th:block th:text="${jwtKey}"/>
+com.sdm.security.cookie-domain=<th:block th:text="${xsrfCookieDomain}"/>
+com.sdm.security.cookie-path=<th:block th:text="${xsrfCookiePath}"/>
+
+#CORS Setting
+com.sdm.cors.allowed-origins=<th:block th:text="${corsAllowOrigins}"/>
+#com.sdm.cors.allowed-headers=authorization,content-type,accept,x-requested-with,x-xsrf-token,x-forwarded-for
+#com.sdm.cors.allowed-methods=GET,POST,PUT,PATCH,DELETE,OPTIONS,HEAD
+#com.sdm.cors.exposed-headers=xsrf-token
+#com.sdm.cors.allowed-credential=true
+#com.sdm.cors.max-age=36000
+
+#Quartz Scheduler
+# spring.quartz.job-store-type=memory
+
+#Mail Server
+spring.mail.test-connection=false
+spring.mail.host=<th:block th:text="${mailHost}"/>
+spring.mail.username=<th:block th:text="${mailUser}"/>
+spring.mail.password=<th:block th:text="${mailPassword}"/>
+spring.mail.port=<th:block th:text="${mailPort}"/>
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+
+#Facebook
+com.sdm.facebook.graph-url=https://graph.facebook.com/v3.2/
+com.sdm.facebook.webhook-token=<th:block th:text="${facebookWebhook}"/>
+<th:block th:if="${facebookAppID} != ''">com.sdm.facebook.app-id=<th:block th:text="${facebookAppID}"/></th:block>
+<th:block th:if="${facebookAppSecret} != ''">com.sdm.facebook.app-secret=<th:block
+        th:text="${facebookAppSecret}"/></th:block>
+<th:block th:if="${facebookAccessToken} != ''">com.sdm.facebook.page-access-token=<th:block
+        th:text="${facebookAccessToken}"/></th:block>
+
+#Firebase
+<th:block th:if="${firebaseProject} != ''">com.sdm.firebase.project-url=<th:block
+        th:text="${firebaseProject}"/></th:block>
+<th:block th:if="${firebaseJson} != ''">com.sdm.firebase.service-json=<th:block th:text="${firebaseJson}"/></th:block>
+        </textarea>
+</div>
+<th:block th:replace="base :: footer_scripts(${#dates.year(#dates.createNow())}, _)"/>
+</body>
+</html>

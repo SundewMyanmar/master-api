@@ -19,7 +19,7 @@ import java.util.Map;
 @Log4j2
 public class WebMailManager {
 
-    @Autowired
+    @Autowired(required = false)
     protected JavaMailSender mailSender;
 
     @Autowired

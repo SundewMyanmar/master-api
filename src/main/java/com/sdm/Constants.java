@@ -7,7 +7,7 @@ package com.sdm;
  */
 public interface Constants {
 
-    String APP_NAME = "master-api";
+    String APP_NAME = "MasterAPI";
     String INFO_MAIL = "info@sundewmyanmar.com";
     String ENCRYPT_KEY = "MASTER_API_ENCRYPT_KEY";
     int STRUCT_CACHE_DAYS = 365;
@@ -130,6 +130,11 @@ public interface Constants {
          * System default generated auth token
          */
         String DEFAULT_AUTH_TOKEN = "system-default-generated-auth-token!";
+
+        /**
+         * System will generate random OTP by following characters.
+         */
+        String GENERATED_TOKEN_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     }
 
     interface SESSION {

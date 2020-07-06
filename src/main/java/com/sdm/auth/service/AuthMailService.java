@@ -2,6 +2,7 @@ package com.sdm.auth.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sdm.Constants;
 import com.sdm.admin.model.User;
 import com.sdm.auth.model.request.ActivateRequest;
 import com.sdm.core.model.MailHeader;
@@ -49,7 +50,7 @@ public class AuthMailService {
 
     private ActivateRequest buildRequest(User user) {
         // setToken
-        String otpToken = Globalizer.generateToken(securityManager.getProperties().getTokenChars(), OTP_LENGTH);
+        String otpToken = Globalizer.generateToken(Constants.Auth.GENERATED_TOKEN_CHARS, OTP_LENGTH);
         Date expiredDate = Globalizer.addDate(new Date(), securityManager.getProperties().getOtpLife());
 
         // Set Otp Info in User

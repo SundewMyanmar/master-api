@@ -27,6 +27,10 @@ configurations {
     all {
         exclude group: "org.springframework.boot", module: "spring-boot-starter-logging"
     }
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
 }
 
 ext {
@@ -95,6 +99,8 @@ dependencies {
     implementation "org.springframework.session:spring-session-core"
     implementation "org.springframework.session:spring-session-jdbc"
     implementation(group: "org.springframework.boot", name: "spring-boot-starter-log4j2")
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+
 
     //H2 DB
     implementation 'com.h2database:h2'

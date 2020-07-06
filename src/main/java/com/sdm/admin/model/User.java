@@ -76,7 +76,7 @@ public class User extends DefaultEntity implements Serializable {
     private Set<Role> roles = new HashSet<>();
 
     @Size(min = 6)
-    @Column(length = 500, nullable = false)
+    @Column(length = 500)
     private String password;
 
     @ElementCollection(fetch = FetchType.EAGER)

@@ -9,11 +9,12 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.thymeleaf.context.Context;
+import org.springframework.web.servlet.ModelAndView;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import javax.servlet.RequestDispatcher;
@@ -34,7 +35,6 @@ public class RootController implements ErrorController {
 
     @Autowired
     private SpringTemplateEngine templateEngine;
-
 
     @SuppressWarnings("unchecked")
     @Override
@@ -87,11 +87,11 @@ public class RootController implements ErrorController {
         return new ResponseEntity<>(response, response.getStatus());
     }
 
-    @GetMapping("/public/privacy")
-    public String privacyPolicy() {
-        Context context = new Context();
-        context.setVariables(Map.of("title", Constants.APP_NAME, "email", Constants.INFO_MAIL, "today", Calendar.getInstance()));
-        return templateEngine.process("privacy-policy", context);
+    @GetMapping(value = "/public/privacy", produces = MediaType.TEXT_HTML_VALUE)
+    public ModelAndView privacyPolicy() {
+        ModelAndView response = new ModelAndView("privacy-policy");
+        response.addAllObjects(Map.of("title", Constants.APP_NAME, "email", Constants.INFO_MAIL, "today", Calendar.getInstance()));
+        return response;
     }
 
     @GetMapping("/util/jwtKey")

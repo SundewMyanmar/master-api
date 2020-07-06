@@ -23,8 +23,6 @@ public class SecurityProperties {
 
     private String encryptSalt = "";
 
-    private String tokenChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
     @DurationUnit(ChronoUnit.MINUTES)
     private Duration otpLife = Duration.ofMinutes(10);
 
