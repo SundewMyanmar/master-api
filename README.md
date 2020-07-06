@@ -35,13 +35,12 @@ So, you have to know about these frameworks and libraries. [Getting Started](#ge
 - Clone or download the project from [github](https://github.com/SUNDEWMYANMAR/master-api)
 - Open project in Java IDE such as Intellij, Eclipse, NetBeans, etc ...
 - Clone following setting files:
-	- [example.application.properties](./src/main/resources/example.application.properties) => __application.properties__
 	- [example.log4j2.xml](./src/main/resources/example.log4j2.xml) => __log4j2.xml__
 - Create system directories:
     - File upload directory. (Example: /var/www/master-api/upload/)
     - Report directory. (Example: /var/www/master-api/reports/)
     - Log directory. (Example: /var/www/master-api/log/)
-- Edit require properties from **application.properties** and **log4j2.xml** files.
+- Edit require properties from **log4j2.xml** file.
 
 ### Require config to edit in **log4j2.xml**
 Modified output directory.
@@ -49,49 +48,19 @@ Modified output directory.
 <Property name="LOG_ROOT">{log directory path}/</Property>
 ```
 
-### Require properties to edit in **application.properties** 
-[Ref: Spring Boot application.properties](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-application-properties.html)
-
-#### Database Setting
-```properties
-spring.datasource.url=jdbc:{mysql|postgresql}://{db_host}:{db_port}/{db_name}
-spring.datasource.username={db_user}
-spring.datasource.password={db_password}
-```
-
-#### Path Setting
-```properties
-com.sdm.path.upload={file_upload_directory}
-com.sdm.path.report={jasper_report_directory}
-```
-
-#### Mail Server Setting
-```properties
-spring.mail.username={mail-server:username}
-spring.mail.password={mail-server:password}
-```
-
 Run Spring Boot Application
 ```bash
 > ./gradlew clean bootRun
 ```
 
-### Generate Salt for Encryption
-[http://localhost:8080/util/salt](http://localhost:8080/util/salt) <br/>
-Copy/Paste encrypt salt to application.properties.
-```properties
-com.sdm.security.encrypt-salt={generated_encrypt_salt}
-```
-
-### Generate JWT Key For AccessToken
-[http://localhost:8080/util/jwtKey](http://localhost:8080/util/jwtKey) <br/>
-Copy/Paste jwt key to application.properties.
-```properties
-com.sdm.security.jwt-key={generated_jwt_key}
-```
+### Setup System
+Open Browser and Enter this URL [http://locahost:8080/setup](http://localhost:8080/setup)
+- Fill configuration fields and Submit
+- Copy generated configuration codes and save as a **/src/resources/application.properties** file. 
+- Reload Server again
+- !Finished
 
 ### Ready for your API system now!
-Stop and Run Spring Boot again to test
 ```bash
 > ./gradlew clean bootRun
 ```
@@ -99,6 +68,7 @@ Ready Output log:
 ```bash
 2020-01-28 13:41:44.597  INFO 2727 --- [main] com.sdm.Application   : System is running...
 ```
+[Ref: Spring Boot application.properties](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-application-properties.html)
 
 ### Generate war file to upload web server!
 ```bash
@@ -106,8 +76,9 @@ Ready Output log:
 ```
 ___
 
-## Version 1.5
-- Development Version
+## Version 1.5.1
+- Data Auditor
+- Setup Form to generate application.properties 
 
 ## Package Structure
 ### Default Package for New Module
@@ -130,6 +101,7 @@ ___
 
 ### [System Authorization and Authentication](./src/main/java/com/sdm/auth)
 - System auth by user:password
+- System auth by Facebook
 - Default User Profile
 - Auth Token Management
 
@@ -142,7 +114,7 @@ ___
 ### [File Management](./src/main/java/com/sdm/file)
 - File Upload Download
 - Generated Public URL
-- Image resizing
+- Image Caching & Resizing
 
 ### [Facebook Messenger Bot](./src/main/java/com/sdm/facebook)
 - Messenger Bot Activate
