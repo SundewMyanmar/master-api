@@ -95,6 +95,13 @@
                 <div class="collapse show" id="pathInfo">
                     <div class="card-body">
                         <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="rootPath">Root Directory</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="rootPath" placeholder="Enter root directory path."
+                                       type="text" value="/var/www/master-api/">
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="uploadPath">Upload Directory</label>
                             <div class="col-sm-8">
                                 <input class="form-control" id="uploadPath" name="uploadPath"
@@ -331,6 +338,15 @@
             }
             $("select#dbType").change(e => {
                 $("input#dbPort").val(default_db_port[e.target.value]);
+            });
+
+            $("input#rootPath").change(e => {
+                let root = e.target.value;
+                if(!root.endsWith("/")){
+                    root += "/";
+                }
+                $("input#uploadPath").val(root + "upload/");
+                $("input#reportPath").val(root + "report/");
             });
 
             $("button#btnEncryptSaltRefresh").click(() => {
