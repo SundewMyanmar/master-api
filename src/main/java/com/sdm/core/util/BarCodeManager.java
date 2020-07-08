@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Hashtable;
 
 /**
@@ -31,19 +31,17 @@ public class BarCodeManager {
     public BarCodeManager() {
     }
 
-    private void imageWriter(File outputFile, BitMatrix byteMatrix) throws IOException {
+    private void imageWriter(OutputStream output, BitMatrix byteMatrix) throws IOException {
         int matrixWidth = byteMatrix.getWidth();
         int matrixHeight = byteMatrix.getHeight();
-        //transparant need to change to argb
-        //BufferedImage image = new BufferedImage(matrixWidth, matrixHeight, BufferedImage.TYPE_INT_ARGB);
-        BufferedImage image = new BufferedImage(matrixWidth, matrixHeight, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(matrixWidth, matrixHeight, BufferedImage.TYPE_INT_ARGB);
         image.createGraphics();
         Graphics2D graphics = (Graphics2D) image.getGraphics();
 
         //transparent
-        //Color myColour = new Color(255, 255, 255, 0);
-        //graphics.setColor(myColour);
-        graphics.setColor(Color.WHITE);
+        Color transparent = new Color(255, 255, 255, 0);
+        graphics.setColor(transparent);
+
         graphics.fillRect(0, 0, matrixWidth, matrixHeight);
         graphics.setColor(Color.BLACK);
         for (int i = 0; i < matrixWidth; i++) {
@@ -53,23 +51,23 @@ public class BarCodeManager {
                 }
             }
         }
-        ImageIO.write(image, FILE_TYPE, outputFile);
+        ImageIO.write(image, FILE_TYPE, output);
     }
 
-    public void createBarcode(File barcodeFile, BarcodeFormat format, String content, int width, int height)
+    public void createBarcode(OutputStream output, BarcodeFormat format, String content, int width, int height)
             throws WriterException, IOException {
         Hashtable<EncodeHintType, ErrorCorrectionLevel> hintMap = new Hashtable<>();
         hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
         MultiFormatWriter codeWriter = new MultiFormatWriter();
         BitMatrix byteMatrix = codeWriter.encode(content, format, width, height, hintMap);
-        imageWriter(barcodeFile, byteMatrix);
+        imageWriter(output, byteMatrix);
     }
 
-    public void createQR(File qrFile, String content, int size) throws WriterException, IOException {
+    public void createQR(OutputStream output, String content, int size) throws WriterException, IOException {
         Hashtable<EncodeHintType, ErrorCorrectionLevel> hintMap = new Hashtable<>();
         hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
         QRCodeWriter codeWriter = new QRCodeWriter();
         BitMatrix byteMatrix = codeWriter.encode(content, BarcodeFormat.QR_CODE, size, size, hintMap);
-        imageWriter(qrFile, byteMatrix);
+        imageWriter(output, byteMatrix);
     }
 }

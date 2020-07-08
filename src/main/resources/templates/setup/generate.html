@@ -97,7 +97,7 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 #Facebook
 com.sdm.facebook.graph-url=https://graph.facebook.com/v3.2/
 com.sdm.facebook.webhook-token=<th:block th:text="${facebookWebhook}"/>
-<th:block th:if="${facebookAppID} != ''">com.sdm.facebook.app-id=<th:block th:text="${facebookAppID}"/></th:block>
+<th:block th:if="${facebookAppId} != ''">com.sdm.facebook.app-id=<th:block th:text="${facebookAppId}"/></th:block>
 <th:block th:if="${facebookAppSecret} != ''">com.sdm.facebook.app-secret=<th:block
         th:text="${facebookAppSecret}"/></th:block>
 <th:block th:if="${facebookAccessToken} != ''">com.sdm.facebook.page-access-token=<th:block

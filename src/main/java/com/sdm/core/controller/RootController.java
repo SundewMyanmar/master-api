@@ -3,7 +3,6 @@ package com.sdm.core.controller;
 import com.sdm.Constants;
 import com.sdm.core.config.PropertyConfig;
 import com.sdm.core.model.response.MessageResponse;
-import com.sdm.core.util.MyanmarFontManager;
 import com.sdm.core.util.security.SecurityManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
@@ -93,51 +94,4 @@ public class RootController implements ErrorController {
         response.addAllObjects(Map.of("title", Constants.APP_NAME, "email", Constants.INFO_MAIL, "today", Calendar.getInstance()));
         return response;
     }
-
-    @GetMapping("/util/jwtKey")
-    public ResponseEntity<MessageResponse> generateJwtKey() {
-        String generated = securityManager.generateJWTKey();
-        return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "JWT_KEY", generated, null));
-    }
-
-    @GetMapping("/util/salt")
-    public ResponseEntity<MessageResponse> generateSalt() {
-        String generated = securityManager.generateSalt();
-        return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "ENCRYPT_SALT", generated, null));
-    }
-
-    @GetMapping("/util/generate/{len}")
-    public ResponseEntity<MessageResponse> generateRandomLetter(@PathVariable("len") int len) {
-        String generated = securityManager.randomPassword(len);
-        return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "GENERATE", generated, null));
-    }
-
-    @GetMapping("/util/encryptProperty")
-    public ResponseEntity<MessageResponse> encryptProperty(@RequestParam("input") String input) {
-        String encrypted = "ENC(" + appConfig.stringEncryptor().encrypt(input) + ")";
-        return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "ENCRYPTED", encrypted, null));
-    }
-
-    @GetMapping("/util/mmConverter")
-    public ResponseEntity<Object> langConverter(@RequestParam("input") String input) {
-        HashMap<String, String> content = new HashMap<>();
-        if (MyanmarFontManager.isMyanmar(input)) {
-            String msgString = "Yes! It is myanmar";
-            if (!MyanmarFontManager.isZawgyi(input)) {
-                msgString += " unicode font.";
-                content.put("unicode", input);
-                content.put("zawgyi", MyanmarFontManager.toZawgyi(input));
-            } else if (MyanmarFontManager.isZawgyi(input)) {
-                msgString += " zawgyi font.";
-                content.put("zawgyi", input);
-                content.put("unicode", MyanmarFontManager.toUnicode(input));
-            }
-            content.put("message", msgString);
-            return ResponseEntity.ok(content);
-        }
-
-        MessageResponse message = new MessageResponse(HttpStatus.BAD_REQUEST, "No! It is not myanmar font.");
-        return ResponseEntity.ok(message);
-    }
-
 }

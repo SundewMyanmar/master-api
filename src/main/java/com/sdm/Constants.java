@@ -11,6 +11,7 @@ public interface Constants {
     String INFO_MAIL = "info@sundewmyanmar.com";
     String ENCRYPT_KEY = "MASTER_API_ENCRYPT_KEY";
     int STRUCT_CACHE_DAYS = 365;
+    String SYSTEM_CONFIG = "system-config.json";
 
     /**
      * Regex Patterns

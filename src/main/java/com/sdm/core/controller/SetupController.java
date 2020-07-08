@@ -28,6 +28,7 @@ public class SetupController {
     );
     @Autowired
     SecurityManager securityManager;
+
     @Autowired
     private PropertyConfig appConfig;
 
