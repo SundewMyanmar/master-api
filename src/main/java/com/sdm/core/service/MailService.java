@@ -1,4 +1,4 @@
-package com.sdm.core.util;
+package com.sdm.core.service;
 
 import com.sdm.Constants;
 import com.sdm.core.model.MailHeader;
@@ -8,16 +8,16 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import java.util.Map;
 
-@Component
+@Service
 @Log4j2
-public class WebMailManager {
+public class MailService {
 
     @Autowired(required = false)
     protected JavaMailSender mailSender;

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.sdm.core.util.firebase;
+package com.sdm.core.firebase;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,6 +35,9 @@ public class CloudMessagingManager {
 
     @Autowired
     private ObjectMapper jacksonObjectMapper;
+
+    @Autowired
+    private MyanmarFontManager myanmarFontManager;
 
     private FirebaseApp defaultApp;
 
@@ -112,8 +115,8 @@ public class CloudMessagingManager {
     public ApiFuture<String> sendMessage(String token, String title, String body, int badgeCount,
                                          Map<String, Object> data) {
 
-        title = MyanmarFontManager.toUnicode(title);
-        body = MyanmarFontManager.toUnicode(body);
+        title = myanmarFontManager.toUnicode(title);
+        body = myanmarFontManager.toUnicode(body);
 
         Map<String, String> stringData = this.convertToStringData(data);
 
@@ -131,8 +134,8 @@ public class CloudMessagingManager {
     public ApiFuture<BatchResponse> sendMessage(List<String> tokens, String title, String body, int badgeCount,
                                                 Map<String, Object> data) {
 
-        title = MyanmarFontManager.toUnicode(title);
-        body = MyanmarFontManager.toUnicode(body);
+        title = myanmarFontManager.toUnicode(title);
+        body = myanmarFontManager.toUnicode(body);
 
         Map<String, String> stringData = this.convertToStringData(data);
         MulticastMessage message = MulticastMessage.builder()

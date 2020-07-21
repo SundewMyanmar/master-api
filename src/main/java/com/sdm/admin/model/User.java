@@ -1,11 +1,9 @@
 package com.sdm.admin.model;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Filterable;
-import com.sdm.core.util.MyanmarFontManager;
 import com.sdm.file.model.File;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -51,7 +49,6 @@ public class User extends DefaultEntity implements Serializable {
 
     @Filterable
     @Size(max = 255)
-    @JsonIgnore
     @Column
     private String displayName;
 
@@ -129,16 +126,6 @@ public class User extends DefaultEntity implements Serializable {
     @Override
     public Integer getId() {
         return id;
-    }
-
-    @JsonGetter("displayName")
-    public Object getMMDisplayName() {
-        return MyanmarFontManager.getResponseObject(this.displayName);
-    }
-
-    @JsonSetter("displayName")
-    public void setMMDisplayName(String displayName) {
-        this.displayName = MyanmarFontManager.toUnicode(displayName);
     }
 
     @JsonIgnore

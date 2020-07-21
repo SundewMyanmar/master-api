@@ -4,6 +4,7 @@ import com.google.myanmartools.TransliterateU2Z;
 import com.google.myanmartools.TransliterateZ2U;
 import com.google.myanmartools.ZawgyiDetector;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
@@ -18,16 +19,27 @@ import java.util.regex.Pattern;
  * and Mon as Zawgyi when it is actually Unicode. Ref =>
  * https://github.com/googlei18n/myanmar-tools
  */
+@Component
 @Log4j2
 public class MyanmarFontManager {
 
-    private static final double THRESHOLD = 0.2;
-    private static final ZawgyiDetector zgDetector = new ZawgyiDetector();
-    private static final TransliterateZ2U z2u = new TransliterateZ2U("Zawgyi to Unicode");
-    private static final TransliterateU2Z u2z = new TransliterateU2Z("Unicode to Zawgyi");
-    private static final String[] mm_numbers = new String[]{"၀", "၁", "၂", "၃", "၄", "၅", "၆", "၇", "၈", "၉"};
+    private final double THRESHOLD = 0.2;
+    private final ZawgyiDetector zgDetector;
+    private final TransliterateZ2U z2u;
+    private final TransliterateU2Z u2z;
+    private final String[] mm_numbers = new String[]{"၀", "၁", "၂", "၃", "၄", "၅", "၆", "၇", "၈", "၉"};
 
-    public static String convertToMMNumber(String nums) {
+    // These Pattern Ref => http://novasteps.com/shake-n-break.html
+    private final Pattern isMyanmarPattern;
+
+    public MyanmarFontManager() {
+        this.zgDetector = new ZawgyiDetector();
+        this.z2u = new TransliterateZ2U("Zawgyi to Unicode");
+        this.u2z = new TransliterateU2Z("Unicode to Zawgyi");
+        this.isMyanmarPattern = Pattern.compile("[\u1000-\u1021]+|[\u1025-\u1027]");
+    }
+
+    public String convertToMMNumber(String nums) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < nums.length(); i++) {
             //don't translate, if not number
@@ -40,19 +52,16 @@ public class MyanmarFontManager {
         return builder.toString();
     }
 
-    // These Pattern Ref => http://novasteps.com/shake-n-break.html
-    private static final Pattern IS_MYANMAR_PATTERN = Pattern.compile("[\u1000-\u1021]+|[\u1025-\u1027]");
-
-    public static boolean isMyanmar(String input) {
+    public boolean isMyanmar(String input) {
         if (input == null) {
             return false;
         }
 
-        Matcher matcher = IS_MYANMAR_PATTERN.matcher(input);
+        Matcher matcher = isMyanmarPattern.matcher(input);
         return matcher.find();
     }
 
-    public static boolean isZawgyi(String input) {
+    public boolean isZawgyi(String input) {
         if (StringUtils.isEmpty(input)) {
             return false;
         }
@@ -61,19 +70,19 @@ public class MyanmarFontManager {
         return result > THRESHOLD;
     }
 
-    public static String toUnicode(String zawgyi) {
-        if (MyanmarFontManager.isZawgyi(zawgyi)) {
+    public String toUnicode(String zawgyi) {
+        if (isZawgyi(zawgyi)) {
             return z2u.convert(zawgyi);
         }
         return zawgyi;
     }
 
-    public static String toZawgyi(String unicodeInput) {
+    public String toZawgyi(String unicodeInput) {
         return u2z.convert(unicodeInput);
     }
 
-    public static Object getResponseObject(String input) {
-        if (MyanmarFontManager.isMyanmar(input)) {
+    public Object getResponseObject(String input) {
+        if (isMyanmar(input)) {
             Map<String, String> output = new HashMap<>();
             output.put("zg", toZawgyi(input));
             output.put("uni", input);

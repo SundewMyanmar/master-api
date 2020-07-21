@@ -11,7 +11,7 @@ import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.repository.DefaultRepository;
-import com.sdm.core.util.security.SecurityManager;
+import com.sdm.core.security.SecurityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -160,6 +160,5 @@ public class UserController extends DefaultReadController<User, Integer> impleme
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
 
 }

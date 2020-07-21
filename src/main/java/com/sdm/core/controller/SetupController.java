@@ -2,7 +2,7 @@ package com.sdm.core.controller;
 
 import com.sdm.Constants;
 import com.sdm.core.config.PropertyConfig;
-import com.sdm.core.util.security.SecurityManager;
+import com.sdm.core.security.SecurityManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

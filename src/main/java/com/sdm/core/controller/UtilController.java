@@ -4,9 +4,9 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.sdm.core.config.PropertyConfig;
 import com.sdm.core.model.response.MessageResponse;
+import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.BarCodeManager;
 import com.sdm.core.util.MyanmarFontManager;
-import com.sdm.core.util.security.SecurityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -31,6 +31,9 @@ public class UtilController {
 
     @Autowired
     private BarCodeManager barCodeManager;
+
+    @Autowired
+    private MyanmarFontManager myanmarFontManager;
 
     @GetMapping("/jwtKey")
     public ResponseEntity<MessageResponse> generateJwtKey() {
@@ -81,16 +84,16 @@ public class UtilController {
     @GetMapping("/mmConverter")
     public ResponseEntity<Object> langConverter(@RequestParam("input") String input) {
         HashMap<String, String> content = new HashMap<>();
-        if (MyanmarFontManager.isMyanmar(input)) {
+        if (myanmarFontManager.isMyanmar(input)) {
             String msgString = "Yes! It is myanmar";
-            if (!MyanmarFontManager.isZawgyi(input)) {
+            if (!myanmarFontManager.isZawgyi(input)) {
                 msgString += " unicode font.";
                 content.put("unicode", input);
-                content.put("zawgyi", MyanmarFontManager.toZawgyi(input));
-            } else if (MyanmarFontManager.isZawgyi(input)) {
+                content.put("zawgyi", myanmarFontManager.toZawgyi(input));
+            } else if (myanmarFontManager.isZawgyi(input)) {
                 msgString += " zawgyi font.";
                 content.put("zawgyi", input);
-                content.put("unicode", MyanmarFontManager.toUnicode(input));
+                content.put("unicode", myanmarFontManager.toUnicode(input));
             }
             content.put("message", msgString);
             return ResponseEntity.ok(content);

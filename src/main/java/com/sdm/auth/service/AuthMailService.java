@@ -6,10 +6,10 @@ import com.sdm.Constants;
 import com.sdm.admin.model.User;
 import com.sdm.auth.model.request.ActivateRequest;
 import com.sdm.core.model.MailHeader;
+import com.sdm.core.security.AESManager;
+import com.sdm.core.security.SecurityManager;
+import com.sdm.core.service.MailService;
 import com.sdm.core.util.Globalizer;
-import com.sdm.core.util.WebMailManager;
-import com.sdm.core.util.security.AESManager;
-import com.sdm.core.util.security.SecurityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ public class AuthMailService {
     AESManager aesManager;
 
     @Autowired
-    WebMailManager mailManager;
+    MailService mailManager;
 
     @Autowired
     HttpServletRequest servletRequest;

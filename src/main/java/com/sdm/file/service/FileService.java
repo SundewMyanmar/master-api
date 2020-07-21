@@ -2,7 +2,6 @@ package com.sdm.file.service;
 
 import com.sdm.core.config.properties.PathProperties;
 import com.sdm.core.exception.GeneralException;
-import com.sdm.core.util.FileManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.file.model.File;
 import com.sdm.file.repository.FileRepository;
@@ -30,6 +29,32 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Log4j2
 public class FileService {
+    public static final String[] SIZE_CODES = new String[]{"", "K", "M", "G", "T", "P", "E", "Z", "Y"};
+
+    public static String byteSize(long size) {
+        if (size <= 1024) {
+            return "1 KB";
+        }
+        float resultSize = size;
+        String result = resultSize + " T";
+        for (String code : SIZE_CODES) {
+            if (resultSize < 1024) {
+                result = (Math.round(resultSize * 100.0) / 100.0) + " " + code;
+                break;
+            }
+            resultSize /= 1024;
+        }
+        return result + "B";
+    }
+
+    public static String[] fileNameSplitter(String fileName) {
+        String[] fileInfo = fileName.split("\\.(?=[^\\.]+$)");
+        if (fileInfo.length < 2) {
+            return new String[]{fileName};
+        }
+        return fileInfo;
+    }
+
 
     @Autowired
     FileRepository fileRepository;
@@ -92,7 +117,7 @@ public class FileService {
     public File create(MultipartFile uploadFile, boolean isPublic) {
         String fileName = StringUtils.cleanPath(uploadFile.getOriginalFilename());
 
-        String[] nameInfo = FileManager.fileNameSplitter(fileName);
+        String[] nameInfo = FileService.fileNameSplitter(fileName);
 
         File rawEntity = new File();
         rawEntity.setId(UUID.randomUUID().toString());

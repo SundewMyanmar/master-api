@@ -3,7 +3,7 @@ package com.sdm.admin.service;
 import com.sdm.Constants;
 import com.sdm.admin.model.SystemRoute;
 import com.sdm.admin.repository.SystemRouteRepository;
-import com.sdm.core.util.security.PermissionHandler;
+import com.sdm.core.security.PermissionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

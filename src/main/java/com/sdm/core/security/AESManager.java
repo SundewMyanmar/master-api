@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.sdm.core.util.security;
+package com.sdm.core.security;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;

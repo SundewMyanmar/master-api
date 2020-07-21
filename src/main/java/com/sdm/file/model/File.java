@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Filterable;
-import com.sdm.core.util.FileManager;
+import com.sdm.file.service.FileService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -141,7 +141,7 @@ public class File extends DefaultEntity implements Serializable {
 
     @JsonGetter("size")
     public String getSize() {
-        return FileManager.byteSize(fileSize);
+        return FileService.byteSize(fileSize);
     }
 
     @Override

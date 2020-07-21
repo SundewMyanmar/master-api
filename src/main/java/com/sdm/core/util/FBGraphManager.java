@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.sdm.core.config.properties.FacebookProperties;
 import com.sdm.core.exception.GeneralException;
-import com.sdm.core.util.security.SecurityManager;
+import com.sdm.core.security.SecurityManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;

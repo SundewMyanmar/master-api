@@ -1,4 +1,4 @@
-package com.sdm.core.util.security;
+package com.sdm.core.security;
 
 import org.springframework.security.core.Authentication;
 

@@ -1,4 +1,4 @@
-package com.sdm.core.jwt;
+package com.sdm.core.security.jwt;
 
 import org.apache.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;

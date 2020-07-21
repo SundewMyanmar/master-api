@@ -17,7 +17,7 @@ plugins {
 }
 
 group = "com.sdm"
-version = "1.5.4-SNAPSHOT"
+version = "1.5.5-SNAPSHOT"
 sourceCompatibility = "11"
 
 configurations {
@@ -26,10 +26,6 @@ configurations {
     }
     all {
         exclude group: "org.springframework.boot", module: "spring-boot-starter-logging"
-    }
-    developmentOnly
-    runtimeClasspath {
-        extendsFrom developmentOnly
     }
 }
 
@@ -54,9 +50,6 @@ repositories {
 }
 
 dependencies {
-    //Master-annotations
-//    annotationProcessor 'com.sdm:master-annotation'
-
     //JWT
     compile 'io.jsonwebtoken:jjwt-api:0.11.1'
     runtime 'io.jsonwebtoken:jjwt-impl:0.11.1'
@@ -86,8 +79,9 @@ dependencies {
     compile "io.projectreactor:reactor-core:3.3.3.RELEASE"
 
     // Reporting
-    // https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports
-    compile group: "net.sf.jasperreports", name: "jasperreports", version: "6.12.2"
+    // https://mvnrepository.com/artifact/net.sf.jasperreports/
+    compile group: "net.sf.jasperreports", name: "jasperreports", version: "6.13.0"
+    compile group: 'net.sf.jasperreports', name: 'jasperreports-functions', version: '6.13.0'
 
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "org.springframework.boot:spring-boot-starter-mail"
@@ -99,8 +93,7 @@ dependencies {
     implementation "org.springframework.session:spring-session-core"
     implementation "org.springframework.session:spring-session-jdbc"
     implementation(group: "org.springframework.boot", name: "spring-boot-starter-log4j2")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
-
+    // developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     //H2 DB
     implementation 'com.h2database:h2'

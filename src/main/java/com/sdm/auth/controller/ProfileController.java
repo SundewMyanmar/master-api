@@ -8,7 +8,7 @@ import com.sdm.auth.repository.TokenRepository;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.model.response.MessageResponse;
-import com.sdm.core.util.security.SecurityManager;
+import com.sdm.core.security.SecurityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +47,7 @@ public class ProfileController {
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
 
         existUser.setProfileImage(user.getProfileImage());
-        existUser.setMMDisplayName(user.getDisplayName());
+        existUser.setDisplayName(user.getDisplayName());
         existUser.setExtras(user.getExtras());
         existUser = userRepository.save(existUser);
 

@@ -1,4 +1,4 @@
-package com.sdm.core.jwt;
+package com.sdm.core.security.jwt;
 
 import com.sdm.Constants;
 import com.sdm.core.exception.InvalidTokenExcpetion;
