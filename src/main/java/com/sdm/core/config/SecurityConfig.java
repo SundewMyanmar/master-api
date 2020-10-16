@@ -84,7 +84,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             //Don't forget to remove in Production Mode
             "/reports/**",
             "/v2/api-docs",
-            "/swagger-ui.html",
+            "/swagger-ui/**",
             "/swagger-resources/**",
     };
 

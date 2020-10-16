@@ -1,12 +1,12 @@
 package com.sdm.core.config;
 
-import com.google.common.base.Predicate;
 import com.sdm.Constants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import springfox.documentation.RequestHandler;
 import springfox.documentation.annotations.ApiIgnore;
@@ -18,14 +18,28 @@ import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger.web.SecurityConfiguration;
 import springfox.documentation.swagger.web.SecurityConfigurationBuilder;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
-@EnableSwagger2
 @Configuration
 public class SwaggerConfig extends WebMvcConfigurationSupport {
+
+    @Override
+    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/swagger-ui/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/springfox-swagger-ui/");
+
+        super.addResourceHandlers(registry);
+    }
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/swagger-ui/")
+                .setViewName("forward:/swagger-ui/index.html");
+    }
+
     private SecurityContext swaggerSecurityContext() {
         return SecurityContext.builder().securityReferences(swaggerAuth())
                 .forPaths(PathSelectors.any()).build();
@@ -106,16 +120,5 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
     @Bean
     public Docket allApi() {
         return this.buildDocket("All", "com.sdm");
-    }
-
-    @Override
-    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("swagger-ui.html")
-                .addResourceLocations("classpath:/META-INF/resources/");
-
-        registry.addResourceHandler("/webjars/**")
-                .addResourceLocations("classpath:/META-INF/resources/webjars/");
-
-        super.addResourceHandlers(registry);
     }
 }

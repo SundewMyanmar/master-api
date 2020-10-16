@@ -42,6 +42,11 @@ public class ResponseWrapper implements ResponseBodyAdvice<Object> {
                                   Class<? extends HttpMessageConverter<?>> aClass,
                                   ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
 
+        //Skip Response if body null
+        if (body == null) {
+            return null;
+        }
+
         //Skip body if it is not com.sdm
         String packageName = body.getClass().getPackage().getName();
         if (!packageName.startsWith("com.sdm")) {
