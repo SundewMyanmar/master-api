@@ -3,7 +3,9 @@ package com.sdm.auth.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.JsonObject;
 import com.sdm.Constants;
+import com.sdm.admin.model.Role;
 import com.sdm.admin.model.User;
+import com.sdm.admin.repository.RoleRepository;
 import com.sdm.admin.repository.UserRepository;
 import com.sdm.auth.model.request.*;
 import com.sdm.core.exception.GeneralException;
@@ -11,6 +13,9 @@ import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.FBGraphManager;
 import com.sdm.core.util.Globalizer;
+import com.sdm.core.util.GoogleApiManager;
+import com.sdm.file.model.File;
+import com.sdm.file.service.FileService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,9 +27,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.Date;
-import java.util.Optional;
-import java.util.Random;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 @Log4j2
@@ -34,10 +38,16 @@ public class AuthService {
     private FBGraphManager facebookGraphManager;
 
     @Autowired
+    private GoogleApiManager googleApiManager;
+
+    @Autowired
     private SecurityManager securityManager;
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private AuthMailService mailService;
@@ -51,7 +61,10 @@ public class AuthService {
     @Autowired
     private HttpServletRequest httpServletRequest;
 
-    private static final String FB_AUTH_FIELDS = "id,name,picture{url},phone,email";
+    @Autowired
+    FileService fileService;
+
+    private static final String FB_AUTH_FIELDS = "id,name,email,picture{url},gender";
 
     private static final int MAX_PASSWORD = 32;
     private static final int MIN_PASSWORD = 16;
@@ -208,13 +221,88 @@ public class AuthService {
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
-    public User createFacebookUser(JsonObject profileObj) {
+    public File createGoogleImage(String pictureUrl){
+        if(pictureUrl!=null){
+            try {
+                return fileService.create(pictureUrl,false);
+            } catch (IOException e) {
+                log.error("GOOGLE_IMAGE_FAIL>>>"+e.getLocalizedMessage());
+            }
+        }
+        return null;
+    }
+
+    public User createGoogleUser(Map<String,Object> profileObj){
+        Optional<User> dbEntity;
+        User userEntity;
+
+        String phoneNumber="GL_"+profileObj.get("userId");
+        String email=(String) profileObj.get("email");
+        String displayName=(String)profileObj.get("name");
+        String pictureUrl=(String)profileObj.get("pictureUrl");
+        String gender="";
+        File profilePicture=this.createGoogleImage(pictureUrl);
+
+        Random rnd = new Random();
+        int size = rnd.nextInt((MAX_PASSWORD - MIN_PASSWORD) + 1) + MIN_PASSWORD;
+        String passwordChars = securityManager.randomPassword(25);
+        String rawPassword = Globalizer.generateToken(passwordChars, size);
+        String password = securityManager.hashString(rawPassword);
+
+        //Get Back Old User Data With Email
+        dbEntity = userRepository.findFirstByPhoneNumberOrEmail(phoneNumber, email);
+        Map<String,String> extra=new HashMap<>();
+
+        if (dbEntity.isPresent()) {
+            userEntity = dbEntity.get();
+            userEntity.setDisplayName(displayName);
+        } else {
+            userEntity = new User(phoneNumber, displayName, password, User.Status.ACTIVE);
+            userEntity.setEmail(email);
+        }
+        if(profilePicture!=null){
+            userEntity.setProfileImage(profilePicture);
+        }
+        userEntity.setGoogleId((String)profileObj.get("userId"));
+
+        Integer clientRole=securityManager.getProperties().getClientRole();
+        Role role =roleRepository.findById(clientRole).orElseThrow(() -> new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Error Creating User Role."));
+        Set<Role> newRole=new HashSet<>();
+        newRole.add(role);
+        userEntity.setRoles(newRole);
+
+        return userRepository.save(userEntity);
+    }
+
+    public File createFacebookImage(JsonObject profileObj){
+        if(profileObj.has("picture")){
+            JsonObject pictureObj=profileObj.getAsJsonObject("picture");
+            if(pictureObj.has("data")){
+                JsonObject pictureDataObj=pictureObj.getAsJsonObject("data");
+                if(pictureDataObj.has("url")){
+                    String pictureUrl=pictureDataObj.get("url").getAsString();
+                    try {
+                        return fileService.create(pictureUrl,false);
+                    } catch (IOException e) {
+                        log.error("FACEBOOK_IMAGE_FAIL>>>"+e.getLocalizedMessage());
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public User createFacebookUser(JsonObject profileObj){
         Optional<User> dbEntity;
         User userEntity;
 
         String phoneNumber = "FB_" + profileObj.get("id").getAsString();
         String email = "fb" + profileObj.get("id").getAsString() + "@facebook.com";
         String displayName = profileObj.get("name").getAsString();
+        String gender="";
+        File profilePicture=this.createFacebookImage(profileObj);;
 
         Random rnd = new Random();
         int size = rnd.nextInt((MAX_PASSWORD - MIN_PASSWORD) + 1) + MIN_PASSWORD;
@@ -223,30 +311,53 @@ public class AuthService {
         String password = securityManager.hashString(rawPassword);
 
         if (profileObj.has("email")) {
-            profileObj.get("email").getAsString();
+            email=profileObj.get("email").getAsString();
         }
 
         if (profileObj.has("phone")) {
             phoneNumber = profileObj.get("phone").getAsString();
         }
 
+        if (profileObj.has("gender")) {
+            gender = profileObj.get("gender").getAsString();
+        }
+
         //Get Back Old User Data With Email
         dbEntity = userRepository.findFirstByPhoneNumberOrEmail(phoneNumber, email);
+        Map<String,String> extra=new HashMap<>();
 
         if (dbEntity.isPresent()) {
             userEntity = dbEntity.get();
             userEntity.setDisplayName(displayName);
+            extra=userEntity.getExtras();
+            extra.put("gender",gender);
+            userEntity.setExtras(extra);
         } else {
             userEntity = new User(phoneNumber, displayName, password, User.Status.ACTIVE);
-            userEntity.setEmail(profileObj.get("email").getAsString());
+            userEntity.setEmail(email);
+            extra.put("gender",gender);
+            userEntity.setExtras(extra);
+        }
+        if(profilePicture!=null){
+            userEntity.setProfileImage(profilePicture);
+        }
+        userEntity.setFacebookId(profileObj.get("id").getAsString());
+
+        //Set Default Role
+        Integer clientRole=securityManager.getProperties().getClientRole();
+        if(clientRole!=null){
+            Role role =roleRepository.findById(clientRole).orElseThrow(() -> new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error Creating User Role."));
+            Set<Role> newRole=new HashSet<>();
+            newRole.add(role);
+            userEntity.setRoles(newRole);
         }
 
-        userEntity.setFacebookId(profileObj.get("id").getAsString());
         return userRepository.save(userEntity);
     }
 
     @Transactional
-    public ResponseEntity<User> facebookAuth(FacebookAuthRequest request) {
+    public ResponseEntity<User> facebookAuth(FacebookAuthRequest request) throws IOException {
         JsonObject facebookProfile = facebookGraphManager.checkFacebookToken(request.getAccessToken(), FB_AUTH_FIELDS);
         String id = facebookProfile.get("id").getAsString();
 
@@ -255,6 +366,31 @@ public class AuthService {
                 .orElseGet(() -> this.createFacebookUser(facebookProfile));
 
         if (authUser.getFacebookId().equalsIgnoreCase(facebookProfile.get("id").getAsString())) {
+            jwtService.createToken(authUser, request, httpServletRequest);
+        } else {
+            throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
+        }
+
+        return ResponseEntity.ok(authUser);
+    }
+
+    public ResponseEntity<User> googleAuth(GoogleAuthRequest request)throws IOException{
+        Map<String,Object> googleProfile=googleApiManager.checkGoogle(request.getAccessToken(),request.getClientId());
+        String email=(String)googleProfile.get("email");
+
+        User authUser=userRepository.findFirstByPhoneNumberOrEmail("",email)
+                .orElseGet(()->this.createGoogleUser(googleProfile));
+
+        if(authUser.getGoogleId()==null){
+            authUser.setGoogleId((String)googleProfile.get("userId"));
+            File profilePicture=this.createGoogleImage((String)googleProfile.get("pictureUrl"));
+
+            if(profilePicture!=null)
+                authUser.setProfileImage(profilePicture);
+            authUser=userRepository.save(authUser);
+        }
+
+        if (authUser.getGoogleId().equalsIgnoreCase((String)googleProfile.get("userId"))) {
             jwtService.createToken(authUser, request, httpServletRequest);
         } else {
             throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");

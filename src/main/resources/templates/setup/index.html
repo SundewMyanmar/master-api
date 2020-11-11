@@ -97,7 +97,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="rootPath">Root Directory</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="rootPath" placeholder="Enter root directory path."
+                                <input class="form-control" id="rootPath" name="rootPath" placeholder="Enter root directory path."
                                        type="text" value="/var/www/master-api/">
                             </div>
                         </div>
@@ -316,6 +316,249 @@
                             <div class="col-sm-8">
                                 <input class="form-control" id="firebaseJson" name="firebaseJson"
                                        placeholder="Enter Firebase JSON Path" type="text" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" id="paymentCard">
+                <h5 aria-controls="paymentInfo" aria-expanded="true" class="card-header" data-target="#paymentInfo"
+                    data-toggle="collapse" type="button">
+                    Payment Info
+                </h5>
+                <div class="collapse" id="paymentInfo">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="callbackUrl">Callback Url</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="callbackUrl" name="callbackUrl" placeholder="Enter callback url."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="expiredSeconds">Expired Seconds</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="expiredSeconds" name="expiredSeconds" placeholder="Enter expired seconds."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" id="saisaiPayCard">
+                <h5 aria-controls="paymentInfo" aria-expanded="true" class="card-header" data-target="#saisaiPayInfo"
+                    data-toggle="collapse" type="button">
+                    Sai Sai Pay Info
+                </h5>
+                <div class="collapse" id="saisaiPayInfo">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="saisaiPayUrl">Url</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="saisaiPayUrl" name="saisaiPayUrl" placeholder="Enter url."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="saisaiPayUser">User</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="saisaiPayUser" name="saisaiPayUser" placeholder="Enter user."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="saisaiPayPassword">Password</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="saisaiPayPassword" name="saisaiPayPassword" placeholder="Enter password."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="saisaiPaySecret">Secret Key</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="saisaiPaySecret" name="saisaiPaySecret" placeholder="Enter secret key."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="saisaiPayChannel">Channel</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="saisaiPayChannel" name="saisaiPayChannel" placeholder="Enter channel."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="saisaiPayAppName">App Name</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="saisaiPayAppName" name="saisaiPayAppName" placeholder="Enter App Name."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" id="onePayCard">
+                <h5 aria-controls="paymentInfo" aria-expanded="true" class="card-header" data-target="#onePayInfo"
+                    data-toggle="collapse" type="button">
+                    One Pay Info
+                </h5>
+                <div class="collapse" id="onePayInfo">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="onePayUrl">Url</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="onePayUrl" name="onePayUrl" placeholder="Enter url."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="onePayUser">User</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="onePayUser" name="onePayUser" placeholder="Enter user."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="onePaySecret">Secret Key</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="onePaySecret" name="onePaySecret" placeholder="Enter secret key."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="onePayChannel">Channel</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="onePayChannel" name="onePayChannel" placeholder="Enter channel."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="onePayVersion">Version</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="onePayVersion" name="onePayVersion" placeholder="Enter version."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" id="cbPayCard">
+                <h5 aria-controls="paymentInfo" aria-expanded="true" class="card-header" data-target="#cbPayInfo"
+                    data-toggle="collapse" type="button">
+                    CB Pay Info
+                </h5>
+                <div class="collapse" id="cbPayInfo">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="cbPayUrl">Url</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="cbPayUrl" name="cbPayUrl" placeholder="Enter url."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="cbPayAuthToken">Auth Token</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="cbPayAuthToken" name="cbPayAuthToken" placeholder="Enter auth token."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="cbPayEcommerceId">Ecommerce ID</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="cbPayEcommerceId" name="cbPayEcommerceId" placeholder="Enter ecommerce ID."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="cbPaySubMerId">Sub Merchant ID</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="cbPaySubMerId" name="cbPaySubMerId" placeholder="Enter sub merchant ID."
+                                       type="text" value="">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="cbPayCurrency">Currency</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="cbPayCurrency" name="cbPayCurrency" placeholder="Enter currency."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" id="wavePayCard">
+                <h5 aria-controls="paymentInfo" aria-expanded="true" class="card-header" data-target="#wavePayInfo"
+                    data-toggle="collapse" type="button">
+                    WAVE Pay Info
+                </h5>
+                <div class="collapse" id="wavePayInfo">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="wavePayUrl">Url</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="wavePayUrl" name="wavePayUrl" placeholder="Enter url."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="wavePayMerchant">Merchant ID</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="wavePayMerchant" name="wavePayMerchant" placeholder="Enter merchant ID."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="wavePaySecret">Secret Key</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="wavePaySecret" name="wavePaySecret" placeholder="Enter secret key."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="wavePayName">Merchant Name</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="wavePayName" name="wavePayName" placeholder="Enter merchant name."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" id="mpuPayCard">
+                <h5 aria-controls="paymentInfo" aria-expanded="true" class="card-header" data-target="#mpuPayInfo"
+                    data-toggle="collapse" type="button">
+                    MPU Pay Info
+                </h5>
+                <div class="collapse" id="mpuPayInfo">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="mpuPayUrl">Url</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="mpuPayUrl" name="mpuPayUrl" placeholder="Enter url."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="mpuPayMerchantId">Merchant ID</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="mpuPayMerchantId" name="mpuPayMerchantId" placeholder="Enter merchant ID."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="mpuPaySecret">Secret Key</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="mpuPaySecret" name="mpuPaySecret" placeholder="Enter secret key."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="mpuPayVersion">Version</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="mpuPayVersion" name="mpuPayVersion" placeholder="Enter version."
+                                       type="text" value="">
                             </div>
                         </div>
                     </div>

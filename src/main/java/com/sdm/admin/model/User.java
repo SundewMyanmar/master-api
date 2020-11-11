@@ -85,6 +85,9 @@ public class User extends DefaultEntity implements Serializable {
     @Column(unique = true, length = 500)
     private String facebookId;
 
+    @Column(unique = true, length = 500)
+    private String googleId;
+
     @JsonIgnore
     @Column(length = TOKEN_LENGTH)
     private String otpToken;

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 
 @Controller
 @RequestMapping("/auth")
@@ -44,8 +45,13 @@ public class AuthController {
     }
 
     @PostMapping("/facebook")
-    public ResponseEntity<User> facebookAuth(@Valid @RequestBody FacebookAuthRequest request) {
+    public ResponseEntity<User> facebookAuth(@Valid @RequestBody FacebookAuthRequest request) throws IOException {
         return service.facebookAuth(request);
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<User> googleAuth(@Valid @RequestBody GoogleAuthRequest request) throws IOException {
+        return service.googleAuth(request);
     }
 
     @PostMapping("/forgetPassword")

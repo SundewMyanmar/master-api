@@ -41,4 +41,6 @@ public class SecurityProperties {
     private String cookieDomain = "";
 
     private String cookiePath = "";
+
+    private Integer clientRole=null;
 }

@@ -17,12 +17,18 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.spi.ImageReaderSpi;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -79,7 +85,11 @@ public class FileService {
     }
 
     public void generatePreCacheImage(MultipartFile uploadFile, String storagePath, String ext) throws IOException {
-        BufferedImage image = ImageIO.read(uploadFile.getInputStream());
+        this.generatePreCacheImage(uploadFile.getInputStream(),storagePath,ext);
+    }
+
+    public void generatePreCacheImage(InputStream iStream, String storagePath, String ext)throws IOException{
+        BufferedImage image = ImageIO.read(iStream);
 
         for (File.ImageSize size : File.ImageSize.values()) {
             String fileName = size.name().toLowerCase() + "." + ext;
@@ -111,6 +121,54 @@ public class FileService {
         }
 
         fileRepository.softDelete(fileEntity);
+    }
+
+    public String getExtension(String contentType){
+        String suffix = null;
+        Iterator<ImageReader> readers =
+                ImageIO.getImageReadersByMIMEType(contentType);
+        while (suffix == null && readers.hasNext()) {
+            ImageReaderSpi provider = readers.next().getOriginatingProvider();
+            if (provider != null) {
+                String[] suffixes = provider.getFileSuffixes();
+                if (suffixes != null) {
+                    suffix = suffixes[0];
+                }
+            }
+        }
+        return suffix;
+    }
+
+    public File create(String urlString,boolean isPublic) throws IOException {
+        URL url = new URL(urlString);
+        URLConnection conn = url.openConnection();
+        String contentType=conn.getContentType();
+        String extension=this.getExtension(contentType);
+
+        File rawEntity=new File();
+        rawEntity.setId(UUID.randomUUID().toString());
+        rawEntity.setName("Profile");
+        rawEntity.setExtension(extension);
+        rawEntity.setPublicAccess(isPublic);
+        rawEntity.setType(contentType);
+        rawEntity.setFileSize(conn.getContentLength());
+        rawEntity.setStatus(File.Status.STORAGE);
+
+        String storagePath = Globalizer.getDateString("/yyyy/MM/", new Date());
+        String storageName = rawEntity.getId();
+        try{
+            Path savePath = Paths.get(this.fileUploadedPath, storagePath, rawEntity.getId()).normalize();
+            Files.createDirectories(savePath);
+            generatePreCacheImage(conn.getInputStream(),savePath.toString(),extension);
+            storageName += java.io.File.separator;
+        }catch(IOException ex){
+            log.warn(ex.getLocalizedMessage());
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR,ex.getLocalizedMessage());
+        }
+
+        rawEntity.setStoragePath(Paths.get(storagePath, storageName).normalize().toString());
+        fileRepository.save(rawEntity);
+        return rawEntity;
     }
 
     @Transactional
