@@ -24,6 +24,5 @@ import java.io.Serializable;
 public class OAuth2Request extends TokenInfo implements Serializable {
 
     @NotBlank(message = "Token can't be blank.")
-    @Size(min = 6, max = 255)
     private String accessToken;
 }
