@@ -357,7 +357,7 @@ public class AuthService {
     }
 
     @Transactional
-    public ResponseEntity<User> facebookAuth(FacebookAuthRequest request) throws IOException {
+    public ResponseEntity<User> facebookAuth(OAuth2Request request) throws IOException {
         JsonObject facebookProfile = facebookGraphManager.checkFacebookToken(request.getAccessToken(), FB_AUTH_FIELDS);
         String id = facebookProfile.get("id").getAsString();
 
@@ -374,8 +374,8 @@ public class AuthService {
         return ResponseEntity.ok(authUser);
     }
 
-    public ResponseEntity<User> googleAuth(GoogleAuthRequest request)throws IOException{
-        Map<String,Object> googleProfile=googleApiManager.checkGoogle(request.getAccessToken(),request.getClientId());
+    public ResponseEntity<User> googleAuth(OAuth2Request request)throws IOException{
+        Map<String,Object> googleProfile=googleApiManager.checkGoogle(request.getAccessToken());
         String email=(String)googleProfile.get("email");
 
         User authUser=userRepository.findFirstByPhoneNumberOrEmail("",email)

@@ -45,12 +45,12 @@ public class AuthController {
     }
 
     @PostMapping("/facebook")
-    public ResponseEntity<User> facebookAuth(@Valid @RequestBody FacebookAuthRequest request) throws IOException {
+    public ResponseEntity<User> facebookAuth(@Valid @RequestBody OAuth2Request request) throws IOException {
         return service.facebookAuth(request);
     }
 
     @PostMapping("/google")
-    public ResponseEntity<User> googleAuth(@Valid @RequestBody GoogleAuthRequest request) throws IOException {
+    public ResponseEntity<User> googleAuth(@Valid @RequestBody OAuth2Request request) throws IOException {
         return service.googleAuth(request);
     }
 

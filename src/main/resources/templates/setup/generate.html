@@ -109,6 +109,11 @@ com.sdm.facebook.webhook-token=<th:block th:text="${facebookWebhook}"/>
         th:text="${firebaseProject}"/></th:block>
 <th:block th:if="${firebaseJson} != ''">com.sdm.firebase.service-json=<th:block th:text="${firebaseJson}"/></th:block>
 
+#Google
+com.sdm.google.app-secret=<th:block th:text="${googleAppSecret}"/>
+com.sdm.google.token-server-url=<th:block th:text="${googleTokenServerUrl}"/>
+com.sdm.google.redirect-url=<th:block th:text="${googleRedirectUrl}"/>
+
 #Payment
 com.sdm.payment.callback-url=<th:block th:text="${callbackUrl}"/>
 com.sdm.payment.expired-seconds=<th:block th:text="${expiredSeconds}"/>

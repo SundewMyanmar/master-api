@@ -13,18 +13,12 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GoogleProperties {
+    private String appSecret;
+
+    private String tokenServerUrl="https://oauth2.googleapis.com/token";
+
+    private String redirectUrl="http://localhost";
+
     @Autowired
     private PathProperties pathProperties;
-
-    public String getClientSecretFilePath(String clientId){
-        return pathProperties.getRoot()+clientId+".json";
-    }
-
-    public String getTokenServerUrl(){
-        return "https://oauth2.googleapis.com/token";
-    }
-
-    public String getRedirectUrl(){
-        return "http://localhost";
-    }
 }

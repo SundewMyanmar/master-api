@@ -21,7 +21,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FacebookAuthRequest extends TokenInfo implements Serializable {
+public class OAuth2Request extends TokenInfo implements Serializable {
 
     @NotBlank(message = "Token can't be blank.")
     @Size(min = 6, max = 255)
