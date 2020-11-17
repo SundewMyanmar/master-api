@@ -23,6 +23,7 @@ The following guides illustrate how to use some features concretely:
 * [Securing a Web Application](https://spring.io/guides/gs/securing-web/)
 * [Spring Boot and OAuth2](https://spring.io/guides/tutorials/spring-boot-oauth2/)
 * [Authenticating a User with LDAP](https://spring.io/guides/gs/authenticating-ldap/)
+* [Lombok](https://projectlombok.org/)
 
 ### Additional Links
 These additional references should also help you:
@@ -75,6 +76,8 @@ Ready Output log:
 > ./gradlew clean bootWar
 ```
 ___
+## Version 1.6
+- Payment Modules
 
 ## Version 1.5.1
 - Data Auditor
@@ -97,11 +100,14 @@ ___
 - [Exception Handling](./src/main/java/com/sdm/core/exception)
 - [Base Models](./src/main/java/com/sdm/core/model)
 - [Utils & Plugins](./src/main/java/com/sdm/core/util)
+- [Swagger Open API](https://swagger.io/specification/)
 - [Jasper Reporting](https://en.wikipedia.org/wiki/JasperReports)
+- [Firebase Messaging](https://firebase.google.com/docs/cloud-messaging/server)
 
 ### [System Authorization and Authentication](./src/main/java/com/sdm/auth)
 - System auth by user:password
 - System auth by Facebook
+- System auth by Google
 - Default User Profile
 - Auth Token Management
 
@@ -120,6 +126,12 @@ ___
 - Messenger Bot Activate
 - Messenger Bot Listener
 - Message Log
+
+### [Payment Module](./src/main/java/com/sdm/payment)
+- AGD Payment
+- CB Payment
+- UAB Payment
+- YOMA Payment
 ----
 
 ## Default RestFUL Controller
@@ -129,7 +141,6 @@ ___
 |getPagingByFilter|GET|name(s)?{size, pageSize, page, sort, filter}|Get data by pagination
 |getAll|GET|name(s)/all|Get all data|
 |getById|GET|name(s)/{id}|Get data by unique id(PK)|
-|exportByCsv|GET|name(s)/export|Export data as CSV file|
 |getStructure|GET|name(s)/struct|Get UI Structure|
 
 ### WriteController
