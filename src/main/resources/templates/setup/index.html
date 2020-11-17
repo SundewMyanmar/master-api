@@ -608,7 +608,7 @@
         $(document).ready(() => {
             const default_db_port = {
                 postgresql: 5432,
-                mysql: 4406,
+                mysql: 3306,
             }
             $("select#dbType").change(e => {
                 $("input#dbPort").val(default_db_port[e.target.value]);
