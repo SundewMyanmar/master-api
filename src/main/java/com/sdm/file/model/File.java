@@ -8,11 +8,13 @@ package com.sdm.file.model;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sdm.core.model.DefaultEntity;
-import com.sdm.core.model.annotation.Filterable;
+import com.sdm.core.model.annotation.Searchable;
 import com.sdm.file.service.FileService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 import org.springframework.util.StringUtils;
@@ -36,6 +38,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class File extends DefaultEntity implements Serializable {
 
+
     /**
      *
      */
@@ -48,7 +51,21 @@ public class File extends DefaultEntity implements Serializable {
     }
 
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "folderId")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private Folder folder;
+
+    @Id
+    @Column(columnDefinition = "char(36)", length = 36, unique = true, nullable = false)
+    private String id;
+    @Searchable
+    @NotBlank
+    @Column(columnDefinition = "varchar(255)", length = 255, nullable = false)
+    private String name;
+
     public enum ImageSize {
+        original(0),
         large(1024),
         medium(512),
         small(256),
@@ -64,17 +81,6 @@ public class File extends DefaultEntity implements Serializable {
             return maxSize;
         }
     }
-
-    ;
-
-    @Id
-    @Column(columnDefinition = "char(36)", length = 36, unique = true, nullable = false)
-    private String id;
-
-    @Filterable
-    @NotBlank
-    @Column(columnDefinition = "varchar(255)", length = 255, nullable = false)
-    private String name;
 
     @NotBlank
     @Column(columnDefinition = "varchar(10)", length = 10, nullable = false)

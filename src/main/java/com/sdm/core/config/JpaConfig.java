@@ -35,7 +35,7 @@ public class JpaConfig {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.getPrincipal() instanceof AuthInfo) {
                 AuthInfo authInfo = (AuthInfo) authentication.getPrincipal();
-                if(authInfo != null){
+                if (authInfo != null) {
                     auditor.setId(authInfo.getUserId());
                     auditor.setToken(authInfo.getToken());
                 }

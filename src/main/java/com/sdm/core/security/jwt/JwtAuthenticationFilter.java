@@ -1,7 +1,7 @@
 package com.sdm.core.security.jwt;
 
 import com.sdm.Constants;
-import com.sdm.core.exception.InvalidTokenExcpetion;
+import com.sdm.core.exception.InvalidTokenException;
 import com.sdm.core.service.ClientService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpHeaders;
@@ -60,7 +60,7 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
                 UsernamePasswordAuthenticationToken authToken = jwtAuthHandler.authByJwt(authorization, httpServletRequest);
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-            } catch (InvalidTokenExcpetion ex) {
+            } catch (InvalidTokenException ex) {
                 httpServletResponse.sendError(HttpStatus.UNAUTHORIZED.value(), "Sorry! your authorization token hasn't permission to the resource.");
                 return;
             }

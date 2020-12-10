@@ -3,7 +3,7 @@ package com.sdm.admin.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sdm.core.model.DefaultEntity;
-import com.sdm.core.model.annotation.Filterable;
+import com.sdm.core.model.annotation.Searchable;
 import com.sdm.file.model.File;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -47,18 +47,19 @@ public class User extends DefaultEntity implements Serializable {
     @NotFound(action = NotFoundAction.IGNORE)
     private File profileImage;
 
-    @Filterable
+    @Searchable
     @Size(max = 255)
+    @JsonIgnore
     @Column
     private String displayName;
 
-    @Filterable
+    @Searchable
     @NotBlank
     @Size(min = 5, max = 50)
-    @Column(length = 50, unique = true, nullable = false)
+    @Column(length = 50, unique = true, nullable = true)
     private String phoneNumber;
 
-    @Filterable
+    @Searchable
     @Email
     @Size(max = 255)
     @Column(unique = true)

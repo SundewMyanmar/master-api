@@ -1,4 +1,4 @@
-package com.sdm.core.repository;
+package com.sdm.core.db.repository;
 
 import com.sdm.core.model.ClientInfo;
 import org.springframework.data.jpa.repository.JpaRepository;

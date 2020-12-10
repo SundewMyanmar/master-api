@@ -1,7 +1,7 @@
 package com.sdm.auth.repository;
 
 import com.sdm.auth.model.Token;
-import com.sdm.core.repository.DefaultRepository;
+import com.sdm.core.db.repository.DefaultRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;

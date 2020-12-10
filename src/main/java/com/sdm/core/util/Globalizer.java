@@ -6,6 +6,7 @@
 package com.sdm.core.util;
 
 import com.sdm.Constants;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +52,16 @@ public class Globalizer {
         } catch (ParseException exception) {
             return new Date();
         }
+    }
+
+    public static int dateDiff(Date date1, Date date2) {
+        if (date1.getTime() > date2.getTime()) return 1;
+        else if (date2.getTime() > date1.getTime()) return -1;
+        else return 0;
+    }
+
+    public static boolean isNullOrEmpty(Object data) {
+        return data == null || ObjectUtils.isEmpty(data);
     }
 
     public static Integer toInt(String input, int defultValue) {

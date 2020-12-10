@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.sdm.core.firebase;
+package com.sdm.core.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +16,7 @@ import com.sdm.core.config.properties.FireBaseProperties;
 import com.sdm.core.util.MyanmarFontManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,9 +27,9 @@ import java.util.Map;
 /**
  * @author htoonlin
  */
-@Component
+@Service
 @Log4j2
-public class CloudMessagingManager {
+public class CloudMessagingService {
 
     private static final String FIR_APP_NAME = "FIR_CLOUD_MESSAGING_APP";
 
@@ -41,7 +41,7 @@ public class CloudMessagingManager {
 
     private FirebaseApp defaultApp;
 
-    public CloudMessagingManager(FireBaseProperties fireBaseProperties) {
+    public CloudMessagingService(FireBaseProperties fireBaseProperties) {
         if (fireBaseProperties.getProjectUrl().length() > 0 && fireBaseProperties.getServiceJson().length() > 0) {
             if (defaultApp == null) {
                 try (FileInputStream serviceAccount = new FileInputStream(fireBaseProperties.getServiceJson())) {

@@ -1,6 +1,6 @@
 package com.sdm.facebook.model;
 
-import com.sdm.core.model.annotation.Filterable;
+import com.sdm.core.model.annotation.Searchable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,11 +26,11 @@ public class MessengerLog implements Serializable {
     @Column(name = "state", columnDefinition = "VARCHAR(50)", length = 50)
     private String state;
 
-    @Filterable
+    @Searchable
     @Column(name = "message_type", columnDefinition = "VARCHAR(50)", length = 50)
     private String messageType;
 
-    @Filterable
+    @Searchable
     @Column(name = "message", columnDefinition = "TEXT")
     private String message;
 

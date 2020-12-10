@@ -3,6 +3,7 @@ package com.sdm.core;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sdm.core.model.response.ListResponse;
+import com.sdm.core.util.Globalizer;
 import org.junit.jupiter.api.*;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -84,6 +85,7 @@ public abstract class DefaultReadWriteTest extends DefaultReadTest {
 
         //Check Inserted Version must be zero.
         Assertions.assertEquals(getVersion(), 0);
+        Assertions.assertFalse(Globalizer.isNullOrEmpty(getId()));
 
         result.andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isCreated());

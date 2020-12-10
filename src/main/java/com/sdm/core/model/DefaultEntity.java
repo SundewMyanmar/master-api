@@ -29,19 +29,10 @@ public abstract class DefaultEntity implements Serializable {
     @CreatedBy
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride(name = "id", column = @Column(name="created_user_id", updatable = false)),
-            @AttributeOverride(name = "token", column = @Column(name="created_token", length = 36, columnDefinition = "char(36)", updatable = false))
+            @AttributeOverride(name = "id", column = @Column(name = "created_user_id", updatable = false)),
+            @AttributeOverride(name = "token", column = @Column(name = "created_token", length = 36, columnDefinition = "char(36)", updatable = false))
     })
     private Auditor createdBy;
-
-    @JsonGetter("createdBy")
-    public int getCreatedUserId(){
-        if(this.createdBy != null){
-            return this.createdBy.getId();
-        }
-        return 0;
-    }
-
     @JsonIgnore
     @Getter
     @Setter
@@ -49,14 +40,22 @@ public abstract class DefaultEntity implements Serializable {
     @LastModifiedBy
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride(name = "id", column = @Column(name="modified_user_id")),
-            @AttributeOverride(name = "token", column = @Column(name="modified_token", length = 36, columnDefinition = "char(36)"))
+            @AttributeOverride(name = "id", column = @Column(name = "modified_user_id")),
+            @AttributeOverride(name = "token", column = @Column(name = "modified_token", length = 36, columnDefinition = "char(36)"))
     })
     private Auditor modifiedBy;
 
+    @JsonGetter("createdBy")
+    public int getCreatedUserId() {
+        if (this.createdBy != null) {
+            return this.createdBy.getId();
+        }
+        return 0;
+    }
+
     @JsonGetter("modifiedBy")
-    public int getModifiedUserId(){
-        if(this.modifiedBy != null){
+    public int getModifiedUserId() {
+        if (this.modifiedBy != null) {
             return this.modifiedBy.getId();
         }
         return 0;

@@ -142,7 +142,7 @@ public class DefaultTest {
 
         if (!method.equals(HttpMethod.GET) && body != null) {
             String requestBody = objectMapper.writeValueAsString(body);
-            request.content(objectMapper.writeValueAsString(body));
+            request.content(requestBody);
         }
         return this.mockMvc.perform(request);
     }

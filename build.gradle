@@ -12,16 +12,16 @@ buildscript {
 }
 
 plugins {
-    id 'org.springframework.boot' version '2.3.4.RELEASE'
+    id 'org.springframework.boot' version '2.4.0'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
-    id "java"
-    id "war"
+    id 'java'
+    id 'war'
     id "org.asciidoctor.convert" version "2.4.0"
 }
 apply plugin: "org.asciidoctor.convert"
 
 group = "com.sdm"
-version = "1.6.0-SNAPSHOT"
+version = "1.6.1-SNAPSHOT"
 sourceCompatibility = "11"
 
 configurations {
@@ -79,12 +79,15 @@ dependencies {
     compile "com.google.myanmartools:myanmar-tools:1.2.0"
 
     //Thumbnailtor
-    implementation "net.coobird:thumbnailator:0.4.12"
+    implementation "net.coobird:thumbnailator:0.4.13"
+
+    //Fake Data http://dius.github.io/java-faker/
+    compile group: "com.github.javafaker", name: "javafaker", version: "1.0.2"
 
     // Reporting
     // https://mvnrepository.com/artifact/net.sf.jasperreports/
-    compile group: "net.sf.jasperreports", name: "jasperreports", version: "6.15.0"
-    compile group: 'net.sf.jasperreports', name: 'jasperreports-functions', version: '6.15.0'
+    compile group: "net.sf.jasperreports", name: "jasperreports", version: "6.16.0"
+    compile group: 'net.sf.jasperreports', name: 'jasperreports-functions', version: '6.16.0'
 
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "org.springframework.boot:spring-boot-starter-mail"
@@ -126,8 +129,6 @@ dependencies {
 
     testAnnotationProcessor "org.projectlombok:lombok"
 
-    //Fake Data http://dius.github.io/java-faker/
-    testCompile group: "com.github.javafaker", name: "javafaker", version: "1.0.2"
 }
 
 test {

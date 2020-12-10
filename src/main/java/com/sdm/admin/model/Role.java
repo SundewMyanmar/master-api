@@ -6,7 +6,7 @@
 package com.sdm.admin.model;
 
 import com.sdm.core.model.DefaultEntity;
-import com.sdm.core.model.annotation.Filterable;
+import com.sdm.core.model.annotation.Searchable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,13 +39,13 @@ public class Role extends DefaultEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Filterable
+    @Searchable
     @NotBlank
     @Size(min = 1, max = 255)
     @Column(unique = true, length = 255, nullable = false)
     private String name;
 
-    @Filterable
+    @Searchable
     @Size(max = 500)
     @Column(columnDefinition = "varchar(500)", length = 500, nullable = false)
     private String description;

@@ -30,7 +30,7 @@ public class StructureService {
      * @return
      */
     private boolean checkField(Field field) {
-        if(field.isAnnotationPresent(Transient.class) || field.isAnnotationPresent(JsonIgnore.class)){
+        if (field.isAnnotationPresent(Transient.class) || field.isAnnotationPresent(JsonIgnore.class)) {
             return false;
         }
 
@@ -139,8 +139,8 @@ public class StructureService {
         }
     }
 
-    public void loadSystemFields(Class<?> entityClass, List<ModelInfo> structure){
-        if(DefaultEntity.class.isAssignableFrom(entityClass)){
+    public void loadSystemFields(Class<?> entityClass, List<ModelInfo> structure) {
+        if (DefaultEntity.class.isAssignableFrom(entityClass)) {
             //Set Version Field
             ModelInfo model = new ModelInfo();
             model.setName("version");

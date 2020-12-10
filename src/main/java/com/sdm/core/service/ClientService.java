@@ -2,8 +2,8 @@ package com.sdm.core.service;
 
 import com.sdm.Constants;
 import com.sdm.core.config.properties.SecurityProperties;
+import com.sdm.core.db.repository.ClientRepository;
 import com.sdm.core.model.ClientInfo;
-import com.sdm.core.repository.ClientRepository;
 import com.sdm.core.util.Globalizer;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Marker;

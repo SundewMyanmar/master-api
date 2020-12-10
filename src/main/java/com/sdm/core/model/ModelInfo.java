@@ -10,12 +10,12 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-    public class ModelInfo {
+public class ModelInfo {
 
-        private String name;
-        private String dataType;
-        private String type;
-        private String label;
+    private String name;
+    private String dataType;
+    private String type;
+    private String label;
     private boolean primaryKey;
     private boolean required;
     private int min;

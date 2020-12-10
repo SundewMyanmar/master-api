@@ -1,7 +1,7 @@
 package com.sdm.admin.model;
 
 import com.sdm.core.model.DefaultEntity;
-import com.sdm.core.model.annotation.Filterable;
+import com.sdm.core.model.annotation.Searchable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,23 +35,23 @@ public class SystemMenu extends DefaultEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Filterable
+    @Searchable
     @NotBlank
     @Size(min = 1, max = 250)
     @Column(nullable = false, length = 250)
     private String label;
 
-    @Filterable
+    @Searchable
     @Size(max = 500)
     @Column(length = 500)
     private String description;
 
-    @Filterable
+    @Searchable
     @Size(max = 500)
     @Column(length = 500)
     private String path;
 
-    @Filterable
+    @Searchable
     @Size(max = 100)
     @Column(length = 100)
     private String icon;

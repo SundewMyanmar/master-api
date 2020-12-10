@@ -3,7 +3,9 @@ package com.sdm.auth.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.admin.model.User;
+import com.sdm.admin.repository.UserRepository;
 import com.sdm.auth.model.request.*;
+import com.sdm.auth.service.AuthMailService;
 import com.sdm.auth.service.AuthService;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
@@ -33,6 +35,21 @@ public class AuthController {
 
     @Autowired
     private ObjectMapper jacksonObjectMapper;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    AuthMailService mailService;
+
+    @PostMapping("/test")
+    public ResponseEntity<User> test() {
+        User user = userRepository.findById(1).orElseThrow();
+        user.setEmail("saw.yoetha@gmail.com");
+
+        mailService.welcomeUser(user, "1234", "Hello");
+        return ResponseEntity.ok(user);
+    }
 
     @PostMapping("")
     public ResponseEntity<User> authWithEmail(@Valid @RequestBody AuthRequest request) {

@@ -13,14 +13,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 @Component
 @Log4j2
 public class FBGraphManager {
-
     private final FacebookProperties properties;
 
     @Autowired
-    SecurityManager securityManager;
+    private SecurityManager securityManager;
 
     private final RestTemplate restTemplate;
 
@@ -29,27 +34,32 @@ public class FBGraphManager {
         this.restTemplate = new RestTemplate();
     }
 
-    public JsonObject checkFacebookToken(String accessToken, String fields) {
-        //Build Facebook Auth URL
+    public JsonObject checkFacebookToken(String accessToken, String fields) throws IOException {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(this.properties.getGraphURL() + "me")
                 .queryParam("fields", fields)
                 .queryParam("access_token", accessToken);
+        URL API_URL = new URL(uriBuilder.toUriString());
 
-        //Build Request Headers
-        HttpHeaders headers = new HttpHeaders();
-//        headers.add("User-Agent", userAgent);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
+        HttpURLConnection connection = (HttpURLConnection) API_URL.openConnection();
+        connection.setDoOutput(true);
+        connection.setRequestMethod("GET");
 
-        //Request
-        String str = uriBuilder.toUriString();
-        ResponseEntity<String> result = restTemplate.exchange(uriBuilder.toUriString(),
-                HttpMethod.GET, requestEntity, String.class);
-
-        if (result.getStatusCode() == HttpStatus.OK) {
-            return new Gson().fromJson(result.getBody(), JsonObject.class);
+        if (connection.getResponseCode() != 200) {
+            throw new RuntimeException("Failed : HTTP error code : "
+                    + connection.getResponseCode());
         }
-        throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
+
+        BufferedReader RESPONSE_BUFFER = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        StringBuilder result = new StringBuilder();
+        String output;
+
+        while ((output = RESPONSE_BUFFER.readLine()) != null) {
+            result.append(output);
+        }
+        RESPONSE_BUFFER.close();
+        connection.disconnect();
+
+        return new Gson().fromJson(result.toString(), JsonObject.class);
     }
 
     public JsonObject retrievePSUserData(String psId, String fields, String userAgent) {

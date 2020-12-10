@@ -7,7 +7,7 @@ import com.sdm.auth.model.Token;
 import com.sdm.auth.model.request.TokenInfo;
 import com.sdm.auth.repository.TokenRepository;
 import com.sdm.core.config.properties.SecurityProperties;
-import com.sdm.core.exception.InvalidTokenExcpetion;
+import com.sdm.core.exception.InvalidTokenException;
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.security.jwt.JwtAuthenticationHandler;
 import com.sdm.core.util.Globalizer;
@@ -56,7 +56,7 @@ public class JwtService implements JwtAuthenticationHandler {
         String ip = Globalizer.getRemoteAddress(request);
         String agent = request.getHeader(HttpHeaders.USER_AGENT);
         if (StringUtils.isEmpty(agent) || StringUtils.isEmpty(ip)) {
-            throw new InvalidTokenExcpetion("Invalid request audience!");
+            throw new InvalidTokenException("Invalid request audience!");
         }
         return String.format("IP=%s; Agent=%s", ip, agent);
     }
@@ -136,7 +136,7 @@ public class JwtService implements JwtAuthenticationHandler {
     @SuppressWarnings("unchecked")
     @Override
     @Transactional
-    public UsernamePasswordAuthenticationToken authByJwt(String jwtString, HttpServletRequest request) throws InvalidTokenExcpetion {
+    public UsernamePasswordAuthenticationToken authByJwt(String jwtString, HttpServletRequest request) throws InvalidTokenException {
         String aud = getAudience(request);
         String iss = getIssuer(request);
         try {
@@ -148,7 +148,7 @@ public class JwtService implements JwtAuthenticationHandler {
 
             Date expired = authorizeToken.getExpiration();
             if (expired.before(new Date())) {
-                throw new InvalidTokenExcpetion("Token has expired.");
+                throw new InvalidTokenException("Token has expired.");
             }
 
             int userId = Integer.parseInt(authorizeToken.getSubject());
@@ -160,7 +160,7 @@ public class JwtService implements JwtAuthenticationHandler {
             boolean allowed = tokenRepository.existsByIdAndUserIdAndDeviceIdAndDeviceOs(
                     tokenId, userId, deviceId, deviceOs);
             if (!allowed) {
-                throw new InvalidTokenExcpetion("Invalid access token.");
+                throw new InvalidTokenException("Invalid access token.");
             }
 
             log.info(String.format("User Id [%d] login by => %s", userId, tokenId));
@@ -176,7 +176,7 @@ public class JwtService implements JwtAuthenticationHandler {
             }
             return new UsernamePasswordAuthenticationToken(authInfo, aud, authInfo.getAuthorities());
         } catch (Exception ex) {
-            throw new InvalidTokenExcpetion(ex.getLocalizedMessage());
+            throw new InvalidTokenException(ex.getLocalizedMessage());
         }
     }
 }

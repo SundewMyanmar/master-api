@@ -1,25 +1,18 @@
 package com.sdm.core.util;
 
-import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
-import com.google.api.client.googleapis.auth.oauth2.*;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.auth.oauth2.AccessToken;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import com.sdm.core.config.properties.GoogleProperties;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -33,7 +26,7 @@ public class GoogleApiManager {
         this.jacksonFactory = new JacksonFactory();
     }
 
-    public Map<String,Object> checkGoogle(String authCode) throws IOException {
+    public Map<String, Object> checkGoogle(String authCode) throws IOException {
         // Set path to the Web application client_secret_*.json file you downloaded from the
         // Google API Console: https://console.developers.google.com/apis/credentials
         // You can also find your Web application client ID and client secret from the
@@ -63,15 +56,26 @@ public class GoogleApiManager {
         GoogleIdToken idToken = tokenResponse.parseIdToken();
         GoogleIdToken.Payload payload = idToken.getPayload();
 
-        Map<String,Object> result=new HashMap<>();
-        result.put("userId",payload.getSubject());// Use this value as a key to identify a user.
-        result.put("email",payload.getEmail());
-        result.put("emailVerified",payload.getEmailVerified());
-        result.put("name",(String) payload.get("name"));
-        result.put("pictureUrl",(String) payload.get("picture"));
-        result.put("locale",(String) payload.get("locale"));
-        result.put("familyName",(String) payload.get("family_name"));
-        result.put("givenName",(String) payload.get("given_name"));
+        Map<String, Object> result = new HashMap<>();
+        result.put("userId", payload.getSubject());// Use this value as a key to identify a user.
+        result.put("email", payload.getEmail());
+        result.put("emailVerified", payload.getEmailVerified());
+        result.put("name", (String) payload.get("name"));
+
+        /*
+            Sample Url
+            Get Large 512 Image
+            https://lh3.googleusercontent.com/a-/AOh14GgjXuK3-1PHnT89zU6gQXkxn1W_CjZt4AUBbo5t_g=s96-c
+         */
+        String profilePic = (String) payload.get("picture");
+        if (profilePic.contains("=s96-c"))
+            profilePic = profilePic.replace("=s96-c", "=s512-c");
+
+        result.put("pictureUrl", profilePic);
+
+        result.put("locale", (String) payload.get("locale"));
+        result.put("familyName", (String) payload.get("family_name"));
+        result.put("givenName", (String) payload.get("given_name"));
 
         return result;
     }

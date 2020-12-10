@@ -48,4 +48,22 @@ public abstract class DefaultReadTest extends DefaultTest {
         this.test(url, HttpMethod.GET, null)
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
+
+    @Test
+    @Order(13)
+    public void getAdvanceFilter() throws Exception {
+        String url = getUrl() + "/advanced";
+        this.test(url, HttpMethod.GET, null)
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isPartialContent());
+    }
+
+    @Test
+    @Order(14)
+    public void getHistoriesById() throws Exception {
+        String url = getUrl() + "/" + getId() + "/histories";
+        this.test(url, HttpMethod.GET, null)
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
 }

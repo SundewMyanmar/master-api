@@ -8,7 +8,7 @@ package com.sdm.admin.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sdm.Constants;
 import com.sdm.core.model.DefaultEntity;
-import com.sdm.core.model.annotation.Filterable;
+import com.sdm.core.model.annotation.Searchable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -44,15 +44,15 @@ public class SystemRoute extends DefaultEntity implements Comparable<SystemRoute
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Filterable
+    @Searchable
     @Column(nullable = false)
     private String pattern;
 
-    @Filterable
+    @Searchable
     @Column(nullable = false)
     private String module;
 
-    @Filterable
+    @Searchable
     @Column(nullable = false)
     private String httpMethod;
 

@@ -15,9 +15,9 @@ import org.springframework.context.annotation.Configuration;
 public class GoogleProperties {
     private String appSecret;
 
-    private String tokenServerUrl="https://oauth2.googleapis.com/token";
+    private String tokenServerUrl = "https://oauth2.googleapis.com/token";
 
-    private String redirectUrl="http://localhost";
+    private String redirectUrl = "http://localhost";
 
     @Autowired
     private PathProperties pathProperties;

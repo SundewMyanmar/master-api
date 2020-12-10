@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Log4j2
 public class FileService {
+
     public static final String[] SIZE_CODES = new String[]{"", "K", "M", "G", "T", "P", "E", "Z", "Y"};
 
     public static String byteSize(long size) {
@@ -78,23 +79,25 @@ public class FileService {
     }
 
     public File checkFile(String id) {
-        File file = fileRepository.findById(id)
+        return fileRepository.findById(id)
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "There is no file by : " + id));
-
-        return file;
     }
 
     public void generatePreCacheImage(MultipartFile uploadFile, String storagePath, String ext) throws IOException {
-        this.generatePreCacheImage(uploadFile.getInputStream(),storagePath,ext);
+        this.generatePreCacheImage(uploadFile.getInputStream(), storagePath, ext);
     }
 
-    public void generatePreCacheImage(InputStream iStream, String storagePath, String ext)throws IOException{
+    public void generatePreCacheImage(InputStream iStream, String storagePath, String ext) throws IOException {
         BufferedImage image = ImageIO.read(iStream);
 
         for (File.ImageSize size : File.ImageSize.values()) {
             String fileName = size.name().toLowerCase() + "." + ext;
             java.io.File saveFile = new java.io.File(storagePath + java.io.File.separator + fileName);
             log.info(String.format("Generating %s size image => %s", size, saveFile.getName()));
+            if (size.getMaxSize() == 0) {
+                ImageIO.write(image, ext, saveFile);
+                continue;
+            }
 
             Double scale;
             if (image.getHeight() <= size.getMaxSize() && image.getWidth() <= size.getMaxSize()) {
@@ -123,7 +126,7 @@ public class FileService {
         fileRepository.softDelete(fileEntity);
     }
 
-    public String getExtension(String contentType){
+    public String getExtension(String contentType) {
         String suffix = null;
         Iterator<ImageReader> readers =
                 ImageIO.getImageReadersByMIMEType(contentType);
@@ -139,13 +142,14 @@ public class FileService {
         return suffix;
     }
 
-    public File create(String urlString,boolean isPublic) throws IOException {
+    public File create(String urlString, boolean isPublic) throws IOException {
         URL url = new URL(urlString);
         URLConnection conn = url.openConnection();
-        String contentType=conn.getContentType();
-        String extension=this.getExtension(contentType);
+        String contentType = conn.getContentType();
+        String extension = this.getExtension(contentType);
 
-        File rawEntity=new File();
+        File rawEntity = new File();
+
         rawEntity.setId(UUID.randomUUID().toString());
         rawEntity.setName("Profile");
         rawEntity.setExtension(extension);
@@ -156,14 +160,14 @@ public class FileService {
 
         String storagePath = Globalizer.getDateString("/yyyy/MM/", new Date());
         String storageName = rawEntity.getId();
-        try{
+        try {
             Path savePath = Paths.get(this.fileUploadedPath, storagePath, rawEntity.getId()).normalize();
             Files.createDirectories(savePath);
-            generatePreCacheImage(conn.getInputStream(),savePath.toString(),extension);
+            generatePreCacheImage(conn.getInputStream(), savePath.toString(), extension);
             storageName += java.io.File.separator;
-        }catch(IOException ex){
+        } catch (IOException ex) {
             log.warn(ex.getLocalizedMessage());
-            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR,ex.getLocalizedMessage());
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
 
         rawEntity.setStoragePath(Paths.get(storagePath, storageName).normalize().toString());
@@ -178,6 +182,7 @@ public class FileService {
         String[] nameInfo = FileService.fileNameSplitter(fileName);
 
         File rawEntity = new File();
+
         rawEntity.setId(UUID.randomUUID().toString());
         rawEntity.setName(nameInfo[0]);
         if (nameInfo.length == 2) {

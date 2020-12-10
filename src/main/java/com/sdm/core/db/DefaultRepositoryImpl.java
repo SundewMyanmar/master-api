@@ -1,16 +1,20 @@
 package com.sdm.core.db;
 
+import com.sdm.core.db.repository.DefaultRepository;
+import com.sdm.core.exception.GeneralException;
+import com.sdm.core.model.AdvancedFilter;
 import com.sdm.core.model.DefaultEntity;
-import com.sdm.core.model.annotation.Filterable;
-import com.sdm.core.repository.DefaultRepository;
+import com.sdm.core.model.annotation.Searchable;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -19,6 +23,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.io.Serializable;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Log4j2
 public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializable> extends SimpleJpaRepository<T, ID> implements DefaultRepository<T, ID> {
@@ -27,12 +32,14 @@ public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializa
     private final EntityManager entityManager;
     private final List<String> filterableFields;
     private static final String DELETED_AT = "deletedAt";
+    private static final String VALID_FIELD_NAME = "^[a-z][a-zA-Z0-9]*(\\.id)?$";
+    private static final String ENTITY_ALIAS = "e";
 
     private final List<String> getFilterableFields(Class<T> entityClass) {
         List<String> fields = new ArrayList();
         Arrays.stream(entityClass.getDeclaredFields()).forEach(field ->
                 Arrays.stream(field.getDeclaredAnnotations()).forEach(annotation -> {
-                    if (annotation.annotationType().equals(Filterable.class)) {
+                    if (annotation.annotationType().equals(Searchable.class)) {
                         fields.add(field.getName());
                     }
                 })
@@ -45,6 +52,84 @@ public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializa
         this.entityInformation = entityInformation;
         this.entityManager = entityManager;
         this.filterableFields = getFilterableFields(entityInformation.getJavaType());
+    }
+
+    protected boolean checkColumn(String column, Class entity) {
+        if (!Pattern.matches(VALID_FIELD_NAME, column)) {
+            return false;
+        }
+
+        if (column.endsWith(".id")) {
+            column = column.replaceAll(".id", "");
+        }
+        try {
+            entity.getDeclaredField(column);
+            return true;
+        } catch (Exception ex) {
+            if (entity.getSuperclass() != null) {
+                return checkColumn(column, entity.getSuperclass());
+            }
+        }
+        return false;
+    }
+
+    protected String getSortString(Pageable pageable) {
+        Sort sort = pageable.getSort();
+        List<String> orderList = new ArrayList<>();
+        for (Sort.Order order : sort) {
+            orderList.add(ENTITY_ALIAS + "." + order.getProperty() + " " + order.getDirection());
+        }
+        if (orderList.size() > 0) {
+            return "ORDER BY " + String.join(", ", orderList);
+        }
+        return "";
+    }
+
+    @Override
+    public Page<T> advancedSearch(List<AdvancedFilter> filters, Pageable pageable) {
+        if (filters == null || filters.size() <= 0) {
+            return super.findAll(pageable);
+        }
+
+        String query = "FROM " + this.getDomainClass().getName() + " " + ENTITY_ALIAS + " WHERE 1 = 1";
+        Map<String, Object> params = new HashMap<>();
+
+        try {
+            //Add Condition
+            for (AdvancedFilter filter : filters) {
+                //Check Column for Security Reason
+                if (!checkColumn(filter.getField(), this.getDomainClass())) {
+                    throw new Exception("Invalid field name [" + filter.getField() + "].");
+                }
+                query += " AND (" + filter.getQuery(ENTITY_ALIAS, params) + ")";
+            }
+
+            String selectData = "SELECT " + ENTITY_ALIAS + " " + query;
+            String selectCount = "SELECT COUNT(" + ENTITY_ALIAS + ") " + query;
+
+            String orderBy = getSortString(pageable);
+            if (orderBy.length() > 0) {
+                selectData += " " + orderBy;
+            }
+
+            TypedQuery<T> dataQuery = entityManager.createQuery(selectData, this.getDomainClass());
+            TypedQuery<Long> countQuery = entityManager.createQuery(selectCount, Long.class);
+
+            for (String param : params.keySet()) {
+                dataQuery.setParameter(param, params.get(param));
+                countQuery.setParameter(param, params.get(param));
+            }
+
+            Long total = countQuery.getSingleResult();
+            dataQuery.setFirstResult(pageable.getPageNumber() * pageable.getPageSize());
+            dataQuery.setMaxResults(pageable.getPageSize());
+            List<T> data = dataQuery.getResultList();
+
+            return new PageImpl<T>(data, pageable, total);
+
+        } catch (Exception ex) {
+            throw new GeneralException(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage());
+        }
     }
 
     @Override
@@ -64,10 +149,11 @@ public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializa
         //Filter Predicates
         final List<Predicate> predicates = new ArrayList<>();
         final List<Predicate> countPredicates = new ArrayList<>();
+        final String likeFilter = "%" + filter.toLowerCase() + "%";
 
         this.filterableFields.forEach(f -> {
-            predicates.add(builder.like(builder.lower(root.<String>get(f)), filter.toLowerCase() + "%"));
-            countPredicates.add(builder.like(builder.lower(countRoot.<String>get(f)), filter.toLowerCase() + "%"));
+            predicates.add(builder.like(builder.lower(root.get(f)), likeFilter));
+            countPredicates.add(builder.like(builder.lower(countRoot.get(f)), likeFilter));
         });
 
         //Select Statement

@@ -7,10 +7,10 @@ import com.sdm.auth.repository.TokenRepository;
 import com.sdm.auth.service.AuthMailService;
 import com.sdm.core.controller.DefaultReadController;
 import com.sdm.core.controller.ReadWriteController;
+import com.sdm.core.db.repository.DefaultRepository;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.model.response.MessageResponse;
-import com.sdm.core.repository.DefaultRepository;
 import com.sdm.core.security.SecurityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -99,7 +99,7 @@ public class UserController extends DefaultReadController<User, Integer> impleme
     public ResponseEntity<User> update(@Valid @RequestBody User body, @PathVariable("id") Integer id) {
         User dbEntity = this.getRepository().findById(id)
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
-                        "There is no any data by : " + Integer.toString(id)));
+                        "There is no any data by : " + id));
 
         if (!id.equals(body.getId())) {
             throw new GeneralException(HttpStatus.CONFLICT, "Path ID and body ID aren't match.");
@@ -148,9 +148,9 @@ public class UserController extends DefaultReadController<User, Integer> impleme
     @Transactional
     public ResponseEntity<ListResponse<User>> importData(@Valid List<User> body) {
         ListResponse response = new ListResponse();
-        for(final User user : body){
+        for (final User user : body) {
             String rawPassword = user.getPassword();
-            if(!StringUtils.isEmpty(rawPassword)){
+            if (!StringUtils.isEmpty(rawPassword)) {
                 String password = securityManager.hashString(rawPassword);
                 user.setPassword(password);
             }
@@ -160,5 +160,6 @@ public class UserController extends DefaultReadController<User, Integer> impleme
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
 }

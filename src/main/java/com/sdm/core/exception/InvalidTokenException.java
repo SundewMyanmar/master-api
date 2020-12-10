@@ -5,8 +5,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.UNAUTHORIZED)
-public class InvalidTokenExcpetion extends AuthenticationException {
-    public InvalidTokenExcpetion(String message) {
+public class InvalidTokenException extends AuthenticationException {
+    public InvalidTokenException(String message) {
         super(message);
     }
 }

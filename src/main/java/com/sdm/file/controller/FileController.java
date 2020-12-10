@@ -1,14 +1,15 @@
 package com.sdm.file.controller;
 
 import com.sdm.core.controller.DefaultReadController;
+import com.sdm.core.db.repository.DefaultRepository;
 import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.model.response.MessageResponse;
-import com.sdm.core.repository.DefaultRepository;
 import com.sdm.file.model.File;
 import com.sdm.file.repository.FileRepository;
 import com.sdm.file.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +55,7 @@ public class FileController extends DefaultReadController<File, String> {
         return ResponseEntity.ok(message);
     }
 
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
     public ResponseEntity<ListResponse<File>> uploadFile(@RequestParam("uploadedFile") List<MultipartFile> files,
                                                          @RequestParam(value = "isPublic", required = false, defaultValue = "false") boolean isPublic) {

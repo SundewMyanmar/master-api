@@ -3,15 +3,12 @@ package com.sdm.core.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.Constants;
+import com.sdm.core.db.repository.DefaultRepository;
 import com.sdm.core.exception.GeneralException;
-import com.sdm.core.model.AuthInfo;
-import com.sdm.core.model.DefaultEntity;
-import com.sdm.core.model.ModelInfo;
-import com.sdm.core.model.SundewAuditEntity;
+import com.sdm.core.model.*;
 import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.model.response.PaginationResponse;
-import com.sdm.core.repository.DefaultRepository;
 import com.sdm.core.service.StructureService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -35,6 +32,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.time.Duration;
@@ -118,6 +116,14 @@ public abstract class DefaultReadController<T extends DefaultEntity, ID extends 
                 }).collect(Collectors.toList());
 
         return ResponseEntity.ok(new ListResponse<>(histories));
+    }
+
+    @Override
+    public ResponseEntity<PaginationResponse<T>> getPagingByAdvancedFilter(@Valid List<AdvancedFilter> filters, int page, int pageSize, String sort) {
+        Page<T> paging = getRepository().advancedSearch(filters, this.buildPagination(page, pageSize, sort));
+        PaginationResponse<T> response = new PaginationResponse<>(paging);
+
+        return new ResponseEntity<>(response, HttpStatus.PARTIAL_CONTENT);
     }
 
     @Transactional
