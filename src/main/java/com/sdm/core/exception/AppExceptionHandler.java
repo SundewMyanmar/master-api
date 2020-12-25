@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -85,6 +87,12 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
         return this.generalMessage(ex, HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
     }
 
+    @ExceptionHandler({AccessDeniedException.class, InvalidCsrfTokenException.class})
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<Object> handleAccessDenied(AccessDeniedException ex, WebRequest request) {
+        return this.generalMessage(ex, HttpStatus.FORBIDDEN, ex.getLocalizedMessage());
+    }
+
     @ExceptionHandler(InvalidTokenException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<Object> handleInvalidTokenException(InvalidTokenException ex, WebRequest request) {
@@ -93,7 +101,7 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({OptimisticLockException.class, OptimisticLockingFailureException.class, StaleObjectStateException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Object> handleInvalidTokenException(Exception ex, WebRequest request) {
+    public ResponseEntity<Object> handleVersioningException(Exception ex, WebRequest request) {
         return new ResponseEntity<>(new MessageResponse(HttpStatus.BAD_REQUEST, "Version error. Please refresh your data and try again."), HttpStatus.BAD_REQUEST);
     }
 

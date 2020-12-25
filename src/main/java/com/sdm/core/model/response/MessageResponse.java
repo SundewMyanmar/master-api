@@ -28,7 +28,12 @@ import java.util.Map;
 @NoArgsConstructor
 public class MessageResponse implements Serializable {
 
-    @JsonIgnore
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8356781102788660691L;
+	
+	@JsonIgnore
     private HttpStatus status;
     private String title;
     private String message;

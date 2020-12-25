@@ -7,7 +7,6 @@ package com.sdm.core.security;
 
 
 import com.sdm.core.config.properties.SecurityProperties;
-import com.sdm.core.util.Globalizer;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
@@ -77,14 +76,6 @@ public class SecurityManager {
         return base64Encode(input + systemSalt);
     }
 
-    public String randomPassword(int length) {
-        String passwordChars = "ABCDEFGHIJKLMNOPQRSTUVWHZ";
-        passwordChars += passwordChars.toLowerCase();
-        passwordChars += "0123456789";
-        passwordChars += "!@#$%^&*()_+-=";
-        return Globalizer.generateToken(passwordChars, length);
-    }
-
     public String base64Encode(String normal) {
         byte[] data;
         data = normal.getBytes(StandardCharsets.UTF_8);
@@ -101,21 +92,19 @@ public class SecurityManager {
         return Encoders.BASE64.encode(key.getEncoded());
     }
 
-    public String generateHashHmac(String stringData, String secretKey) {
-        Mac sha512_HMAC = null;
+
+    public String generateHashHmac(String stringData, String secretKey, final String algorithm) {
+        Mac sha_hmac = null;
         try {
             byte[] byteKey = secretKey.getBytes(StandardCharsets.UTF_8);
-            final String HMAC_SHA512 = "HmacSHA512";
-            sha512_HMAC = Mac.getInstance(HMAC_SHA512);
-            SecretKeySpec keySpec = new SecretKeySpec(byteKey, HMAC_SHA512);
-            sha512_HMAC.init(keySpec);
-            byte[] mac_data = sha512_HMAC.
+            sha_hmac = Mac.getInstance(algorithm);
+            SecretKeySpec keySpec = new SecretKeySpec(byteKey, algorithm);
+            sha_hmac.init(keySpec);
+            byte[] mac_data = sha_hmac.
                     doFinal(stringData.getBytes(StandardCharsets.UTF_8));
-            //result = Base64.encode(mac_data);
             return bytesToHex(mac_data);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.warn(e.getLocalizedMessage());
         }
         return null;
     }

@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 /**
@@ -52,6 +53,20 @@ public class Globalizer {
         } catch (ParseException exception) {
             return new Date();
         }
+    }
+
+    //Minus date 1 < date 2
+    //Plus date 1 > date 2
+    public static Integer diffDays(Date date1,Date date2){
+        long diff = diffSeconds(date1,date2);
+        long days = diff / (24 * 60 * 60);
+        return (int) days;
+    }
+
+    public static Long diffSeconds(Date date1, Date date2) {
+        Long from = date1.getTime() / 1000;
+        Long to = date2.getTime() / 1000;
+        return from - to;
     }
 
     public static int dateDiff(Date date1, Date date2) {
@@ -95,6 +110,20 @@ public class Globalizer {
     public static boolean isEmail(String email) {
         Pattern pattern = Pattern.compile(Constants.Pattern.EMAIL);
         return pattern.matcher(email).matches();
+    }
+
+    public static String randomPassword(int length) {
+        String passwordChars = "ABCDEFGHIJKLMNOPQRSTUVWHZ";
+        passwordChars += passwordChars.toLowerCase();
+        passwordChars += "0123456789";
+        passwordChars += "!@#$%^&*()_+-=";
+        return Globalizer.generateToken(passwordChars, length);
+    }
+
+    public static String randomPassword(int min, int max) {
+        Random rnd = new Random();
+        int size = rnd.nextInt((max - min) + 1) + min;
+        return randomPassword(size);
     }
 
     public static String generateCodeWithTime(String maxCode, String prefix, Date date, int incLength) {

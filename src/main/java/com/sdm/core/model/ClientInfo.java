@@ -15,6 +15,11 @@ import java.util.Date;
 @NoArgsConstructor
 public class ClientInfo implements Serializable {
 
+    public ClientInfo(String id, String remoteAddress) {
+        this.id = id;
+        this.remoteAddress = remoteAddress;
+    }
+
     @Id
     @Column(length = 36, columnDefinition = "CHAR(36)", nullable = false)
     private String id;

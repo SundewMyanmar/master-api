@@ -25,7 +25,7 @@ public class SystemConfigController {
     private ObjectMapper mapper;
 
     private Path getConfigFile() {
-        return Paths.get(pathProperties.getUpload(), Constants.SYSTEM_CONFIG);
+        return Paths.get(pathProperties.getSetting(), Constants.SYSTEM_CONFIG);
     }
 
     @GetMapping("")

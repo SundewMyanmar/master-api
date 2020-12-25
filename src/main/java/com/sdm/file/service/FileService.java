@@ -74,7 +74,7 @@ public class FileService {
     public FileService(PathProperties pathProperties) {
         this.fileUploadedPath = pathProperties.getUpload();
         this.cacheControl = CacheControl
-                .maxAge(180, TimeUnit.DAYS)
+                .maxAge(365, TimeUnit.DAYS)
                 .cachePublic();
     }
 
@@ -142,7 +142,8 @@ public class FileService {
         return suffix;
     }
 
-    public File create(String urlString, boolean isPublic) throws IOException {
+    @Transactional
+    public File create(String urlString, boolean isPublic, boolean isHidden) throws IOException {
         URL url = new URL(urlString);
         URLConnection conn = url.openConnection();
         String contentType = conn.getContentType();
@@ -157,6 +158,8 @@ public class FileService {
         rawEntity.setType(contentType);
         rawEntity.setFileSize(conn.getContentLength());
         rawEntity.setStatus(File.Status.STORAGE);
+
+        if(isHidden)rawEntity.setStatus(File.Status.HIDDEN);
 
         String storagePath = Globalizer.getDateString("/yyyy/MM/", new Date());
         String storageName = rawEntity.getId();
@@ -176,7 +179,7 @@ public class FileService {
     }
 
     @Transactional
-    public File create(MultipartFile uploadFile, boolean isPublic) {
+    public File create(MultipartFile uploadFile, boolean isPublic, boolean isHidden) {
         String fileName = StringUtils.cleanPath(uploadFile.getOriginalFilename());
 
         String[] nameInfo = FileService.fileNameSplitter(fileName);
@@ -198,6 +201,7 @@ public class FileService {
 
         rawEntity.setFileSize(uploadFile.getSize());
         rawEntity.setStatus(File.Status.STORAGE);
+        if(isHidden)rawEntity.setStatus(File.Status.HIDDEN);
 
         String storagePath = Globalizer.getDateString("/yyyy/MM/", new Date());
         String storageName = rawEntity.getId();

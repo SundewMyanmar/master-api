@@ -10,5 +10,5 @@ public enum TemplateType {
     airline_boardingpass,
     airline_checkin,
     airline_itinerary,
-    airline_update;
+    airline_update
 }

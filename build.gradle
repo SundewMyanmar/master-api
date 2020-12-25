@@ -12,7 +12,7 @@ buildscript {
 }
 
 plugins {
-    id 'org.springframework.boot' version '2.4.0'
+    id 'org.springframework.boot' version '2.5.0-SNAPSHOT'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
     id 'java'
     id 'war'
@@ -21,7 +21,7 @@ plugins {
 apply plugin: "org.asciidoctor.convert"
 
 group = "com.sdm"
-version = "1.6.1-SNAPSHOT"
+version = "1.6.2-SNAPSHOT"
 sourceCompatibility = "11"
 
 configurations {
@@ -46,6 +46,8 @@ asciidoctor {
 repositories {
     mavenCentral()
     jcenter()
+    maven { url 'https://repo.spring.io/milestone' }
+  	maven { url 'https://repo.spring.io/snapshot' }
     maven{url "http://jasperreports.sourceforge.net/maven2/"}
     maven{url "http://jaspersoft.artifactoryonline.com/jaspersoft/third-party-ce-artifacts/"}
     maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }
@@ -64,7 +66,7 @@ dependencies {
     implementation "com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.3"
 
     //Firebase
-    implementation "com.google.firebase:firebase-admin:7.0.1"
+    implementation "com.google.firebase:firebase-admin:7.1.0"
 
     //Swagger
     implementation "io.springfox:springfox-boot-starter:3.0.0"
@@ -80,6 +82,9 @@ dependencies {
 
     //Thumbnailtor
     implementation "net.coobird:thumbnailator:0.4.13"
+    
+    //Google Api Client Library
+    compile 'com.google.api-client:google-api-client:1.30.4'
 
     //Fake Data http://dius.github.io/java-faker/
     compile group: "com.github.javafaker", name: "javafaker", version: "1.0.2"

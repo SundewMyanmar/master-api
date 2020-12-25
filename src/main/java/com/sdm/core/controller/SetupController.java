@@ -3,6 +3,7 @@ package com.sdm.core.controller;
 import com.sdm.Constants;
 import com.sdm.core.config.PropertyConfig;
 import com.sdm.core.security.SecurityManager;
+import com.sdm.core.util.Globalizer;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,7 +25,12 @@ public class SetupController {
             "ownerIds",
             "dbUser", "dbPassword",
             "mailUser", "mailPassword",
-            "facebookAppId", "facebookAppSecret", "facebookAccessToken"
+            "facebookAppId", "facebookAppSecret", "facebookAccessToken",
+            "saisaiPayUser", "saisaiPayPassword", "saisaiPaySecret",
+            "onePayUser", "onePaySecret",
+            "cbPayAuthToken", "cbPayEcommerceId", "cbPaySubMerId",
+            "wavePayMerchant", "wavePaySecret", "wavePayName",
+            "mpuPayMerchantId", "mpuPaySecret"
     );
     @Autowired
     SecurityManager securityManager;
@@ -38,7 +44,7 @@ public class SetupController {
         response.addObject("title", Constants.APP_NAME);
         response.addObject("encryptSalt", securityManager.generateSalt());
         response.addObject("jwtKey", securityManager.generateJWTKey());
-        response.addObject("webhookToken", securityManager.randomPassword(36));
+        response.addObject("webhookToken", Globalizer.randomPassword(36));
         return response;
     }
 

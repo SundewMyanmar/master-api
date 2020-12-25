@@ -46,8 +46,8 @@ public class File extends DefaultEntity implements Serializable {
 
     public enum Status {
         STORAGE,
-        EXTERNAL,
-        TRASH
+        TRASH,
+        HIDDEN
     }
 
 
@@ -112,11 +112,7 @@ public class File extends DefaultEntity implements Serializable {
 
     public File(String id, String name, String extension, String type, long fileSize,
                 String storagePath, String externalUrl) {
-        if (StringUtils.isEmpty(externalUrl)) {
-            this.status = Status.STORAGE;
-        } else {
-            this.status = Status.EXTERNAL;
-        }
+        this.status = Status.STORAGE;
         this.id = id;
         this.name = name;
         this.extension = extension;

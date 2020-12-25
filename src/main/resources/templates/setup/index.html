@@ -117,6 +117,14 @@
                                        value="/var/www/master-api/reports/">
                             </div>
                         </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="settingPath">Setting Directory</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="settingPath" name="settingPath"
+                                       placeholder="Enter setting directory path."
+                                       type="text" value="/var/www/master-api/setting/">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -271,7 +279,7 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-sm-4 col-form-label" for="facebookAppSecret">Access Token</label>
+                            <label class="col-sm-4 col-form-label" for="facebookAppSecret">App Secret</label>
                             <div class="col-sm-8">
                                 <input class="form-control" id="facebookAppSecret" name="facebookAppSecret"
                                        placeholder="Enter Facebook App Secret" type="password" value="">
@@ -307,21 +315,25 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="googleAppSecret">App Secret File Path</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="googleAppSecret" name="googleAppSecret" placeholder="Enter app secret file path."
+                                <input class="form-control" id="googleAppSecret" name="googleAppSecret"
+                                       placeholder="Enter app secret file path."
                                        type="text" value="">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="googleTokenServerUrl">Token Server Url</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="googleTokenServerUrl" name="googleTokenServerUrl" placeholder="Enter token server url."
+                                <input class="form-control" id="googleTokenServerUrl" name="googleTokenServerUrl"
+                                       placeholder="Enter token server url."
                                        type="text" value="">
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-sm-4 col-form-label" for="googleRedirectUrl">Redirect Url (Optional)</label>
+                            <label class="col-sm-4 col-form-label" for="googleRedirectUrl">Redirect Url
+                                (Optional)</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="googleRedirectUrl" name="googleRedirectUrl" placeholder="Enter callback url."
+                                <input class="form-control" id="googleRedirectUrl" name="googleRedirectUrl"
+                                       placeholder="Enter callback url."
                                        type="text" value="">
                             </div>
                         </div>
@@ -362,14 +374,16 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="callbackUrl">Callback Url</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="callbackUrl" name="callbackUrl" placeholder="Enter callback url."
+                                <input class="form-control" id="callbackUrl" name="callbackUrl"
+                                       placeholder="Enter callback url."
                                        type="text" value="">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="expiredSeconds">Expired Seconds</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="expiredSeconds" name="expiredSeconds" placeholder="Enter expired seconds."
+                                <input class="form-control" id="expiredSeconds" name="expiredSeconds"
+                                       placeholder="Enter expired seconds."
                                        type="text" value="">
                             </div>
                         </div>
@@ -386,42 +400,48 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="saisaiPayUrl">Url</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="saisaiPayUrl" name="saisaiPayUrl" placeholder="Enter url."
+                                <input class="form-control" id="saisaiPayUrl" name="saisaiPayUrl"
+                                       placeholder="Enter url."
                                        type="text" value="">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="saisaiPayUser">User</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="saisaiPayUser" name="saisaiPayUser" placeholder="Enter user."
+                                <input class="form-control" id="saisaiPayUser" name="saisaiPayUser"
+                                       placeholder="Enter user."
                                        type="text" value="">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="saisaiPayPassword">Password</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="saisaiPayPassword" name="saisaiPayPassword" placeholder="Enter password."
+                                <input class="form-control" id="saisaiPayPassword" name="saisaiPayPassword"
+                                       placeholder="Enter password."
                                        type="text" value="">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="saisaiPaySecret">Secret Key</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="saisaiPaySecret" name="saisaiPaySecret" placeholder="Enter secret key."
+                                <input class="form-control" id="saisaiPaySecret" name="saisaiPaySecret"
+                                       placeholder="Enter secret key."
                                        type="text" value="">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="saisaiPayChannel">Channel</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="saisaiPayChannel" name="saisaiPayChannel" placeholder="Enter channel."
+                                <input class="form-control" id="saisaiPayChannel" name="saisaiPayChannel"
+                                       placeholder="Enter channel."
                                        type="text" value="">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="saisaiPayAppName">App Name</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="saisaiPayAppName" name="saisaiPayAppName" placeholder="Enter App Name."
+                                <input class="form-control" id="saisaiPayAppName" name="saisaiPayAppName"
+                                       placeholder="Enter App Name."
                                        type="text" value="">
                             </div>
                         </div>
@@ -452,21 +472,24 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="onePaySecret">Secret Key</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="onePaySecret" name="onePaySecret" placeholder="Enter secret key."
+                                <input class="form-control" id="onePaySecret" name="onePaySecret"
+                                       placeholder="Enter secret key."
                                        type="text" value="">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="onePayChannel">Channel</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="onePayChannel" name="onePayChannel" placeholder="Enter channel."
+                                <input class="form-control" id="onePayChannel" name="onePayChannel"
+                                       placeholder="Enter channel."
                                        type="text" value="">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="onePayVersion">Version</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="onePayVersion" name="onePayVersion" placeholder="Enter version."
+                                <input class="form-control" id="onePayVersion" name="onePayVersion"
+                                       placeholder="Enter version."
                                        type="text" value="">
                             </div>
                         </div>
@@ -490,21 +513,24 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="cbPayAuthToken">Auth Token</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="cbPayAuthToken" name="cbPayAuthToken" placeholder="Enter auth token."
+                                <input class="form-control" id="cbPayAuthToken" name="cbPayAuthToken"
+                                       placeholder="Enter auth token."
                                        type="text" value="">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="cbPayEcommerceId">Ecommerce ID</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="cbPayEcommerceId" name="cbPayEcommerceId" placeholder="Enter ecommerce ID."
+                                <input class="form-control" id="cbPayEcommerceId" name="cbPayEcommerceId"
+                                       placeholder="Enter ecommerce ID."
                                        type="text" value="">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="cbPaySubMerId">Sub Merchant ID</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="cbPaySubMerId" name="cbPaySubMerId" placeholder="Enter sub merchant ID."
+                                <input class="form-control" id="cbPaySubMerId" name="cbPaySubMerId"
+                                       placeholder="Enter sub merchant ID."
                                        type="text" value="">
                             </div>
                         </div>
@@ -512,7 +538,8 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="cbPayCurrency">Currency</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="cbPayCurrency" name="cbPayCurrency" placeholder="Enter currency."
+                                <input class="form-control" id="cbPayCurrency" name="cbPayCurrency"
+                                       placeholder="Enter currency."
                                        type="text" value="">
                             </div>
                         </div>
@@ -536,21 +563,24 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="wavePayMerchant">Merchant ID</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="wavePayMerchant" name="wavePayMerchant" placeholder="Enter merchant ID."
+                                <input class="form-control" id="wavePayMerchant" name="wavePayMerchant"
+                                       placeholder="Enter merchant ID."
                                        type="text" value="">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="wavePaySecret">Secret Key</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="wavePaySecret" name="wavePaySecret" placeholder="Enter secret key."
+                                <input class="form-control" id="wavePaySecret" name="wavePaySecret"
+                                       placeholder="Enter secret key."
                                        type="text" value="">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="wavePayName">Merchant Name</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="wavePayName" name="wavePayName" placeholder="Enter merchant name."
+                                <input class="form-control" id="wavePayName" name="wavePayName"
+                                       placeholder="Enter merchant name."
                                        type="text" value="">
                             </div>
                         </div>
@@ -574,21 +604,24 @@
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="mpuPayMerchantId">Merchant ID</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="mpuPayMerchantId" name="mpuPayMerchantId" placeholder="Enter merchant ID."
+                                <input class="form-control" id="mpuPayMerchantId" name="mpuPayMerchantId"
+                                       placeholder="Enter merchant ID."
                                        type="text" value="">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="mpuPaySecret">Secret Key</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="mpuPaySecret" name="mpuPaySecret" placeholder="Enter secret key."
+                                <input class="form-control" id="mpuPaySecret" name="mpuPaySecret"
+                                       placeholder="Enter secret key."
                                        type="text" value="">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="mpuPayVersion">Version</label>
                             <div class="col-sm-8">
-                                <input class="form-control" id="mpuPayVersion" name="mpuPayVersion" placeholder="Enter version."
+                                <input class="form-control" id="mpuPayVersion" name="mpuPayVersion"
+                                       placeholder="Enter version."
                                        type="text" value="">
                             </div>
                         </div>
@@ -608,7 +641,7 @@
         $(document).ready(() => {
             const default_db_port = {
                 postgresql: 5432,
-                mysql: 3306,
+                mysql: 4406,
             }
             $("select#dbType").change(e => {
                 $("input#dbPort").val(default_db_port[e.target.value]);
@@ -621,6 +654,7 @@
                 }
                 $("input#uploadPath").val(root + "upload/");
                 $("input#reportPath").val(root + "report/");
+                $("input#settingPath").val(root + "setting/");
             });
 
             $("button#btnEncryptSaltRefresh").click(() => {

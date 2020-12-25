@@ -11,12 +11,14 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
 @MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
 @JsonPropertyOrder(value = {"id", "created_at", "modified_at"}, alphabetic = true)
 @JsonIgnoreProperties(value = {"created_at", "modified_at"}, allowGetters = true)
 public abstract class DefaultEntity implements Serializable {
@@ -33,6 +35,7 @@ public abstract class DefaultEntity implements Serializable {
             @AttributeOverride(name = "token", column = @Column(name = "created_token", length = 36, columnDefinition = "char(36)", updatable = false))
     })
     private Auditor createdBy;
+
     @JsonIgnore
     @Getter
     @Setter
@@ -72,7 +75,7 @@ public abstract class DefaultEntity implements Serializable {
     @Getter
     @Setter
     @NotAudited
-    @Column(updatable = false)
+    @Column
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
     private Date modifiedAt;

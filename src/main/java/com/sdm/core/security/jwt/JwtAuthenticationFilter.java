@@ -4,6 +4,7 @@ import com.sdm.Constants;
 import com.sdm.core.exception.InvalidTokenException;
 import com.sdm.core.service.ClientService;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,8 +23,10 @@ import java.io.IOException;
 @Log4j2
 public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
 
+    @Autowired
     private JwtAuthenticationHandler jwtAuthHandler;
 
+    @Autowired
     private ClientService clientService;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtAuthenticationHandler jwtAuthHandler, ClientService clientService) {

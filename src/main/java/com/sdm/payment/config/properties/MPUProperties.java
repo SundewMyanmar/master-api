@@ -24,12 +24,16 @@ public class MPUProperties {
     @Autowired
     private PaymentProperties paymentProperties;
 
-    public String getPaymentRequestUrl(){
-        return paymentProperties.replaceUrl(url+"Payment/Payment/pay");
+    public String getPaymentRequestUrl() {
+        return paymentProperties.replaceUrl(url + "Payment/Payment/pay");
     }
 
     //Inquiry = I, Voice = V
-    public String getPaymentInquiryUrl(){
-        return paymentProperties.replaceUrl(url+"Payment/Action/api");
+    public String getPaymentInquiryUrl() {
+        return paymentProperties.replaceUrl(url + "Payment/Action/api");
+    }
+
+    public String getDirectPaymentCallbackUrl() {
+        return paymentProperties.replaceUrl(paymentProperties.getCallbackUrl() + "mpu/payments/public/direct/callback");
     }
 }

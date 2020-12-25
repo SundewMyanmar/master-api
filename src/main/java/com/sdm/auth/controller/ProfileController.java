@@ -4,8 +4,12 @@ import com.sdm.admin.model.User;
 import com.sdm.admin.repository.UserRepository;
 import com.sdm.auth.model.request.AuthRequest;
 import com.sdm.auth.model.request.ChangePasswordRequest;
+import com.sdm.auth.model.request.TokenInfo;
 import com.sdm.auth.repository.TokenRepository;
 import com.sdm.auth.service.AuthService;
+import com.sdm.auth.service.FacebookAuthService;
+import com.sdm.auth.service.GoogleAuthService;
+import com.sdm.auth.service.JwtService;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.model.response.MessageResponse;
@@ -16,15 +20,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/me")
 public class ProfileController {
 
-    @Autowired
-    private AuthService authService;
+    public enum LINK_TYPE {
+        GOOGLE,
+        FACEBOOK
+    }
 
     @Autowired
     private UserRepository userRepository;
@@ -35,23 +41,17 @@ public class ProfileController {
     @Autowired
     private SecurityManager securityManager;
 
-    @GetMapping("/linkOAuth2/{type}")
-    public ResponseEntity<User> linkOAuth2(@PathVariable(value = "type") LINK_TYPE type,
-                                           @RequestParam(value = "accessId", defaultValue = "") String accessId) {
-        User user = userRepository.findById(getCurrentUser().getUserId())
-                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
+    @Autowired
+    private AuthService authService;
 
-        try {
-            if (type.equals(LINK_TYPE.GOOGLE)) {
-                return authService.linkGoogle(accessId, user);
-            } else if (type.equals(LINK_TYPE.FACEBOOK)) {
-                return authService.linkFacebook(accessId, user);
-            }
-            throw new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Invalid Type!");
-        } catch (IOException exception) {
-            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, exception.getLocalizedMessage());
-        }
-    }
+    @Autowired
+    private GoogleAuthService googleAuthService;
+
+    @Autowired
+    private FacebookAuthService facebookAuthService;
+
+    @Autowired
+    private JwtService jwtService;
 
     private AuthInfo getCurrentUser() {
         return (AuthInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -70,7 +70,7 @@ public class ProfileController {
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
 
         existUser.setProfileImage(user.getProfileImage());
-        existUser.setDisplayName(user.getDisplayName());
+        existUser.setMMDisplayName(user.getDisplayName());
         existUser.setExtras(user.getExtras());
         existUser = userRepository.save(existUser);
 
@@ -95,6 +95,17 @@ public class ProfileController {
         return ResponseEntity.ok(authUser);
     }
 
+    @PostMapping("/refreshToken")
+    public ResponseEntity<User> refreshToken(@Valid @RequestBody TokenInfo tokenInfo, HttpServletRequest servletRequest) {
+        User existUser = userRepository.findById(getCurrentUser().getUserId())
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
+
+        String currentToken = jwtService.createToken(existUser, tokenInfo, servletRequest);
+        existUser.setCurrentToken(currentToken);
+
+        return ResponseEntity.ok(existUser);
+    }
+
     @DeleteMapping("/cleanToken")
     public ResponseEntity<MessageResponse> cleanToken() {
         AuthRequest request = new AuthRequest();
@@ -106,8 +117,18 @@ public class ProfileController {
         return ResponseEntity.ok(message);
     }
 
-    public enum LINK_TYPE {
-        GOOGLE,
-        FACEBOOK
+    @GetMapping("/linkOAuth2/{type}")
+    public ResponseEntity<User> linkOAuth2(@PathVariable(value = "type") LINK_TYPE type,
+                                           @RequestParam(value = "accessId", defaultValue = "") String accessId) {
+        User user = userRepository.findById(getCurrentUser().getUserId())
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
+
+        if (type.equals(LINK_TYPE.GOOGLE)) {
+            return googleAuthService.link(accessId, user);
+        } else if (type.equals(LINK_TYPE.FACEBOOK)) {
+            return facebookAuthService.link(accessId, user);
+        }
+
+        throw new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Invalid Type!");
     }
 }

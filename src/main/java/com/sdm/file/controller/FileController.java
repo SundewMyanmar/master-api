@@ -58,13 +58,14 @@ public class FileController extends DefaultReadController<File, String> {
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
     public ResponseEntity<ListResponse<File>> uploadFile(@RequestParam("uploadedFile") List<MultipartFile> files,
-                                                         @RequestParam(value = "isPublic", required = false, defaultValue = "false") boolean isPublic) {
+                                                         @RequestParam(value = "isPublic", required = false, defaultValue = "false") boolean isPublic,
+                                                         @RequestParam(value="isHidden",required = false,defaultValue = "false")boolean isHidden) {
         ListResponse<File> uploadedFiles = new ListResponse<>();
         files.forEach(file -> {
-            File fileEntity = fileService.create(file, isPublic);
+            File fileEntity = fileService.create(file, isPublic,isHidden);
             uploadedFiles.addData(fileEntity);
         });
-        return new ResponseEntity(uploadedFiles, HttpStatus.CREATED);
+        return new ResponseEntity<ListResponse<File>>(uploadedFiles, HttpStatus.CREATED);
     }
 
     @GetMapping("/download/{id}/{name}")

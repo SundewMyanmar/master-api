@@ -12,12 +12,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "com.sdm.payment")
 public class PaymentProperties {
-    private String callbackUrl="http://localhost:8080/";
-    private Integer expiredSeconds=300;
+    private String callbackUrl = "http://localhost:8080/";
+    private Integer expiredSeconds = 300;
 
-    public String getCallbackUrl(){return callbackUrl;}
+    public String getCallbackUrl() {
+        return callbackUrl;
+    }
 
-    public String replaceUrl(String rawUrl){
-        return rawUrl.replace(" ","%20");
+    public String replaceUrl(String rawUrl) {
+        return rawUrl.replace(" ", "%20");
     }
 }

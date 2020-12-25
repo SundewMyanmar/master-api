@@ -71,23 +71,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return source;
     }
 
-    public static final String[] SYSTEM_WHITE_LIST = {
-            "/",
-            "/error",
-            "/facebook/messenger",
-            "/util/**",
-            "/public/**",
-            "/auth/**",
-            "/webjars/**",
-            "/setup",
-
-            //Don't forget to remove in Production Mode
-            "/reports/**",
-            "/v2/api-docs",
-            "/swagger-ui/**",
-            "/swagger-resources/**",
-    };
-
     @Bean
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
@@ -100,14 +83,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         }
         return serializer;
     }
-
-    public static final String[] USER_PERMISSION_LIST = {
-            "/me/**",
-            "/admin/menus/me",
-            "/files/**"
-    };
-
-    public static final String[] ROOT_PERMISSION_LIST = {};
 
     /**
      * To fix XSRF cookie error if admin panel and API domain is not much.
@@ -126,6 +101,42 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return csrfTokenRepository;
     }
 
+
+    public static final String[] SYSTEM_WHITE_LIST = {
+            "/",
+            "/error",
+            "/facebook/messenger",
+            "/util/**",
+            "/public/**",
+            "/auth/**",
+            "/webjars/**",
+            "/setup",
+
+            "/auth/customers/**",
+
+            //Payment Public Url
+            "/agd/payments/public/**",
+            "/cb/payments/public/**",
+            "/uab/payments/public/**",
+            "/yoma/payments/public/**",
+
+            //Don't forget to remove in Production Mode
+            "/reports/**",
+            "/v2/api-docs",
+            "/swagger-ui/**",
+            "/swagger-resources/**",
+    };
+
+    public static final String[] USER_PERMISSION_LIST = {
+            "/me/**",
+            "/admin/menus/me",
+            "/notifications/me/**",
+            "/files/**",
+            "/customers/me/**",
+    };
+
+    public static final String[] ROOT_PERMISSION_LIST = {};
+
     /**
      * Warning! HttpSecurity authorize validation process run step by step.
      *
@@ -136,7 +147,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.formLogin().disable().httpBasic().disable().logout().disable()
                 .cors().and()
-                .csrf().csrfTokenRepository(this.getCsrfTokenRepository()).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).and()
                 .exceptionHandling().authenticationEntryPoint(jwtUnauthorizeHandler).and()
                 .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
@@ -146,6 +156,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers(ROOT_PERMISSION_LIST).hasAuthority(Constants.Auth.ROOT_ROLE)
                         .anyRequest().access("@permissionHandler.check(authentication, request)")
                 );
+
+        if (securityProperties.isCsrfEnable()) {
+            http.csrf().csrfTokenRepository(this.getCsrfTokenRepository());
+        } else {
+            http.csrf().disable();
+        }
     }
 
 

@@ -8,5 +8,5 @@ package com.sdm.facebook.model.type;
 public enum SenderAction {
     typing_on, // Turn typing indicators on
     typing_off, // Turn typing indicators off
-    mark_seen; // Mark last message as read
+    mark_seen // Mark last message as read
 }

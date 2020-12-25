@@ -7,6 +7,8 @@ import com.sdm.admin.repository.UserRepository;
 import com.sdm.auth.model.request.*;
 import com.sdm.auth.service.AuthMailService;
 import com.sdm.auth.service.AuthService;
+import com.sdm.auth.service.FacebookAuthService;
+import com.sdm.auth.service.GoogleAuthService;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.security.AESManager;
@@ -26,6 +28,12 @@ import java.io.IOException;
 public class AuthController {
     @Autowired
     private AuthService service;
+
+    @Autowired
+    private GoogleAuthService googleAuthService;
+
+    @Autowired
+    private FacebookAuthService facebookAuthService;
 
     @Autowired
     private SecurityManager securityManager;
@@ -63,12 +71,12 @@ public class AuthController {
 
     @PostMapping("/facebook")
     public ResponseEntity<User> facebookAuth(@Valid @RequestBody OAuth2Request request) throws IOException {
-        return service.facebookAuth(request);
+        return facebookAuthService.auth(request);
     }
 
     @PostMapping("/google")
     public ResponseEntity<User> googleAuth(@Valid @RequestBody OAuth2Request request) throws IOException {
-        return service.googleAuth(request);
+        return googleAuthService.auth(request);
     }
 
     @PostMapping("/forgetPassword")

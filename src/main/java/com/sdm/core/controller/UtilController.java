@@ -6,6 +6,7 @@ import com.sdm.core.config.PropertyConfig;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.BarCodeManager;
+import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.MyanmarFontManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -32,9 +33,6 @@ public class UtilController {
     @Autowired
     private BarCodeManager barCodeManager;
 
-    @Autowired
-    private MyanmarFontManager myanmarFontManager;
-
     @GetMapping("/jwtKey")
     public ResponseEntity<MessageResponse> generateJwtKey() {
         String generated = securityManager.generateJWTKey();
@@ -49,7 +47,7 @@ public class UtilController {
 
     @GetMapping("/generate/{len}")
     public ResponseEntity<MessageResponse> generateRandomLetter(@PathVariable("len") int len) {
-        String generated = securityManager.randomPassword(len);
+        String generated = Globalizer.randomPassword(len);
         return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "GENERATE", generated, null));
     }
 
@@ -84,16 +82,16 @@ public class UtilController {
     @GetMapping("/mmConverter")
     public ResponseEntity<Object> langConverter(@RequestParam("input") String input) {
         HashMap<String, String> content = new HashMap<>();
-        if (myanmarFontManager.isMyanmar(input)) {
+        if (MyanmarFontManager.isMyanmar(input)) {
             String msgString = "Yes! It is myanmar";
-            if (!myanmarFontManager.isZawgyi(input)) {
+            if (!MyanmarFontManager.isZawgyi(input)) {
                 msgString += " unicode font.";
                 content.put("unicode", input);
-                content.put("zawgyi", myanmarFontManager.toZawgyi(input));
-            } else if (myanmarFontManager.isZawgyi(input)) {
+                content.put("zawgyi", MyanmarFontManager.toZawgyi(input));
+            } else if (MyanmarFontManager.isZawgyi(input)) {
                 msgString += " zawgyi font.";
                 content.put("zawgyi", input);
-                content.put("unicode", myanmarFontManager.toUnicode(input));
+                content.put("unicode", MyanmarFontManager.toUnicode(input));
             }
             content.put("message", msgString);
             return ResponseEntity.ok(content);

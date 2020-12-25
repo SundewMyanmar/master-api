@@ -50,7 +50,7 @@ public interface ReadController<T, ID extends Serializable> {
             @ApiResponse(code = 404, message = "URL Not Found.", response = MessageResponse.class),
             @ApiResponse(code = 500, message = "Server Error.", response = MessageResponse.class),
     })
-    @PostMapping(value = "/advanced", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/advanced", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<PaginationResponse<T>> getPagingByAdvancedFilter(@Valid @RequestBody List<AdvancedFilter> filters,
                                                                     @RequestParam(value = "page", defaultValue = "0") int page,
                                                                     @RequestParam(value = "size", defaultValue = "10") int pageSize,

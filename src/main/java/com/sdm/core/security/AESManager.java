@@ -5,14 +5,22 @@
  */
 package com.sdm.core.security;
 
+import com.sdm.core.exception.GeneralException;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.*;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Base64;
 
 /**
@@ -22,67 +30,53 @@ import java.util.Base64;
 @Log4j2
 public class AESManager {
 
+    private final String MESSAGE_DIGEST = "SHA-1";
     private final String CRYPTO_METHOD = "AES";
-    private final String CRYPTO_PAIR = "AES/CBC/PKCS5Padding";
-    private final int KEY_SIZE = 256;
+    private final String CRYPTO_PAIR = "AES/ECB/PKCS5Padding";
 
-    Cipher AESCipher;
+    public SecretKeySpec generateKey(String secret) throws NoSuchAlgorithmException {
+        byte[] key;
 
-    public AESManager() {
-    }
-
-    private void initCipher(int mode, String key) {
         try {
-            AESCipher = Cipher.getInstance(CRYPTO_PAIR);
-
-            byte[] keyBytes = new byte[16];
-            byte[] b = key.getBytes("UTF-8");
-            int len = b.length;
-            if (len > keyBytes.length) {
-                len = keyBytes.length;
-            }
-            System.arraycopy(b, 0, keyBytes, 0, len);
-            SecretKeySpec keySpec = new SecretKeySpec(keyBytes, CRYPTO_METHOD);
-            IvParameterSpec ivSpec = new IvParameterSpec(keyBytes);
-            AESCipher.init(mode, keySpec, ivSpec);
-        } catch (Exception ex) {
-            log.error(ex.getLocalizedMessage(), ex);
-        }
-    }
-
-    public String generateKey() throws NoSuchAlgorithmException {
-        try {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(CRYPTO_METHOD);
-            keyGenerator.init(KEY_SIZE);
-            SecretKey secKey = keyGenerator.generateKey();
-            return Base64.getEncoder().encodeToString(secKey.getEncoded());
+            MessageDigest sha = null;
+            key = secret.getBytes(StandardCharsets.UTF_8);
+            sha = MessageDigest.getInstance(MESSAGE_DIGEST);
+            key = sha.digest(key);
+            key = Arrays.copyOf(key, 16);
+            return new SecretKeySpec(key, CRYPTO_METHOD);
         } catch (NoSuchAlgorithmException ex) {
             log.error(ex.getLocalizedMessage(), ex);
             throw ex;
         }
     }
 
-    public String encrypt(String plainText, String key) throws IllegalBlockSizeException, BadPaddingException {
+    public String encrypt(String plainText, String key) throws GeneralException {
         try {
-            byte[] encryptBytes = plainText.getBytes();
-            this.initCipher(Cipher.ENCRYPT_MODE, key);
-            byte[] byteCipher = AESCipher.doFinal(encryptBytes);
+            SecretKeySpec secretKey = generateKey(key);
+            Cipher cipher = Cipher.getInstance(CRYPTO_PAIR);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+            byte[] encryptBytes = plainText.getBytes(StandardCharsets.UTF_8);
+            byte[] byteCipher = cipher.doFinal(encryptBytes);
             return Base64.getEncoder().encodeToString(byteCipher);
-        } catch (IllegalBlockSizeException | BadPaddingException ex) {
+        } catch (IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException ex) {
             log.error(ex.getLocalizedMessage(), ex);
-            throw ex;
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
     }
 
-    public String decrypt(String cipherText, String key) throws GeneralSecurityException {
+    public String decrypt(String cipherText, String key) throws GeneralException {
         try {
+            SecretKeySpec secretKey = generateKey(key);
+            Cipher cipher = Cipher.getInstance(CRYPTO_PAIR);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+
             byte[] decryptBytes = Base64.getDecoder().decode(cipherText);
-            this.initCipher(Cipher.DECRYPT_MODE, key);
-            byte[] bytePlain = AESCipher.doFinal(decryptBytes);
+            byte[] bytePlain = cipher.doFinal(decryptBytes);
             return new String(bytePlain);
         } catch (GeneralSecurityException ex) {
             log.error(ex.getLocalizedMessage(), ex);
-            throw ex;
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
     }
 }

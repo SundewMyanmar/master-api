@@ -40,7 +40,11 @@ public class SecurityProperties {
 
     private String cookieDomain = "";
 
+    private String cookieDomainPattern = "";
+
     private String cookiePath = "";
 
     private Integer clientRole = 3;
+
+    private boolean csrfEnable = true;
 }

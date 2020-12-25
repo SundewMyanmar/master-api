@@ -14,5 +14,9 @@ import org.springframework.context.annotation.Configuration;
 public class PathProperties {
     private String upload = "/var/www/master-api/upload/";
     private String report = "/var/www/master-api/report/";
-    private String root = "/var/www/master-api/";
+    private String setting="/var/www.master-api/setting/";
+
+    public String getSettingFile(){
+        return "setting.json";
+    }
 }

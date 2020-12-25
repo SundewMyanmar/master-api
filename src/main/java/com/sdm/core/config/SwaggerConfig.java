@@ -98,7 +98,7 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
     }
 
     @Bean
-    public Docket coreApi() {
+    Docket coreApi() {
         return this.buildDocket("1. Core", "com.sdm.core");
     }
 
@@ -108,17 +108,23 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
     }
 
     @Bean
-    public Docket adminApi() {
+    Docket adminApi() {
         return this.buildDocket("3. Admin", "com.sdm.admin");
     }
 
     @Bean
-    public Docket fileApi() {
+    Docket fileApi() {
         return this.buildDocket("4. File", "com.sdm.file");
     }
 
     @Bean
-    public Docket allApi() {
+    Docket notiApi() {
+        return this.buildDocket("5. Notification", "com.sdm.notification");
+    }
+
+
+    @Bean
+    Docket allApi() {
         return this.buildDocket("All", "com.sdm");
     }
 }

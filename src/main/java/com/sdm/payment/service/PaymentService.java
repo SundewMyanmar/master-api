@@ -18,15 +18,18 @@ import java.security.cert.X509Certificate;
 public class PaymentService {
     private SSLContext trustAllCerts() throws NoSuchAlgorithmException, KeyManagementException {
         // Create a trust manager that does not validate certificate chains
-        TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
-            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                return null;
-            }
-            public void checkClientTrusted(X509Certificate[] certs, String authType) {
-            }
-            public void checkServerTrusted(X509Certificate[] certs, String authType) {
-            }
-        }
+        TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                    }
+
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                    }
+                }
         };
         // Install the all-trusting trust manager
         SSLContext sc = SSLContext.getInstance("SSL");
@@ -35,7 +38,7 @@ public class PaymentService {
     }
 
     public String requestApi_POST_SSL(URL API_URL, String jsonString, String tokenString) throws IOException, KeyManagementException, NoSuchAlgorithmException {
-        SSLContext sc=this.trustAllCerts();
+        SSLContext sc = this.trustAllCerts();
 
         //SSL Socket Factory
         HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
@@ -48,33 +51,33 @@ public class PaymentService {
         // Install the all-trusting host verifier
         HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
 
-        HttpsURLConnection _CONNECTION=(HttpsURLConnection)API_URL.openConnection();
+        HttpsURLConnection _CONNECTION = (HttpsURLConnection) API_URL.openConnection();
         _CONNECTION.setDoOutput(true);
         _CONNECTION.setRequestMethod("POST");
         _CONNECTION.setRequestProperty("Accept", "application/json");
         _CONNECTION.setRequestProperty("Content-Type", "application/json; utf-8");
-        if(tokenString!=null){
+        if (tokenString != null) {
             _CONNECTION.setRequestProperty("Authorization", tokenString);
         }
 
-        return requestApi_POST(_CONNECTION,jsonString);
+        return requestApi_POST(_CONNECTION, jsonString);
     }
 
-    public String requestApi_POST(URL API_URL, String jsonString, String tokenString)throws IOException {
-        HttpURLConnection _CONNECTION=(HttpURLConnection)API_URL.openConnection();
+    public String requestApi_POST(URL API_URL, String jsonString, String tokenString) throws IOException {
+        HttpURLConnection _CONNECTION = (HttpURLConnection) API_URL.openConnection();
         _CONNECTION.setDoOutput(true);
         _CONNECTION.setRequestMethod("POST");
         _CONNECTION.setRequestProperty("Accept", "application/json");
         _CONNECTION.setRequestProperty("Content-Type", "application/json; utf-8");
-        if(tokenString!=null){
+        if (tokenString != null) {
             _CONNECTION.setRequestProperty("Authorization", tokenString);
         }
 
-        return requestApi_POST(_CONNECTION,jsonString);
+        return requestApi_POST(_CONNECTION, jsonString);
     }
 
     public String requestApi_POST(HttpURLConnection _CONNECTION, String jsonString) throws IOException {
-        try(OutputStream os = _CONNECTION.getOutputStream()) {
+        try (OutputStream os = _CONNECTION.getOutputStream()) {
             byte[] input = jsonString.getBytes(StandardCharsets.UTF_8);
             os.write(input, 0, input.length);
         }
@@ -84,11 +87,11 @@ public class PaymentService {
                     + _CONNECTION.getResponseCode());
         }
 
-        BufferedReader RESPONSE_BUFFER=new BufferedReader(new InputStreamReader(_CONNECTION.getInputStream()));
-        String result="",output="";
+        BufferedReader RESPONSE_BUFFER = new BufferedReader(new InputStreamReader(_CONNECTION.getInputStream()));
+        String result = "", output = "";
 
         while ((output = RESPONSE_BUFFER.readLine()) != null) {
-            result+=output;
+            result += output;
         }
         RESPONSE_BUFFER.close();
         _CONNECTION.disconnect();

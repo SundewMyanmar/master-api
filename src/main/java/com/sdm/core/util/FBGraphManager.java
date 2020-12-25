@@ -34,32 +34,35 @@ public class FBGraphManager {
         this.restTemplate = new RestTemplate();
     }
 
-    public JsonObject checkFacebookToken(String accessToken, String fields) throws IOException {
+    public JsonObject checkFacebookToken(String accessToken, String fields) {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(this.properties.getGraphURL() + "me")
                 .queryParam("fields", fields)
                 .queryParam("access_token", accessToken);
-        URL API_URL = new URL(uriBuilder.toUriString());
+        try {
+            URL API_URL = new URL(uriBuilder.toUriString());
 
-        HttpURLConnection connection = (HttpURLConnection) API_URL.openConnection();
-        connection.setDoOutput(true);
-        connection.setRequestMethod("GET");
+            HttpURLConnection connection = (HttpURLConnection) API_URL.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("GET");
 
-        if (connection.getResponseCode() != 200) {
-            throw new RuntimeException("Failed : HTTP error code : "
-                    + connection.getResponseCode());
+            if (connection.getResponseCode() != 200) {
+                throw new GeneralException(HttpStatus.valueOf(connection.getResponseCode()),
+                        "Failed to connect facebook user.");
+            }
+
+            BufferedReader RESPONSE_BUFFER = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder result = new StringBuilder();
+            String output;
+
+            while ((output = RESPONSE_BUFFER.readLine()) != null) {
+                result.append(output);
+            }
+            RESPONSE_BUFFER.close();
+            connection.disconnect();
+            return new Gson().fromJson(result.toString(), JsonObject.class);
+        } catch (IOException ex) {
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
-
-        BufferedReader RESPONSE_BUFFER = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        StringBuilder result = new StringBuilder();
-        String output;
-
-        while ((output = RESPONSE_BUFFER.readLine()) != null) {
-            result.append(output);
-        }
-        RESPONSE_BUFFER.close();
-        connection.disconnect();
-
-        return new Gson().fromJson(result.toString(), JsonObject.class);
     }
 
     public JsonObject retrievePSUserData(String psId, String fields, String userAgent) {
@@ -132,6 +135,6 @@ public class FBGraphManager {
     Reference Url : https://developers.facebook.com/docs/graph-api/securing-requests/#appsecret_proof
     * */
     public String generateAppSecretProof() {
-        return securityManager.generateHashHmac(properties.getPageAccessToken(), properties.getAppSecret());
+        return securityManager.generateHashHmac(properties.getPageAccessToken(), properties.getAppSecret(), "HmacSHA512");
     }
 }

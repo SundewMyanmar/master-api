@@ -1,0 +1,167 @@
+package com.sdm.payment.service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sdm.core.exception.GeneralException;
+import com.sdm.payment.config.properties.AGDProperties;
+import com.sdm.payment.config.properties.PaymentProperties;
+import com.sdm.payment.model.request.onepay.OnePayCheckTransactionRequest;
+import com.sdm.payment.model.request.onepay.OnePayDirectPaymentRequest;
+import com.sdm.payment.model.request.onepay.OnePayResponseDirectPaymentRequest;
+import com.sdm.payment.model.request.onepay.OnePayVerifyPhRequest;
+import com.sdm.payment.model.response.onepay.ApiResponseStatus;
+import com.sdm.payment.model.response.onepay.OnePayCheckTransactionResponse;
+import com.sdm.payment.model.response.onepay.OnePayDirectPaymentResponse;
+import com.sdm.payment.model.response.onepay.OnePayResponseDirectPaymentResponse;
+import com.sdm.payment.model.response.onepay.OnePayVerifyPhResponse;
+import com.sdm.payment.model.response.onepay.TransactionStatus;
+import com.sdm.payment.util.PaymentSecurityManager;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
+import java.net.URL;
+import java.util.*;
+
+@Service
+@Log4j2
+public class OnePayPaymentService {
+    @Autowired
+    private PaymentSecurityManager securityManager;
+
+    @Autowired
+    private PaymentService paymentService;
+
+    @Autowired
+    private AGDProperties agdProperties;
+
+    @Autowired
+    private PaymentProperties paymentProperties;
+    
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    public OnePayVerifyPhResponse verifyPhone(String phoneNo) {
+        OnePayVerifyPhRequest request = new OnePayVerifyPhRequest(agdProperties.getChannel(), agdProperties.getUser(), phoneNo, "");
+        request.setHashValue(securityManager.generateAGDHashHMac(request.getSignatureString()));
+        String rawUrl = agdProperties.getVerifyPhoneUrl();
+
+        String resultString = "";
+        OnePayVerifyPhResponse result = new OnePayVerifyPhResponse();
+        try {
+            resultString = paymentService.requestApi_POST(new URL(rawUrl), objectMapper.writeValueAsString(request), null);
+            result = objectMapper.readValue(resultString, OnePayVerifyPhResponse.class);
+        } catch (Exception ex) {
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+        }
+
+        if (!result.getRespCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
+            log.error("INVALID_AGD_RESPONSE >>> " + resultString);
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, result.getRespDescription());
+        }
+
+        //TODO: check hash value response
+        String resultHash = securityManager.generateAGDHashHMac(result.getSignatureString());
+        if (!resultHash.equals(result.getHashValue())) {
+            log.error("INVALID_AGD_RESPONSE >>>" + resultString);
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
+        }
+
+        return result;
+    }
+
+    public OnePayDirectPaymentResponse directPayment(String invoiceNo, String sequenceNo, String amount, String remark, String walletUserId) {
+        OnePayDirectPaymentRequest request = new OnePayDirectPaymentRequest(agdProperties.getVersion(), agdProperties.getChannel(), agdProperties.getUser(), invoiceNo, sequenceNo, amount, remark, walletUserId, agdProperties.getDirectPaymentCallbackUrl(), paymentProperties.getExpiredSeconds(), "");
+        request.setHashValue(securityManager.generateAGDHashHMac(request.getSignatureString()));
+        String rawUrl = agdProperties.getDirectPaymentUrl();
+
+        String resultString = "";
+        OnePayDirectPaymentResponse result = new OnePayDirectPaymentResponse();
+        try {
+            resultString = paymentService.requestApi_POST(new URL(rawUrl), objectMapper.writeValueAsString(request), null);
+            result = objectMapper.readValue(resultString, OnePayDirectPaymentResponse.class);
+        } catch (Exception ex) {
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+        }
+
+        if (!result.getRespCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
+            log.error("INVALID_AGD_RESPONSE >>> " + resultString);
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, result.getRespDescription());
+        }
+
+        //TODO: check hash value response
+        String resultHash = securityManager.generateAGDHashHMac(result.getSignatureString());
+        if (!resultHash.equals(result.getHashValue())) {
+            log.error("INVALID_AGD_RESPONSE >>>" + resultString);
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
+        }
+
+        return result;
+    }
+
+    public Map<String, String> buildItem(String id, String qty, String price) {
+        Map<String, String> item = new HashMap<>();
+        item.put("ItemId", id);
+        item.put("Quantity", qty);
+        item.put("EachPrice", price);
+        return item;
+    }
+
+    public OnePayResponseDirectPaymentResponse directPaymentCallback(OnePayResponseDirectPaymentRequest request, List<Map<String, String>> itemList) {
+        String requestHash = securityManager.generateAGDHashHMac(request.getSignatureString());
+        if (!requestHash.equals(request.getHashValue())) {
+            try {
+                log.error("INVALID_AGD_RESPONSE >>>" + objectMapper.writeValueAsString(request));
+            } catch (Exception ex) {
+                throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            }
+
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
+        }
+
+        //TODO: call repository with invoice no and update status
+        //TODO: check response transaction status code "000" success
+        String itemListStr = "";
+        try {
+            itemListStr = objectMapper.writeValueAsString(itemList);
+        } catch (Exception ex) {
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+        }
+
+        itemListStr = itemListStr.replace("[", "");
+        itemListStr = itemListStr.replace("]", "");
+        OnePayResponseDirectPaymentResponse response = new OnePayResponseDirectPaymentResponse(request.getReferIntegrationId(), OnePayResponseDirectPaymentResponse.DataType.Data, "", itemListStr, "Success", TransactionStatus.SUCCESS.getValue(), "");
+        response.setHashValue(securityManager.generateAGDHashHMac(response.getSignatureString()));
+
+        return response;
+    }
+
+    public OnePayCheckTransactionResponse checkTransactionStatus(String ReferIntegrationId) {
+        OnePayCheckTransactionRequest request = new OnePayCheckTransactionRequest(agdProperties.getUser(), ReferIntegrationId, "");
+        request.setHashValue(securityManager.generateAGDHashHMac(request.getSignatureString()));
+        String rawUrl = agdProperties.getCheckTransactionUrl();
+
+        String resultString = "";
+        OnePayCheckTransactionResponse result = new OnePayCheckTransactionResponse();
+        try {
+            resultString = paymentService.requestApi_POST(new URL(rawUrl), objectMapper.writeValueAsString(request), null);
+            result = objectMapper.readValue(resultString, OnePayCheckTransactionResponse.class);
+        } catch (Exception ex) {
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+        }
+
+        if (!result.getRespCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
+            log.error("INVALID_AGD_RESPONSE >>> " + resultString);
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, result.getRespDescription());
+        }
+
+        //TODO: check hash value response
+        String resultHash = securityManager.generateAGDHashHMac(result.getSignatureString());
+        if (!resultHash.equals(result.getHashValue())) {
+            log.error("INVALID_AGD_RESPONSE >>>" + resultString);
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
+        }
+
+        return result;
+    }
+}

@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.Audited;
 import org.hibernate.envers.RevisionListener;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.*;
@@ -73,8 +74,18 @@ public class HibernateAuditListener implements RevisionListener, PostInsertEvent
         }
     }
 
+    private boolean checkAuditableClass(Class<?> entityClass) {
+        if (entityClass.isAnnotationPresent(Audited.class)) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public void onPostInsert(PostInsertEvent event) {
+        if (!checkAuditableClass(event.getEntity().getClass())) {
+            return;
+        }
         String className = event.getEntity().getClass().getName();
         try {
             String jsonString = objectMapper.writeValueAsString(event.getEntity());
@@ -86,6 +97,9 @@ public class HibernateAuditListener implements RevisionListener, PostInsertEvent
 
     @Override
     public void onPostUpdate(PostUpdateEvent event) {
+        if (!checkAuditableClass(event.getEntity().getClass())) {
+            return;
+        }
         String className = event.getEntity().getClass().getName();
         try {
             String jsonString = objectMapper.writeValueAsString(event.getEntity());
@@ -97,6 +111,9 @@ public class HibernateAuditListener implements RevisionListener, PostInsertEvent
 
     @Override
     public void onPostDelete(PostDeleteEvent event) {
+        if (!checkAuditableClass(event.getEntity().getClass())) {
+            return;
+        }
         String className = event.getEntity().getClass().getName();
         try {
             String jsonString = objectMapper.writeValueAsString(event.getEntity());

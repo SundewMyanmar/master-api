@@ -48,6 +48,13 @@ public class AdvancedFilter implements Serializable {
      */
     private Boolean isNull;
 
+    /**
+     * For Like
+     */
+    private String startsWith;
+    private String endsWith;
+    private String contains;
+
     @JsonIgnore
     public String getParam() {
         return this.getParam("");
@@ -91,6 +98,15 @@ public class AdvancedFilter implements Serializable {
         } else if (to != null) {
             params.put(getParam(), this.to);
             return alias + "." + this.field + " <= :" + getParam();
+        } else if (!Globalizer.isNullOrEmpty(this.startsWith)) {
+            params.put(getParam(), this.startsWith.replaceAll("%", "\\%") + "%");
+            return alias + "." + this.field + " LIKE :" + getParam();
+        } else if (!Globalizer.isNullOrEmpty(this.endsWith)) {
+            params.put(getParam(), '%' + this.endsWith.replaceAll("%", "\\%"));
+            return alias + "." + this.field + " LIKE :" + getParam();
+        } else if (!Globalizer.isNullOrEmpty(this.contains)) {
+            params.put(getParam(), '%' + this.contains.replaceAll("%", "\\%") + "%");
+            return alias + "." + this.field + " LIKE :" + getParam();
         } else {
             return "";
         }
