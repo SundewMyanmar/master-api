@@ -1,34 +1,21 @@
 package com.sdm.payment.service;
 
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.payment.config.properties.PaymentProperties;
 import com.sdm.payment.config.properties.UABProperties;
-import com.sdm.payment.model.request.sai2pay.Sai2PayChangePasswordRequest;
-import com.sdm.payment.model.request.sai2pay.Sai2PayCheckPhRequest;
-import com.sdm.payment.model.request.sai2pay.Sai2PayCheckTransactionRequest;
-import com.sdm.payment.model.request.sai2pay.Sai2PayEnquiryPaymentRequest;
-import com.sdm.payment.model.request.sai2pay.Sai2PayLoginRequest;
-import com.sdm.payment.model.request.sai2pay.Sai2PayResponsePaymentRequest;
-import com.sdm.payment.model.response.sai2pay.ApiResponseStatus;
-import com.sdm.payment.model.response.sai2pay.Sai2PayCheckPhResponse;
-import com.sdm.payment.model.response.sai2pay.Sai2PayCheckTransactionResponse;
-import com.sdm.payment.model.response.sai2pay.Sai2PayEnquiryPaymentResponse;
-import com.sdm.payment.model.response.sai2pay.Sai2PayLoginResponse;
-import com.sdm.payment.model.response.sai2pay.Sai2PayResponsePaymentResponse;
-import com.sdm.payment.model.response.sai2pay.TransactionStatus;
+import com.sdm.payment.model.request.sai2pay.*;
+import com.sdm.payment.model.response.sai2pay.*;
 import com.sdm.payment.util.PaymentSecurityManager;
-
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Log4j2
@@ -55,8 +42,8 @@ public class Sai2PayPaymentService {
 		String resultString = "";
 		Sai2PayLoginResponse result = new Sai2PayLoginResponse();
 		try {
-			resultString = paymentService.requestApi_POST(new URL(rawUrl), objectMapper.writeValueAsString(request),
-					null);
+			resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request),
+					null, false);
 			result = objectMapper.readValue(resultString, Sai2PayLoginResponse.class);
 		} catch (Exception ex) {
 			throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
@@ -84,8 +71,8 @@ public class Sai2PayPaymentService {
 		String resultString = "";
 		Sai2PayLoginResponse result = new Sai2PayLoginResponse();
 		try {
-			resultString = paymentService.requestApi_POST(new URL(rawUrl), objectMapper.writeValueAsString(request),
-					null);
+			resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request),
+					null, false);
 			result = objectMapper.readValue(resultString, Sai2PayLoginResponse.class);
 		} catch (Exception ex) {
 			throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
@@ -108,8 +95,8 @@ public class Sai2PayPaymentService {
 		String resultString = "";
 		Sai2PayCheckPhResponse result = new Sai2PayCheckPhResponse();
 		try {
-			resultString = paymentService.requestApi_POST(new URL(rawUrl), objectMapper.writeValueAsString(request),
-					tokenString);
+			resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request),
+					tokenString, false);
 			result = objectMapper.readValue(resultString, Sai2PayCheckPhResponse.class);
 		} catch (Exception ex) {
 			throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
@@ -141,8 +128,8 @@ public class Sai2PayPaymentService {
 		String resultString = "";
 		Sai2PayEnquiryPaymentResponse result = new Sai2PayEnquiryPaymentResponse();
 		try {
-			resultString = paymentService.requestApi_POST(new URL(rawUrl), objectMapper.writeValueAsString(request),
-					tokenString);
+			resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request),
+					tokenString, false);
 			result = objectMapper.readValue(resultString, Sai2PayEnquiryPaymentResponse.class);
 		} catch (Exception ex) {
 			throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
@@ -211,8 +198,8 @@ public class Sai2PayPaymentService {
 		String resultString = "";
 		Sai2PayCheckTransactionResponse result = new Sai2PayCheckTransactionResponse();
 		try {
-			resultString = paymentService.requestApi_POST(new URL(rawUrl), objectMapper.writeValueAsString(request),
-					tokenString);
+			resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request),
+					tokenString, false);
 			result = objectMapper.readValue(resultString, Sai2PayCheckTransactionResponse.class);
 		} catch (Exception ex) {
 			throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");

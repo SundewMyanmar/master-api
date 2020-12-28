@@ -21,6 +21,13 @@ import java.net.URL;
 @Log4j2
 @Service
 public class CBPaymentService {
+    /**
+     * CBPAY
+     * TODO: TRANSACTION CANCEL,TIMEOUT, SYSTEM_ERROR
+     * <p>
+     * Payment expired 5 min
+     * callback က real-time တစ်ကြိမ်ပဲ ခေါ်ပါတယ် အစ်ကို ... timeout ဖြစ်သွားခဲ့ရင်တော့ user ကို merchant app ဘက်မှာ order ပြန်ကြည့်တဲ့နေရာမျိုးမှာ e.g. "update order status" button နှိပ်ခိုင်းပြီး Check Payment Status ကို ခေါ်ပေးရပါမယ်
+     */
     @Autowired
     private PaymentSecurityManager securityManager;
 
@@ -29,7 +36,7 @@ public class CBPaymentService {
 
     @Autowired
     private CBProperties cbProperties;
-    
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -51,7 +58,7 @@ public class CBPaymentService {
         String resultString = "";
         CBPaymentOrderResponse result = new CBPaymentOrderResponse();
         try {
-            resultString = paymentService.requestApi_POST_SSL(new URL(rawUrl), objectMapper.writeValueAsString(request), null);
+            resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), null, true);
             result = objectMapper.readValue(resultString, CBPaymentOrderResponse.class);
         } catch (Exception ex) {
             throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
@@ -72,7 +79,7 @@ public class CBPaymentService {
         String rawUrl = cbProperties.getCheckPaymentStatusUrl();
 
         try {
-            String resultString = paymentService.requestApi_POST_SSL(new URL(rawUrl), objectMapper.writeValueAsString(request), null);
+            String resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), null, true);
             return objectMapper.readValue(resultString, CBCheckPaymentStatusResponse.class);
         } catch (Exception ex) {
             throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");

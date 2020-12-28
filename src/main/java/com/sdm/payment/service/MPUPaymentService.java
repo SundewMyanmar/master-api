@@ -46,7 +46,7 @@ public class MPUPaymentService {
         request.setHashValue(securityManager.generateMPUHashHmac(request.getSignatureString()));
         String rawUrl = mpuProperties.getPaymentRequestUrl();
 
-        String resultString = paymentService.requestApi_POST_SSL(new URL(rawUrl), objectMapper.writeValueAsString(request), null);
+        String resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), null, true);
         MPUPaymentResponse result = objectMapper.readValue(resultString, MPUPaymentResponse.class);
 
         return result;

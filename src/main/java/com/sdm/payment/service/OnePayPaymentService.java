@@ -8,12 +8,7 @@ import com.sdm.payment.model.request.onepay.OnePayCheckTransactionRequest;
 import com.sdm.payment.model.request.onepay.OnePayDirectPaymentRequest;
 import com.sdm.payment.model.request.onepay.OnePayResponseDirectPaymentRequest;
 import com.sdm.payment.model.request.onepay.OnePayVerifyPhRequest;
-import com.sdm.payment.model.response.onepay.ApiResponseStatus;
-import com.sdm.payment.model.response.onepay.OnePayCheckTransactionResponse;
-import com.sdm.payment.model.response.onepay.OnePayDirectPaymentResponse;
-import com.sdm.payment.model.response.onepay.OnePayResponseDirectPaymentResponse;
-import com.sdm.payment.model.response.onepay.OnePayVerifyPhResponse;
-import com.sdm.payment.model.response.onepay.TransactionStatus;
+import com.sdm.payment.model.response.onepay.*;
 import com.sdm.payment.util.PaymentSecurityManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +16,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Log4j2
@@ -49,7 +46,7 @@ public class OnePayPaymentService {
         String resultString = "";
         OnePayVerifyPhResponse result = new OnePayVerifyPhResponse();
         try {
-            resultString = paymentService.requestApi_POST(new URL(rawUrl), objectMapper.writeValueAsString(request), null);
+            resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), null, false);
             result = objectMapper.readValue(resultString, OnePayVerifyPhResponse.class);
         } catch (Exception ex) {
             throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
@@ -78,7 +75,7 @@ public class OnePayPaymentService {
         String resultString = "";
         OnePayDirectPaymentResponse result = new OnePayDirectPaymentResponse();
         try {
-            resultString = paymentService.requestApi_POST(new URL(rawUrl), objectMapper.writeValueAsString(request), null);
+            resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), null, false);
             result = objectMapper.readValue(resultString, OnePayDirectPaymentResponse.class);
         } catch (Exception ex) {
             throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
@@ -144,7 +141,7 @@ public class OnePayPaymentService {
         String resultString = "";
         OnePayCheckTransactionResponse result = new OnePayCheckTransactionResponse();
         try {
-            resultString = paymentService.requestApi_POST(new URL(rawUrl), objectMapper.writeValueAsString(request), null);
+            resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), null, false);
             result = objectMapper.readValue(resultString, OnePayCheckTransactionResponse.class);
         } catch (Exception ex) {
             throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");

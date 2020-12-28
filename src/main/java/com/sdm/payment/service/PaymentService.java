@@ -1,5 +1,7 @@
 package com.sdm.payment.service;
 
+import com.sdm.core.exception.GeneralException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.net.ssl.*;
@@ -16,7 +18,7 @@ import java.security.cert.X509Certificate;
 
 @Service
 public class PaymentService {
-    private SSLContext trustAllCerts() throws NoSuchAlgorithmException, KeyManagementException {
+    private HttpsURLConnection openSSLConnection(URL url) throws IOException {
         // Create a trust manager that does not validate certificate chains
         TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {
@@ -31,71 +33,67 @@ public class PaymentService {
                     }
                 }
         };
-        // Install the all-trusting trust manager
-        SSLContext sc = SSLContext.getInstance("SSL");
-        sc.init(null, trustAllCerts, new java.security.SecureRandom());
-        return sc;
+        try {
+            // Install the all-trusting trust manager
+            SSLContext sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+            //SSL Socket Factory
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+            // Create all-trusting host name verifier
+            HostnameVerifier allHostsValid = new HostnameVerifier() {
+                public boolean verify(String hostname, SSLSession session) {
+                    return true;
+                }
+            };
+            // Install the all-trusting host verifier
+            HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+        } catch (KeyManagementException | NoSuchAlgorithmException e) {
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+        return (HttpsURLConnection) url.openConnection();
     }
 
-    public String requestApi_POST_SSL(URL API_URL, String jsonString, String tokenString) throws IOException, KeyManagementException, NoSuchAlgorithmException {
-        SSLContext sc = this.trustAllCerts();
-
-        //SSL Socket Factory
-        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        // Create all-trusting host name verifier
-        HostnameVerifier allHostsValid = new HostnameVerifier() {
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
+    public String postRequest(URL apiUrl, String jsonString, String tokenString, boolean useSSL) {
+        HttpURLConnection connection;
+        OutputStream outputStream;
+        try {
+            if (useSSL) {
+                connection = openSSLConnection(apiUrl);
+            } else {
+                connection = (HttpURLConnection) apiUrl.openConnection();
             }
-        };
-        // Install the all-trusting host verifier
-        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
 
-        HttpsURLConnection _CONNECTION = (HttpsURLConnection) API_URL.openConnection();
-        _CONNECTION.setDoOutput(true);
-        _CONNECTION.setRequestMethod("POST");
-        _CONNECTION.setRequestProperty("Accept", "application/json");
-        _CONNECTION.setRequestProperty("Content-Type", "application/json; utf-8");
-        if (tokenString != null) {
-            _CONNECTION.setRequestProperty("Authorization", tokenString);
-        }
-
-        return requestApi_POST(_CONNECTION, jsonString);
-    }
-
-    public String requestApi_POST(URL API_URL, String jsonString, String tokenString) throws IOException {
-        HttpURLConnection _CONNECTION = (HttpURLConnection) API_URL.openConnection();
-        _CONNECTION.setDoOutput(true);
-        _CONNECTION.setRequestMethod("POST");
-        _CONNECTION.setRequestProperty("Accept", "application/json");
-        _CONNECTION.setRequestProperty("Content-Type", "application/json; utf-8");
-        if (tokenString != null) {
-            _CONNECTION.setRequestProperty("Authorization", tokenString);
-        }
-
-        return requestApi_POST(_CONNECTION, jsonString);
-    }
-
-    public String requestApi_POST(HttpURLConnection _CONNECTION, String jsonString) throws IOException {
-        try (OutputStream os = _CONNECTION.getOutputStream()) {
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Content-Type", "application/json; utf-8");
+            if (tokenString != null) {
+                connection.setRequestProperty("Authorization", tokenString);
+            }
+            outputStream = connection.getOutputStream();
             byte[] input = jsonString.getBytes(StandardCharsets.UTF_8);
-            os.write(input, 0, input.length);
+            outputStream.write(input, 0, input.length);
+            outputStream.close();
+
+            if (connection.getResponseCode() != 200) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + connection.getResponseCode());
+            }
+
+            InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
+            BufferedReader responseReader = new BufferedReader(inputStreamReader);
+            String result = "", output = "";
+
+            while ((output = responseReader.readLine()) != null) {
+                result += output;
+            }
+            inputStreamReader.close();
+            responseReader.close();
+            connection.disconnect();
+
+            return result;
+        } catch (IOException ex) {
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
-
-        if (_CONNECTION.getResponseCode() != 200) {
-            throw new RuntimeException("Failed : HTTP error code : "
-                    + _CONNECTION.getResponseCode());
-        }
-
-        BufferedReader RESPONSE_BUFFER = new BufferedReader(new InputStreamReader(_CONNECTION.getInputStream()));
-        String result = "", output = "";
-
-        while ((output = RESPONSE_BUFFER.readLine()) != null) {
-            result += output;
-        }
-        RESPONSE_BUFFER.close();
-        _CONNECTION.disconnect();
-
-        return result;
     }
 }

@@ -3,7 +3,6 @@ package com.sdm.payment.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
-import com.sdm.payment.config.properties.PaymentProperties;
 import com.sdm.payment.config.properties.YOMAProperties;
 import com.sdm.payment.model.request.wavepay.WavePayPaymentRequest;
 import com.sdm.payment.model.request.wavepay.WavePayResponsePaymentRequest;
@@ -53,7 +52,7 @@ public class WavePayPaymentService {
         String resultString = "";
         WavePayPaymentResponse result = new WavePayPaymentResponse();
         try {
-            resultString = paymentService.requestApi_POST_SSL(new URL(rawUrl), objectMapper.writeValueAsString(request), null);
+            resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), null, true);
 
             result = objectMapper.readValue(resultString, WavePayPaymentResponse.class);
         } catch (Exception ex) {

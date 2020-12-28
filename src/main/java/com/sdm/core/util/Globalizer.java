@@ -10,6 +10,8 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -41,6 +43,26 @@ public class Globalizer {
         return false;
     }
 
+    public static String encodeUrl(String url) {
+        return URLEncoder.encode(url, StandardCharsets.UTF_8).replace("+", "%20");
+    }
+
+    public static boolean isNullOrEmpty(Object data) {
+        if (data instanceof String) {
+            return data == null || StringUtils.isEmpty(data);
+        }
+
+        return data == null || ObjectUtils.isEmpty(data);
+    }
+
+    public static Integer toInt(String input, int defultValue) {
+        Pattern pattern = Pattern.compile(Constants.Pattern.INTEGER);
+        if (pattern.matcher(input).matches()) {
+            return Integer.parseInt(input);
+        }
+        return defultValue;
+    }
+
     public static String getDateString(String format, Date date) {
         SimpleDateFormat formatter = new SimpleDateFormat(format);
         return formatter.format(date);
@@ -58,7 +80,7 @@ public class Globalizer {
     //Minus date 1 < date 2
     //Plus date 1 > date 2
     public static Integer diffDays(Date date1,Date date2){
-        long diff = diffSeconds(date1,date2);
+        long diff = diffSeconds(date1, date2);
         long days = diff / (24 * 60 * 60);
         return (int) days;
     }
@@ -67,24 +89,6 @@ public class Globalizer {
         Long from = date1.getTime() / 1000;
         Long to = date2.getTime() / 1000;
         return from - to;
-    }
-
-    public static int dateDiff(Date date1, Date date2) {
-        if (date1.getTime() > date2.getTime()) return 1;
-        else if (date2.getTime() > date1.getTime()) return -1;
-        else return 0;
-    }
-
-    public static boolean isNullOrEmpty(Object data) {
-        return data == null || ObjectUtils.isEmpty(data);
-    }
-
-    public static Integer toInt(String input, int defultValue) {
-        Pattern pattern = Pattern.compile(Constants.Pattern.INTEGER);
-        if (pattern.matcher(input).matches()) {
-            return Integer.parseInt(input);
-        }
-        return defultValue;
     }
 
     public static Date addDate(Date date, Duration duration) {
