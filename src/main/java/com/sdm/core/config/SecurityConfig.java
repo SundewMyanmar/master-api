@@ -124,7 +124,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/admin/menus/me",
             "/notifications/me/**",
             "/files/**",
-            "/customers/me/**",
     };
 
     public static final String[] ROOT_PERMISSION_LIST = {};
