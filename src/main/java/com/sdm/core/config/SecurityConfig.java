@@ -106,21 +106,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/",
             "/error",
             "/facebook/messenger",
-            "/util/**",
             "/public/**",
             "/auth/**",
-            "/webjars/**",
-            "/setup",
-
-            "/auth/customers/**",
-
-            //Payment Public Url
-            "/agd/payments/public/**",
-            "/cb/payments/public/**",
-            "/uab/payments/public/**",
-            "/yoma/payments/public/**",
 
             //Don't forget to remove in Production Mode
+            "/setup",
+            "/util/**",
+            "/webjars/**",
             "/reports/**",
             "/v2/api-docs",
             "/swagger-ui/**",
