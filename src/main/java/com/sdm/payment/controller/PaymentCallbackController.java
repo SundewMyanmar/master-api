@@ -2,8 +2,6 @@ package com.sdm.payment.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sdm.core.exception.GeneralException;
-import com.sdm.core.model.response.ListResponse;
-import com.sdm.core.util.Globalizer;
 import com.sdm.payment.config.properties.MPUProperties;
 import com.sdm.payment.model.request.cbpay.CBResponsePaymentOrderRequest;
 import com.sdm.payment.model.request.kbzpay.KBZPayResponseRequest;
@@ -21,11 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -40,27 +34,6 @@ public class PaymentCallbackController {
 
     @Autowired
     private MPUProperties mpuProperties;
-
-    @GetMapping("/test")
-    public ResponseEntity<?> testcallback() {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-                .getRequest();
-
-        String uri2 = request.getScheme() + "s://" +   // "http" + "://
-                request.getServerName() +       // "myhost"
-                ":" + request.getServerPort() + "/public/payments/cb/callback";
-
-        String uri3 = "https://www.gooogle.com".replace("http:", "https:");
-        String uri4 = Globalizer.getCurrentContextPath("/public/payments/cb/callback", true);
-        ListResponse<String> response = new ListResponse<>();
-        response.addData("2 : " + uri2);
-        response.addData("3 : " + uri3);
-        response.addData("4 Globalizer : " + uri4);
-        response.addData("test" + ServletUriComponentsBuilder.fromCurrentContextPath().scheme("https").path("/public/payments/cb/callback").toUriString());
-        String testUrl = mpuProperties.getPaymentCallbackUrl() + "?invoiceNo=" + Globalizer.encodeUrl("202020120");
-        response.addData("ttt" + testUrl);
-        return ResponseEntity.ok(response);
-    }
 
     @PostMapping("/onepay/callback")
     public OnePayResponseDirectPaymentResponse onePayCallback(@Valid @RequestBody OnePayResponseDirectPaymentRequest request) throws IOException {
