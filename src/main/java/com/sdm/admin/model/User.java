@@ -114,7 +114,7 @@ public class User extends DefaultEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     private MfaService.TotpType mfaType;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean mfaEnabled;
 
     @Transient
