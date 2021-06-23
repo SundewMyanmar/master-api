@@ -18,10 +18,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
 import java.util.Date;
 
 @Service
@@ -49,6 +50,9 @@ public class AuthService {
     private HttpServletRequest httpServletRequest;
 
     @Autowired
+    private MfaService mfaService;
+
+    @Autowired
     FileService fileService;
 
     public static final int MAX_PASSWORD = 32;
@@ -65,7 +69,7 @@ public class AuthService {
     }
 
     private String getActivateCallbackURL() {
-        return ServletUriComponentsBuilder.fromCurrentContextPath().path("/auth/activate").toUriString();
+        return Globalizer.getCurrentContextPath("/auth/activate", true);
     }
 
     private void setAnonymousExtras(AnonymousRequest request, User user) {
@@ -120,12 +124,13 @@ public class AuthService {
         return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "activation_success", "Your account is ready.", null));
     }
 
-    public ResponseEntity<User> resetPasswordByOtp(ChangePasswordRequest changePasswordRequest, ActivateRequest activateRequest) {
-        User user = userRepository.checkOTP(activateRequest.getUser(), activateRequest.getToken())
+    @Transactional
+    private User resetPasswordByToken(ActivateRequest request, String password) {
+        User user = userRepository.checkOTP(request.getUser(), request.getToken())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
                         "Your OTP is invalid. Pls try to contact admin team."));
 
-        if (user.getOtpExpired().before(new Date()) || !user.getOtpToken().equals(activateRequest.getToken())) {
+        if (user.getOtpExpired().before(new Date()) || !user.getOtpToken().equals(request.getToken())) {
             user.setOtpToken(null);
             user.setOtpExpired(null);
             userRepository.save(user);
@@ -133,23 +138,61 @@ public class AuthService {
                     "Your OTP is invalid. Pls try to contact admin team.");
         }
 
-        String newPassword = securityManager.hashString(changePasswordRequest.getNewPassword());
+        String newPassword = securityManager.hashString(password);
         user.setPassword(newPassword);
         user.setOtpToken(null);
         user.setOtpExpired(null);
         userRepository.save(user);
 
+        return user;
+    }
+
+    public ResponseEntity<User> resetPasswordJson(ChangePasswordRequest changePasswordRequest, ActivateRequest activateRequest) {
+        User user = resetPasswordByToken(activateRequest, changePasswordRequest.getNewPassword());
         return ResponseEntity.ok(user);
+    }
+
+    public void resetPasswordMail(ActivateRequest request) {
+        String genPassword = Globalizer.randomPassword(10, 14);
+        User user = resetPasswordByToken(request, genPassword);
+        mailService.welcomeUser(user, genPassword, "Generated New Password");
+    }
+
+    public void enableMFA(User user) throws GeneralSecurityException {
+        String totp = mfaService.generateCurrentTOTP(user.getMfaSecret(), user.getMfaType());
+        switch (user.getMfaType()) {
+            case SMS:
+                //TODO: SMS
+                break;
+            case EMAIL:
+                mailService.enableMFA(user, totp);
+                break;
+        }
+    }
+
+    public void verifyMFA(User user, String totp) throws GeneralSecurityException {
+        String appTotp = mfaService.generateCurrentTOTP(user.getMfaSecret(), MfaService.TotpType.APP);
+        String emailTotp = mfaService.generateCurrentTOTP(user.getMfaSecret(), MfaService.TotpType.EMAIL);
+        String smsTotp = mfaService.generateCurrentTOTP(user.getMfaSecret(), MfaService.TotpType.SMS);
+
+        if (!Arrays.asList(appTotp, emailTotp, smsTotp).contains(totp)) {
+            throw new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! invalid otp code.");
+        }
     }
 
     public ResponseEntity<MessageResponse> forgetPassword(ForgetPasswordRequest request) {
         User user = userRepository.findFirstByPhoneNumberAndEmail(request.getPhoneNumber(), request.getEmail())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Invalid phone number (or) email address."));
         try {
-            mailService.forgetPasswordLink(user, request.getCallback());
+            String url = request.getCallback();
+            if (Globalizer.isNullOrEmpty(url)) {
+                url = Globalizer.getCurrentContextPath("/auth/resetPassword", true);
+            }
+
+            mailService.forgetPasswordLink(user, url);
             userRepository.save(user);
 
-            return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "send_otp", "We send the reset password link to your e-mail.", null));
+            return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "SUCCESS", "We send the reset password link to your e-mail.", null));
         } catch (Exception ex) {
             log.error(ex.getLocalizedMessage());
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
@@ -157,16 +200,35 @@ public class AuthService {
     }
 
     @Transactional
-    public ResponseEntity<User> authByPassword(AuthRequest request) {
-        String password = securityManager.hashString(request.getPassword());
-        User authUser = userRepository.authByPassword(request.getUser(), password)
+    private User authByPassword(String user, String rawPassword) {
+        String password = securityManager.hashString(rawPassword);
+        User authUser = userRepository.authByPassword(user, password)
                 .orElseThrow(() -> {
                     increaseFailedCount();
                     return new GeneralException(HttpStatus.UNAUTHORIZED,
                             "Opp! request email or password is something wrong");
                 });
+        return authUser;
+    }
 
+    @Transactional
+    public ResponseEntity<User> authByPasswordAndMfa(AuthRequest request) throws GeneralSecurityException {
+        User authUser = authByPassword(request.getUser(), request.getPassword());
+        this.verifyMFA(authUser, request.getMfa());
         jwtService.createToken(authUser, request, httpServletRequest);
+        return ResponseEntity.ok(authUser);
+    }
+
+    @Transactional
+    public ResponseEntity<User> authByPassword(AuthRequest request) throws GeneralSecurityException {
+        User authUser = authByPassword(request.getUser(), request.getPassword());
+
+        if (!authUser.isMfaEnabled())
+            jwtService.createToken(authUser, request, httpServletRequest);
+        else {
+            this.enableMFA(authUser);
+            throw new GeneralException(HttpStatus.NON_AUTHORITATIVE_INFORMATION, "Sorry! please log in with totp token.");
+        }
 
         return ResponseEntity.ok(authUser);
     }

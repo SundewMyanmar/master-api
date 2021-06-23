@@ -143,6 +143,14 @@
                             </div>
                         </div>
                         <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="clientRole">Client Role Id</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="clientRole" name="clientRole"
+                                       placeholder="Enter Client Role."
+                                       type="text" value="1">
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <label class="col-sm-4 col-form-label" for="tokenLife">Access Token Life</label>
                             <div class="col-sm-8">
                                 <input class="form-control" id="tokenLife" name="tokenLife"
@@ -306,7 +314,7 @@
                 </div>
             </div>
             <div class="card" id="googleCard">
-                <h5 aria-controls="paymentInfo" aria-expanded="true" class="card-header" data-target="#googleInfo"
+                <h5 aria-controls="googleInfo" aria-expanded="true" class="card-header" data-target="#googleInfo"
                     data-toggle="collapse" type="button">
                     Google Info
                 </h5>
@@ -340,6 +348,64 @@
                     </div>
                 </div>
             </div>
+            <div class="card" id="telenorCard">
+                <h5 aria-controls="telenorInfo" aria-expanded="true" class="card-header" data-target="#telenorInfo"
+                    data-toggle="collapse" type="button">
+                    Telenor SMS Gateway Info
+                </h5>
+                <div class="collapse" id="telenorInfo">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="telenorApiURL">API URL</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="telenorApiURL" name="telenorApiURL"
+                                       placeholder="Enter Api URL."
+                                       type="url" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="telenorClientId">Client ID</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="telenorClientId" name="telenorClientId"
+                                       placeholder="Enter Client ID."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="telenorClientSecret">Client Secret</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="telenorClientSecret" name="telenorClientSecret"
+                                       placeholder="Enter Client Secret."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="telenorUserName">User Name</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="telenorUserName" name="telenorUserName"
+                                       placeholder="Enter User Name."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="telenorPassword">Password</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="telenorPassword" name="telenorPassword"
+                                       placeholder="Enter Password."
+                                       type="password" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="telenorSenderId">Sender Id</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="telenorSenderId" name="telenorSenderId"
+                                       placeholder="Enter Sender Id."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="card" id="firebaseCard">
                 <h5 aria-controls="firebaseInfo" aria-expanded="true" class="card-header" data-target="#firebaseInfo"
                     data-toggle="collapse" type="button">
@@ -359,32 +425,6 @@
                             <div class="col-sm-8">
                                 <input class="form-control" id="firebaseJson" name="firebaseJson"
                                        placeholder="Enter Firebase JSON Path" type="text" value="">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card" id="paymentCard">
-                <h5 aria-controls="paymentInfo" aria-expanded="true" class="card-header" data-target="#paymentInfo"
-                    data-toggle="collapse" type="button">
-                    Payment Info
-                </h5>
-                <div class="collapse" id="paymentInfo">
-                    <div class="card-body">
-                        <div class="form-group row">
-                            <label class="col-sm-4 col-form-label" for="callbackUrl">Callback Url</label>
-                            <div class="col-sm-8">
-                                <input class="form-control" id="callbackUrl" name="callbackUrl"
-                                       placeholder="Enter callback url."
-                                       type="text" value="">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-sm-4 col-form-label" for="expiredSeconds">Expired Seconds</label>
-                            <div class="col-sm-8">
-                                <input class="form-control" id="expiredSeconds" name="expiredSeconds"
-                                       placeholder="Enter expired seconds."
-                                       type="text" value="">
                             </div>
                         </div>
                     </div>
@@ -584,6 +624,14 @@
                                        type="text" value="">
                             </div>
                         </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="wavePaySuccessUrl">Success Url</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="wavePaySuccessUrl" name="wavePaySuccessUrl"
+                                       placeholder="Enter success url."
+                                       type="text" value="">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -622,6 +670,71 @@
                             <div class="col-sm-8">
                                 <input class="form-control" id="mpuPayVersion" name="mpuPayVersion"
                                        placeholder="Enter version."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="mpuSuccessUrl">Success Url</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="mpuSuccessUrl" name="mpuSuccessUrl"
+                                       placeholder="Enter success url."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" id="kbzPayCard">
+                <h5 aria-controls="kbzPayInfo" aria-expanded="true" class="card-header" data-target="#kbzPayInfo"
+                    data-toggle="collapse" type="button">
+                    KBZ Pay Info
+                </h5>
+                <div class="collapse" id="kbzPayInfo">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="kbzPayUrl">Url</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="kbzPayUrl" name="kbzPayUrl" placeholder="Enter API url."
+                                       type="url" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="kbzPayVersion">API Version</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="kbzPayVersion" name="kbzPayVersion"
+                                       placeholder="Enter API Version."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="kbzPayMerchantId">Merchant ID</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="kbzPayMerchantId" name="kbzPayMerchantId"
+                                       placeholder="Enter merchant ID."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="kbzPayMerchantName">Merchant Name</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="kbzPayMerchantName" name="kbzPayMerchantName"
+                                       placeholder="Enter merchant Name."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="kbzPayAppId">App ID</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="kbzPayAppId" name="kbzPayAppId"
+                                       placeholder="Enter App ID."
+                                       type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label" for="kbzPaySecret">Secret Key</label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="kbzPaySecret" name="kbzPaySecret"
+                                       placeholder="Enter secret key."
                                        type="text" value="">
                             </div>
                         </div>

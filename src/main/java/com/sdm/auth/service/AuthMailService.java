@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.Constants;
 import com.sdm.admin.model.User;
 import com.sdm.auth.model.request.ActivateRequest;
+import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.model.MailHeader;
 import com.sdm.core.security.AESManager;
 import com.sdm.core.security.SecurityManager;
@@ -15,9 +16,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Map;
 
@@ -37,7 +35,7 @@ public class AuthMailService {
     MailService mailManager;
 
     @Autowired
-    HttpServletRequest servletRequest;
+    SecurityProperties securityProperties;
 
     private static final int OTP_LENGTH = 8;
 
@@ -71,16 +69,24 @@ public class AuthMailService {
 
     @Async
     public void forgetPasswordLink(User user, String contextPath)
-            throws JsonProcessingException, IllegalBlockSizeException, BadPaddingException {
+            throws JsonProcessingException {
         ActivateRequest request = buildRequest(user);
-        String token = aesManager.encrypt(jacksonObjectMapper.writeValueAsString(request), user.getEmail());
+        String token = aesManager.encrypt(jacksonObjectMapper.writeValueAsString(request), securityProperties.getEncryptSalt());
 
-        String link = contextPath + "?token=" + token + "&user=" + user.getEmail();
+        String link = contextPath + "?token=" + Globalizer.encodeUrl(token) + "&user=" + Globalizer.encodeUrl(user.getEmail());
 
         // Send mail with Forget Password Link
         this.sendOtpMail(user, "mail/forget-password",
                 "Forget password activation link.",
                 link);
+    }
+
+    @Async
+    public void enableMFA(User user, String otp) {
+        Map<String, Object> data = Map.of("user", user.getDisplayName(), "current_year", Globalizer.getDateString("yyyy", new Date()),
+                "expire", user.getMfaType().value() / 60, "otp", otp);
+
+        mailManager.sendByTemplate(new MailHeader(user.getEmail(), "Two Factor Verification"), "mail/mfa-verify", data);
     }
 
     @Async

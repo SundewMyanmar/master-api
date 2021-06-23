@@ -1,18 +1,20 @@
 package com.sdm.payment.config.properties;
 
+import com.sdm.core.util.Globalizer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+@Log4j2
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Configuration
 @ConfigurationProperties(prefix = "com.sdm.payment.uab")
-public class UABProperties {
+public class Sai2PayProperties {
     private String url = "http://www.sundewmyanmar.com/";
     private String user = "info@sundewmyanmar.com";
     private String password = "b7tX.~A<J5";
@@ -20,30 +22,28 @@ public class UABProperties {
     private String channel = "SUNDEW_MYANMAR";
     private String appName = "saisaipay";
 
-    @Autowired
-    private PaymentProperties paymentProperties;
-
     public String getLoginUrl() {
-        return paymentProperties.replaceUrl(url + "Ver01/Wallet/Wallet_Login");
+        return (url + "Ver01/Wallet/Wallet_Login");
     }
 
     public String getChangePasswordUrl() {
-        return paymentProperties.replaceUrl(url + "Ver01/Wallet/Wallet_ChangePassword");
+        return (url + "Ver01/Wallet/Wallet_ChangePassword");
     }
 
     public String getCheckPhoneUrl() {
-        return paymentProperties.replaceUrl(url + "Ver01/Wallet/Wallet_CheckPhoneNoAPI");
+        return (url + "Ver01/Wallet/Wallet_CheckPhoneNoAPI");
     }
 
     public String getEnquiryPaymentUrl() {
-        return paymentProperties.replaceUrl(url + "Ver01/Wallet/Wallet_PaymentAPI");
+        return (url + "Ver01/Wallet/Wallet_PaymentAPI");
     }
 
     public String getEnquiryCallbackUrl() {
-        return paymentProperties.replaceUrl(paymentProperties.getCallbackUrl() + "public/payments/sai2/callback");
+        log.info("Sai2Pay CALLBACK=> " + Globalizer.getCurrentContextPath("/public/payments/sai2/callback", true));
+        return Globalizer.getCurrentContextPath("/public/payments/sai2/callback", true);
     }
 
     public String getCheckTransactionStatus() {
-        return paymentProperties.replaceUrl(url + "Ver01/Wallet/Wallet_CheckTransactionStatus");
+        return (url + "Ver01/Wallet/Wallet_CheckTransactionStatus");
     }
 }

@@ -60,7 +60,7 @@ public class GoogleAuthService implements SocialAuthService {
 
         if (pictureUrl != null) {
             try {
-                return fileService.create(pictureUrl, false,true);
+                return fileService.create(pictureUrl, false, true);
             } catch (IOException e) {
                 log.error("GOOGLE_IMAGE_FAIL>>>" + e.getLocalizedMessage());
             }

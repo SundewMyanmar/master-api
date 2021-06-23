@@ -37,12 +37,6 @@ public class RootController implements ErrorController {
     @Autowired
     private SpringTemplateEngine templateEngine;
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public String getErrorPath() {
-        return "/error";
-    }
-
     @GetMapping("")
     public ResponseEntity<MessageResponse> welcome() {
         MessageResponse message = new MessageResponse("Welcome!", "Never give up to be a warrior.");

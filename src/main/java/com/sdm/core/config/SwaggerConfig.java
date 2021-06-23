@@ -99,29 +99,33 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
 
     @Bean
     Docket coreApi() {
-        return this.buildDocket("1. Core", "com.sdm.core");
+        return this.buildDocket("01. Core", "com.sdm.core");
     }
 
     @Bean
     Docket authApi() {
-        return this.buildDocket("2. Auth", "com.sdm.auth");
+        return this.buildDocket("02. Auth", "com.sdm.auth");
     }
 
     @Bean
     Docket adminApi() {
-        return this.buildDocket("3. Admin", "com.sdm.admin");
+        return this.buildDocket("03. Admin", "com.sdm.admin");
     }
 
     @Bean
     Docket fileApi() {
-        return this.buildDocket("4. File", "com.sdm.file");
+        return this.buildDocket("04. File", "com.sdm.file");
     }
 
     @Bean
     Docket notiApi() {
-        return this.buildDocket("5. Notification", "com.sdm.notification");
+        return this.buildDocket("05. Notification", "com.sdm.notification");
     }
 
+    @Bean
+    Docket paymentApi() {
+        return this.buildDocket("06. Payment", "com.sdm.payment");
+    }
 
     @Bean
     Docket allApi() {

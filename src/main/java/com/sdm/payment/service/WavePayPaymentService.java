@@ -3,7 +3,8 @@ package com.sdm.payment.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
-import com.sdm.payment.config.properties.YOMAProperties;
+import com.sdm.core.util.HttpRequestManager;
+import com.sdm.payment.config.properties.WavePayProperties;
 import com.sdm.payment.model.request.wavepay.WavePayPaymentRequest;
 import com.sdm.payment.model.request.wavepay.WavePayResponsePaymentRequest;
 import com.sdm.payment.model.response.wavepay.WavePayPaymentResponse;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -25,41 +27,48 @@ public class WavePayPaymentService {
     private PaymentSecurityManager securityManager;
 
     @Autowired
-    private PaymentService paymentService;
+    private HttpRequestManager httpRequestManager;
 
     @Autowired
-    private YOMAProperties yomaProperties;
+    private WavePayProperties wavePayProperties;
 
     @Autowired
     private ObjectMapper objectMapper;
-    
 
-    private Map<String, String> buildItem(String name, String amount) {
+
+    public Map<String, String> buildItem(String name, String amount) {
         Map<String, String> item = new HashMap<>();
         item.put("name", name);
         item.put("amount", amount);
         return item;
     }
 
-    public WavePayPaymentResponse requestPayment(String orderId, String merchantReferenceId, String amount, String paymentDescription, String items) {
-        WavePayPaymentRequest request = new WavePayPaymentRequest(yomaProperties.getMerchantId(), orderId, merchantReferenceId, yomaProperties.getFrontEndResultUrl(), yomaProperties.getPaymentCallbackUrl()
-                , amount, yomaProperties.getTimeToLiveInSeconds().toString(), paymentDescription, yomaProperties.getMerchantName(), items, "");
-
-        String requestHash = securityManager.generateYOMAHashSHA256(request.getSignatureString());
-        request.setHash(requestHash);
-        String rawUrl = yomaProperties.getPaymentRequestUrl();
-
-        String resultString = "";
-        WavePayPaymentResponse result = new WavePayPaymentResponse();
+    public WavePayPaymentResponse requestPayment(String orderId, String merchantReferenceId, Integer amount, String paymentDescription, List<Map<String, String>> itemList) {
+        String itemListStr = "";
         try {
-            resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), null, true);
-
-            result = objectMapper.readValue(resultString, WavePayPaymentResponse.class);
+            itemListStr = objectMapper.writeValueAsString(itemList);
         } catch (Exception ex) {
             throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
         }
 
-        result.setAuthenticatedUrl(yomaProperties.getPaymentRequestAuthenticateUrl(result.getTransactionId()));
+        WavePayPaymentRequest request = new WavePayPaymentRequest(wavePayProperties.getMerchantId(), orderId, merchantReferenceId, wavePayProperties.getSuccessUrl(), wavePayProperties.getPaymentCallbackUrl()
+                , amount, wavePayProperties.getTimeToLiveInSeconds().toString(), paymentDescription, wavePayProperties.getMerchantName(), itemListStr, "");
+
+        String requestHash = securityManager.generateYOMAHashSHA256(request.getSignatureString());
+        request.setHash(requestHash);
+        String rawUrl = wavePayProperties.getPaymentRequestUrl();
+
+        String resultString = "";
+        WavePayPaymentResponse result = new WavePayPaymentResponse();
+        try {
+            resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), true);
+
+            result = objectMapper.readValue(resultString, WavePayPaymentResponse.class);
+        } catch (Exception ex) {
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, ex.getLocalizedMessage());
+        }
+
+        result.setAuthenticatedUrl(wavePayProperties.getPaymentRequestAuthenticateUrl(result.getTransactionId()));
 
         if (!result.getMessage().equals("success")) {
             log.error("INVALID_YOMA_RESPONSE>>>" + resultString);
@@ -84,6 +93,15 @@ public class WavePayPaymentService {
             throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
         }
 
-        return ResponseEntity.ok(new MessageResponse("SUCCESS", "YOMA Callback is success for transactionId : " + request.getTransactionId()));
+        if (!request.getStatus().equals(WavePayResponsePaymentRequest.PaymentStatus.PAYMENT_CONFIRMED)) {
+            try {
+                log.error("INVALID_YOMA_RESPONSE >>>" + objectMapper.writeValueAsString(request));
+            } catch (Exception ex) {
+                throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            }
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+        }
+
+        return ResponseEntity.ok(new MessageResponse("SUCCESS", "Wave Pay Callback is success for transactionId : " + request.getTransactionId()));
     }
 }

@@ -1,37 +1,37 @@
 package com.sdm.payment.config.properties;
 
+import com.sdm.core.util.Globalizer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+@Log4j2
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Configuration
 @ConfigurationProperties(prefix = "com.sdm.payment.cb")
-public class CBProperties {
+public class CBPayProperties {
     private String url = "http://www.sundewmyanmar.com/";
     private String authToken = "";
     private String ecommerceId = "";
     private String subMerId = "";
     private String currency = "MMK";
 
-    @Autowired
-    private PaymentProperties paymentProperties;
-
     public String getPaymentOrderUrl() {
-        return paymentProperties.replaceUrl(url + "v1/request-payment-order.service");
+        return (url + "v1/request-payment-order.service");
     }
 
     public String getCheckPaymentStatusUrl() {
-        return paymentProperties.replaceUrl(url + "v1/checkstatus-webpayment.service");
+        return (url + "v1/checkstatus-webpayment.service");
     }
 
-    public String getNotifyUrl() {
-        return paymentProperties.replaceUrl(paymentProperties.getCallbackUrl() + "public/payments/cb/callback");
+    public String getPaymentCallbackUrl() {
+        log.info("CB CALLBACK=> " + Globalizer.getCurrentContextPath("/public/payments/cb/callback", true));
+        return Globalizer.getCurrentContextPath("/public/payments/cb/callback", true);
     }
 
     public String getDeepLinkUrl(String id) {

@@ -31,6 +31,6 @@ public class MPUPaymentInquiryRequest implements Serializable {
 
     @JsonIgnore
     private String getSignatureString() {
-        return merchantID + invoiceNo + actionType;
+        return actionType + invoiceNo + merchantID;
     }
 }

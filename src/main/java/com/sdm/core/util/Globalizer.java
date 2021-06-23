@@ -8,11 +8,13 @@ package com.sdm.core.util;
 import com.sdm.Constants;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -25,6 +27,17 @@ import java.util.regex.Pattern;
  * @author Htoonlin
  */
 public class Globalizer {
+    public static String formatDecimal(String format, double amount) {
+        DecimalFormat formatter = new DecimalFormat(format);
+        return formatter.format(amount);
+    }
+
+    public static String formatPrice(Double amount) {
+        if (amount == null) amount = 0.0;
+        //DecimalFormat formatter = new DecimalFormat("#,###.00");
+        DecimalFormat formatter = new DecimalFormat("#,###");
+        return formatter.format(amount);
+    }
 
     public static String camelToReadable(String input) {
         return capitalize(input.replaceAll(String.format("%s|%s|%s", "(?<=[A-Z])(?=[A-Z][a-z])", "(?<=[^A-Z])(?=[A-Z])",
@@ -48,8 +61,11 @@ public class Globalizer {
     }
 
     public static boolean isNullOrEmpty(Object data) {
-        if (data instanceof String) {
-            return data == null || StringUtils.isEmpty(data);
+        if (data != null) {
+            return data.toString().length() <= 0
+                    || data.toString().equalsIgnoreCase("0")
+                    || data.toString().equalsIgnoreCase("0.0")
+                    || data.toString().equalsIgnoreCase("false");
         }
 
         return data == null || ObjectUtils.isEmpty(data);
@@ -79,10 +95,16 @@ public class Globalizer {
 
     //Minus date 1 < date 2
     //Plus date 1 > date 2
-    public static Integer diffDays(Date date1,Date date2){
+    public static Integer diffDays(Date date1, Date date2, boolean isDetail) {
         long diff = diffSeconds(date1, date2);
-        long days = diff / (24 * 60 * 60);
-        return (int) days;
+        double days = diff / (24.0 * 60 * 60);
+        if (isDetail) {
+            if (days < 0)
+                days = Math.floor(days);//-0.123 to be -1
+            else
+                days = Math.ceil(days);//0.123 to be 1
+        }
+        return (int) days;// 0.123 default 0
     }
 
     public static Long diffSeconds(Date date1, Date date2) {
@@ -97,6 +119,36 @@ public class Globalizer {
         cal.setTime(date);
         cal.add(Calendar.SECOND, Integer.parseInt(String.valueOf(seconds)));
         return cal.getTime();
+    }
+
+    public static Date addDate(Date date, int type, int value) {
+        Calendar cal = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
+        cal.setTime(date);
+        cal.add(type, value);
+        return cal.getTime();
+    }
+
+    public static Date addHour(Date date, int hours) {
+        return addDate(date, Calendar.HOUR, hours);
+    }
+
+    public static Date addMinute(Date date, int minutes) {
+        return addDate(date, Calendar.MINUTE, minutes);
+    }
+
+    public static Date addSecond(Date date, int seconds) {
+        return addDate(date, Calendar.SECOND, seconds);
+    }
+
+    public static ServletUriComponentsBuilder getCurrentContextBuilder(boolean forceSsl) {
+        ServletUriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentContextPath();
+        if (forceSsl) builder.scheme("https");
+        return builder;
+    }
+
+    public static String getCurrentContextPath(String path, boolean forceSsl) {
+        ServletUriComponentsBuilder builder = getCurrentContextBuilder(forceSsl);
+        return builder.path(path).toUriString();
     }
 
     public static String getRemoteAddress(HttpServletRequest request) {
@@ -120,7 +172,7 @@ public class Globalizer {
         String passwordChars = "ABCDEFGHIJKLMNOPQRSTUVWHZ";
         passwordChars += passwordChars.toLowerCase();
         passwordChars += "0123456789";
-        passwordChars += "!@#$%^&*()_+-=";
+        passwordChars += "!@#$%^&*";
         return Globalizer.generateToken(passwordChars, length);
     }
 

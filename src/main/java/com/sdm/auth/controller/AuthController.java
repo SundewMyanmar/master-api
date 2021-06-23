@@ -2,6 +2,7 @@ package com.sdm.auth.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sdm.Constants;
 import com.sdm.admin.model.User;
 import com.sdm.admin.repository.UserRepository;
 import com.sdm.auth.model.request.*;
@@ -16,12 +17,15 @@ import com.sdm.core.security.SecurityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 @Controller
 @RequestMapping("/auth")
@@ -50,18 +54,14 @@ public class AuthController {
     @Autowired
     AuthMailService mailService;
 
-    @PostMapping("/test")
-    public ResponseEntity<User> test() {
-        User user = userRepository.findById(1).orElseThrow();
-        user.setEmail("saw.yoetha@gmail.com");
-
-        mailService.welcomeUser(user, "1234", "Hello");
-        return ResponseEntity.ok(user);
+    @PostMapping("")
+    public ResponseEntity<User> authWithEmail(@Valid @RequestBody AuthRequest request) throws GeneralSecurityException {
+        return service.authByPassword(request);
     }
 
-    @PostMapping("")
-    public ResponseEntity<User> authWithEmail(@Valid @RequestBody AuthRequest request) {
-        return service.authByPassword(request);
+    @PostMapping("/verifyMfa")
+    public ResponseEntity<User> authWithEmailAndMfa(@Valid @RequestBody AuthRequest request) throws GeneralSecurityException {
+        return service.authByPasswordAndMfa(request);
     }
 
     @PostMapping("/register")
@@ -95,12 +95,25 @@ public class AuthController {
         }
     }
 
+    @GetMapping(value = "/resetPassword", produces = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public ModelAndView resetPassword(@RequestParam("token") String token,
+                                      @RequestParam("user") String user) throws JsonProcessingException {
+        String activateToken = aesManager.decrypt(token, securityManager.getProperties().getEncryptSalt());
+        ActivateRequest activateRequest = jacksonObjectMapper.readValue(activateToken, ActivateRequest.class);
+        service.resetPasswordMail(activateRequest);
+
+        ModelAndView response = new ModelAndView("auth/reset-password");
+        response.addObject("title", Constants.APP_NAME);
+        response.addObject("email", user);
+        return response;
+    }
+
     @PostMapping("/resetPassword")
     public ResponseEntity<User> resetPasswordWithOtp(@Valid @RequestBody ChangePasswordRequest request) {
         try {
-            String activateToken = aesManager.decrypt(request.getOldPassword(), request.getUser());
+            String activateToken = aesManager.decrypt(request.getOldPassword(), securityManager.getProperties().getEncryptSalt());
             ActivateRequest activateRequest = jacksonObjectMapper.readValue(activateToken, ActivateRequest.class);
-            return service.resetPasswordByOtp(request, activateRequest);
+            return service.resetPasswordJson(request, activateRequest);
         } catch (Exception ex) {
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }

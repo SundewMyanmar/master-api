@@ -12,8 +12,8 @@ import com.google.firebase.messaging.*;
 import com.sdm.admin.model.User;
 import com.sdm.auth.model.Token;
 import com.sdm.auth.repository.TokenRepository;
-import com.sdm.core.config.properties.FireBaseProperties;
 import com.sdm.core.util.Globalizer;
+import com.sdm.notification.config.properties.FireBaseProperties;
 import com.sdm.notification.model.Notification;
 import com.sdm.notification.repository.NotificationRepository;
 import lombok.extern.log4j.Log4j2;
@@ -65,6 +65,21 @@ public class CloudMessagingService {
         }
     }
 
+    private WebpushConfig webpushConfig(Integer badgeCount, String category) {
+        WebpushNotification.Builder builder = WebpushNotification.builder();
+        if (!StringUtils.isEmpty(category)) {
+            builder.setTag(category);
+        }
+
+        if (badgeCount > 0) {
+            builder.setBadge(badgeCount.toString());
+        }
+
+        return WebpushConfig.builder()
+                .setNotification(builder.build())
+                .build();
+    }
+
     private AndroidConfig androidConfig(String category) {
         AndroidNotification.Builder builder = AndroidNotification.builder();
         if (!StringUtils.isEmpty(ANDROID_COLOR)) {
@@ -112,11 +127,15 @@ public class CloudMessagingService {
 
     public void sendUserMessage(Notification notification) {
         List<String> fcmTokens = getFcmTokens(notification.getUser());
+        if (fcmTokens != null && fcmTokens.size() <= 0)
+            return;
+
         Integer badgeCount = repository.unreadCount(notification.getUser().getId());
 
         MulticastMessage message = MulticastMessage.builder()
                 .putAllData(notification.getData())
                 .setNotification(notification.buildFCM())
+                .setWebpushConfig(webpushConfig(badgeCount + 1, notification.getCategory()))
                 .setAndroidConfig(androidConfig(notification.getCategory()))
                 .setApnsConfig(iosConfig(badgeCount + 1, notification.getCategory()))
                 .addAllTokens(fcmTokens)

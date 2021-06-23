@@ -1,4 +1,4 @@
-package com.sdm.core.config.properties;
+package com.sdm.notification.config.properties;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

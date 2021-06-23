@@ -1,54 +1,76 @@
 package com.sdm.payment.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sdm.core.security.AESManager;
-import com.sdm.payment.config.properties.MPUProperties;
-import com.sdm.payment.model.request.mpu.CurrencyCode;
-import com.sdm.payment.model.request.mpu.MPUPaymentRequest;
-import com.sdm.payment.model.response.mpu.MPUPaymentResponse;
+import com.sdm.core.exception.GeneralException;
+import com.sdm.core.model.response.MessageResponse;
+import com.sdm.core.util.Globalizer;
+import com.sdm.payment.model.request.mpu.MPUPaymentInquiryResponseRequest;
 import com.sdm.payment.util.PaymentSecurityManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.io.IOException;
-import java.net.URL;
-import java.security.InvalidKeyException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-@Service
 @Log4j2
+@Service
 public class MPUPaymentService {
     @Autowired
     private PaymentSecurityManager securityManager;
 
     @Autowired
-    private PaymentService paymentService;
-
-    @Autowired
-    private MPUProperties mpuProperties;
-
-    @Autowired
-    private AESManager aesManager;
-    
-    @Autowired
     private ObjectMapper objectMapper;
 
-    public MPUPaymentResponse requestPayment(String invoiceNo, String productDesc, Long amount, CurrencyCode currencyCode, String categoryCode,
-                                             String userDefined1, String userDefined2, String userDefined3, String cardInfo) throws IOException, NoSuchAlgorithmException, KeyManagementException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException {
-        String encryptCardInfo = aesManager.encrypt(cardInfo, mpuProperties.getSecretKey());
-        MPUPaymentRequest request = new MPUPaymentRequest(mpuProperties.getVersion(), mpuProperties.getMerchantId(), invoiceNo, productDesc, amount, currencyCode.getValue(), categoryCode,
-                userDefined1, userDefined2, userDefined3, encryptCardInfo, mpuProperties.getDirectPaymentCallbackUrl(), mpuProperties.getDirectPaymentCallbackUrl(), "");
-        request.setHashValue(securityManager.generateMPUHashHmac(request.getSignatureString()));
-        String rawUrl = mpuProperties.getPaymentRequestUrl();
+    public ResponseEntity<?> paymentRequestCallback(MPUPaymentInquiryResponseRequest request) {
+        List<String> hashBuilder = new ArrayList<>();
+        for (Field field : request.getClass().getDeclaredFields()) {
+            if (field.getName().equals("hashValue") || field.getName().equals("serialVersionUID")) {
+                continue;
+            }
+            field.setAccessible(true);
 
-        String resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), null, true);
-        MPUPaymentResponse result = objectMapper.readValue(resultString, MPUPaymentResponse.class);
+            try {
+                Object value = field.get(request);
+                if (!Globalizer.isNullOrEmpty(value)) {
+                    hashBuilder.add(value.toString());
+                }
+            } catch (IllegalAccessException ex) {
+                log.warn(ex.getLocalizedMessage());
+            }
+        }
 
-        return result;
+        String[] values = new String[hashBuilder.size()];
+        Arrays.sort(hashBuilder.toArray(values));
+
+        String hashString = "";
+        for (String value : values) {
+            hashString += value;
+        }
+        String hash = securityManager.generateMPUHashHmac(hashString);
+        if (!hash.equals(request.getHashValue())) {
+            writeLog(request);
+
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
+        }
+
+        if (!request.getRespCode().equals("00")) {
+            writeLog(request);
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+        }
+        return ResponseEntity.ok(new MessageResponse("SUCCESS", "MPU Callback is success for transactionId : " + request.getInvoiceNo()));
+    }
+
+
+    private void writeLog(MPUPaymentInquiryResponseRequest request) {
+        try {
+            log.error("INVALID_MPU_RESPONSE >>>" + objectMapper.writeValueAsString(request));
+        } catch (Exception ex) {
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+        }
     }
 }

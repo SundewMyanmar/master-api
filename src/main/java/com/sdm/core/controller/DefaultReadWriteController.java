@@ -16,7 +16,9 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
-public abstract class DefaultReadWriteController<T extends DefaultEntity, ID extends Serializable> extends DefaultReadController<T, ID> implements ReadWriteController<T, ID> {
+public abstract class DefaultReadWriteController<T extends DefaultEntity, ID extends Serializable>
+        extends DefaultReadController<T, ID>
+        implements ReadController<T, ID>, WriteController<T, ID> {
 
     @Override
     public ResponseEntity<T> create(@Valid T body) {
@@ -56,8 +58,8 @@ public abstract class DefaultReadWriteController<T extends DefaultEntity, ID ext
     public ResponseEntity<MessageResponse> remove(ID id) {
         T existEntity = this.checkData(id);
         getRepository().softDelete(existEntity);
-        MessageResponse message = new MessageResponse(HttpStatus.OK, "successfully_deleted",
-                "Deleted data on your request by : " + id.toString(), null);
+        MessageResponse message = new MessageResponse("DELETED",
+                "Deleted data on your request by : " + id.toString());
         return ResponseEntity.ok(message);
     }
 

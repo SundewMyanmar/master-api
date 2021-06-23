@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Searchable;
+import com.sdm.core.util.Globalizer;
 import com.sdm.file.service.FileService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,8 +18,6 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
-import org.springframework.util.StringUtils;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -125,17 +124,19 @@ public class File extends DefaultEntity implements Serializable {
     public Map<String, String> getUrls() {
         Map<String, String> urls = new HashMap<>();
         if (this.publicAccess) {
-            urls.put("public", ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/public/files/")
-                    .path(this.id + "/")
-                    .path(this.name + "." + this.extension)
-                    .toUriString());
+            urls.put("public",
+                    Globalizer.getCurrentContextBuilder(true)
+                            .path("/public/files/")
+                            .path(this.id + "/")
+                            .path(this.name + "." + this.extension)
+                            .toUriString());
         } else {
-            urls.put("private", ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/files/download/")
-                    .path(this.id + "/")
-                    .path(this.name + "." + this.extension)
-                    .toUriString());
+            urls.put("private",
+                    Globalizer.getCurrentContextBuilder(true)
+                            .path("/files/download/")
+                            .path(this.id + "/")
+                            .path(this.name + "." + this.extension)
+                            .toUriString());
         }
 
         return urls;

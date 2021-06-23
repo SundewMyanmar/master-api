@@ -54,18 +54,23 @@ public class BarCodeManager {
         ImageIO.write(image, FILE_TYPE, output);
     }
 
-    public void createBarcode(OutputStream output, BarcodeFormat format, String content, int width, int height)
+    public void createBarcode(OutputStream output, BarcodeFormat format, String content, int width, int height, boolean noMargin)
             throws WriterException, IOException {
-        Hashtable<EncodeHintType, ErrorCorrectionLevel> hintMap = new Hashtable<>();
+        Hashtable<EncodeHintType, Object> hintMap = new Hashtable<>();
         hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+        if (noMargin)
+            hintMap.put(EncodeHintType.MARGIN, 0);
+
         MultiFormatWriter codeWriter = new MultiFormatWriter();
         BitMatrix byteMatrix = codeWriter.encode(content, format, width, height, hintMap);
         imageWriter(output, byteMatrix);
     }
 
-    public void createQR(OutputStream output, String content, int size) throws WriterException, IOException {
-        Hashtable<EncodeHintType, ErrorCorrectionLevel> hintMap = new Hashtable<>();
+    public void createQR(OutputStream output, String content, int size, boolean noMargin) throws WriterException, IOException {
+        Hashtable<EncodeHintType, Object> hintMap = new Hashtable<>();
         hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+        if (noMargin)
+            hintMap.put(EncodeHintType.MARGIN, 0);
         QRCodeWriter codeWriter = new QRCodeWriter();
         BitMatrix byteMatrix = codeWriter.encode(content, BarcodeFormat.QR_CODE, size, size, hintMap);
         imageWriter(output, byteMatrix);

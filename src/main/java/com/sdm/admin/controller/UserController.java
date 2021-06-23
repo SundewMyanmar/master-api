@@ -6,7 +6,7 @@ import com.sdm.auth.model.request.ChangePasswordRequest;
 import com.sdm.auth.repository.TokenRepository;
 import com.sdm.auth.service.AuthMailService;
 import com.sdm.core.controller.DefaultReadController;
-import com.sdm.core.controller.ReadWriteController;
+import com.sdm.core.controller.WriteController;
 import com.sdm.core.db.repository.DefaultRepository;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.ListResponse;
@@ -28,7 +28,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/users")
-public class UserController extends DefaultReadController<User, Integer> implements ReadWriteController<User, Integer> {
+public class UserController extends DefaultReadController<User, Integer> implements WriteController<User, Integer> {
 
     @Autowired
     private UserRepository userRepository;

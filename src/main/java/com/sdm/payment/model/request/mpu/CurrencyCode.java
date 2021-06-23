@@ -1,7 +1,11 @@
 package com.sdm.payment.model.request.mpu;
 
+/**
+ * Standard ISO4217
+ * Currency Codes
+ */
 public enum CurrencyCode {
-    MYANMAR_KYAT(104);
+    MMK(104);
 
     Integer value;
 

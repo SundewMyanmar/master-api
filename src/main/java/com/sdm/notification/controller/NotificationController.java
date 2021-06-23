@@ -95,5 +95,4 @@ public class NotificationController extends DefaultReadController<Notification, 
         MessageResponse message = new MessageResponse(HttpStatus.OK, "Sent notification on your request.");
         return new ResponseEntity<>(message, HttpStatus.CREATED);
     }
-
 }

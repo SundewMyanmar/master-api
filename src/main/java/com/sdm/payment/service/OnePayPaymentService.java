@@ -2,8 +2,8 @@ package com.sdm.payment.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
-import com.sdm.payment.config.properties.AGDProperties;
-import com.sdm.payment.config.properties.PaymentProperties;
+import com.sdm.core.util.HttpRequestManager;
+import com.sdm.payment.config.properties.OnePayProperties;
 import com.sdm.payment.model.request.onepay.OnePayCheckTransactionRequest;
 import com.sdm.payment.model.request.onepay.OnePayDirectPaymentRequest;
 import com.sdm.payment.model.request.onepay.OnePayResponseDirectPaymentRequest;
@@ -27,14 +27,11 @@ public class OnePayPaymentService {
     private PaymentSecurityManager securityManager;
 
     @Autowired
-    private PaymentService paymentService;
+    private HttpRequestManager httpRequestManager;
 
     @Autowired
-    private AGDProperties agdProperties;
+    private OnePayProperties agdProperties;
 
-    @Autowired
-    private PaymentProperties paymentProperties;
-    
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -46,7 +43,7 @@ public class OnePayPaymentService {
         String resultString = "";
         OnePayVerifyPhResponse result = new OnePayVerifyPhResponse();
         try {
-            resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), null, false);
+            resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), false);
             result = objectMapper.readValue(resultString, OnePayVerifyPhResponse.class);
         } catch (Exception ex) {
             throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
@@ -67,15 +64,18 @@ public class OnePayPaymentService {
         return result;
     }
 
-    public OnePayDirectPaymentResponse directPayment(String invoiceNo, String sequenceNo, String amount, String remark, String walletUserId) {
-        OnePayDirectPaymentRequest request = new OnePayDirectPaymentRequest(agdProperties.getVersion(), agdProperties.getChannel(), agdProperties.getUser(), invoiceNo, sequenceNo, amount, remark, walletUserId, agdProperties.getDirectPaymentCallbackUrl(), paymentProperties.getExpiredSeconds(), "");
+    public OnePayDirectPaymentResponse requestPayment(String invoiceNo, String sequenceNo, String amount, String remark, String walletUserId) {
+        OnePayDirectPaymentRequest request = new OnePayDirectPaymentRequest(agdProperties.getVersion(), agdProperties.getChannel(),
+                agdProperties.getUser(), invoiceNo, sequenceNo, amount, remark, walletUserId,
+                agdProperties.getPaymentCallbackUrl(),
+                300, "");
         request.setHashValue(securityManager.generateAGDHashHMac(request.getSignatureString()));
         String rawUrl = agdProperties.getDirectPaymentUrl();
 
         String resultString = "";
         OnePayDirectPaymentResponse result = new OnePayDirectPaymentResponse();
         try {
-            resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), null, false);
+            resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), false);
             result = objectMapper.readValue(resultString, OnePayDirectPaymentResponse.class);
         } catch (Exception ex) {
             throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
@@ -104,15 +104,23 @@ public class OnePayPaymentService {
         return item;
     }
 
+    private void writeLog(OnePayResponseDirectPaymentRequest request) {
+        try {
+            log.error("INVALID_AGD_RESPONSE >>>" + objectMapper.writeValueAsString(request));
+        } catch (Exception ex) {
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+        }
+    }
+
     public OnePayResponseDirectPaymentResponse directPaymentCallback(OnePayResponseDirectPaymentRequest request, List<Map<String, String>> itemList) {
         String requestHash = securityManager.generateAGDHashHMac(request.getSignatureString());
         if (!requestHash.equals(request.getHashValue())) {
-            try {
-                log.error("INVALID_AGD_RESPONSE >>>" + objectMapper.writeValueAsString(request));
-            } catch (Exception ex) {
-                throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
-            }
+            writeLog((request));
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
+        }
 
+        if (!request.getTransactionStatus().equals(ApiResponseStatus.SUCCESS.getValue())) {
+            writeLog((request));
             throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
         }
 
@@ -141,7 +149,7 @@ public class OnePayPaymentService {
         String resultString = "";
         OnePayCheckTransactionResponse result = new OnePayCheckTransactionResponse();
         try {
-            resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), null, false);
+            resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), false);
             result = objectMapper.readValue(resultString, OnePayCheckTransactionResponse.class);
         } catch (Exception ex) {
             throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");

@@ -24,7 +24,8 @@ public class MessengerController {
 
     @GetMapping("")
     public ResponseEntity<String> verifyWebhook(@RequestParam("hub.mode") String mode,
-                                                @RequestParam("hub.verify_token") String verify_token, @RequestParam("hub.challenge") String challenge) {
+                                                @RequestParam("hub.verify_token") String verify_token,
+                                                @RequestParam("hub.challenge") String challenge) {
         if (mode.equalsIgnoreCase("subscribe") && verify_token.equalsIgnoreCase(this.properties.getWebhookToken())) {
             log.info("Facebook messenger platform verification success <" + challenge + ">.");
             return ResponseEntity.ok(challenge);

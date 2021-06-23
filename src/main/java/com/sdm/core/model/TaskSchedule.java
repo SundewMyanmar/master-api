@@ -35,7 +35,7 @@ public class TaskSchedule implements Serializable {
     /**
      * Generator: http://www.cronmaker.com/
      */
-    private ScheduleBuilder schedule;
+    private ScheduleBuilder<?> schedule;
 
     private Date startAt;
 
@@ -61,7 +61,7 @@ public class TaskSchedule implements Serializable {
 
     public Trigger buildTrigger(JobDetail jobDetail) {
         String group = this.name + TRIGGER_SUFFIX;
-        TriggerBuilder builder = TriggerBuilder.newTrigger()
+        TriggerBuilder<?> builder = TriggerBuilder.newTrigger()
                 .forJob(jobDetail)
                 .withIdentity(jobDetail.getKey().getName(), group)
                 .withDescription(this.description)

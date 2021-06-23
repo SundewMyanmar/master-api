@@ -23,6 +23,5 @@ public class ForgetPasswordRequest {
     @Size(max = 255)
     private String email;
 
-    @NotBlank
     private String callback;
 }

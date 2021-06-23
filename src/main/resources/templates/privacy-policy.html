@@ -141,6 +141,6 @@
             </ul>                                
 
         </div>
-<th:block th:replace="base :: footer_scripts(_)"/>
+<th:block th:replace="base :: footer_scripts(${#dates.year(#dates.createNow())},_)"/>
     </body>
 </html>

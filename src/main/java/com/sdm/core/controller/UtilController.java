@@ -51,7 +51,7 @@ public class UtilController {
         return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "GENERATE", generated, null));
     }
 
-    @GetMapping("/encryptProperty")
+    //    @GetMapping("/encryptProperty")
     public ResponseEntity<MessageResponse> encryptProperty(@RequestParam("input") String input) {
         String encrypted = "ENC(" + appConfig.stringEncryptor().encrypt(input) + ")";
         return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "ENCRYPTED", encrypted, null));
@@ -62,12 +62,13 @@ public class UtilController {
             @PathVariable("type") BarcodeFormat format,
             @RequestParam("input") String input,
             @RequestParam(value = "width", required = false, defaultValue = "128") int width,
-            @RequestParam(value = "height", required = false, defaultValue = "48") int height) throws IOException, WriterException {
+            @RequestParam(value = "height", required = false, defaultValue = "48") int height,
+            @RequestParam(value = "noMargin", required = false, defaultValue = "false") boolean noMargin) throws IOException, WriterException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         if (format == BarcodeFormat.QR_CODE) {
-            barCodeManager.createQR(outputStream, input, width);
+            barCodeManager.createQR(outputStream, input, width, noMargin);
         } else {
-            barCodeManager.createBarcode(outputStream, format, input, width, height);
+            barCodeManager.createBarcode(outputStream, format, input, width, height, noMargin);
         }
 
         String filename = input + ".png";

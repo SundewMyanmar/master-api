@@ -30,7 +30,7 @@ public class WavePayPaymentRequest implements Serializable {
     private String backendResultUrl;
 
     @JsonProperty("amount")
-    private String amount;
+    private Integer amount;
 
     @JsonProperty("time_to_live_in_seconds")
     private String timeToLiveInSeconds;

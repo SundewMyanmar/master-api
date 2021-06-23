@@ -159,7 +159,7 @@ public class FileService {
         rawEntity.setFileSize(conn.getContentLength());
         rawEntity.setStatus(File.Status.STORAGE);
 
-        if(isHidden)rawEntity.setStatus(File.Status.HIDDEN);
+        if (isHidden) rawEntity.setStatus(File.Status.HIDDEN);
 
         String storagePath = Globalizer.getDateString("/yyyy/MM/", new Date());
         String storageName = rawEntity.getId();
@@ -201,7 +201,7 @@ public class FileService {
 
         rawEntity.setFileSize(uploadFile.getSize());
         rawEntity.setStatus(File.Status.STORAGE);
-        if(isHidden)rawEntity.setStatus(File.Status.HIDDEN);
+        if (isHidden) rawEntity.setStatus(File.Status.HIDDEN);
 
         String storagePath = Globalizer.getDateString("/yyyy/MM/", new Date());
         String storageName = rawEntity.getId();
@@ -238,12 +238,14 @@ public class FileService {
         byte[] data;
         try {
             Path savedPath;
+            //Independent File Separator
+            String storagePath = downloadEntity.getStoragePath();//.replaceAll("[\\\\/]", java.io.File.separator);
             // If it is image and include dimension, it will process image on dimension
             if (downloadEntity.getType().contains("image")) {
                 String imageFile = size.name().toLowerCase() + "." + downloadEntity.getExtension();
-                savedPath = Paths.get(this.fileUploadedPath, downloadEntity.getStoragePath(), imageFile).normalize();
+                savedPath = Paths.get(this.fileUploadedPath, storagePath, imageFile).normalize();
             } else {
-                savedPath = Paths.get(this.fileUploadedPath, downloadEntity.getStoragePath()).normalize();
+                savedPath = Paths.get(this.fileUploadedPath, storagePath).normalize();
             }
             data = Files.readAllBytes(savedPath);
         } catch (IOException ex) {

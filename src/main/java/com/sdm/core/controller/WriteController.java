@@ -14,8 +14,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public interface ReadWriteController<T, ID extends Serializable> extends ReadController<T, ID> {
-
+public interface WriteController<T, ID extends Serializable> {
 
     @ApiOperation(value = "Create New Data", notes = "Create new data by JSON Object.")
     @ApiResponses({

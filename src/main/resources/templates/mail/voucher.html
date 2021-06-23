@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+    <title>Linn Myanmar</title>
+</head>
+<body>
+<div
+        style="
+        box-shadow: 3px 3px 5px #666;
+        border: 1px solid #609547;
+        border-radius: 3px;
+        font-family: arial;
+        background-color: white;
+      "
+>
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+            <td width="50%">&nbsp;</td>
+            <td align="center">
+                <a name="JR_PAGE_ANCHOR_0_1"></a>
+                <table
+                        border="0"
+                        cellpadding="0"
+                        cellspacing="0"
+                        class="jrPage"
+                        style="
+                empty-cells: show;
+                width: 595px;
+                border-collapse: collapse;
+                background-color: white;
+              "
+                >
+                    <tr style="height: 0" valign="top">
+                        <td style="width: 20px"></td>
+                        <td style="width: 554px"></td>
+                        <td style="width: 21px"></td>
+                    </tr>
+                    <tr style="height: 20px" valign="top">
+                        <td colspan="3"></td>
+                    </tr>
+
+                    <!--Voucher Header-->
+                    <tr style="height: 170px" valign="top">
+                        <td></td>
+                        <td>
+                            <div style="width: 100%; height: 100%; position: relative">
+                                <div
+                                        style="
+                        position: relative;
+                        width: 100%;
+                        height: 100%;
+                        pointer-events: none;
+                      "
+                                >
+                                    <table
+                                            border="0"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            style="
+                          empty-cells: show;
+                          width: 100%;
+                          border-collapse: collapse;
+                        "
+                                    >
+                                        <tr style="height: 0" valign="top">
+                                            <td style="width: 80px"></td>
+                                            <td style="width: 260px"></td>
+                                            <td style="width: 14px"></td>
+                                            <td style="width: 26px"></td>
+                                            <td style="width: 46px"></td>
+                                            <td style="width: 120px"></td>
+                                            <td style="width: 8px"></td>
+                                        </tr>
+                                        <tr style="height: 11px" valign="top">
+                                            <td colspan="7"></td>
+                                        </tr>
+                                        <tr style="height: 22px" valign="top">
+                                            <td
+                                                    colspan="4"
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 16px;
+                                line-height: 1.2578125;
+                                font-weight: bold;
+                              "
+                            >INVOICE</span
+                            >
+                                            </td>
+                                            <td></td>
+                                            <td rowspan="5" style="pointer-events: auto">
+                                                <img
+                                                        alt=""
+                                                        src="https://admin.linnmyanmar.com.mm/images/linn-mm-cover.png"
+                                                        style="width: 120px"
+                                                />
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                        <tr style="height: 20px" valign="top">
+                                            <td
+                                                    colspan="4"
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 12px;
+                                line-height: 1.2578125;
+                                font-weight: bold;
+                              "
+                            >Bill to</span
+                            >
+                                            </td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr style="height: 16px" valign="top">
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                            >Date</span
+                            >
+                                            </td>
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                                    th:text="${voucherDate}"
+                            ></span>
+                                            </td>
+                                            <td colspan="3"></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr style="height: 16px" valign="top">
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                            >Invoice No</span
+                            >
+                                            </td>
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                                    th:text="${invoiceNo}"
+                            ></span>
+                                            </td>
+                                            <td colspan="3"></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr style="height: 16px" valign="top">
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                            >Name</span
+                            >
+                                            </td>
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                                    th:text="${customerName}"
+                            ></span>
+                                            </td>
+                                            <td colspan="3"></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr style="height: 32px" valign="top">
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                            >Address</span
+                            >
+                                            </td>
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                                    th:text="${customerAddress}"
+                            ></span>
+                                            </td>
+                                            <td></td>
+                                            <td
+                                                    colspan="4"
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: right;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                            >No.700, Myittar Rd, South Okkalapa Tsp, Yangon,
+                              Myanmar</span
+                            >
+                                            </td>
+                                        </tr>
+                                        <tr style="height: 16px" valign="top">
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                            >Email</span
+                            >
+                                            </td>
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                                    th:text="${customerEmail}"
+                            ></span>
+                                            </td>
+                                            <td></td>
+                                            <td
+                                                    colspan="4"
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: right;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                            >09-431 27366, 09-78 5157015</span
+                            >
+                                            </td>
+                                        </tr>
+                                        <tr style="height: 16px" valign="top">
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                            >Phone No</span
+                            >
+                                            </td>
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                                    th:text="${customerPhone}"
+                            ></span>
+                                            </td>
+                                            <td></td>
+                                            <td
+                                                    colspan="4"
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              text-align: right;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                            >contact@linnmyanmar.com.mm</span
+                            >
+                                            </td>
+                                        </tr>
+                                        <tr style="height: 5px" valign="top">
+                                            <td colspan="7"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                        <td></td>
+                    </tr>
+
+                    <!--Voucher Body-->
+                    <tr style="height: 25px" valign="top">
+                        <td></td>
+                        <td>
+                            <div style="width: 100%; height: 100%; position: relative">
+                                <div
+                                        style="
+                        position: absolute;
+                        overflow: hidden;
+                        width: 100%;
+                        height: 100%;
+                      "
+                                >
+                                    <table
+                                            border="0"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            style="
+                          empty-cells: show;
+                          width: 100%;
+                          border-collapse: collapse;
+                        "
+                                    >
+                                        <tr style="height: 0" valign="top">
+                                            <td style="width: 554px"></td>
+                                        </tr>
+                                        <tr style="height: 25px" valign="top">
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              background-color: #ffffff;
+                            "
+                                            ></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div
+                                        style="
+                        position: relative;
+                        width: 100%;
+                        height: 100%;
+                        pointer-events: none;
+                      "
+                                >
+                                    <table
+                                            border="0"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            style="
+                          empty-cells: show;
+                          width: 100%;
+                          border-collapse: collapse;
+                        "
+                                    >
+                                        <tr style="height: 0" valign="top">
+                                            <td style="width: 280px"></td>
+                                            <td style="width: 110px"></td>
+                                            <td style="width: 54px"></td>
+                                            <td style="width: 110px"></td>
+                                        </tr>
+                                        <tr style="height: 24px" valign="top">
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              border-top: 3px solid #89b874;
+                              border-bottom: 3px solid #89b874;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              vertical-align: middle;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 12px;
+                                line-height: 1.2578125;
+                                font-weight: bold;
+                              "
+                            >Description</span
+                            >
+                                            </td>
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              border-top: 3px solid #89b874;
+                              border-bottom: 3px solid #89b874;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              vertical-align: middle;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 12px;
+                                line-height: 1.2578125;
+                                font-weight: bold;
+                              "
+                            >Price</span
+                            >
+                                            </td>
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              border-top: 3px solid #89b874;
+                              border-bottom: 3px solid #89b874;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              vertical-align: middle;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 12px;
+                                line-height: 1.2578125;
+                                font-weight: bold;
+                              "
+                            >Qty</span
+                            >
+                                            </td>
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              border-top: 3px solid #89b874;
+                              border-bottom: 3px solid #89b874;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              vertical-align: middle;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 12px;
+                                line-height: 1.2578125;
+                                font-weight: bold;
+                              "
+                            >Amount</span
+                            >
+                                            </td>
+                                        </tr>
+                                        <tr style="height: 1px" valign="top">
+                                            <td colspan="4"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                        <td></td>
+                    </tr>
+
+                    <!--Voucher Detail-->
+                    <!--TODO: loop items-->
+
+                    <tr style="height: 25px" valign="top">
+                        <td></td>
+                        <td>
+                            <div style="width: 100%; height: auto; position: relative">
+
+                                <div
+                                        style="
+                        position: relative;
+                        width: 100%;
+                        height: 100%;
+                        pointer-events: none;
+                      "
+                                >
+                                    <table
+                                            border="0"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            style="
+                          empty-cells: show;
+                          width: 100%;
+                          border-collapse: collapse;
+                        "
+                                    >
+                                        <tr style="height: 0" valign="top">
+                                            <td style="width: 280px"></td>
+                                            <td style="width: 110px"></td>
+                                            <td style="width: 54px"></td>
+                                            <td style="width: 110px"></td>
+                                        </tr>
+                                        <th:block th:each="item,iter : ${items}">
+                                            <tr th:style='${item.get("color")}' valign="top">
+                                                <td
+                                                        style="
+                                pointer-events: auto;
+                                padding-left: 4px;
+                                padding-right: 4px;
+                                text-indent: 0px;
+                                vertical-align: middle;
+                                text-align: left;
+                              "
+                                                >
+                              <span
+                                      style="
+                                  font-family: 'DejaVu Sans', Arial, Helvetica,
+                                    sans-serif;
+                                  color: #000000;
+                                  font-size: 10px;
+                                  line-height: 1.2578125;
+                                "
+                                      th:text='${item.get("name")}'
+                              ></span>
+                                                </td>
+                                                <td
+                                                        style="
+                                pointer-events: auto;
+                                padding-left: 4px;
+                                padding-right: 4px;
+                                text-indent: 0px;
+                                vertical-align: middle;
+                                text-align: left;
+                              "
+                                                >
+                              <span
+                                      style="
+                                  font-family: 'DejaVu Sans', Arial, Helvetica,
+                                    sans-serif;
+                                  color: #000000;
+                                  font-size: 10px;
+                                  line-height: 1.2578125;
+                                "
+                                      th:text='${item.get("price")}'
+                              ></span>
+                                                </td>
+                                                <td
+                                                        style="
+                                pointer-events: auto;
+                                padding-left: 4px;
+                                padding-right: 4px;
+                                text-indent: 0px;
+                                vertical-align: middle;
+                                text-align: left;
+                              "
+                                                >
+                              <span
+                                      style="
+                                  font-family: 'DejaVu Sans', Arial, Helvetica,
+                                    sans-serif;
+                                  color: #000000;
+                                  font-size: 10px;
+                                  line-height: 1.2578125;
+                                "
+                                      th:text='${item.get("qty")}'
+                              ></span>
+                                                </td>
+                                                <td
+                                                        style="
+                                pointer-events: auto;
+                                padding-left: 4px;
+                                padding-right: 4px;
+                                text-indent: 0px;
+                                vertical-align: middle;
+                                text-align: left;
+                              "
+                                                >
+                              <span
+                                      style="
+                                  font-family: 'DejaVu Sans', Arial, Helvetica,
+                                    sans-serif;
+                                  color: #000000;
+                                  font-size: 10px;
+                                  line-height: 1.2578125;
+                                "
+                                      th:text='${item.get("amount")}'
+                              ></span>
+                                                </td>
+                                            </tr>
+                                        </th:block>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                        <td></td>
+                    </tr>
+
+                    <!--TODO: calculate space-->
+
+                    <tr style="height: 242px" valign="top">
+                        <td></td>
+                        <td>
+                            <div style="width: 100%; height: 100%; position: relative">
+                                <div
+                                        style="
+                        position: absolute;
+                        overflow: hidden;
+                        width: 100%;
+                        height: 100%;
+                      "
+                                >
+                                    <table
+                                            border="0"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            style="
+                          empty-cells: show;
+                          width: 100%;
+                          border-collapse: collapse;
+                        "
+                                    >
+                                        <tr style="height: 0" valign="top">
+                                            <td style="width: 554px"></td>
+                                        </tr>
+                                        <tr style="height: 242px" valign="top">
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              background-color: #ffffff;
+                            "
+                                            ></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div
+                                        style="
+                        position: relative;
+                        width: 100%;
+                        height: 100%;
+                        pointer-events: none;
+                      "
+                                >
+                                    <table
+                                            border="0"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            style="
+                          empty-cells: show;
+                          width: 100%;
+                          border-collapse: collapse;
+                        "
+                                    >
+                                        <tr style="height: 0" valign="top">
+                                            <td style="width: 20px"></td>
+                                            <td style="width: 80px"></td>
+                                            <td style="width: 180px"></td>
+                                            <td style="width: 74px"></td>
+                                            <td style="width: 36px"></td>
+                                            <td style="width: 53px"></td>
+                                            <td style="width: 1px"></td>
+                                            <td style="width: 1px"></td>
+                                            <td style="width: 109px"></td>
+                                        </tr>
+
+                                        <!--Table Footer-->
+                                        <tr style="height: 24px" valign="top">
+                                            <td
+                                                    colspan="3"
+                                                    style="
+                              pointer-events: auto;
+                              border-top: 3px solid #89b874;
+                              border-bottom: 3px solid #89b874;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              vertical-align: middle;
+                              text-align: left;
+                            "
+                                            ></td>
+                                            <td
+                                                    colspan="2"
+                                                    style="
+                              pointer-events: auto;
+                              border-top: 3px solid #89b874;
+                              border-bottom: 3px solid #89b874;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              vertical-align: middle;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 12px;
+                                line-height: 1.2578125;
+                                font-weight: bold;
+                              "
+                            >Total</span
+                            >
+                                            </td>
+                                            <td
+                                                    colspan="3"
+                                                    style="
+                              pointer-events: auto;
+                              border-top: 3px solid #8ab775;
+                              border-bottom: 3px solid #8ab775;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              vertical-align: middle;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 12px;
+                                line-height: 1.2578125;
+                                font-weight: bold;
+                              "
+                                    th:text="${totalQty}"
+                            ></span>
+                                            </td>
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              border-top: 3px solid #8ab775;
+                              border-bottom: 3px solid #8ab775;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              vertical-align: middle;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 12px;
+                                line-height: 1.2578125;
+                                font-weight: bold;
+                              "
+                                    th:text="${totalAmount}"
+                            ></span>
+                                            </td>
+                                        </tr>
+
+                                        <!--Table Footer Detail-->
+                                        <tr style="height: 2px" valign="top">
+                                            <td colspan="9"></td>
+                                        </tr>
+                                        <tr style="height: 16px" valign="top">
+                                            <td
+                                                    colspan="3"
+                                                    rowspan="2"
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              vertical-align: middle;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 12px;
+                                line-height: 1.2578125;
+                                font-weight: bold;
+                              "
+                            >PAYMENT METHOD</span
+                            >
+                                            </td>
+                                            <td></td>
+                                            <td
+                                                    colspan="2"
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              vertical-align: middle;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                                    th:text="${discountPercent}"
+                            >Discount (0.00%)</span
+                            >
+                                            </td>
+                                            <td></td>
+                                            <td
+                                                    colspan="2"
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              vertical-align: middle;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                                    th:text="${discountAmount}"
+                            >0</span
+                            >
+                                            </td>
+                                        </tr>
+
+                                        <tr style="height: 4px" valign="top">
+                                            <td colspan="6"></td>
+                                        </tr>
+                                        <tr style="height: 16px" valign="top">
+                                            <td></td>
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              vertical-align: middle;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                            >Wallet</span
+                            >
+                                            </td>
+                                            <td
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              vertical-align: middle;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                                    th:text="${paymentType}"
+                            ></span>
+                                            </td>
+                                            <td></td>
+                                            <td
+                                                    colspan="2"
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              vertical-align: middle;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                            >Point Used</span
+                            >
+                                            </td>
+                                            <td></td>
+                                            <td
+                                                    colspan="2"
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              vertical-align: middle;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 10px;
+                                line-height: 1.2578125;
+                              "
+                                    th:text="${paymentPoint}"
+                            ></span>
+                                            </td>
+                                        </tr>
+                                        <tr style="height: 20px" valign="top">
+                                            <td
+                                                    colspan="3"
+                                                    style="
+                              pointer-events: auto;
+                              padding-left: 4px;
+                              padding-right: 4px;
+                              text-indent: 0px;
+                              vertical-align: middle;
+                              text-align: left;
+                            "
+                                            >
+                            <span
+                                    style="
+                                font-family: 'DejaVu Sans', Arial, Helvetica,
+                                  sans-serif;
+                                color: #000000;
+                                font-size: 12px;
+                                line-height: 1.2578125;
+                                font-weight: bold;
+                              "
+                            >SHIPPING ADDRESS</span
+                            >
+                                            </td>
+                                            <td colspan="6"></td>
+                                        </tr>
+                                        <tr style="height: 1px" valign="top">
+                                            <td colspan="9"></td>
+                                        </tr>
+                                        <tr style="height: 37px" valign="top">
+                                            <td colspan="9">
+                                                <div
+                                                        style="
+                                width: 100%;
+                                height: 100%;
+                                position: relative;
+                              "
+                                                >
+                                                    <div
+                                                            style="
+                                  position: absolute;
+                                  overflow: hidden;
+                                  width: 100%;
+                                  height: 100%;
+                                "
+                                                    >
+                                                        <table
+                                                                border="0"
+                                                                cellpadding="0"
+                                                                cellspacing="0"
+                                                                style="
+                                    empty-cells: show;
+                                    width: 100%;
+                                    border-collapse: collapse;
+                                  "
+                                                        >
+                                                            <tr style="height: 0" valign="top">
+                                                                <td style="width: 20px"></td>
+                                                                <td style="width: 260px"></td>
+                                                                <td style="width: 274px"></td>
+                                                            </tr>
+                                                            <tr style="height: 37px" valign="top">
+                                                                <td></td>
+                                                                <td
+                                                                        style="
+                                        pointer-events: auto;
+                                        padding-left: 4px;
+                                        padding-right: 4px;
+                                        text-indent: 0px;
+                                        text-align: left;
+                                      "
+                                                                >
+                                      <span
+                                              style="
+                                          font-family: 'DejaVu Sans', Arial,
+                                            Helvetica, sans-serif;
+                                          color: #000000;
+                                          font-size: 10px;
+                                          line-height: 1.2578125;
+                                        "
+                                              th:text="${shippingAddress}"
+                                      ></span>
+                                                                </td>
+                                                                <td></td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                    <div
+                                                            style="
+                                  position: relative;
+                                  width: 100%;
+                                  height: 100%;
+                                  pointer-events: none;
+                                "
+                                                    >
+                                                        <table
+                                                                border="0"
+                                                                cellpadding="0"
+                                                                cellspacing="0"
+                                                                style="
+                                    empty-cells: show;
+                                    width: 100%;
+                                    border-collapse: collapse;
+                                  "
+                                                        >
+                                                            <tr style="height: 0" valign="top">
+                                                                <td style="width: 554px"></td>
+                                                            </tr>
+                                                            <tr style="height: 32px" valign="top">
+                                                                <td></td>
+                                                            </tr>
+                                                            <tr style="height: 5px" valign="top">
+                                                                <td
+                                                                        style="
+                                        pointer-events: auto;
+                                        border-bottom: 3px solid #8ab775;
+                                        text-indent: 0px;
+                                        text-align: left;
+                                      "
+                                                                ></td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <tr style="height: 2px" valign="top">
+                                            <td colspan="9"></td>
+                                        </tr>
+                                        <tr style="height: 119px" valign="top">
+                                            <td colspan="9">
+                                                <div
+                                                        style="
+                                width: 100%;
+                                height: 100%;
+                                position: relative;
+                              "
+                                                >
+
+                                                    <div
+                                                            style="
+                                  position: relative;
+                                  width: 100%;
+                                  height: 100%;
+                                  pointer-events: none;
+								  background-color: #b9ddad;
+                                "
+                                                    >
+                                                        <table
+                                                                border="0"
+                                                                cellpadding="0"
+                                                                cellspacing="0"
+                                                                style="
+                                    empty-cells: show;
+                                    width: 100%;
+                                    border-collapse: collapse;
+                                  "
+                                                        >
+                                                            <tr style="height: 0" valign="top">
+                                                                <td style="width: 20px"></td>
+                                                                <td style="width: 80px"></td>
+                                                                <td style="width: 254px"></td>
+                                                                <td style="width: 89px"></td>
+                                                                <td style="width: 109px"></td>
+                                                                <td style="width: 1px"></td>
+                                                                <td style="width: 1px"></td>
+                                                            </tr>
+                                                            <tr style="height: 8px" valign="top">
+                                                                <td colspan="7"></td>
+                                                            </tr>
+                                                            <tr style="height: 3px" valign="top">
+                                                                <td></td>
+                                                                <td
+                                                                        rowspan="6"
+                                                                        style="pointer-events: auto"
+                                                                >
+                                                                    <img
+                                                                            alt=""
+                                                                            style="height: 80px"
+                                                                            th:src="${qr}"
+                                                                    />
+                                                                </td>
+                                                                <td colspan="5"></td>
+                                                            </tr>
+                                                            <tr style="height: 20px" valign="top">
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td
+                                                                        style="
+                                        pointer-events: auto;
+                                        padding-left: 4px;
+                                        padding-right: 4px;
+                                        text-indent: 0px;
+                                        vertical-align: middle;
+                                        text-align: left;
+                                      "
+                                                                >
+                                      <span
+                                              style="
+                                          font-family: 'DejaVu Sans', Arial,
+                                            Helvetica, sans-serif;
+                                          color: #000000;
+                                          font-size: 12px;
+                                          line-height: 1.2578125;
+                                        "
+                                      >Subtotal</span
+                                      >
+                                                                </td>
+                                                                <td
+                                                                        style="
+                                        pointer-events: auto;
+                                        padding-left: 4px;
+                                        padding-right: 4px;
+                                        text-indent: 0px;
+                                        vertical-align: middle;
+                                        text-align: left;
+                                      "
+                                                                >
+                                      <span
+                                              style="
+                                          font-family: 'DejaVu Sans', Arial,
+                                            Helvetica, sans-serif;
+                                          color: #000000;
+                                          font-size: 12px;
+                                          line-height: 1.2578125;
+                                        "
+                                              th:text="${subTotal}"
+                                      ></span>
+                                                                </td>
+                                                                <td colspan="2"></td>
+                                                            </tr>
+                                                            <tr style="height: 16px" valign="top">
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td
+                                                                        style="
+                                        pointer-events: auto;
+                                        padding-left: 4px;
+                                        padding-right: 4px;
+                                        text-indent: 0px;
+                                        vertical-align: middle;
+                                        text-align: left;
+                                      "
+                                                                >
+                                      <span
+                                              style="
+                                          font-family: 'DejaVu Sans', Arial,
+                                            Helvetica, sans-serif;
+                                          color: #000000;
+                                          font-size: 10px;
+                                          line-height: 1.2578125;
+                                        "
+                                      >Shipping</span
+                                      >
+                                                                </td>
+                                                                <td
+                                                                        colspan="2"
+                                                                        style="
+                                        pointer-events: auto;
+                                        padding-left: 4px;
+                                        padding-right: 4px;
+                                        text-indent: 0px;
+                                        vertical-align: middle;
+                                        text-align: left;
+                                      "
+                                                                >
+                                      <span
+                                              style="
+                                          font-family: 'DejaVu Sans', Arial,
+                                            Helvetica, sans-serif;
+                                          color: #000000;
+                                          font-size: 10px;
+                                          line-height: 1.2578125;
+                                        "
+                                              th:text="${shipping}"
+                                      ></span>
+                                                                </td>
+                                                                <td></td>
+                                                            </tr>
+                                                            <tr style="height: 20px" valign="top">
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td
+                                                                        style="
+                                        pointer-events: auto;
+                                        padding-left: 4px;
+                                        padding-right: 4px;
+                                        text-indent: 0px;
+                                        vertical-align: middle;
+                                        text-align: left;
+                                      "
+                                                                >
+                                      <span
+                                              style="
+                                          font-family: 'DejaVu Sans', Arial,
+                                            Helvetica, sans-serif;
+                                          color: #000000;
+                                          font-size: 12px;
+                                          line-height: 1.2578125;
+                                          font-weight: bold;
+                                        "
+                                      >Grand Total</span
+                                      >
+                                                                </td>
+                                                                <td
+                                                                        style="
+                                        pointer-events: auto;
+                                        padding-left: 4px;
+                                        padding-right: 4px;
+                                        text-indent: 0px;
+                                        vertical-align: middle;
+                                        text-align: left;
+                                      "
+                                                                >
+                                      <span
+                                              style="
+                                          font-family: 'DejaVu Sans', Arial,
+                                            Helvetica, sans-serif;
+                                          color: #000000;
+                                          font-size: 12px;
+                                          line-height: 1.2578125;
+                                          font-weight: bold;
+                                        "
+                                              th:text="${grandTotal}"
+                                      ></span>
+                                                                </td>
+                                                                <td colspan="2"></td>
+                                                            </tr>
+                                                            <tr style="height: 16px" valign="top">
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td
+                                                                        style="
+                                        pointer-events: auto;
+                                        padding-left: 4px;
+                                        padding-right: 4px;
+                                        text-indent: 0px;
+                                        vertical-align: middle;
+                                        text-align: left;
+                                      "
+                                                                >
+                                      <span
+                                              style="
+                                          font-family: 'DejaVu Sans', Arial,
+                                            Helvetica, sans-serif;
+                                          color: #000000;
+                                          font-size: 10px;
+                                          line-height: 1.2578125;
+                                        "
+                                      >Point Earn</span
+                                      >
+                                                                </td>
+                                                                <td
+                                                                        colspan="2"
+                                                                        style="
+                                        pointer-events: auto;
+                                        padding-left: 4px;
+                                        padding-right: 4px;
+                                        text-indent: 0px;
+                                        vertical-align: middle;
+                                        text-align: left;
+                                      "
+                                                                >
+                                      <span
+                                              style="
+                                          font-family: 'DejaVu Sans', Arial,
+                                            Helvetica, sans-serif;
+                                          color: #000000;
+                                          font-size: 10px;
+                                          line-height: 1.2578125;
+                                        "
+                                              th:text="${amountPoints}"
+                                      ></span>
+                                                                </td>
+                                                                <td></td>
+                                                            </tr>
+                                                            <tr style="height: 5px" valign="top">
+                                                                <td></td>
+                                                                <td colspan="5"></td>
+                                                            </tr>
+                                                            <tr style="height: 7px" valign="top">
+                                                                <td colspan="7"></td>
+                                                            </tr>
+                                                            <tr style="height: 24px" valign="top">
+                                                                <td
+                                                                        colspan="7"
+                                                                        style="
+                                        pointer-events: auto;
+                                        background-color: #8ab775;
+                                        text-indent: 0px;
+                                        vertical-align: middle;
+                                        text-align: center;
+                                      "
+                                                                >
+                                      <span
+                                              style="
+                                          font-family: 'DejaVu Sans', Arial,
+                                            Helvetica, sans-serif;
+                                          color: #ffffff;
+                                          font-size: 12px;
+                                          line-height: 1.2578125;
+                                          font-weight: bold;
+                                        "
+                                      >Thank You For Your Shopping</span
+                                      >
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr style="height: 1px" valign="top">
+                                            <td colspan="9"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr style="height: 20px" valign="top">
+                        <td colspan="3"></td>
+                    </tr>
+                </table>
+            </td>
+            <td width="50%">&nbsp;</td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

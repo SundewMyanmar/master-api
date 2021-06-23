@@ -54,7 +54,7 @@ public class Folder extends DefaultEntity implements Serializable {
 
     @NotAudited
     @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "parentId", updatable = false)
+    @JoinColumn(name = "parentId")
     @OneToMany(fetch = FetchType.EAGER)
     @OrderBy("priority")
     private Set<Folder> items;

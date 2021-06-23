@@ -49,7 +49,7 @@ public class WavePayResponsePaymentRequest implements Serializable {
     private String initiatorMsisdn;
 
     @JsonProperty("amount")
-    private String amount;
+    private Integer amount;
 
     @JsonProperty("timeToLiveSeconds")
     private String timeToLiveSeconds;

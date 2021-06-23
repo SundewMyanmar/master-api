@@ -26,11 +26,13 @@ public class SetupController {
             "dbUser", "dbPassword",
             "mailUser", "mailPassword",
             "facebookAppId", "facebookAppSecret", "facebookAccessToken",
+            "telenorClientId", "telenorClientSecret",
             "saisaiPayUser", "saisaiPayPassword", "saisaiPaySecret",
             "onePayUser", "onePaySecret",
             "cbPayAuthToken", "cbPayEcommerceId", "cbPaySubMerId",
             "wavePayMerchant", "wavePaySecret", "wavePayName",
-            "mpuPayMerchantId", "mpuPaySecret"
+            "mpuPayMerchantId", "mpuPaySecret", "clientRole",
+            "telenorUserName", "telenorPassword", "telenorSenderId"
     );
     @Autowired
     SecurityManager securityManager;

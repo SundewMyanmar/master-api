@@ -35,7 +35,14 @@ public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializa
     private static final String VALID_FIELD_NAME = "^[a-z][a-zA-Z0-9]*(\\.id)?$";
     private static final String ENTITY_ALIAS = "e";
 
-    private final List<String> getFilterableFields(Class<T> entityClass) {
+    public DefaultRepositoryImpl(JpaEntityInformation<T, ?> entityInformation, EntityManager entityManager) {
+        super(entityInformation, entityManager);
+        this.entityInformation = entityInformation;
+        this.entityManager = entityManager;
+        this.filterableFields = getSearchableFields(entityInformation.getJavaType());
+    }
+
+    private final List<String> getSearchableFields(Class<T> entityClass) {
         List<String> fields = new ArrayList();
         Arrays.stream(entityClass.getDeclaredFields()).forEach(field ->
                 Arrays.stream(field.getDeclaredAnnotations()).forEach(annotation -> {
@@ -45,13 +52,6 @@ public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializa
                 })
         );
         return fields;
-    }
-
-    public DefaultRepositoryImpl(JpaEntityInformation<T, ?> entityInformation, EntityManager entityManager) {
-        super(entityInformation, entityManager);
-        this.entityInformation = entityInformation;
-        this.entityManager = entityManager;
-        this.filterableFields = getFilterableFields(entityInformation.getJavaType());
     }
 
     protected boolean checkColumn(String column, Class entity) {

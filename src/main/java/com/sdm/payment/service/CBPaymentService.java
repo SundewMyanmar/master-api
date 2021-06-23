@@ -2,7 +2,8 @@ package com.sdm.payment.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
-import com.sdm.payment.config.properties.CBProperties;
+import com.sdm.core.util.HttpRequestManager;
+import com.sdm.payment.config.properties.CBPayProperties;
 import com.sdm.payment.model.request.cbpay.CBCheckPaymentStatusRequest;
 import com.sdm.payment.model.request.cbpay.CBPaymentOrderRequest;
 import com.sdm.payment.model.request.cbpay.CBResponsePaymentOrderRequest;
@@ -32,10 +33,10 @@ public class CBPaymentService {
     private PaymentSecurityManager securityManager;
 
     @Autowired
-    private PaymentService paymentService;
+    private HttpRequestManager httpRequestManager;
 
     @Autowired
-    private CBProperties cbProperties;
+    private CBPayProperties cbProperties;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -44,9 +45,9 @@ public class CBPaymentService {
         return cbProperties.getDeepLinkUrl(id);
     }
 
-    public CBPaymentOrderResponse paymentOrder(String orderId, String orderDetails, String amount) {
+    public CBPaymentOrderResponse requestPayment(String orderId, String orderDetails, String amount) {
         CBPaymentOrderRequest request = new CBPaymentOrderRequest(cbProperties.getAuthToken(), cbProperties.getEcommerceId(), cbProperties.getSubMerId(), CBPaymentOrderRequest.TransactionType.WEB,
-                orderId, orderDetails, amount, cbProperties.getCurrency(), cbProperties.getNotifyUrl(), "");
+                orderId, orderDetails, amount, cbProperties.getCurrency(), cbProperties.getPaymentCallbackUrl(), "");
         try {
             request.setSignature(securityManager.generateCBHashSHA256(request.getSignatureString()));
         } catch (Exception ex) {
@@ -58,7 +59,7 @@ public class CBPaymentService {
         String resultString = "";
         CBPaymentOrderResponse result = new CBPaymentOrderResponse();
         try {
-            resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), null, true);
+            resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), true);
             result = objectMapper.readValue(resultString, CBPaymentOrderResponse.class);
         } catch (Exception ex) {
             throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
@@ -79,7 +80,7 @@ public class CBPaymentService {
         String rawUrl = cbProperties.getCheckPaymentStatusUrl();
 
         try {
-            String resultString = paymentService.postRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), null, true);
+            String resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), true);
             return objectMapper.readValue(resultString, CBCheckPaymentStatusResponse.class);
         } catch (Exception ex) {
             throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
@@ -108,6 +109,21 @@ public class CBPaymentService {
         }
         //TODO: check response status code "0000" success
         //TODO: call repository with invoice and update status
+
+        /*
+        P = pending
+        S = Success
+        F = Fail
+        E = Expired
+        * */
+        if (!request.getTransactionStatus().equals("S")) {
+            try {
+                log.error("INVALID_CB_RESPONSE >>>" + objectMapper.writeValueAsString(request));
+            } catch (Exception ex) {
+                throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            }
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+        }
 
         CBResponsePaymentOrderResponse response = new CBResponsePaymentOrderResponse("0000", "OPERATION SUCCESS");
         return response;

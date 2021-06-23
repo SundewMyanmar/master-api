@@ -1,40 +1,40 @@
 package com.sdm.payment.config.properties;
 
+import com.sdm.core.util.Globalizer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+@Log4j2
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Configuration
 @ConfigurationProperties(prefix = "com.sdm.payment.agd")
-public class AGDProperties {
+public class OnePayProperties {
     private String url = "http://www.sundewmyanmar.com/";
     private String user = "info@sundewmyanmar.com";
-    private String secretKey = "X3h0#^@ink";
+    private String secretKey = "$3cR3tK3y";
     private String channel = "SUNDEW_MYANMAR";
     private String version = "02";
 
-    @Autowired
-    private PaymentProperties paymentProperties;
-
     public String getVerifyPhoneUrl() {
-        return paymentProperties.replaceUrl(url + "Ver01/Wallet/Wallet_VerifyPhoneNumber");
+        return (url + "Ver01/Wallet/Wallet_VerifyPhoneNumber");
     }
 
     public String getDirectPaymentUrl() {
-        return paymentProperties.replaceUrl(url + "Ver02/Wallet/Wallet_DirectAPIV2");
+        return (url + "Ver02/Wallet/Wallet_DirectAPIV2");
     }
 
     public String getCheckTransactionUrl() {
-        return paymentProperties.replaceUrl(url + "Ver02/Wallet/Wallet_CheckTransactionStatus");
+        return (url + "Ver02/Wallet/Wallet_CheckTransactionStatus");
     }
 
-    public String getDirectPaymentCallbackUrl() {
-        return paymentProperties.replaceUrl(paymentProperties.getCallbackUrl() + "public/payments/onepay/callback");
+    public String getPaymentCallbackUrl() {
+        log.info("ONEPay CALLBACK=> " + Globalizer.getCurrentContextPath("/public/payments/onepay/callback", true));
+        return Globalizer.getCurrentContextPath("/public/payments/onepay/callback", true);
     }
 }

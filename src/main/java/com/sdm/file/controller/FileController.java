@@ -4,10 +4,12 @@ import com.sdm.core.controller.DefaultReadController;
 import com.sdm.core.db.repository.DefaultRepository;
 import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.model.response.MessageResponse;
+import com.sdm.core.model.response.PaginationResponse;
 import com.sdm.file.model.File;
 import com.sdm.file.repository.FileRepository;
 import com.sdm.file.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +38,22 @@ public class FileController extends DefaultReadController<File, String> {
         return this.fileRepository;
     }
 
+    @GetMapping("/{id}/folder")
+    public ResponseEntity<PaginationResponse<File>> getPagingByFolder(
+            @RequestParam(value = "page", defaultValue = "0") int pageId,
+            @RequestParam(value = "size", defaultValue = "10") int pageSize,
+            @RequestParam(value = "sort", defaultValue = "id:DESC") String sortString,
+            @RequestParam(value = "filter", defaultValue = "") String filter,
+            @PathVariable("id") Integer id) {
+        Page<File> result;
+        if (id == null || id <= 0) {
+            result = fileRepository.findByFolderIsNull(this.buildPagination(pageId, pageSize, sortString), filter);
+        } else {
+            result = fileRepository.findByFolder(this.buildPagination(pageId, pageSize, sortString), filter, id);
+        }
+        return new ResponseEntity<>(new PaginationResponse<>(result), HttpStatus.PARTIAL_CONTENT);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageResponse> remove(@PathVariable("id") @Size(min = 36, max = 36) String id,
                                                   @RequestParam(value = "isTrash", required = false, defaultValue = "false") boolean isTrash) {
@@ -59,10 +77,10 @@ public class FileController extends DefaultReadController<File, String> {
     @Transactional
     public ResponseEntity<ListResponse<File>> uploadFile(@RequestParam("uploadedFile") List<MultipartFile> files,
                                                          @RequestParam(value = "isPublic", required = false, defaultValue = "false") boolean isPublic,
-                                                         @RequestParam(value="isHidden",required = false,defaultValue = "false")boolean isHidden) {
+                                                         @RequestParam(value = "isHidden", required = false, defaultValue = "false") boolean isHidden) {
         ListResponse<File> uploadedFiles = new ListResponse<>();
         files.forEach(file -> {
-            File fileEntity = fileService.create(file, isPublic,isHidden);
+            File fileEntity = fileService.create(file, isPublic, isHidden);
             uploadedFiles.addData(fileEntity);
         });
         return new ResponseEntity<ListResponse<File>>(uploadedFiles, HttpStatus.CREATED);

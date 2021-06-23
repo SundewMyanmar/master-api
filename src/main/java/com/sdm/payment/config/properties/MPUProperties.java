@@ -1,12 +1,14 @@
 package com.sdm.payment.config.properties;
 
+import com.sdm.core.util.Globalizer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+@Log4j2
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,19 +23,19 @@ public class MPUProperties {
 
     private String version;
 
-    @Autowired
-    private PaymentProperties paymentProperties;
+    private String successUrl;
 
     public String getPaymentRequestUrl() {
-        return paymentProperties.replaceUrl(url + "Payment/Payment/pay");
+        return (url + "Payment/Payment/pay");
     }
 
-    //Inquiry = I, Voice = V
+    //Inquiry = I, Void = V
     public String getPaymentInquiryUrl() {
-        return paymentProperties.replaceUrl(url + "Payment/Action/api");
+        return (url + "Payment/Action/api");
     }
 
-    public String getDirectPaymentCallbackUrl() {
-        return paymentProperties.replaceUrl(paymentProperties.getCallbackUrl() + "mpu/payments/public/direct/callback");
+    public String getPaymentCallbackUrl() {
+        log.info("MPU CALLBACK=> " + Globalizer.getCurrentContextPath("/public/payments/mpu/callback", true));
+        return Globalizer.getCurrentContextPath("/public/payments/mpu/callback", true);
     }
 }

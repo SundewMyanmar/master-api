@@ -25,8 +25,7 @@ com.sdm.path.report=<th:block th:text="${reportPath}"/>
 com.sdm.path.setting=<th:block th:text="${settingPath}"/>
 
 #Database
-spring.datasource.url=jdbc:<th:block th:text="${dbType}"/>://<th:block th:text="${dbHost}"/>:<th:block
-            th:text="${dbPort}"/>/<th:block th:text="${dbName}"/>
+spring.datasource.url=jdbc:<th:block th:text="${dbType}"/>://<th:block th:text="${dbHost}"/>:<th:block th:text="${dbPort}"/>/<th:block th:text="${dbName}"/>
 spring.datasource.username=<th:block th:text="${dbUser}"/>
 spring.datasource.password=<th:block th:text="${dbPassword}"/>
 spring.jdbc.template.fetch-size=1000
@@ -69,6 +68,7 @@ com.sdm.security.auth-failed-count=3
 com.sdm.security.blocked-time=30m
 com.sdm.security.require-confirm=false
 com.sdm.security.owner-ids=<th:block th:text="${ownerIds}"/>
+com.sdm.security.client-role=<th:block th:text="${clientRole}"/>
 com.sdm.security.otp-life=10m
 com.sdm.security.auth-token-life=<th:block th:text="${tokenLife}"/>
 com.sdm.security.encrypt-salt=<th:block th:text="${encryptSalt}"/>
@@ -86,9 +86,9 @@ com.sdm.cors.allowed-credential=true
 com.sdm.cors.max-age=36000
 
 #Quartz Scheduler
-# spring.quartz.job-store-type=jdbc
-# spring.quartz.jdbc.initialize-schema=always
-# spring.quartz.properties.org.quartz.threadPool.threadCount=10
+spring.quartz.job-store-type=jdbc
+spring.quartz.jdbc.initialize-schema=always
+spring.quartz.properties.org.quartz.threadPool.threadCount=10
 
 #Mail Server
 spring.mail.test-connection=false
@@ -102,25 +102,26 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 #Facebook
 com.sdm.facebook.graph-url=https://graph.facebook.com/v9.0/
 com.sdm.facebook.webhook-token=<th:block th:text="${facebookWebhook}"/>
-<th:block th:if="${facebookAppId} != ''">com.sdm.facebook.app-id=<th:block th:text="${facebookAppId}"/></th:block>
-<th:block th:if="${facebookAppSecret} != ''">com.sdm.facebook.app-secret=<th:block
-        th:text="${facebookAppSecret}"/></th:block>
-<th:block th:if="${facebookAccessToken} != ''">com.sdm.facebook.page-access-token=<th:block
-        th:text="${facebookAccessToken}"/></th:block>
+com.sdm.facebook.app-id=<th:block th:text="${facebookAppId}"/>
+com.sdm.facebook.app-secret=<th:block th:text="${facebookAppSecret}"/>
+com.sdm.facebook.page-access-token=<th:block th:text="${facebookAccessToken}"/>
 
 #Firebase
-<th:block th:if="${firebaseProject} != ''">com.sdm.firebase.project-url=<th:block
-        th:text="${firebaseProject}"/></th:block>
-<th:block th:if="${firebaseJson} != ''">com.sdm.firebase.service-json=<th:block th:text="${firebaseJson}"/></th:block>
+com.sdm.firebase.project-url=<th:block th:text="${firebaseProject}"/>
+com.sdm.firebase.service-json=<th:block th:text="${firebaseJson}"/>
 
 #Google
 com.sdm.google.app-secret=<th:block th:text="${googleAppSecret}"/>
 com.sdm.google.token-server-url=<th:block th:text="${googleTokenServerUrl}"/>
 com.sdm.google.redirect-url=<th:block th:text="${googleRedirectUrl}"/>
 
-#Payment
-com.sdm.payment.callback-url=<th:block th:text="${callbackUrl}"/>
-com.sdm.payment.expired-seconds=<th:block th:text="${expiredSeconds}"/>
+#Telenor
+com.sdm.telenor.api-url=<th:block th:text="${telenorApiURL}"/>
+com.sdm.telenor.client-id=<th:block th:text="${telenorClientId}"/>
+com.sdm.telenor.client-secret=<th:block th:text="${telenorClientSecret}"/>
+com.sdm.telenor.user-name=<th:block th:text="${telenorUserName}"/>
+com.sdm.telenor.password=<th:block th:text="${telenorPassword}"/>
+com.sdm.telenor.sender-id=<th:block th:text="${telenorSenderId}"/>
 
 #Sai Sai Pay (UAB)
 com.sdm.payment.uab.url=<th:block th:text="${saisaiPayUrl}"/>
@@ -149,13 +150,23 @@ com.sdm.payment.yoma.url=<th:block th:text="${wavePayUrl}"/>
 com.sdm.payment.yoma.merchant-id=<th:block th:text="${wavePayMerchant}"/>
 com.sdm.payment.yoma.secret-key=<th:block th:text="${wavePaySecret}"/>
 com.sdm.payment.yoma.merchant-name=<th:block th:text="${wavePayName}"/>
+com.sdm.payment.yoma.success-url=<th:block th:text="${wavePaySuccessUrl}"/>
 
 #MPU Pay (MPU)
 com.sdm.payment.mpu.url=<th:block th:text="${mpuPayUrl}"/>
 com.sdm.payment.mpu.merchant-id=<th:block th:text="${mpuPayMerchantId}"/>
 com.sdm.payment.mpu.secret-key=<th:block th:text="${mpuPaySecret}"/>
 com.sdm.payment.mpu.version=<th:block th:text="${mpuPayVersion}"/>
+com.sdm.payment.mpu.success-url=<th:block th:text="${mpuSuccessUrl}"/>
 
+#KBA Pay (KBZ)
+com.sdm.payment.kbz.url=<th:block th:text="${kbzPayUrl}"/>
+com.sdm.payment.kbz.version=<th:block th:text="${kbzPayVersion}"/>
+com.sdm.payment.kbz.merchant-code=<th:block th:text="${kbzPayMerchantId}"/>
+com.sdm.payment.kbz.merchant-name=<th:block th:text="${kbzPayMerchantName}"/>
+com.sdm.payment.kbz.app-id=<th:block th:text="${kbzPayAppId}"/>
+com.sdm.payment.kbz.secret-key=<th:block th:text="${kbzPaySecret}"/>
+com.sdm.payment.kbz.is-uat=true
 </textarea>
 </div>
 <th:block th:replace="base :: footer_scripts(${#dates.year(#dates.createNow())}, _)"/>

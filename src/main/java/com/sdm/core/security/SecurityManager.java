@@ -11,6 +11,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
+import java.util.Random;
 
 /**
  * @author Htoonlin
@@ -92,6 +94,19 @@ public class SecurityManager {
         return Encoders.BASE64.encode(key.getEncoded());
     }
 
+    public String generateBase32Secret() {
+        StringBuilder sb = new StringBuilder();
+        Random random = new SecureRandom();
+        for (int i = 0; i < 16; i++) {
+            int val = random.nextInt(32);
+            if (val < 26) {
+                sb.append((char) ('A' + val));
+            } else {
+                sb.append((char) ('2' + (val - 26)));
+            }
+        }
+        return sb.toString();
+    }
 
     public String generateHashHmac(String stringData, String secretKey, final String algorithm) {
         Mac sha_hmac = null;
@@ -102,21 +117,10 @@ public class SecurityManager {
             sha_hmac.init(keySpec);
             byte[] mac_data = sha_hmac.
                     doFinal(stringData.getBytes(StandardCharsets.UTF_8));
-            return bytesToHex(mac_data);
+            return Hex.encodeHexString(mac_data);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             log.warn(e.getLocalizedMessage());
         }
         return null;
-    }
-
-    public String bytesToHex(byte[] bytes) {
-        final char[] hexArray = "0123456789ABCDEF".toCharArray();
-        char[] hexChars = new char[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
     }
 }

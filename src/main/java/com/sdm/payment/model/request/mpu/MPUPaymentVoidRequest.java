@@ -32,6 +32,6 @@ public class MPUPaymentVoidRequest implements Serializable {
     private String hashValue;
 
     public String getSignatureString() {
-        return merchantID + invoiceNo + actionType + amount + currencyCode;
+        return actionType + amount + currencyCode + invoiceNo + merchantID;
     }
 }

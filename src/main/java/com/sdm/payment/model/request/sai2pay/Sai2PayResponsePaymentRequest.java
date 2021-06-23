@@ -80,6 +80,7 @@ public class Sai2PayResponsePaymentRequest implements Serializable {
 
     @JsonIgnore
     public String getSignatureString() {
-        return MerchantUserId + Channel + AppName + ReferIntegrationId + InvoiceNo + Amount + TransactionStatus + TransactionID;
+        return MerchantUserId + Channel + AppName + Amount + ReferIntegrationId + InvoiceNo + TransactionStatus + TransactionID;
+//        return MerchantUserId + Channel + AppName + ReferIntegrationId + InvoiceNo + Amount + TransactionStatus + TransactionID;
     }
 }

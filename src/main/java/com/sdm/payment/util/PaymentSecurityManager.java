@@ -1,11 +1,12 @@
 package com.sdm.payment.util;
 
 import com.sdm.core.security.SecurityManager;
-import com.sdm.payment.config.properties.AGDProperties;
 import com.sdm.payment.config.properties.MPUProperties;
-import com.sdm.payment.config.properties.UABProperties;
-import com.sdm.payment.config.properties.YOMAProperties;
+import com.sdm.payment.config.properties.OnePayProperties;
+import com.sdm.payment.config.properties.Sai2PayProperties;
+import com.sdm.payment.config.properties.WavePayProperties;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,13 +18,13 @@ import java.security.NoSuchAlgorithmException;
 @Log4j2
 public class PaymentSecurityManager {
     @Autowired
-    private UABProperties uabProperties;
+    private Sai2PayProperties sai2PayProperties;
 
     @Autowired
-    private AGDProperties agdProperties;
+    private OnePayProperties onePayProperties;
 
     @Autowired
-    private YOMAProperties yomaProperties;
+    private WavePayProperties wavePayProperties;
 
     @Autowired
     private MPUProperties mpuProperties;
@@ -32,22 +33,22 @@ public class PaymentSecurityManager {
     private SecurityManager securityManager;
 
     public String generateUABHashHmac(String stringData) {
-        String encryptData = securityManager.generateHashHmac(stringData, uabProperties.getSecretKey(), "HmacSHA1");
+        String encryptData = securityManager.generateHashHmac(stringData, sai2PayProperties.getSecretKey(), "HmacSHA1");
         return encryptData;
     }
 
     public String generateAGDHashHMac(String stringData) {
-        String encryptData = securityManager.generateHashHmac(stringData, agdProperties.getSecretKey(), "HmacSHA1");
+        String encryptData = securityManager.generateHashHmac(stringData, onePayProperties.getSecretKey(), "HmacSHA1");
         return encryptData;
     }
 
     public String generateYOMAHashSHA256(String stringData) {
-        String encryptData = securityManager.generateHashHmac(stringData, yomaProperties.getSecretKey(), "HmacSHA256");
+        String encryptData = securityManager.generateHashHmac(stringData, wavePayProperties.getSecretKey(), "HmacSHA256");
         return encryptData.toLowerCase();
     }
 
     public String generateMPUHashHmac(String stringData) {
-        String encryptData = securityManager.generateHashHmac(stringData, yomaProperties.getSecretKey(), "HmacSHA1");
+        String encryptData = securityManager.generateHashHmac(stringData, mpuProperties.getSecretKey(), "HmacSHA1");
         return encryptData;
     }
 
@@ -55,6 +56,13 @@ public class PaymentSecurityManager {
         final MessageDigest digest = MessageDigest.getInstance("SHA-256");
         final byte[] hashbytes = digest.digest(
                 stringData.getBytes(StandardCharsets.UTF_8));
-        return securityManager.bytesToHex(hashbytes).toLowerCase();
+        return Hex.encodeHexString(hashbytes).toLowerCase();
+    }
+
+    public String generateKbzPayHashSHA256(String stringData) throws NoSuchAlgorithmException {
+        final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        final byte[] hashbytes = digest.digest(
+                stringData.getBytes(StandardCharsets.UTF_8));
+        return Hex.encodeHexString(hashbytes).toLowerCase();
     }
 }

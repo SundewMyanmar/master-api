@@ -1,31 +1,43 @@
 package com.sdm.auth.controller;
 
+import com.google.zxing.WriterException;
 import com.sdm.admin.model.User;
 import com.sdm.admin.repository.UserRepository;
 import com.sdm.auth.model.request.AuthRequest;
 import com.sdm.auth.model.request.ChangePasswordRequest;
 import com.sdm.auth.model.request.TokenInfo;
 import com.sdm.auth.repository.TokenRepository;
-import com.sdm.auth.service.AuthService;
-import com.sdm.auth.service.FacebookAuthService;
-import com.sdm.auth.service.GoogleAuthService;
-import com.sdm.auth.service.JwtService;
+import com.sdm.auth.service.*;
+import com.sdm.core.controller.DefaultController;
 import com.sdm.core.exception.GeneralException;
-import com.sdm.core.model.AuthInfo;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.security.SecurityManager;
+import com.sdm.core.util.BarCodeManager;
+import com.sdm.core.util.Globalizer;
+import com.sdm.file.model.File;
+import com.sdm.file.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.List;
 
-@RestController
+@Controller
 @RequestMapping("/me")
-public class ProfileController {
+public class ProfileController extends DefaultController {
 
     public enum LINK_TYPE {
         GOOGLE,
@@ -53,9 +65,11 @@ public class ProfileController {
     @Autowired
     private JwtService jwtService;
 
-    private AuthInfo getCurrentUser() {
-        return (AuthInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    }
+    @Autowired
+    private BarCodeManager barCodeManager;
+
+    @Autowired
+    private FileService fileService;
 
     @GetMapping("")
     public ResponseEntity<User> getProfile() {
@@ -75,6 +89,20 @@ public class ProfileController {
         existUser = userRepository.save(existUser);
 
         return ResponseEntity.ok(existUser);
+    }
+
+
+    @PostMapping(value = "/changeProfileImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<User> uploadFile(@RequestParam("profileImage") List<MultipartFile> files) {
+        User existUser = userRepository.findById(getCurrentUser().getUserId())
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
+
+        if (files.size() > 0) {
+            File file = fileService.create(files.get(0), true, false);
+            existUser.setProfileImage(file);
+            userRepository.save(existUser);
+        }
+        return new ResponseEntity<User>(existUser, HttpStatus.OK);
     }
 
     @PostMapping("/changePassword")
@@ -130,5 +158,65 @@ public class ProfileController {
         }
 
         throw new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Invalid Type!");
+    }
+
+    @GetMapping("/enableMfa/{enable}")
+    @Transactional
+    public ResponseEntity<User> enableMfa(@PathVariable(value = "enable") Boolean enable, @RequestParam(value = "type") MfaService.TotpType type) throws GeneralSecurityException {
+        User user = userRepository.findById(getCurrentUser().getUserId())
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
+
+        if (enable) {
+            if (Globalizer.isNullOrEmpty(user.getMfaSecret()))
+                user.setMfaSecret(securityManager.generateBase32Secret());
+            if (Globalizer.isNullOrEmpty(type)) {
+                throw new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Invalid MFA type.");
+            }
+            user.setMfaType(type);
+            user = userRepository.save(user);
+
+            authService.enableMFA(user);
+        } else {
+            user.setMfaEnabled(false);
+            user.setMfaType(null);
+            user = userRepository.save(user);
+        }
+
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/verifyMfa/{totp}")
+    public ResponseEntity<User> verifyMfa(@PathVariable(value = "totp") String totp) throws GeneralSecurityException {
+        User user = userRepository.findById(getCurrentUser().getUserId())
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
+        authService.verifyMFA(user, totp);
+
+        user.setMfaEnabled(true);
+        user = userRepository.save(user);
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/mfa/qr")
+    public ResponseEntity<?> generateMfaQR(
+            @RequestParam(value = "name", required = false, defaultValue = "128") String name,
+            @RequestParam(value = "width", required = false, defaultValue = "128") int width,
+            @RequestParam(value = "noMargin", required = false, defaultValue = "false") boolean noMargin) throws IOException, WriterException {
+        User user = userRepository.findById(getCurrentUser().getUserId())
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        if (Globalizer.isNullOrEmpty(name))
+            name = "SUNDEW MYANMAR";
+        String mfaData = String.format("otpauth://totp/%s:%s?secret=%s&issuer=%s",
+                name, user.getDisplayName(), user.getMfaSecret(), name);
+        barCodeManager.createQR(outputStream, mfaData, width, noMargin);
+
+        String filename = name + ".png";
+        String attachment = "attachment; filename=\"" + filename + "\"";
+        Resource resource = new ByteArrayResource(outputStream.toByteArray());
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(MediaType.IMAGE_PNG_VALUE))
+                .header(HttpHeaders.CONTENT_DISPOSITION, attachment)
+                .body(resource);
     }
 }

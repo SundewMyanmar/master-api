@@ -1,41 +1,43 @@
 package com.sdm.payment.config.properties;
 
+import com.sdm.core.util.Globalizer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+@Log4j2
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Configuration
 @ConfigurationProperties(prefix = "com.sdm.payment.yoma")
-public class YOMAProperties {
+public class WavePayProperties {
     private String url = "";
     private String merchantId = "";
     private String merchantName = "";
     private String secretKey = "";
     private Integer timeToLiveInSeconds = 300;
+    private String successUrl;
 
-    @Autowired
-    private PaymentProperties paymentProperties;
-
-    public String getFrontEndResultUrl() {
+    public String getFrontEndCallbackUrl() {
         //TODO: frontEndResultUrl if available in the future
-        return paymentProperties.getCallbackUrl();
+        return Globalizer.getCurrentContextPath("/", true);
     }
 
     public String getPaymentRequestUrl() {
-        return paymentProperties.replaceUrl(url + "payment");
+        return (url + "payment");
     }
 
     public String getPaymentRequestAuthenticateUrl(String transactionId) {
-        return paymentProperties.replaceUrl(url + "authenticate?transaction_id=" + transactionId);
+        transactionId = Globalizer.encodeUrl(transactionId);
+        return (url + "authenticate?transaction_id=" + transactionId);
     }
 
     public String getPaymentCallbackUrl() {
-        return paymentProperties.replaceUrl(paymentProperties.getCallbackUrl() + "public/payments/wave/callback");
+        log.info("WAVEPay CALLBACK=> " + Globalizer.getCurrentContextPath("/public/payments/wave/callback", true));
+        return Globalizer.getCurrentContextPath("/public/payments/wave/callback", true);
     }
 }

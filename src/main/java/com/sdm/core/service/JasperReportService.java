@@ -54,7 +54,9 @@ public class JasperReportService {
 
         StringBuilder html = new StringBuilder();
         SimpleHtmlExporterOutput output = new SimpleHtmlExporterOutput(html);
+
         output.setImageHandler(new Base64ResourceHandler());
+
         exporter.setExporterOutput(output);
         try {
             exporter.exportReport();

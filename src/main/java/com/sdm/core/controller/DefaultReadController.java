@@ -5,29 +5,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.Constants;
 import com.sdm.core.db.repository.DefaultRepository;
 import com.sdm.core.exception.GeneralException;
-import com.sdm.core.model.*;
+import com.sdm.core.model.AdvancedFilter;
+import com.sdm.core.model.DefaultEntity;
+import com.sdm.core.model.ModelInfo;
+import com.sdm.core.model.SundewAuditEntity;
 import com.sdm.core.model.response.ListResponse;
-import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.model.response.PaginationResponse;
 import com.sdm.core.service.StructureService;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.query.AuditEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -36,14 +30,13 @@ import javax.validation.Valid;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Log4j2
-public abstract class DefaultReadController<T extends DefaultEntity, ID extends Serializable> implements ReadController<T, ID> {
+public abstract class DefaultReadController<T extends DefaultEntity, ID extends Serializable> extends DefaultController implements ReadController<T, ID> {
 
     protected abstract DefaultRepository<T, ID> getRepository();
 
@@ -56,13 +49,10 @@ public abstract class DefaultReadController<T extends DefaultEntity, ID extends 
     @Autowired
     ObjectMapper objectMapper;
 
+    @SuppressWarnings("unchecked")
     protected Class<T> getEntityClass() {
         ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
         return (Class<T>) type.getActualTypeArguments()[0];
-    }
-
-    protected AuthInfo getCurrentUser() {
-        return (AuthInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     protected T checkData(ID id) {
@@ -71,31 +61,8 @@ public abstract class DefaultReadController<T extends DefaultEntity, ID extends 
                         "There is no any data by : " + id.toString()));
     }
 
-    protected Pageable buildPagination(int pageId, int pageSize, String sortString) {
-        sortString = sortString.replaceAll("\\s+", "");
-        List<Sort.Order> sorting = new ArrayList<>();
-        if (!StringUtils.isEmpty(sortString)) {
-            String[] sorts = sortString.split(",");
-            for (String sort : sorts) {
-                String[] sortParams = sort.strip().split(":", 2);
-                if (sortParams.length >= 2 && sortParams[1].equalsIgnoreCase("desc")) {
-                    sorting.add(Sort.Order.desc(sortParams[0]));
-                } else {
-                    sorting.add(Sort.Order.asc(sortParams[0]));
-                }
-            }
-        }
-        return PageRequest.of(pageId, pageSize, Sort.by(sorting));
-    }
 
-    @ApiOperation(value = "Get Histories", notes = "Get all histories of data.")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 401, message = "Permission Denied.", response = MessageResponse.class),
-            @ApiResponse(code = 403, message = "Access Forbidden.", response = MessageResponse.class),
-            @ApiResponse(code = 404, message = "URL Not Found.", response = MessageResponse.class),
-            @ApiResponse(code = 500, message = "Server Error.", response = MessageResponse.class),
-    })
+    @SuppressWarnings("unchecked")
     @GetMapping(value = "/{id}/histories", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ListResponse<Map<String, Object>>> getAuditHistory(@PathVariable(value = "id", required = true) ID id) {
         List<SundewAuditEntity> audits = auditReader.createQuery()

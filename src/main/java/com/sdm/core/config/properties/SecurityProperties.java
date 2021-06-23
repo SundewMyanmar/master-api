@@ -46,5 +46,7 @@ public class SecurityProperties {
 
     private Integer clientRole = 3;
 
+    private Integer adminRole = 2;
+
     private boolean csrfEnable = true;
 }
