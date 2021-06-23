@@ -69,21 +69,32 @@ Ready Output log:
 ```bash
 2020-01-28 13:41:44.597  INFO 2727 --- [main] com.sdm.Application   : System is running...
 ```
+
 [Ref: Spring Boot application.properties](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-application-properties.html)
 
 ### Generate war file to upload web server!
+
 ```bash
 > ./gradlew clean bootWar
 ```
+
 ___
+
+## Version 1.7
+
+- Telenor SMS Service
+
 ## Version 1.6
+
 - Payment Modules
 
 ## Version 1.5.1
+
 - Data Auditor
-- Setup Form to generate application.properties 
+- Setup Form to generate application.properties
 
 ## Package Structure
+
 ### Default Package for New Module
 - controller
 - model
@@ -102,7 +113,6 @@ ___
 - [Utils & Plugins](./src/main/java/com/sdm/core/util)
 - [Swagger Open API](https://swagger.io/specification/)
 - [Jasper Reporting](https://en.wikipedia.org/wiki/JasperReports)
-- [Firebase Messaging](https://firebase.google.com/docs/cloud-messaging/server)
 
 ### [System Authorization and Authentication](./src/main/java/com/sdm/auth)
 - System auth by user:password
@@ -118,27 +128,44 @@ ___
 - Menu Permission by Role
 
 ### [File Management](./src/main/java/com/sdm/file)
+
 - File Upload Download
 - Generated Public URL
 - Image Caching & Resizing
 
 ### [Facebook Messenger Bot](./src/main/java/com/sdm/facebook)
+
 - Messenger Bot Activate
 - Messenger Bot Listener
 - Message Log
 
+### [Notification](./src/main/java/com/sdm/notification)
+
+- [Firebase Messaging](https://firebase.google.com/docs/cloud-messaging/server)
+
 ### [Payment Module](./src/main/java/com/sdm/payment)
-- AGD Payment
-- CB Payment
-- UAB Payment
-- YOMA Payment
+
+- AGD Payment (OnePay)
+- CB Payment (CBPay)
+- UAB Payment (Sai Sai Pay)
+- YOMA Payment (Wave)
+- KBZ Payment (KPay)
+- MPU Payment
+
+### [SMS Module]('./src/main/java/com/sdm/sms)
+
+- Telenor SMS Messaging
+
 ----
 
 ## Default RestFUL Controller
+
 ### ReadController
+
 |method|http-method|url/{path}?{query_params}|description|
 |------|------|------|------|
-|getPagingByFilter|GET|name(s)?{size, pageSize, page, sort, filter}|Get data by pagination
+|getPagingByFilter|GET|name(s)?{size, pageSize, page, sort, filter}|Get data by pagination and Global Filter|
+|getPagingByAdvancedFilter|POST|name(s)/advanced{?page,size,sort}|Get Data by pagination and Advanced Filter|
 |getAll|GET|name(s)/all|Get all data|
 |getById|GET|name(s)/{id}|Get data by unique id(PK)|
 |getStructure|GET|name(s)/struct|Get UI Structure|
@@ -220,7 +247,6 @@ public class NameService{
 - Table => tbl_{name_with_snake_case}
 - View => vw_{name_with_snake_case}
 - Procedure => proc_{name_with_snake_case}
-- User Columns => {nameWithCamelCase}	
 
 
 

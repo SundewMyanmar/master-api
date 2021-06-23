@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
         maven {
             url "https://plugins.gradle.org/m2/"
         }
@@ -12,8 +12,8 @@ buildscript {
 }
 
 plugins {
-    id 'org.springframework.boot' version '2.4.1'
-    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'org.springframework.boot' version '2.5.1'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
     id 'war'
     id "org.asciidoctor.convert" version "2.4.0"
@@ -21,7 +21,7 @@ plugins {
 apply plugin: "org.asciidoctor.convert"
 
 group = "com.sdm"
-version = "1.6.2-SNAPSHOT"
+version = "1.7.0-SNAPSHOT"
 sourceCompatibility = "11"
 
 configurations {
@@ -45,12 +45,6 @@ asciidoctor {
 
 repositories {
     mavenCentral()
-    jcenter()
-    maven { url 'https://repo.spring.io/milestone' }
-  	maven { url 'https://repo.spring.io/snapshot' }
-    maven{url "http://jasperreports.sourceforge.net/maven2/"}
-    maven{url "http://jaspersoft.artifactoryonline.com/jaspersoft/third-party-ce-artifacts/"}
-    maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }
     flatDir {
         dirs 'libs'
     }
@@ -58,15 +52,15 @@ repositories {
 
 dependencies {
     //JWT
-    compile 'io.jsonwebtoken:jjwt-api:0.11.2'
-    runtime 'io.jsonwebtoken:jjwt-impl:0.11.2'
-    runtime 'io.jsonwebtoken:jjwt-jackson:0.11.2'
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
 
     //jasypt
     implementation "com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.3"
 
     //Firebase
-    implementation "com.google.firebase:firebase-admin:7.1.0"
+    implementation 'com.google.firebase:firebase-admin:7.3.0'
 
     //Swagger
     implementation "io.springfox:springfox-boot-starter:3.0.0"
@@ -75,24 +69,25 @@ dependencies {
     implementation "com.google.zxing:core:3.4.1"
 
     //Gson
-    implementation "com.google.code.gson:gson:2.8.6"
+    implementation 'com.google.code.gson:gson:2.8.7'
 
     //Myanmar Tool
-    compile "com.google.myanmartools:myanmar-tools:1.2.0"
+    implementation 'com.google.myanmartools:myanmar-tools:1.2.0'
 
     //Thumbnailtor
-    implementation "net.coobird:thumbnailator:0.4.13"
+    implementation 'net.coobird:thumbnailator:0.4.14'
     
     //Google Api Client Library
-    compile 'com.google.api-client:google-api-client:1.30.4'
+    implementation 'com.google.api-client:google-api-client:1.31.5'
 
     //Fake Data http://dius.github.io/java-faker/
-    compile group: "com.github.javafaker", name: "javafaker", version: "1.0.2"
+    implementation 'com.github.javafaker:javafaker:1.0.2'
 
     // Reporting
     // https://mvnrepository.com/artifact/net.sf.jasperreports/
-    compile group: "net.sf.jasperreports", name: "jasperreports", version: "6.16.0"
-    compile group: 'net.sf.jasperreports', name: 'jasperreports-functions', version: '6.16.0'
+    implementation 'com.lowagie:itext:2.1.7'
+    implementation 'net.sf.jasperreports:jasperreports:6.17.0'
+    implementation 'net.sf.jasperreports:jasperreports:6.17.0'
 
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "org.springframework.boot:spring-boot-starter-mail"
@@ -129,7 +124,7 @@ dependencies {
     }
     testImplementation "org.springframework.security:spring-security-test"
     testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc"
-    testCompile group: "capital.scalable", name: "spring-auto-restdocs-core", version: "2.0.9"
+    testImplementation group: "capital.scalable", name: "spring-auto-restdocs-core", version: "2.0.9"
     asciidoctor "org.springframework.restdocs:spring-restdocs-asciidoctor"
 
     testAnnotationProcessor "org.projectlombok:lombok"
