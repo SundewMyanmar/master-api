@@ -11,8 +11,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -57,7 +57,12 @@ public class Globalizer {
     }
 
     public static String encodeUrl(String url) {
-        return URLEncoder.encode(url, StandardCharsets.UTF_8).replace("+", "%20");
+        try {
+            return URLEncoder.encode(url, "UTF-8").replace("+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return url;
     }
 
     public static boolean isNullOrEmpty(Object data) {
@@ -114,7 +119,7 @@ public class Globalizer {
     }
 
     public static Date addDate(Date date, Duration duration) {
-        long seconds = duration.toSeconds();
+        long seconds = duration.getSeconds();
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.add(Calendar.SECOND, Integer.parseInt(String.valueOf(seconds)));

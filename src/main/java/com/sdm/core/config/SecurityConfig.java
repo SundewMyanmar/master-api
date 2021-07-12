@@ -8,6 +8,7 @@ import com.sdm.core.security.jwt.JwtAuthenticationFilter;
 import com.sdm.core.security.jwt.JwtAuthenticationHandler;
 import com.sdm.core.security.jwt.JwtUnauthorizeHandler;
 import com.sdm.core.service.ClientService;
+import com.sdm.core.util.Globalizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,12 +22,12 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
-import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -59,7 +60,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(corsProperties.getAllowedOrigins()));
+        if (Arrays.stream(corsProperties.getAllowedOrigins()).anyMatch((value) -> value.equalsIgnoreCase("*"))) {
+            configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
+        } else {
+            configuration.setAllowedOrigins(Arrays.asList(corsProperties.getAllowedOrigins()));
+        }
+
         configuration.setAllowedMethods(Arrays.asList(corsProperties.getAllowedMethods()));
         configuration.setAllowedHeaders(Arrays.asList(corsProperties.getAllowedHeaders()));
         configuration.setExposedHeaders(Arrays.asList(corsProperties.getExposedHeaders()));
@@ -74,11 +80,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        if (!StringUtils.isEmpty(securityProperties.getCookieDomain())) {
+        if (!Globalizer.isNullOrEmpty(securityProperties.getCookieDomain())) {
             serializer.setDomainName(securityProperties.getCookieDomain());
         }
 
-        if (!StringUtils.isEmpty(securityProperties.getCookiePath())) {
+        if (!Globalizer.isNullOrEmpty(securityProperties.getCookiePath())) {
             serializer.setCookiePath(securityProperties.getCookiePath());
         }
         return serializer;
@@ -91,11 +97,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     private CsrfTokenRepository getCsrfTokenRepository() {
         CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        if (!StringUtils.isEmpty(securityProperties.getCookieDomain())) {
+        if (!Globalizer.isNullOrEmpty(securityProperties.getCookieDomain())) {
             csrfTokenRepository.setCookieDomain(securityProperties.getCookieDomain());
         }
 
-        if (!StringUtils.isEmpty(securityProperties.getCookiePath())) {
+        if (!Globalizer.isNullOrEmpty(securityProperties.getCookiePath())) {
             csrfTokenRepository.setCookiePath(securityProperties.getCookiePath());
         }
         return csrfTokenRepository;
