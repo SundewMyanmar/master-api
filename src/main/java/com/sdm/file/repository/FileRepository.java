@@ -8,12 +8,20 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface FileRepository extends DefaultRepository<File, String> {
 
+    @Query("SELECT f FROM #{#entityName} f WHERE f.folder.id = :folderId")
+    List<File> findAllByFolder(@Param("folderId") int folderId);
+
     @Query("SELECT f FROM #{#entityName} f WHERE f.folder.id = :folderId AND (LOWER(f.name) LIKE CONCAT('%',LOWER(:filter),'%'))")
-    Page<File> findByFolder(Pageable paging, @Param("filter") String filter, @Param("folderId") int folderId);
+    Page<File> findByFolder(Pageable paging, @Param("filter") String filter,@Param("folderId") int folderId);
 
     @Query("SELECT f FROM #{#entityName} f WHERE f.folder IS NULL AND (LOWER(f.name) LIKE CONCAT('%',LOWER(:filter),'%'))")
     Page<File> findByFolderIsNull(Pageable paging, @Param("filter") String filter);
+
+    @Query("SELECT f FROM #{#entityName} f")
+    Page<File> findTest(Pageable paging);
 }

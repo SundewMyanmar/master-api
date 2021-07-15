@@ -4,7 +4,9 @@ import com.sdm.core.config.properties.PathProperties;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.util.Globalizer;
 import com.sdm.file.model.File;
+import com.sdm.file.model.Folder;
 import com.sdm.file.repository.FileRepository;
+import com.sdm.file.repository.FolderRepository;
 import lombok.extern.log4j.Log4j2;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -65,6 +68,9 @@ public class FileService {
 
     @Autowired
     FileRepository fileRepository;
+
+    @Autowired
+    FolderRepository folderRepository;
 
     private final String fileUploadedPath;
 
@@ -143,7 +149,7 @@ public class FileService {
     }
 
     @Transactional
-    public File create(String urlString, boolean isPublic, boolean isHidden) throws IOException {
+    public File create(String urlString, boolean isPublic, boolean isHidden, Integer folderId) throws IOException {
         URL url = new URL(urlString);
         URLConnection conn = url.openConnection();
         String contentType = conn.getContentType();
@@ -159,7 +165,7 @@ public class FileService {
         rawEntity.setFileSize(conn.getContentLength());
         rawEntity.setStatus(File.Status.STORAGE);
 
-        if (isHidden) rawEntity.setStatus(File.Status.HIDDEN);
+        if(isHidden)rawEntity.setStatus(File.Status.HIDDEN);
 
         String storagePath = Globalizer.getDateString("/yyyy/MM/", new Date());
         String storageName = rawEntity.getId();
@@ -174,12 +180,16 @@ public class FileService {
         }
 
         rawEntity.setStoragePath(Paths.get(storagePath, storageName).normalize().toString());
+
+        if(folderId!=null)
+            folderRepository.findById(folderId).ifPresent(rawEntity::setFolder);
+
         fileRepository.save(rawEntity);
         return rawEntity;
     }
 
     @Transactional
-    public File create(MultipartFile uploadFile, boolean isPublic, boolean isHidden) {
+    public File create(MultipartFile uploadFile, boolean isPublic, boolean isHidden, Integer folderId) {
         String fileName = StringUtils.cleanPath(uploadFile.getOriginalFilename());
 
         String[] nameInfo = FileService.fileNameSplitter(fileName);
@@ -201,7 +211,7 @@ public class FileService {
 
         rawEntity.setFileSize(uploadFile.getSize());
         rawEntity.setStatus(File.Status.STORAGE);
-        if (isHidden) rawEntity.setStatus(File.Status.HIDDEN);
+        if(isHidden)rawEntity.setStatus(File.Status.HIDDEN);
 
         String storagePath = Globalizer.getDateString("/yyyy/MM/", new Date());
         String storageName = rawEntity.getId();
@@ -223,6 +233,10 @@ public class FileService {
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
         rawEntity.setStoragePath(Paths.get(storagePath, storageName).normalize().toString());
+
+        if(folderId!=null)
+            folderRepository.findById(folderId).ifPresent(rawEntity::setFolder);
+
         fileRepository.save(rawEntity);
 
         return rawEntity;

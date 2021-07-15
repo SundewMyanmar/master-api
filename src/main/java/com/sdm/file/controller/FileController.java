@@ -2,6 +2,7 @@ package com.sdm.file.controller;
 
 import com.sdm.core.controller.DefaultReadController;
 import com.sdm.core.db.repository.DefaultRepository;
+import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.model.response.PaginationResponse;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.Optional;
@@ -44,14 +46,32 @@ public class FileController extends DefaultReadController<File, String> {
             @RequestParam(value = "size", defaultValue = "10") int pageSize,
             @RequestParam(value = "sort", defaultValue = "id:DESC") String sortString,
             @RequestParam(value = "filter", defaultValue = "") String filter,
-            @PathVariable("id") Integer id) {
-        Page<File> result;
-        if (id == null || id <= 0) {
-            result = fileRepository.findByFolderIsNull(this.buildPagination(pageId, pageSize, sortString), filter);
-        } else {
-            result = fileRepository.findByFolder(this.buildPagination(pageId, pageSize, sortString), filter, id);
+            @PathVariable("id") Integer id){
+            Page<File> result;
+            if(id==null || id<=0){
+                result=fileRepository.findByFolderIsNull(this.buildPagination(pageId,pageSize,sortString),filter);
+            }else{
+                result=fileRepository.findByFolder(this.buildPagination(pageId,pageSize,sortString),filter,id);
+            }
+            return new ResponseEntity<>(new PaginationResponse<>(result), HttpStatus.PARTIAL_CONTENT);
+    }
+
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<File> update(@Valid @RequestBody File body, @PathVariable("id") @Size(min = 36, max = 36) String id) {
+        File file=this.getRepository().findById(id)
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
+                        "There is no any data by : " + id.toString()));
+
+        if (!id.equals(body.getId())) {
+            throw new GeneralException(HttpStatus.CONFLICT,
+                    "Path ID and body ID aren't match.");
         }
-        return new ResponseEntity<>(new PaginationResponse<>(result), HttpStatus.PARTIAL_CONTENT);
+
+        file.setPublicAccess(body.isPublicAccess());
+        file.setStatus(body.getStatus());
+        file.setFolder(body.getFolder());
+        file = getRepository().save(file);
+        return ResponseEntity.ok(file);
     }
 
     @DeleteMapping("/{id}")
@@ -77,10 +97,11 @@ public class FileController extends DefaultReadController<File, String> {
     @Transactional
     public ResponseEntity<ListResponse<File>> uploadFile(@RequestParam("uploadedFile") List<MultipartFile> files,
                                                          @RequestParam(value = "isPublic", required = false, defaultValue = "false") boolean isPublic,
-                                                         @RequestParam(value = "isHidden", required = false, defaultValue = "false") boolean isHidden) {
+                                                         @RequestParam(value="isHidden",required = false,defaultValue = "false")boolean isHidden,
+                                                         @RequestParam(value="folder", required = false,defaultValue = "")Integer folder) {
         ListResponse<File> uploadedFiles = new ListResponse<>();
         files.forEach(file -> {
-            File fileEntity = fileService.create(file, isPublic, isHidden);
+            File fileEntity = fileService.create(file, isPublic,isHidden,folder);
             uploadedFiles.addData(fileEntity);
         });
         return new ResponseEntity<ListResponse<File>>(uploadedFiles, HttpStatus.CREATED);

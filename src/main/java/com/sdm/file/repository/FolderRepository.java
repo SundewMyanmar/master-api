@@ -1,5 +1,6 @@
 package com.sdm.file.repository;
 
+import com.sdm.admin.model.SystemMenu;
 import com.sdm.core.db.repository.DefaultRepository;
 import com.sdm.file.model.Folder;
 import org.springframework.data.jpa.repository.Query;

@@ -10,6 +10,7 @@ import com.sdm.auth.repository.TokenRepository;
 import com.sdm.auth.service.*;
 import com.sdm.core.controller.DefaultController;
 import com.sdm.core.exception.GeneralException;
+import com.sdm.core.model.AuthInfo;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.BarCodeManager;
@@ -23,6 +24,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -98,7 +100,7 @@ public class ProfileController extends DefaultController {
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
 
         if (files.size() > 0) {
-            File file = fileService.create(files.get(0), true, false);
+            File file = fileService.create(files.get(0), true, true,null);
             existUser.setProfileImage(file);
             userRepository.save(existUser);
         }
@@ -160,26 +162,34 @@ public class ProfileController extends DefaultController {
         throw new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Invalid Type!");
     }
 
+    @GetMapping("/resendMfa")
+    public ResponseEntity<User> resendMfa() throws GeneralSecurityException, IOException {
+        User user = userRepository.findById(getCurrentUser().getUserId())
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
+        authService.enableMFA(user);
+        return ResponseEntity.ok(user);
+    }
+
     @GetMapping("/enableMfa/{enable}")
     @Transactional
-    public ResponseEntity<User> enableMfa(@PathVariable(value = "enable") Boolean enable, @RequestParam(value = "type") MfaService.TotpType type) throws GeneralSecurityException {
+    public ResponseEntity<User> enableMfa(@PathVariable(value = "enable") Boolean enable,@RequestParam(value = "type") MfaService.TotpType type) throws GeneralSecurityException, IOException {
         User user = userRepository.findById(getCurrentUser().getUserId())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
 
-        if (enable) {
-            if (Globalizer.isNullOrEmpty(user.getMfaSecret()))
+        if(enable){
+            if(Globalizer.isNullOrEmpty(user.getMfaSecret()))
                 user.setMfaSecret(securityManager.generateBase32Secret());
-            if (Globalizer.isNullOrEmpty(type)) {
+            if(Globalizer.isNullOrEmpty(type)){
                 throw new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Invalid MFA type.");
             }
             user.setMfaType(type);
-            user = userRepository.save(user);
+            user=userRepository.save(user);
 
             authService.enableMFA(user);
-        } else {
+        }else{
             user.setMfaEnabled(false);
             user.setMfaType(null);
-            user = userRepository.save(user);
+            user=userRepository.save(user);
         }
 
         return ResponseEntity.ok(user);
@@ -189,27 +199,27 @@ public class ProfileController extends DefaultController {
     public ResponseEntity<User> verifyMfa(@PathVariable(value = "totp") String totp) throws GeneralSecurityException {
         User user = userRepository.findById(getCurrentUser().getUserId())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
-        authService.verifyMFA(user, totp);
+        authService.verifyMFA(user,totp);
 
         user.setMfaEnabled(true);
-        user = userRepository.save(user);
+        user=userRepository.save(user);
         return ResponseEntity.ok(user);
     }
 
     @GetMapping("/mfa/qr")
     public ResponseEntity<?> generateMfaQR(
-            @RequestParam(value = "name", required = false, defaultValue = "128") String name,
+            @RequestParam(value = "name", required = false, defaultValue = "SundewMyanmar") String name,
             @RequestParam(value = "width", required = false, defaultValue = "128") int width,
-            @RequestParam(value = "noMargin", required = false, defaultValue = "false") boolean noMargin) throws IOException, WriterException {
+            @RequestParam(value="noMargin", required = false,defaultValue = "false") boolean noMargin) throws IOException, WriterException {
         User user = userRepository.findById(getCurrentUser().getUserId())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        if (Globalizer.isNullOrEmpty(name))
-            name = "SUNDEW MYANMAR";
-        String mfaData = String.format("otpauth://totp/%s:%s?secret=%s&issuer=%s",
-                name, user.getDisplayName(), user.getMfaSecret(), name);
-        barCodeManager.createQR(outputStream, mfaData, width, noMargin);
+        if(Globalizer.isNullOrEmpty(name))
+            name="SundewMyanmar";
+        String mfaData= String.format("otpauth://totp/%s:%s?secret=%s&issuer=%s",
+                name,user.getDisplayName(),user.getMfaSecret(),name);
+        barCodeManager.createQR(outputStream, mfaData, width,noMargin);
 
         String filename = name + ".png";
         String attachment = "attachment; filename=\"" + filename + "\"";

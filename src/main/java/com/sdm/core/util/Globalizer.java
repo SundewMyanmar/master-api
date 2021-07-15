@@ -6,13 +6,18 @@
 package com.sdm.core.util;
 
 import com.sdm.Constants;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
+
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -21,19 +26,20 @@ import java.time.Duration;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * @author Htoonlin
  */
 public class Globalizer {
-    public static String formatDecimal(String format, double amount) {
+    public static String formatDecimal(String format, double amount){
         DecimalFormat formatter = new DecimalFormat(format);
         return formatter.format(amount);
     }
 
-    public static String formatPrice(Double amount) {
-        if (amount == null) amount = 0.0;
+    public static String formatPrice(Double amount){
+        if(amount==null)amount=0.0;
         //DecimalFormat formatter = new DecimalFormat("#,###.00");
         DecimalFormat formatter = new DecimalFormat("#,###");
         return formatter.format(amount);
@@ -55,19 +61,15 @@ public class Globalizer {
         }
         return false;
     }
-
+    
     public static String encodeUrl(String url) {
-        try {
-            return URLEncoder.encode(url, "UTF-8").replace("+", "%20");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return url;
+    	return URLEncoder.encode(url, StandardCharsets.UTF_8).replace("+", "%20");
     }
 
     public static boolean isNullOrEmpty(Object data) {
         if (data != null) {
             return data.toString().length() <= 0
+                    || StringUtils.isEmpty(data.toString())
                     || data.toString().equalsIgnoreCase("0")
                     || data.toString().equalsIgnoreCase("0.0")
                     || data.toString().equalsIgnoreCase("false");
@@ -100,14 +102,14 @@ public class Globalizer {
 
     //Minus date 1 < date 2
     //Plus date 1 > date 2
-    public static Integer diffDays(Date date1, Date date2, boolean isDetail) {
+    public static Integer diffDays(Date date1,Date date2, boolean isDetail){
         long diff = diffSeconds(date1, date2);
         double days = diff / (24.0 * 60 * 60);
-        if (isDetail) {
-            if (days < 0)
+        if(isDetail){
+            if(days<0)
                 days = Math.floor(days);//-0.123 to be -1
             else
-                days = Math.ceil(days);//0.123 to be 1
+                days =Math.ceil(days);//0.123 to be 1
         }
         return (int) days;// 0.123 default 0
     }
@@ -119,40 +121,40 @@ public class Globalizer {
     }
 
     public static Date addDate(Date date, Duration duration) {
-        long seconds = duration.getSeconds();
+        long seconds = duration.toSeconds();
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.add(Calendar.SECOND, Integer.parseInt(String.valueOf(seconds)));
         return cal.getTime();
     }
 
-    public static Date addDate(Date date, int type, int value) {
+    public static Date addDate(Date date, int type, int value){
         Calendar cal = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
         cal.setTime(date);
         cal.add(type, value);
         return cal.getTime();
     }
 
-    public static Date addHour(Date date, int hours) {
-        return addDate(date, Calendar.HOUR, hours);
+    public static Date addHour(Date date,int hours){
+        return addDate(date,Calendar.HOUR,hours);
     }
 
-    public static Date addMinute(Date date, int minutes) {
-        return addDate(date, Calendar.MINUTE, minutes);
+    public static Date addMinute(Date date,int minutes){
+        return addDate(date,Calendar.MINUTE,minutes);
     }
 
-    public static Date addSecond(Date date, int seconds) {
-        return addDate(date, Calendar.SECOND, seconds);
+    public static Date addSecond(Date date,int seconds){
+        return addDate(date,Calendar.SECOND,seconds);
     }
 
-    public static ServletUriComponentsBuilder getCurrentContextBuilder(boolean forceSsl) {
-        ServletUriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentContextPath();
-        if (forceSsl) builder.scheme("https");
+    public static ServletUriComponentsBuilder getCurrentContextBuilder(boolean forceSsl){
+        ServletUriComponentsBuilder builder=ServletUriComponentsBuilder.fromCurrentContextPath();
+        if(forceSsl)builder.scheme("https");
         return builder;
     }
 
-    public static String getCurrentContextPath(String path, boolean forceSsl) {
-        ServletUriComponentsBuilder builder = getCurrentContextBuilder(forceSsl);
+    public static String getCurrentContextPath(String path,boolean forceSsl){
+        ServletUriComponentsBuilder builder=getCurrentContextBuilder(forceSsl);
         return builder.path(path).toUriString();
     }
 
@@ -220,5 +222,44 @@ public class Globalizer {
         }
 
         return pass.toString();
+    }
+
+    public static String convertStringToHex(String data, Charset charset) {
+
+        // display in uppercase
+        //char[] chars = Hex.encodeHex(str.getBytes(StandardCharsets.UTF_8), false);
+
+        // display in lowercase, default
+        char[] chars = Hex.encodeHex(data.getBytes(charset));
+
+        return String.valueOf(chars);
+    }
+
+    public static boolean isPhoneNo(String ph){
+        Pattern p = Pattern.compile("^\\+?(?![0][1-8]+)[0-9]{7,15}$");
+
+        // Pattern class contains matcher() method
+        // to find matching between given number
+        // and regular expression
+        Matcher m = p.matcher(ph);
+        return (m.find() && m.group().equals(ph));
+    }
+
+    public static String cleanPhoneNo(String ph){
+        if(!isPhoneNo(ph)){
+            return null;
+        }
+
+        if(ph.startsWith("09")){
+            ph=ph.substring(2,ph.length());
+        }else if(ph.startsWith("959")){
+            ph=ph.substring(3,ph.length());
+        }else if(ph.startsWith("+959")){
+            ph=ph.substring(4,ph.length());
+        }else if (ph.startsWith("+9509")){
+            ph=ph.substring(5,ph.length());
+        }
+
+        return ph.trim();
     }
 }
