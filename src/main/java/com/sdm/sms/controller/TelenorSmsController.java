@@ -1,12 +1,9 @@
 package com.sdm.sms.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sdm.core.controller.DefaultController;
 import com.sdm.core.exception.GeneralException;
-import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.util.Globalizer;
 import com.sdm.sms.model.ValidPhone;
-import com.sdm.sms.model.request.telenor.MessageType;
 import com.sdm.sms.model.request.telenor.TelenorTokenSetting;
 import com.sdm.sms.service.PhoneVerificationService;
 import com.sdm.sms.service.TelenorSmsService;
@@ -20,7 +17,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import java.io.*;
+
+import java.io.IOException;
 
 @Log4j2
 @Controller

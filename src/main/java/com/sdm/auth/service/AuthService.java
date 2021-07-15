@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -73,15 +72,15 @@ public class AuthService {
     }
 
     private void setAnonymousExtras(AnonymousRequest request, User user) {
-        if (!StringUtils.isEmpty(request.getBrand())) {
+        if (!Globalizer.isNullOrEmpty(request.getBrand())) {
             user.addExtra("brand", request.getBrand());
         }
 
-        if (!StringUtils.isEmpty(request.getCarrier())) {
+        if (!Globalizer.isNullOrEmpty(request.getCarrier())) {
             user.addExtra("carrier", request.getCarrier());
         }
 
-        if (!StringUtils.isEmpty(request.getManufacture())) {
+        if (!Globalizer.isNullOrEmpty(request.getManufacture())) {
             user.addExtra("manufacture", request.getManufacture());
         }
     }

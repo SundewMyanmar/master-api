@@ -5,12 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URL;
 
 @Log4j2
 @Data
@@ -25,8 +21,8 @@ public class OnePayProperties {
     private String channel = "SUNDEW_MYANMAR";
     private String version = "02";
 
-    public String getPhoneNo(String ph){
-        if(ph==null)return null;
+    public String getPhoneNo(String ph) {
+        if (ph == null) return null;
         return "959" + ph;
     }
 
@@ -43,7 +39,7 @@ public class OnePayProperties {
     }
 
     public String getPaymentCallbackUrl() {
-        log.info("ONEPay CALLBACK=> "+Globalizer.getCurrentContextPath("/public/payments/onepay/callback",true));
-        return Globalizer.getCurrentContextPath("/public/payments/onepay/callback",true);
+        log.info("ONEPay CALLBACK=> " + Globalizer.getCurrentContextPath("/public/payments/onepay/callback", true));
+        return Globalizer.getCurrentContextPath("/public/payments/onepay/callback", true);
     }
 }

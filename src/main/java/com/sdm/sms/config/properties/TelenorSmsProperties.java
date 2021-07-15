@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import java.net.URL;
-
 @Configuration
 @ConfigurationProperties(prefix = "com.sdm.telenor")
 @Data
@@ -19,13 +17,13 @@ public class TelenorSmsProperties {
     private String apiUrl = "";
     private String clientId = "";
     private String clientSecret = "";
-    private String userName="";
-    private String password="";
-    private String senderId="";
-    private Integer expiredIn=86400;
+    private String userName = "";
+    private String password = "";
+    private String senderId = "";
+    private Integer expiredIn = 86400;
 
-    public String getPhoneNo(String ph){
-        if(ph==null)return null;
+    public String getPhoneNo(String ph) {
+        if (ph == null) return null;
         return "959" + ph;
     }
 
@@ -48,15 +46,15 @@ public class TelenorSmsProperties {
     }
 
     //Send message
-    public String getCommunicationMessageUrl(){
+    public String getCommunicationMessageUrl() {
         if (Globalizer.isNullOrEmpty(this.apiUrl)) {
             throw new NullPointerException();
         }
-        return this.apiUrl+"v3/mm/en/communicationMessage/send";
+        return this.apiUrl + "v3/mm/en/communicationMessage/send";
     }
 
-    public String getRedirectUri(){
+    public String getRedirectUri() {
         //TODO: change back to ssl true for live server
-        return Globalizer.getCurrentContextPath("/public/sms/telenor/callback",true);
+        return Globalizer.getCurrentContextPath("/public/sms/telenor/callback", true);
     }
 }

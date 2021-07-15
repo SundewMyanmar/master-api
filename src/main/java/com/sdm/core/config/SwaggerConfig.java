@@ -1,10 +1,10 @@
 package com.sdm.core.config;
 
 import com.sdm.Constants;
+import com.sdm.core.util.Globalizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
-import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
@@ -78,7 +78,7 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
     private Docket buildDocket(String groupName, String basePackage) {
         Predicate<RequestHandler> findThere = null;
 
-        if (StringUtils.isEmpty(basePackage)) {
+        if (Globalizer.isNullOrEmpty(basePackage)) {
             findThere = RequestHandlerSelectors.any();
         } else {
             findThere = RequestHandlerSelectors.basePackage(basePackage);

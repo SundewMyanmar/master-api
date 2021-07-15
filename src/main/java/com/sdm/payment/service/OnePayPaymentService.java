@@ -9,12 +9,7 @@ import com.sdm.payment.model.request.onepay.OnePayCheckTransactionRequest;
 import com.sdm.payment.model.request.onepay.OnePayDirectPaymentRequest;
 import com.sdm.payment.model.request.onepay.OnePayResponseDirectPaymentRequest;
 import com.sdm.payment.model.request.onepay.OnePayVerifyPhRequest;
-import com.sdm.payment.model.response.onepay.ApiResponseStatus;
-import com.sdm.payment.model.response.onepay.OnePayCheckTransactionResponse;
-import com.sdm.payment.model.response.onepay.OnePayDirectPaymentResponse;
-import com.sdm.payment.model.response.onepay.OnePayResponseDirectPaymentResponse;
-import com.sdm.payment.model.response.onepay.OnePayVerifyPhResponse;
-import com.sdm.payment.model.response.onepay.TransactionStatus;
+import com.sdm.payment.model.response.onepay.*;
 import com.sdm.payment.util.PaymentSecurityManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Log4j2
@@ -35,7 +32,7 @@ public class OnePayPaymentService {
 
     @Autowired
     private OnePayProperties agdProperties;
-    
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -111,7 +108,7 @@ public class OnePayPaymentService {
         return item;
     }
 
-    private void writeLog(OnePayResponseDirectPaymentRequest request){
+    private void writeLog(OnePayResponseDirectPaymentRequest request) {
         try {
             log.error("INVALID_AGD_RESPONSE >>>" + objectMapper.writeValueAsString(request));
         } catch (Exception ex) {
@@ -126,7 +123,7 @@ public class OnePayPaymentService {
             throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
         }
 
-        if(!request.getTransactionStatus().equals(ApiResponseStatus.SUCCESS.getValue())){
+        if (!request.getTransactionStatus().equals(ApiResponseStatus.SUCCESS.getValue())) {
             writeLog((request));
             throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
         }

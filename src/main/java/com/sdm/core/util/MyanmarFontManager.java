@@ -4,7 +4,6 @@ import com.google.myanmartools.TransliterateU2Z;
 import com.google.myanmartools.TransliterateZ2U;
 import com.google.myanmartools.ZawgyiDetector;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +52,7 @@ public class MyanmarFontManager {
     }
 
     public static boolean isZawgyi(String input) {
-        if (StringUtils.isEmpty(input)) {
+        if (Globalizer.isNullOrEmpty(input)) {
             return false;
         }
 

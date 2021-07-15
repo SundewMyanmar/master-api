@@ -14,7 +14,6 @@ import com.sdm.core.util.Globalizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.Map;
@@ -58,7 +57,7 @@ public class AuthMailService {
         // Create Activate Request
         ActivateRequest request = new ActivateRequest();
         request.setToken(user.getOtpToken());
-        if (!StringUtils.isEmpty(user.getPhoneNumber())) {
+        if (!Globalizer.isNullOrEmpty(user.getPhoneNumber())) {
             request.setUser(user.getPhoneNumber());
         } else {
             request.setUser(user.getEmail());

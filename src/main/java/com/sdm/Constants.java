@@ -23,6 +23,11 @@ public interface Constants {
     interface Pattern {
 
         /**
+         * Support MM Phone Number
+         */
+        String MM_PHONE = "^\\+?(?![0][1-8]+)[0-9]{7,15}$";
+
+        /**
          * Support Alpha numeric only
          */
         String ALPHA_NUMERIC = "^[a-zA-Z0-9]*$";

@@ -4,7 +4,6 @@ import com.sdm.core.config.properties.PathProperties;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.util.Globalizer;
 import com.sdm.file.model.File;
-import com.sdm.file.model.Folder;
 import com.sdm.file.repository.FileRepository;
 import com.sdm.file.repository.FolderRepository;
 import lombok.extern.log4j.Log4j2;
@@ -31,7 +30,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -165,7 +163,7 @@ public class FileService {
         rawEntity.setFileSize(conn.getContentLength());
         rawEntity.setStatus(File.Status.STORAGE);
 
-        if(isHidden)rawEntity.setStatus(File.Status.HIDDEN);
+        if (isHidden) rawEntity.setStatus(File.Status.HIDDEN);
 
         String storagePath = Globalizer.getDateString("/yyyy/MM/", new Date());
         String storageName = rawEntity.getId();
@@ -181,7 +179,7 @@ public class FileService {
 
         rawEntity.setStoragePath(Paths.get(storagePath, storageName).normalize().toString());
 
-        if(folderId!=null)
+        if (folderId != null)
             folderRepository.findById(folderId).ifPresent(rawEntity::setFolder);
 
         fileRepository.save(rawEntity);
@@ -203,7 +201,7 @@ public class FileService {
         }
 
         rawEntity.setPublicAccess(isPublic);
-        if (StringUtils.isEmpty(uploadFile.getContentType())) {
+        if (Globalizer.isNullOrEmpty(uploadFile.getContentType())) {
             rawEntity.setType("application/octet-stream");
         } else {
             rawEntity.setType(uploadFile.getContentType());
@@ -211,7 +209,7 @@ public class FileService {
 
         rawEntity.setFileSize(uploadFile.getSize());
         rawEntity.setStatus(File.Status.STORAGE);
-        if(isHidden)rawEntity.setStatus(File.Status.HIDDEN);
+        if (isHidden) rawEntity.setStatus(File.Status.HIDDEN);
 
         String storagePath = Globalizer.getDateString("/yyyy/MM/", new Date());
         String storageName = rawEntity.getId();
@@ -234,7 +232,7 @@ public class FileService {
         }
         rawEntity.setStoragePath(Paths.get(storagePath, storageName).normalize().toString());
 
-        if(folderId!=null)
+        if (folderId != null)
             folderRepository.findById(folderId).ifPresent(rawEntity::setFolder);
 
         fileRepository.save(rawEntity);
@@ -267,7 +265,7 @@ public class FileService {
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
 
-        if (StringUtils.isEmpty(fileName)) {
+        if (Globalizer.isNullOrEmpty(fileName)) {
             fileName = downloadEntity.getName() + "." + downloadEntity.getExtension();
         } else if (!fileName.contains(".")) {
             fileName += "." + downloadEntity.getExtension();

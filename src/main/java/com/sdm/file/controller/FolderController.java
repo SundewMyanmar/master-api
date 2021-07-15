@@ -1,6 +1,5 @@
 package com.sdm.file.controller;
 
-import com.sdm.admin.model.SystemMenu;
 import com.sdm.core.controller.DefaultReadWriteController;
 import com.sdm.core.db.repository.DefaultRepository;
 import com.sdm.core.model.response.ListResponse;
@@ -44,8 +43,8 @@ public class FolderController extends DefaultReadWriteController<Folder, Integer
     @Override
     public ResponseEntity<MessageResponse> remove(Integer integer) {
         //Move folder files to root folder by setting null
-        List<File> files =fileRepository.findAllByFolder(integer);
-        files.forEach(f->f.setFolder(null));
+        List<File> files = fileRepository.findAllByFolder(integer);
+        files.forEach(f -> f.setFolder(null));
         fileRepository.saveAll(files);
         return super.remove(integer);
     }

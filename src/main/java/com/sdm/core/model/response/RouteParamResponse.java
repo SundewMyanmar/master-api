@@ -5,10 +5,10 @@
  */
 package com.sdm.core.model.response;
 
+import com.sdm.core.util.Globalizer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 
@@ -25,7 +25,7 @@ public class RouteParamResponse implements Serializable {
     private String paramType;
 
     public boolean isRequire() {
-        return StringUtils.isEmpty(defaultValue);
+        return Globalizer.isNullOrEmpty(defaultValue);
     }
 
 }

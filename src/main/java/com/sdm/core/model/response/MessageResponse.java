@@ -9,11 +9,11 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.sdm.core.util.Globalizer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -59,7 +59,7 @@ public class MessageResponse implements Serializable {
     }
 
     public String getTitle() {
-        if (StringUtils.isEmpty(title)) {
+        if (Globalizer.isNullOrEmpty(title)) {
             return this.status.getReasonPhrase();
         }
         return this.title;

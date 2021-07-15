@@ -5,6 +5,7 @@ import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.AdvancedFilter;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Searchable;
+import com.sdm.core.util.Globalizer;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
@@ -16,7 +17,6 @@ import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -134,7 +134,7 @@ public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializa
 
     @Override
     public Page<T> findAll(String filter, Pageable pageable) {
-        if (StringUtils.isEmpty(filter)) {
+        if (Globalizer.isNullOrEmpty(filter)) {
             return super.findAll(pageable);
         }
 

@@ -12,11 +12,11 @@ import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.security.SecurityManager;
+import com.sdm.core.util.Globalizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.Id;
@@ -147,10 +147,10 @@ public class UserController extends DefaultReadController<User, Integer> impleme
     @Override
     @Transactional
     public ResponseEntity<ListResponse<User>> importData(@Valid List<User> body) {
-        ListResponse response = new ListResponse();
+        ListResponse<User> response = new ListResponse<User>();
         for (final User user : body) {
             String rawPassword = user.getPassword();
-            if (!StringUtils.isEmpty(rawPassword)) {
+            if (!Globalizer.isNullOrEmpty(rawPassword)) {
                 String password = securityManager.hashString(rawPassword);
                 user.setPassword(password);
             }
@@ -158,7 +158,7 @@ public class UserController extends DefaultReadController<User, Integer> impleme
             response.addData(user);
         }
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<ListResponse<User>>(response, HttpStatus.OK);
     }
 
 

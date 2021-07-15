@@ -11,9 +11,11 @@ public enum NameType {
 
     private String value;
 
-    NameType(String value){
-        this.value=value;
+    NameType(String value) {
+        this.value = value;
     }
 
-    public String getValue(){return value;}
+    public String getValue() {
+        return value;
+    }
 }

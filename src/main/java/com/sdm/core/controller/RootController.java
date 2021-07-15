@@ -4,6 +4,7 @@ import com.sdm.Constants;
 import com.sdm.core.config.PropertyConfig;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.security.SecurityManager;
+import com.sdm.core.util.Globalizer;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -11,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -56,7 +56,7 @@ public class RootController implements ErrorController {
             String message = request.getAttribute(RequestDispatcher.ERROR_MESSAGE).toString();
             Exception ex = (Exception) request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
             if (ex != null) {
-                if (StringUtils.isEmpty(message)) {
+                if (Globalizer.isNullOrEmpty(message)) {
                     message = ex.getLocalizedMessage();
                 } else {
                     detail.put("exception", ex.getMessage());

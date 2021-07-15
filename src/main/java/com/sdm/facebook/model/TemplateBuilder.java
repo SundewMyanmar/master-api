@@ -2,8 +2,8 @@ package com.sdm.facebook.model;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.sdm.core.util.Globalizer;
 import com.sdm.facebook.model.type.TemplateType;
-import org.springframework.util.StringUtils;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -83,7 +83,7 @@ public class TemplateBuilder extends MessageBuilder {
             this.payload.addProperty("sharable", sharable);
         }
 
-        if (!StringUtils.isEmpty(imageRatio)) {
+        if (!Globalizer.isNullOrEmpty(imageRatio)) {
             this.payload.addProperty("image_aspect_ratio", imageRatio);
         }
 
@@ -107,23 +107,23 @@ public class TemplateBuilder extends MessageBuilder {
     public JsonObject buildReceiptTemplate(String recipient_name, String order_number, String currency, String payment_method, String order_url,
                                            JsonObject address, JsonObject summary, JsonArray adjustments, JsonArray elements) {
         this.setTemplateType(TemplateType.receipt);
-        if (!StringUtils.isEmpty(recipient_name)) {
+        if (!Globalizer.isNullOrEmpty(recipient_name)) {
             this.payload.addProperty("recipient_name", recipient_name);
         }
 
-        if (!StringUtils.isEmpty(order_number)) {
+        if (!Globalizer.isNullOrEmpty(order_number)) {
             this.payload.addProperty("order_number", order_number);
         }
 
-        if (!StringUtils.isEmpty(currency)) {
+        if (!Globalizer.isNullOrEmpty(currency)) {
             this.payload.addProperty("currency", currency);
         }
 
-        if (!StringUtils.isEmpty(payment_method)) {
+        if (!Globalizer.isNullOrEmpty(payment_method)) {
             this.payload.addProperty("payment_method", payment_method);
         }
 
-        if (!StringUtils.isEmpty(order_url)) {
+        if (!Globalizer.isNullOrEmpty(order_url)) {
             this.payload.addProperty("order_url", order_url);
         }
 
@@ -167,7 +167,7 @@ public class TemplateBuilder extends MessageBuilder {
             this.payload.addProperty("sharable", sharable);
         }
 
-        if (!StringUtils.isEmpty(topElementStyle)) {
+        if (!Globalizer.isNullOrEmpty(topElementStyle)) {
             this.payload.addProperty("top_element_style", topElementStyle);
         }
 
