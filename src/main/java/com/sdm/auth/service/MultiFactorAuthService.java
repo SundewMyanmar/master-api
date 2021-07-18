@@ -154,10 +154,14 @@ public class MultiFactorAuthService {
         boolean isValid = false;
         if (mfa.isTotp()) {
             isValid = codeVerifier.isValidCode(mfa.getSecret(), code);
-        } else if (mfa.getSecretExpire().before(new Date())) {
-            throw new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! your otp code has been expired.");
+        } else {
+            if (mfa.getSecretExpire().before(new Date())) {
+                throw new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! your otp code has been expired.");
+            }
+
+            isValid = mfa.getSecret().equals(code);
         }
-        isValid = mfa.getSecret().equals(code);
+
         if (isValid && !mfa.isVerify()) {
             mfa.setVerify(true);
             repository.save(mfa);

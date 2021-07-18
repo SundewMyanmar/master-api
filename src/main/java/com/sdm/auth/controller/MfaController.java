@@ -50,7 +50,7 @@ public class MfaController extends DefaultController {
         return ResponseEntity.ok(new MessageResponse("Success!", "Sent new OTP code."));
     }
 
-    @PostMapping("/")
+    @PostMapping("/setup")
     @Transactional
     public ResponseEntity<User> setupMfa(@Valid @RequestBody MultiFactorAuth mfa) {
         mfa.setUserId(getCurrentUser().getUserId());
@@ -64,7 +64,7 @@ public class MfaController extends DefaultController {
         return ResponseEntity.ok(user);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/remove/{id}")
     public ResponseEntity<MessageResponse> removeMfa(@PathVariable(value = "id") String id) {
         multiFactorAuthService.remove(getCurrentUser().getUserId(), id);
         MessageResponse message = new MessageResponse("DELETED",
@@ -72,8 +72,8 @@ public class MfaController extends DefaultController {
         return ResponseEntity.ok(message);
     }
 
-    @GetMapping("/verify/{totp}")
-    public ResponseEntity<MessageResponse> verifyMfa(@PathVariable(value = "totp") String totp,
+    @GetMapping("/verify")
+    public ResponseEntity<MessageResponse> verifyMfa(@RequestParam(value = "totp") String totp,
                                                      @RequestParam(value = "key") String key) {
         if (multiFactorAuthService.verify(getCurrentUser().getUserId(), totp, key)) {
             throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! Invalid otp code.");
