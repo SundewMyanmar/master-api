@@ -3,7 +3,6 @@ package com.sdm.admin.model;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.sdm.auth.service.MfaService;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Searchable;
 import com.sdm.core.util.MyanmarFontManager;
@@ -104,15 +103,6 @@ public class User extends DefaultEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
-
-    @JsonIgnore
-    @Column(length = 255)
-    private String mfaSecret;
-
-    @JsonIgnore
-    @Column(length = 10)
-    @Enumerated(EnumType.STRING)
-    private MfaService.TotpType mfaType;
 
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean mfaEnabled;

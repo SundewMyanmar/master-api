@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.Constants;
 import com.sdm.admin.model.User;
+import com.sdm.auth.model.MultiFactorAuth;
 import com.sdm.auth.model.request.ActivateRequest;
 import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.model.MailHeader;
@@ -81,11 +82,11 @@ public class AuthMailService {
     }
 
     @Async
-    public void enableMFA(User user, String otp) {
-        Map<String, Object> data = Map.of("user", user.getDisplayName(), "current_year", Globalizer.getDateString("yyyy", new Date()),
-                "expire", user.getMfaType().value() / 60, "otp", otp);
+    public void sendMfa(MultiFactorAuth mfa) {
+        Map<String, Object> data = Map.of("current_year", Globalizer.getDateString("yyyy", new Date()),
+                "expire", mfa.getSecretExpire(), "otp", mfa.getSecret());
 
-        mailManager.sendByTemplate(new MailHeader(user.getEmail(), "Two Factor Verification"), "mail/mfa-verify", data);
+        mailManager.sendByTemplate(new MailHeader(mfa.getKey(), "Two Factor Verification"), "mail/mfa-verify", data);
     }
 
     @Async

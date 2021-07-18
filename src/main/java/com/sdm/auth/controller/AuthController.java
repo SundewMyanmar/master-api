@@ -59,11 +59,6 @@ public class AuthController {
         return service.authByPassword(request);
     }
 
-    @PostMapping("/verifyMfa")
-    public ResponseEntity<User> authWithEmailAndMfa(@Valid @RequestBody AuthRequest request) throws GeneralSecurityException {
-        return service.authByPasswordAndMfa(request);
-    }
-
     @PostMapping("/register")
     public ResponseEntity<User> registerByUserAndPassword(@Valid @RequestBody RegistrationRequest request) {
         return service.registerByUserAndEmail(request);

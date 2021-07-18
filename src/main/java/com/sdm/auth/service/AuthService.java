@@ -10,7 +10,6 @@ import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
-import com.sdm.file.service.FileService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,8 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.security.GeneralSecurityException;
-import java.util.Arrays;
 import java.util.Date;
 
 @Service
@@ -43,28 +40,24 @@ public class AuthService {
     private JwtService jwtService;
 
     @Autowired
+    private MultiFactorAuthService mfaService;
+
+    @Autowired
     private HttpSession session;
 
     @Autowired
     private HttpServletRequest httpServletRequest;
 
-    @Autowired
-    private MfaService mfaService;
-
-    @Autowired
-    FileService fileService;
-
     public static final int MAX_PASSWORD = 32;
     public static final int MIN_PASSWORD = 16;
 
-    private int increaseFailedCount() {
+    private void increaseFailedCount() {
         Integer count = (Integer) session.getAttribute(Constants.SESSION.AUTH_FAILED_COUNT);
         if (count == null) {
             count = 0;
         }
         count++;
         session.setAttribute(Constants.SESSION.AUTH_FAILED_COUNT, count);
-        return count;
     }
 
     private String getActivateCallbackURL() {
@@ -157,28 +150,6 @@ public class AuthService {
         mailService.welcomeUser(user, genPassword, "Generated New Password");
     }
 
-    public void enableMFA(User user) throws GeneralSecurityException {
-        String totp = mfaService.generateCurrentTOTP(user.getMfaSecret(), user.getMfaType());
-        switch (user.getMfaType()) {
-            case SMS:
-                //TODO: SMS
-                break;
-            case EMAIL:
-                mailService.enableMFA(user, totp);
-                break;
-        }
-    }
-
-    public void verifyMFA(User user, String totp) throws GeneralSecurityException {
-        String appTotp = mfaService.generateCurrentTOTP(user.getMfaSecret(), MfaService.TotpType.APP);
-        String emailTotp = mfaService.generateCurrentTOTP(user.getMfaSecret(), MfaService.TotpType.EMAIL);
-        String smsTotp = mfaService.generateCurrentTOTP(user.getMfaSecret(), MfaService.TotpType.SMS);
-
-        if (!Arrays.asList(appTotp, emailTotp, smsTotp).contains(totp)) {
-            throw new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! invalid otp code.");
-        }
-    }
-
     public ResponseEntity<MessageResponse> forgetPassword(ForgetPasswordRequest request) {
         User user = userRepository.findFirstByPhoneNumberAndEmail(request.getPhoneNumber(), request.getEmail())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Invalid phone number (or) email address."));
@@ -211,24 +182,18 @@ public class AuthService {
     }
 
     @Transactional
-    public ResponseEntity<User> authByPasswordAndMfa(AuthRequest request) throws GeneralSecurityException {
+    public ResponseEntity<User> authByPassword(AuthRequest request) {
         User authUser = authByPassword(request.getUser(), request.getPassword());
-        this.verifyMFA(authUser, request.getMfa());
-        jwtService.createToken(authUser, request, httpServletRequest);
-        return ResponseEntity.ok(authUser);
-    }
-
-    @Transactional
-    public ResponseEntity<User> authByPassword(AuthRequest request) throws GeneralSecurityException {
-        User authUser = authByPassword(request.getUser(), request.getPassword());
-
-        if (!authUser.isMfaEnabled())
-            jwtService.createToken(authUser, request, httpServletRequest);
-        else {
-            this.enableMFA(authUser);
-            throw new GeneralException(HttpStatus.NON_AUTHORITATIVE_INFORMATION, "Sorry! please log in with totp token.");
+        if (authUser.isMfaEnabled() && Globalizer.isNullOrEmpty(request.getMfaCode())) {
+            mfaService.sendMfaCode(authUser.getId());
+            return new ResponseEntity<>(authUser, HttpStatus.PARTIAL_CONTENT);
         }
 
+        if (authUser.isMfaEnabled() && !mfaService.verify(authUser.getId(), request.getMfaCode(), request.getMfaKey())) {
+            throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! Invalid otp code.");
+        }
+
+        jwtService.createToken(authUser, request, httpServletRequest);
         return ResponseEntity.ok(authUser);
     }
 

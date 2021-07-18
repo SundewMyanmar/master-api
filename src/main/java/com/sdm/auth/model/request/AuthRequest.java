@@ -36,6 +36,9 @@ public class AuthRequest extends TokenInfo implements Serializable {
     @Size(min = 2, max = 255)
     private String password;
 
-    @Size(min = 2, max = 6)
-    private String mfa;
+    //Phone number or Email
+    private String mfaKey;
+
+    @Size(min = 6, max = 8)
+    private String mfaCode;
 }
