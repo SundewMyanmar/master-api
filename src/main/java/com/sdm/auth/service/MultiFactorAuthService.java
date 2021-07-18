@@ -221,11 +221,14 @@ public class MultiFactorAuthService {
     }
 
     @Transactional
-    public void remove(String id) {
+    public void remove(int userId, String id) {
         MultiFactorAuth mfa = repository.findById(id)
-                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find mfa."));
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find MFA."));
         if (mfa.isMain()) {
-            throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! You can't remove main mfa. Please change to main mfa first.");
+            throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! You can't remove main MFA.");
+        }
+        if (mfa.getUserId() != userId) {
+            throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! Can't find your MFA.");
         }
         repository.deleteById(id);
     }

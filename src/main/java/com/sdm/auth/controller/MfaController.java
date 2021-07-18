@@ -58,6 +58,20 @@ public class MfaController extends DefaultController {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("/disable")
+    public ResponseEntity<User> disableMfa() {
+        User user = multiFactorAuthService.disable(getCurrentUser().getUserId());
+        return ResponseEntity.ok(user);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<MessageResponse> removeMfa(@PathVariable(value = "id") String id) {
+        multiFactorAuthService.remove(getCurrentUser().getUserId(), id);
+        MessageResponse message = new MessageResponse("DELETED",
+                "Deleted data on your request by.");
+        return ResponseEntity.ok(message);
+    }
+
     @GetMapping("/verify/{totp}")
     public ResponseEntity<MessageResponse> verifyMfa(@PathVariable(value = "totp") String totp,
                                                      @RequestParam(value = "key") String key) {
