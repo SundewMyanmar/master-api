@@ -1,5 +1,6 @@
 package com.sdm.auth.model;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sdm.Constants;
 import com.sdm.core.model.DefaultEntity;
@@ -25,7 +26,6 @@ import java.util.UUID;
 @NoArgsConstructor
 public class MultiFactorAuth extends DefaultEntity implements Serializable {
 
-    @JsonIgnore
     @Id
     @Column(unique = true, nullable = false, columnDefinition = "CHAR(36)", length = 36)
     private String id;
@@ -33,11 +33,7 @@ public class MultiFactorAuth extends DefaultEntity implements Serializable {
     @Column(nullable = false)
     private int userId;
     @JsonIgnore
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Type type;
-    @JsonIgnore
-    @Column(nullable = false, length = 32)
+    @Column(length = 32)
     private String secret;
     @JsonIgnore
     @Column
@@ -46,31 +42,38 @@ public class MultiFactorAuth extends DefaultEntity implements Serializable {
     @JsonIgnore
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean verify;
+    @JsonIgnore
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean main;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Type type;
     @NotBlank
     @NotNull
     @Size(max = 255)
-    @Column(nullable = false)
+    @Column
     private String key;
-    @Column(nullable = false, columnDefinition = "boolean default false")
-    private boolean totp;
-    @Column(nullable = false, columnDefinition = "boolean default false")
-    private boolean main;
 
     public MultiFactorAuth(MultiFactorAuth mfa) {
         this.id = UUID.randomUUID().toString();
         this.userId = mfa.userId;
         this.key = mfa.key;
-        this.totp = mfa.totp;
         this.main = mfa.main;
 
-        if (Globalizer.isEmail(mfa.key)) {
+        if (Globalizer.isNullOrEmpty(mfa.key)) {
+            this.type = Type.APP;
+        } else if (Globalizer.isEmail(mfa.key)) {
             this.type = Type.EMAIL;
         } else if (Globalizer.isPhoneNo(mfa.key)) {
             this.type = Type.SMS;
         } else {
-            this.type = Type.APP;
-            this.totp = true;
+            this.type = mfa.type;
         }
+    }
+
+    @JsonGetter("default")
+    public boolean isMain() {
+        return this.main;
     }
 
     public MultiFactorAuth(int userId) {
@@ -78,7 +81,6 @@ public class MultiFactorAuth extends DefaultEntity implements Serializable {
         this.userId = userId;
         this.key = Constants.APP_NAME;
         this.type = Type.APP;
-        this.totp = true;
     }
 
     public enum Type {
@@ -86,7 +88,7 @@ public class MultiFactorAuth extends DefaultEntity implements Serializable {
         SMS(180),
         APP(30);
 
-        private int life;
+        private final int life;
 
         Type(int life) {
             this.life = life;

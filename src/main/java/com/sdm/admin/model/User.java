@@ -3,6 +3,7 @@ package com.sdm.admin.model;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.sdm.auth.model.MultiFactorAuth;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Searchable;
 import com.sdm.core.util.MyanmarFontManager;
@@ -104,11 +105,11 @@ public class User extends DefaultEntity implements Serializable {
     @Column(nullable = false)
     private Status status;
 
-    @Column(nullable = false, columnDefinition = "boolean default false")
-    private boolean mfaEnabled;
-
     @Transient
     private String currentToken;
+
+    @Transient
+    private MultiFactorAuth mfa;
 
     public User(String email, String phoneNumber, String displayName, String password, Status status) {
         this.email = email;

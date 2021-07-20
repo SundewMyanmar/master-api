@@ -5,6 +5,7 @@ import com.sdm.Constants;
 import com.sdm.admin.model.User;
 import com.sdm.admin.repository.RoleRepository;
 import com.sdm.admin.repository.UserRepository;
+import com.sdm.auth.model.MultiFactorAuth;
 import com.sdm.auth.model.request.*;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
@@ -178,18 +179,23 @@ public class AuthService {
                     return new GeneralException(HttpStatus.UNAUTHORIZED,
                             "Opp! request email or password is something wrong");
                 });
+        session.setAttribute(Constants.SESSION.AUTH_FAILED_COUNT, 0);
         return authUser;
     }
 
     @Transactional
     public ResponseEntity<User> authByPassword(AuthRequest request) {
         User authUser = authByPassword(request.getUser(), request.getPassword());
-        if (authUser.isMfaEnabled() && Globalizer.isNullOrEmpty(request.getMfaCode())) {
-            mfaService.sendMfaCode(authUser.getId());
+        MultiFactorAuth mfa = mfaService.authMfa(authUser.getId(), request.getMfaKey(), request.isMfaAuto());
+        authUser.setMfa(mfa);
+        if (mfa != null && Globalizer.isNullOrEmpty(request.getMfaCode())) {
+            if (!mfa.getType().equals(MultiFactorAuth.Type.APP)) {
+                mfaService.sendMfaCode(mfa);
+            }
             return new ResponseEntity<>(authUser, HttpStatus.PARTIAL_CONTENT);
         }
 
-        if (authUser.isMfaEnabled() && !mfaService.verify(authUser.getId(), request.getMfaCode(), request.getMfaKey())) {
+        if (mfa != null && !mfaService.verify(authUser.getId(), request.getMfaCode(), request.getMfaKey())) {
             throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! Invalid otp code.");
         }
 

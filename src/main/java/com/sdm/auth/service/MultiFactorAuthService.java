@@ -1,16 +1,16 @@
 package com.sdm.auth.service;
 
+import com.sdm.Constants;
 import com.sdm.admin.model.User;
 import com.sdm.admin.repository.UserRepository;
 import com.sdm.auth.model.MultiFactorAuth;
-import com.sdm.auth.model.MultiFactorAuthRepository;
+import com.sdm.auth.repository.MultiFactorAuthRepository;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.util.Globalizer;
 import com.sdm.sms.model.request.telenor.MessageType;
 import com.sdm.sms.service.TelenorSmsService;
 import dev.samstevens.totp.code.CodeGenerator;
 import dev.samstevens.totp.code.CodeVerifier;
-import dev.samstevens.totp.exceptions.CodeGenerationException;
 import dev.samstevens.totp.qr.QrData;
 import dev.samstevens.totp.qr.QrDataFactory;
 import dev.samstevens.totp.recovery.RecoveryCodeGenerator;
@@ -23,6 +23,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class MultiFactorAuthService {
@@ -52,30 +53,43 @@ public class MultiFactorAuthService {
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
     }
 
-    private MultiFactorAuth getMainMfa(int userId) {
-        return repository.findOneByUserIdAndMainTrue(userId)
-                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your MFA."));
+    @Transactional
+    public MultiFactorAuth authMfa(int userId, String key, boolean useMain) {
+        Optional<MultiFactorAuth> mfa;
+        if (!Globalizer.isNullOrEmpty(key)) {
+            mfa = repository.findOneByUserIdAndKeyAndVerifyTrue(userId, key);
+        } else {
+            mfa = repository.findAppByUserIdAndVerifyTrue(userId);
+        }
+
+        if (useMain) {
+            mfa = repository.findOneByUserIdAndMainTrueAndVerifyTrue(userId);
+        }
+
+        if (mfa.isEmpty()) {
+            return null;
+        }
+
+        return mfa.get();
     }
 
-    public String generateQrData(int userId, String key) {
+    public String generateQrData(int userId) {
         User user = this.checkUser(userId);
         MultiFactorAuth mfa = repository.findAppByUserId(userId)
                 .orElseGet(() -> {
                     MultiFactorAuth newMfa = new MultiFactorAuth(userId);
-                    if (!Globalizer.isNullOrEmpty(key)) {
-                        newMfa.setKey(key);
-                    }
+                    newMfa.setSecret(secretGenerator.generate());
                     repository.save(newMfa);
                     return newMfa;
                 });
-        String issuer = user.getDisplayName();
-        if (Globalizer.isNullOrEmpty(issuer)) {
-            issuer = "SUNDEW MYANMAR";
+        String label = user.getDisplayName();
+        if (Globalizer.isNullOrEmpty(label)) {
+            label = "SUNDEW MYANMAR";
         }
         QrData data = qrDataFactory.newBuilder()
-                .label(mfa.getKey())
+                .label(label)
                 .secret(mfa.getSecret())
-                .issuer(issuer)
+                .issuer(Constants.APP_NAME)
                 .digits(MFA_LENGTH)
                 .period(mfa.getType().life())
                 .build();
@@ -85,20 +99,15 @@ public class MultiFactorAuthService {
 
     @Transactional
     public void sendMfaCode(int userId, String key) {
-        MultiFactorAuth mfa = null;
+        MultiFactorAuth mfa;
         if (!Globalizer.isNullOrEmpty(key)) {
             mfa = repository.findOneByUserIdAndKey(userId, key)
                     .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your mfa."));
         } else {
-            mfa = getMainMfa(userId);
+            mfa = repository.findAppByUserId(userId)
+                    .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your mfa."));
         }
 
-        this.sendMfaCode(mfa);
-    }
-
-    @Transactional
-    public void sendMfaCode(int userId) {
-        MultiFactorAuth mfa = getMainMfa(userId);
         this.sendMfaCode(mfa);
     }
 
@@ -115,17 +124,8 @@ public class MultiFactorAuthService {
 
         String MFA_CHARS = "0123456789";
         String code = Globalizer.generateToken(MFA_CHARS, MFA_LENGTH);
-        if (mfa.isTotp()) {
-            try {
-                code = codeGenerator.generate(mfa.getSecret(), mfa.getType().life());
-            } catch (CodeGenerationException ex) {
-                throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
-            }
-        } else {
-            mfa.setSecret(code);
-        }
-
         Date expiredDate = Globalizer.addDate(new Date(), Duration.ofSeconds(mfa.getType().life()));
+        mfa.setSecret(code);
         mfa.setSecretExpire(expiredDate);
         repository.save(mfa);
 
@@ -138,21 +138,25 @@ public class MultiFactorAuthService {
                 throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
             }
         } else if (mfa.getType().equals(MultiFactorAuth.Type.EMAIL)) {
-            mailService.sendMfa(mfa);
+            mailService.sendMfa(mfa.getKey(), code, expiredDate);
         } else {
             throw new GeneralException(HttpStatus.BAD_REQUEST, "Invalid MFA Type!");
         }
     }
 
+    @Transactional
     public boolean verify(int userId, String code, String key) {
-        MultiFactorAuth mfa = getMainMfa(userId);
-
+        MultiFactorAuth mfa;
         if (!Globalizer.isNullOrEmpty(key)) {
             mfa = repository.findOneByUserIdAndKey(userId, key)
-                    .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your mfa account."));
+                    .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your mfa."));
+        } else {
+            mfa = repository.findAppByUserId(userId)
+                    .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your mfa."));
         }
+
         boolean isValid = false;
-        if (mfa.isTotp()) {
+        if (mfa.getType().equals(MultiFactorAuth.Type.APP)) {
             isValid = codeVerifier.isValidCode(mfa.getSecret(), code);
         } else {
             if (mfa.getSecretExpire().before(new Date())) {
@@ -163,7 +167,9 @@ public class MultiFactorAuthService {
         }
 
         if (isValid && !mfa.isVerify()) {
+            repository.clearMainMfa(mfa.getUserId());
             mfa.setVerify(true);
+            mfa.setMain(true);
             repository.save(mfa);
         }
 
@@ -171,57 +177,46 @@ public class MultiFactorAuthService {
     }
 
     @Transactional
-    public User setup(MultiFactorAuth requestMfa) {
-        User user = checkUser(requestMfa.getUserId());
+    public void setupEmailOrSMS(MultiFactorAuth requestMfa) {
+        checkUser(requestMfa.getUserId());
         MultiFactorAuth mfa = new MultiFactorAuth(requestMfa);
 
-        //APP type must be only one
-        if (requestMfa.getType().equals(MultiFactorAuth.Type.APP)) {
-            repository.findAppByUserId(requestMfa.getUserId())
-                    .ifPresent((existMfa) -> {
-                        mfa.setId(existMfa.getId());
-                    });
-        } else {
-            repository.findOneByUserIdAndKey(requestMfa.getUserId(), requestMfa.getKey())
-                    .ifPresent((existMfa) -> {
-                        mfa.setId(existMfa.getId());
-                    });
+        if (mfa.getType().equals(MultiFactorAuth.Type.APP)) {
+            throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! You need to verify MFA by Authenticator App.");
         }
 
-        if (mfa.getType().equals(MultiFactorAuth.Type.APP)) {
-            String secret = secretGenerator.generate();
-            mfa.setTotp(true);
-            mfa.setSecret(secret);
-        } else if (Globalizer.isNullOrEmpty(requestMfa.getKey())) {
+        repository.findOneByUserIdAndKey(mfa.getUserId(), mfa.getKey())
+                .ifPresent((existMfa) -> {
+                    mfa.setId(existMfa.getId());
+                    mfa.setVersion(existMfa.getVersion());
+                });
+
+        if (Globalizer.isNullOrEmpty(mfa.getKey())) {
             throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! MFA Key is required.");
         }
 
-        if (mfa.isMain()) {
-            repository.clearMainMfa(mfa.getUserId());
-        }
-
-        if (!mfa.getType().equals(MultiFactorAuth.Type.APP)) {
-            this.sendMfaCode(mfa);
-        } else {
-            //this.sendMfaCode has saved
-            repository.save(mfa);
-        }
-
-        if (!user.isMfaEnabled()) {
-            user.setMfaEnabled(true);
-            userRepository.save(user);
-        }
-
-        return user;
+        this.sendMfaCode(mfa);
     }
 
     @Transactional
-    public User disable(int userId) {
-        User user = this.checkUser(userId);
-        repository.deleteByUserId(userId);
-        user.setMfaEnabled(false);
-        userRepository.save(user);
-        return user;
+    public MultiFactorAuth setDefaultMfa(int userId, String id) {
+        MultiFactorAuth mfa = repository.findById(id)
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find MFA."));
+        if (mfa.isMain()) {
+            throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! You can't remove default MFA.");
+        }
+        if (mfa.getUserId() != userId) {
+            throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! Can't find your MFA.");
+        }
+        repository.clearMainMfa(userId);
+        mfa.setMain(true);
+        repository.save(mfa);
+        return mfa;
+    }
+
+    @Transactional
+    public void disable(int userId) {
+        repository.disableAllMfa(userId);
     }
 
     @Transactional
@@ -229,11 +224,12 @@ public class MultiFactorAuthService {
         MultiFactorAuth mfa = repository.findById(id)
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find MFA."));
         if (mfa.isMain()) {
-            throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! You can't remove main MFA.");
+            throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! You can't remove default MFA.");
         }
         if (mfa.getUserId() != userId) {
             throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! Can't find your MFA.");
         }
-        repository.deleteById(id);
+        mfa.setVerify(false);
+        repository.save(mfa);
     }
 }

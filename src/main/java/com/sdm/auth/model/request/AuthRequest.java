@@ -36,6 +36,8 @@ public class AuthRequest extends TokenInfo implements Serializable {
     @Size(min = 2, max = 255)
     private String password;
 
+    private boolean mfaAuto = true;
+
     //Phone number or Email
     private String mfaKey;
 
