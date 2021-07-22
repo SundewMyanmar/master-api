@@ -5,6 +5,7 @@ import com.sdm.core.db.repository.DefaultRepository;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.model.response.PaginationResponse;
+import com.sdm.core.util.Globalizer;
 import com.sdm.notification.model.Notification;
 import com.sdm.notification.repository.NotificationRepository;
 import com.sdm.notification.service.CloudMessagingService;
@@ -15,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
@@ -52,7 +52,7 @@ public class NotificationController extends DefaultReadController<Notification, 
         Page<Notification> notifications;
 
         Pageable paging = this.buildPagination(pageId, pageSize, "sentAt:DESC");
-        if (StringUtils.isEmpty(category)) {
+        if (Globalizer.isNullOrEmpty(category)) {
             notifications = repository.pagingByUser(paging, getCurrentUser().getUserId());
         } else {
             notifications = repository.pagingByUserAndCategory(paging, getCurrentUser().getUserId(), category);
@@ -63,7 +63,7 @@ public class NotificationController extends DefaultReadController<Notification, 
     @Transactional
     @PutMapping("/me/readAll")
     public ResponseEntity<MessageResponse> readAllNotifications(@RequestParam(value = "category", defaultValue = "") String category) {
-        if (StringUtils.isEmpty(category)) {
+        if (Globalizer.isNullOrEmpty(category)) {
             repository.readAllNotifications(getCurrentUser().getUserId());
         } else {
             repository.readAllNotificationsByCategory(getCurrentUser().getUserId(), category);

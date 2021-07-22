@@ -23,7 +23,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.util.WebUtils;
 
 import javax.crypto.SecretKey;
@@ -66,7 +65,7 @@ public class JwtService implements JwtAuthenticationHandler {
     private String getAudience(HttpServletRequest request) {
         String ip = Globalizer.getRemoteAddress(request);
         String agent = request.getHeader(HttpHeaders.USER_AGENT);
-        if (StringUtils.isEmpty(agent) || StringUtils.isEmpty(ip)) {
+        if (Globalizer.isNullOrEmpty(agent) || Globalizer.isNullOrEmpty(ip)) {
             throw new InvalidTokenException("Invalid request audience!");
         }
         return String.format("IP=%s; Agent=%s", ip, agent);
@@ -95,10 +94,10 @@ public class JwtService implements JwtAuthenticationHandler {
         cookie.setSecure(false);
         cookie.setMaxAge(-1);
 
-        if (!StringUtils.isEmpty(securityProperties.getCookieDomain())) {
+        if (!Globalizer.isNullOrEmpty(securityProperties.getCookieDomain())) {
             cookie.setDomain(securityProperties.getCookieDomain());
         }
-        if (!StringUtils.isEmpty(securityProperties.getCookiePath())) {
+        if (!Globalizer.isNullOrEmpty(securityProperties.getCookiePath())) {
             cookie.setPath(securityProperties.getCookiePath());
         } else {
             cookie.setPath("/");
@@ -160,7 +159,7 @@ public class JwtService implements JwtAuthenticationHandler {
         token.setUser(user);
         token.setDeviceId(tokenInfo.getDeviceId());
         token.setDeviceOs(tokenInfo.getDeviceOS());
-        if (!StringUtils.isEmpty(tokenInfo.getFirebaseMessagingToken())) {
+        if (!Globalizer.isNullOrEmpty(tokenInfo.getFirebaseMessagingToken())) {
             token.setFirebaseMessagingToken(tokenInfo.getFirebaseMessagingToken());
         }
 

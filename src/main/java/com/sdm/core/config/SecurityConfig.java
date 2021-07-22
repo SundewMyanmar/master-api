@@ -114,6 +114,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/facebook/messenger",
             "/public/**",
             "/auth/**",
+            "/mfa/resend",
 
             //Don't forget to remove in Production Mode
             "/setup",
@@ -130,6 +131,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/admin/menus/me",
             "/notifications/me/**",
             "/files/**",
+            "/mfa/**"
     };
 
     public static final String[] ROOT_PERMISSION_LIST = {};

@@ -20,7 +20,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -67,7 +66,7 @@ public class CloudMessagingService {
 
     private WebpushConfig webpushConfig(Integer badgeCount, String category) {
         WebpushNotification.Builder builder = WebpushNotification.builder();
-        if (!StringUtils.isEmpty(category)) {
+        if (!Globalizer.isNullOrEmpty(category)) {
             builder.setTag(category);
         }
 
@@ -82,13 +81,13 @@ public class CloudMessagingService {
 
     private AndroidConfig androidConfig(String category) {
         AndroidNotification.Builder builder = AndroidNotification.builder();
-        if (!StringUtils.isEmpty(ANDROID_COLOR)) {
+        if (!Globalizer.isNullOrEmpty(ANDROID_COLOR)) {
             builder.setColor(ANDROID_COLOR);
         }
-        if (!StringUtils.isEmpty(ANDROID_ICON)) {
+        if (!Globalizer.isNullOrEmpty(ANDROID_ICON)) {
             builder.setIcon(ANDROID_ICON);
         }
-        if (!StringUtils.isEmpty(category)) {
+        if (!Globalizer.isNullOrEmpty(category)) {
             builder.setTag(category);
         }
 
@@ -100,7 +99,7 @@ public class CloudMessagingService {
 
     private ApnsConfig iosConfig(int badgeCount, String category) {
         Aps.Builder builder = Aps.builder();
-        if (!StringUtils.isEmpty(category)) {
+        if (!Globalizer.isNullOrEmpty(category)) {
             builder.setCategory(category);
         }
 

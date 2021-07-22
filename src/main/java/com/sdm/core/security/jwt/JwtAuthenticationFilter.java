@@ -3,6 +3,7 @@ package com.sdm.core.security.jwt;
 import com.sdm.Constants;
 import com.sdm.core.exception.InvalidTokenException;
 import com.sdm.core.service.ClientService;
+import com.sdm.core.util.Globalizer;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -12,7 +13,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -51,14 +51,14 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
 
         String authorization = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (StringUtils.isEmpty(authorization)) {
+        if (Globalizer.isNullOrEmpty(authorization)) {
             authorization = httpServletRequest.getParameter(Constants.Auth.PARAM_NAME);
         } else if (authorization.length() > Constants.Auth.TYPE.length()) {
             authorization = authorization.substring(Constants.Auth.TYPE.length()).strip();
         }
 
         //Check Request with Authorization?
-        if (!StringUtils.isEmpty(authorization)) {
+        if (!Globalizer.isNullOrEmpty(authorization)) {
             try {
                 UsernamePasswordAuthenticationToken authToken = jwtAuthHandler.authByJwt(authorization, httpServletRequest);
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));

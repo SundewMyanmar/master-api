@@ -8,7 +8,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,7 +55,7 @@ public class SetupController {
         response.addObject("title", Constants.APP_NAME);
         for (String key : formData.keySet()) {
             String value = formData.getFirst(key);
-            if (!StringUtils.isEmpty(value) && ENCRYPT_FIELDS.contains(key)) {
+            if (!Globalizer.isNullOrEmpty(value) && ENCRYPT_FIELDS.contains(key)) {
                 value = "ENC(" + appConfig.stringEncryptor().encrypt(value) + ")";
             }
             response.addObject(key, value);

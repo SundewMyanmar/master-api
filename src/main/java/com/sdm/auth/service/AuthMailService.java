@@ -14,7 +14,6 @@ import com.sdm.core.util.Globalizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.Map;
@@ -58,7 +57,7 @@ public class AuthMailService {
         // Create Activate Request
         ActivateRequest request = new ActivateRequest();
         request.setToken(user.getOtpToken());
-        if (!StringUtils.isEmpty(user.getPhoneNumber())) {
+        if (!Globalizer.isNullOrEmpty(user.getPhoneNumber())) {
             request.setUser(user.getPhoneNumber());
         } else {
             request.setUser(user.getEmail());
@@ -82,11 +81,11 @@ public class AuthMailService {
     }
 
     @Async
-    public void enableMFA(User user, String otp) {
-        Map<String, Object> data = Map.of("user", user.getDisplayName(), "current_year", Globalizer.getDateString("yyyy", new Date()),
-                "expire", user.getMfaType().value() / 60, "otp", otp);
+    public void sendMfa(String email, String code, Date expire) {
+        Map<String, Object> data = Map.of("current_year", Globalizer.getDateString("yyyy", new Date()),
+                "expire", expire, "otp", code);
 
-        mailManager.sendByTemplate(new MailHeader(user.getEmail(), "Two Factor Verification"), "mail/mfa-verify", data);
+        mailManager.sendByTemplate(new MailHeader(email, "Two Factor Verification"), "mail/mfa-verify", data);
     }
 
     @Async

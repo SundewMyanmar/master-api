@@ -2,6 +2,7 @@ package com.sdm.core.service;
 
 import com.sdm.Constants;
 import com.sdm.core.model.MailHeader;
+import com.sdm.core.util.Globalizer;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
@@ -9,7 +10,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
@@ -28,17 +28,17 @@ public class MailService {
     public void send(MailHeader header, String body) {
         MimeMessagePreparator mail = message -> {
             MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
-            if (!StringUtils.isEmpty(header.getFrom())) {
+            if (!Globalizer.isNullOrEmpty(header.getFrom())) {
                 messageHelper.setFrom(header.getFrom());
             } else {
                 messageHelper.setFrom(Constants.INFO_MAIL);
             }
 
-            if (!StringUtils.isEmpty(header.getCc())) {
+            if (!Globalizer.isNullOrEmpty(header.getCc())) {
                 messageHelper.setCc(header.getCc());
             }
 
-            if (!StringUtils.isEmpty(header.getBcc())) {
+            if (!Globalizer.isNullOrEmpty(header.getBcc())) {
                 messageHelper.setBcc(header.getBcc());
             }
 

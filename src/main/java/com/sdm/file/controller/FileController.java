@@ -46,25 +46,19 @@ public class FileController extends DefaultReadController<File, String> {
             @RequestParam(value = "size", defaultValue = "10") int pageSize,
             @RequestParam(value = "sort", defaultValue = "id:DESC") String sortString,
             @RequestParam(value = "filter", defaultValue = "") String filter,
-            @RequestParam(value="public", defaultValue = "false") Boolean isPublic,
-            @RequestParam(value="hidden", defaultValue = "false") Boolean isHidden,
-            @PathVariable("id") Integer id){
+            @PathVariable("id") Integer id) {
         Page<File> result;
-        if(id==null || id<=0){
-            result=fileRepository.findByFolderIsNull(this.buildPagination(pageId,pageSize,sortString),filter,
-                    isPublic?null:false,
-                    isHidden?null:File.Status.STORAGE);
-        }else{
-            result=fileRepository.findByFolder(this.buildPagination(pageId,pageSize,sortString),filter,id,
-                    isPublic?null:false,
-                    isHidden?null:File.Status.STORAGE);
+        if (id == null || id <= 0) {
+            result = fileRepository.findByFolderIsNull(this.buildPagination(pageId, pageSize, sortString), filter);
+        } else {
+            result = fileRepository.findByFolder(this.buildPagination(pageId, pageSize, sortString), filter, id);
         }
         return new ResponseEntity<>(new PaginationResponse<>(result), HttpStatus.PARTIAL_CONTENT);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<File> update(@Valid @RequestBody File body, @PathVariable("id") @Size(min = 36, max = 36) String id) {
-        File file=this.getRepository().findById(id)
+        File file = this.getRepository().findById(id)
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
                         "There is no any data by : " + id.toString()));
 
@@ -103,11 +97,11 @@ public class FileController extends DefaultReadController<File, String> {
     @Transactional
     public ResponseEntity<ListResponse<File>> uploadFile(@RequestParam("uploadedFile") List<MultipartFile> files,
                                                          @RequestParam(value = "isPublic", required = false, defaultValue = "false") boolean isPublic,
-                                                         @RequestParam(value="isHidden",required = false,defaultValue = "false")boolean isHidden,
-                                                         @RequestParam(value="folder", required = false,defaultValue = "")Integer folder) {
+                                                         @RequestParam(value = "isHidden", required = false, defaultValue = "false") boolean isHidden,
+                                                         @RequestParam(value = "folder", required = false, defaultValue = "") Integer folder) {
         ListResponse<File> uploadedFiles = new ListResponse<>();
         files.forEach(file -> {
-            File fileEntity = fileService.create(file, isPublic,isHidden,folder);
+            File fileEntity = fileService.create(file, isPublic, isHidden, folder);
             uploadedFiles.addData(fileEntity);
         });
         return new ResponseEntity<ListResponse<File>>(uploadedFiles, HttpStatus.CREATED);

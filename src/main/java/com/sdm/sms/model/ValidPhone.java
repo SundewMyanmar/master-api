@@ -1,7 +1,6 @@
 package com.sdm.sms.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sdm.core.util.Globalizer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -5,10 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Log4j2
 @Data
@@ -24,8 +22,8 @@ public class Sai2PayProperties {
     private String channel = "SUNDEW_MYANMAR";
     private String appName = "saisaipay";
 
-    public String getPhoneNo(String ph){
-        if(ph==null)return null;
+    public String getPhoneNo(String ph) {
+        if (ph == null) return null;
         return "09" + ph;
     }
 
@@ -46,8 +44,8 @@ public class Sai2PayProperties {
     }
 
     public String getEnquiryCallbackUrl() {
-        log.info("Sai2Pay CALLBACK=> "+Globalizer.getCurrentContextPath("/public/payments/sai2/callback",true));
-        return Globalizer.getCurrentContextPath("/public/payments/sai2/callback",true);
+        log.info("Sai2Pay CALLBACK=> " + Globalizer.getCurrentContextPath("/public/payments/sai2/callback", true));
+        return Globalizer.getCurrentContextPath("/public/payments/sai2/callback", true);
     }
 
     public String getCheckTransactionStatus() {

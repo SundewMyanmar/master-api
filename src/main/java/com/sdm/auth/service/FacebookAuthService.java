@@ -58,7 +58,7 @@ public class FacebookAuthService implements SocialAuthService {
                 if (pictureDataObj.has("url")) {
                     String pictureUrl = pictureDataObj.get("url").getAsString();
                     try {
-                        return fileService.create(pictureUrl, false,true,null);
+                        return fileService.create(pictureUrl, false, true, null);
                     } catch (IOException e) {
                         log.error("FACEBOOK_IMAGE_FAIL>>>" + e.getLocalizedMessage());
                     }

@@ -31,17 +31,17 @@ public class TelenorSmsMessage implements Serializable {
      * name, value collection
      */
     @JsonProperty("characteristic")
-    private List<Map<String,String>> characteristic;
+    private List<Map<String, String>> characteristic;
 
     /**
      * @type,name
      */
     @JsonProperty("sender")
-    private Map<String,String> sender;
+    private Map<String, String> sender;
 
     /**
      * @type,phoneNumber
      */
     @JsonProperty("receiver")
-    private List<Map<String,String>> receiver;
+    private List<Map<String, String>> receiver;
 }
