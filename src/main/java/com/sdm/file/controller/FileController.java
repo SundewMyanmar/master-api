@@ -46,14 +46,20 @@ public class FileController extends DefaultReadController<File, String> {
             @RequestParam(value = "size", defaultValue = "10") int pageSize,
             @RequestParam(value = "sort", defaultValue = "id:DESC") String sortString,
             @RequestParam(value = "filter", defaultValue = "") String filter,
+            @RequestParam(value="public", defaultValue = "false") Boolean isPublic,
+            @RequestParam(value="hidden", defaultValue = "false") Boolean isHidden,
             @PathVariable("id") Integer id){
-            Page<File> result;
-            if(id==null || id<=0){
-                result=fileRepository.findByFolderIsNull(this.buildPagination(pageId,pageSize,sortString),filter);
-            }else{
-                result=fileRepository.findByFolder(this.buildPagination(pageId,pageSize,sortString),filter,id);
-            }
-            return new ResponseEntity<>(new PaginationResponse<>(result), HttpStatus.PARTIAL_CONTENT);
+        Page<File> result;
+        if(id==null || id<=0){
+            result=fileRepository.findByFolderIsNull(this.buildPagination(pageId,pageSize,sortString),filter,
+                    isPublic?null:false,
+                    isHidden?null:File.Status.STORAGE);
+        }else{
+            result=fileRepository.findByFolder(this.buildPagination(pageId,pageSize,sortString),filter,id,
+                    isPublic?null:false,
+                    isHidden?null:File.Status.STORAGE);
+        }
+        return new ResponseEntity<>(new PaginationResponse<>(result), HttpStatus.PARTIAL_CONTENT);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
