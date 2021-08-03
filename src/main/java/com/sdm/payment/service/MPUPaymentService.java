@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.util.Globalizer;
+import com.sdm.core.util.LocaleManager;
 import com.sdm.payment.model.request.mpu.MPUPaymentInquiryResponseRequest;
 import com.sdm.payment.util.PaymentSecurityManager;
 import lombok.extern.log4j.Log4j2;
@@ -25,6 +26,9 @@ public class MPUPaymentService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private LocaleManager localeManager;
 
     public ResponseEntity<?> paymentRequestCallback(MPUPaymentInquiryResponseRequest request) {
         List<String> hashBuilder = new ArrayList<>();
@@ -55,14 +59,14 @@ public class MPUPaymentService {
         if (!hash.equals(request.getHashValue())) {
             writeLog(request);
 
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         if (!request.getRespCode().equals("00")) {
             writeLog(request);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
         }
-        return ResponseEntity.ok(new MessageResponse("SUCCESS", "MPU Callback is success for transactionId : " + request.getInvoiceNo()));
+        return ResponseEntity.ok(new MessageResponse(localeManager.getMessage("success"), localeManager.getMessage("mpu-callback-success", request.getInvoiceNo())));
     }
 
 
@@ -70,7 +74,7 @@ public class MPUPaymentService {
         try {
             log.error("INVALID_MPU_RESPONSE >>>" + objectMapper.writeValueAsString(request));
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
         }
     }
 }

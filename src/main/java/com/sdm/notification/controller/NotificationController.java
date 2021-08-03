@@ -40,7 +40,7 @@ public class NotificationController extends DefaultReadController<Notification, 
     private Notification checkUserNoti(String id) {
         Notification notification = this.checkData(id);
         if (notification.getUser() != null && !notification.getUser().getId().equals(getCurrentUser().getUserId())) {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED, "You don't have access the message.");
+            throw new GeneralException(HttpStatus.UNAUTHORIZED, localeManager.getMessage("access-denied"));
         }
         return notification;
     }
@@ -69,7 +69,7 @@ public class NotificationController extends DefaultReadController<Notification, 
             repository.readAllNotificationsByCategory(getCurrentUser().getUserId(), category);
         }
 
-        MessageResponse message = new MessageResponse(HttpStatus.OK, "Changed read status on all notification.");
+        MessageResponse message = new MessageResponse(localeManager.getMessage("success"), localeManager.getMessage("changed-notification-read-status"));
         return ResponseEntity.ok(message);
     }
 
@@ -85,14 +85,14 @@ public class NotificationController extends DefaultReadController<Notification, 
     public ResponseEntity<MessageResponse> deleteNotification(@PathVariable("id") String id) {
         Notification notification = this.checkUserNoti(id);
         repository.softDelete(notification);
-        MessageResponse message = new MessageResponse(HttpStatus.OK, "Deleted notification on your request.");
+        MessageResponse message = new MessageResponse(localeManager.getMessage("remove-success"), localeManager.getMessage("remove-data"));
         return ResponseEntity.ok(message);
     }
 
     @PostMapping(value = "/fcm", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponse> sendFcmMessage(@Valid @RequestBody Notification notification) {
         cloudMessagingService.sendMessage(notification);
-        MessageResponse message = new MessageResponse(HttpStatus.OK, "Sent notification on your request.");
+        MessageResponse message = new MessageResponse(localeManager.getMessage("success"), localeManager.getMessage("sent-notification"));
         return new ResponseEntity<>(message, HttpStatus.CREATED);
     }
 }

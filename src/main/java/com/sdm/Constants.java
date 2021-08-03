@@ -9,6 +9,7 @@ public interface Constants {
 
     String APP_NAME = "MasterAPI";
     String INFO_MAIL = "info@sundewmyanmar.com";
+    String VERSION = "1.6";
 
     String ENCRYPT_KEY = "MASTER_API_ENCRYPT_KEY";
 

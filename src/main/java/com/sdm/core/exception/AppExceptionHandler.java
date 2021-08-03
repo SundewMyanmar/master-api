@@ -2,11 +2,13 @@ package com.sdm.core.exception;
 
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.sdm.core.model.response.MessageResponse;
+import com.sdm.core.util.LocaleManager;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpHeaders;
@@ -45,6 +47,9 @@ import java.util.Map;
 @Log4j2
 public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 
+    @Autowired
+    LocaleManager localeManager;
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     private ResponseEntity<Object> invalidFieldErrors(List<FieldError> fieldErrors, List<ObjectError> objectErrors) {
         Map<String, Object> errors = new HashMap<>();
@@ -55,12 +60,12 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
             errors.put(error.getObjectName(), error.getDefaultMessage());
         }
 
-        MessageResponse message = new MessageResponse(HttpStatus.BAD_REQUEST, "INVALID_FIELDS", "Invalid request fields.", errors);
+        MessageResponse message = new MessageResponse(HttpStatus.BAD_REQUEST, "INVALID_FIELDS", localeManager.getMessage("invalid-request-fields"), errors);
         return new ResponseEntity<>(message, message.getStatus());
     }
 
     private ResponseEntity<Object> notSupportedMessage(HttpStatus status, String request, List<?> supportedValues) {
-        String error = "[" + request + "] is not supported.";
+        String error = localeManager.getMessage("not-supported", request);
         Map<String, Object> details = new HashMap<>();
         details.put("availableFields", supportedValues);
         MessageResponse message = new MessageResponse(status, "NOT_SUPPORTED", error, details);
@@ -102,7 +107,7 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({OptimisticLockException.class, OptimisticLockingFailureException.class, StaleObjectStateException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Object> handleVersioningException(Exception ex, WebRequest request) {
-        return new ResponseEntity<>(new MessageResponse(HttpStatus.BAD_REQUEST, "Version error. Please refresh your data and try again."), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new MessageResponse(HttpStatus.BAD_REQUEST, localeManager.getMessage("version-error")), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(GeneralException.class)
@@ -142,7 +147,7 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        String error = ex.getVariableName() + " is missing in path.";
+        String error = localeManager.getMessage("invalid-path-fields", ex.getVariableName());
         return this.generalMessage(ex, HttpStatus.BAD_REQUEST, error);
     }
 
@@ -158,13 +163,13 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleConversionNotSupported(ConversionNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        String error = ex.getPropertyName() + " type is invalid. It should be " + ex.getRequiredType().toString();
+        String error = localeManager.getMessage("invalid-request-type", ex.getPropertyName(), ex.getRequiredType());
         return this.generalMessage(ex, status, error);
     }
 
     @Override
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        String error = ex.getPropertyName() + " type is invalid. It should be " + ex.getRequiredType().toString();
+        String error = localeManager.getMessage("invalid-request-type", ex.getPropertyName(), ex.getRequiredType());
         return this.generalMessage(ex, status, error);
     }
 
@@ -193,7 +198,7 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     @ResponseStatus(HttpStatus.NOT_FOUND)
     protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        String error = "No handler found for " + ex.getHttpMethod() + " " + ex.getRequestURL();
+        String error = localeManager.getMessage("invalid-request-handler", ex.getHttpMethod(), ex.getRequestURL());
         return this.generalMessage(ex, HttpStatus.NOT_FOUND, error);
     }
 

@@ -41,7 +41,7 @@ public class SwaggerConfig {
 
         return new ApiInfo("MasterAPI Documentation",
                 "This is a master-api backend system documentation page by swagger-ui.",
-                "v1.6", "", contact, "", "", List.of(springBoot));
+                Constants.VERSION, "", contact, "", "", List.of(springBoot));
     }
 
     private ApiKey apiKey() {

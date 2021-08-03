@@ -10,6 +10,7 @@ import com.sdm.core.exception.GeneralException;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.GoogleApiManager;
+import com.sdm.core.util.LocaleManager;
 import com.sdm.file.model.File;
 import com.sdm.file.service.FileService;
 import lombok.extern.log4j.Log4j2;
@@ -44,6 +45,9 @@ public class GoogleAuthService implements SocialAuthService {
 
     @Autowired
     JwtService jwtService;
+
+    @Autowired
+    LocaleManager localeManager;
 
     @Autowired
     private HttpServletRequest httpServletRequest;
@@ -84,7 +88,7 @@ public class GoogleAuthService implements SocialAuthService {
         File profilePicture = this.createProfileImage(payload.get("picture").toString());
 
         if (!payload.getEmailVerified()) {
-            throw new GeneralException(HttpStatus.NOT_ACCEPTABLE, "You need to verify your e-mail account first.");
+            throw new GeneralException(HttpStatus.NOT_ACCEPTABLE, localeManager.getMessage("verify-your-email"));
         }
 
         //Check User Data
@@ -135,7 +139,7 @@ public class GoogleAuthService implements SocialAuthService {
         if (authUser.getGoogleId().equalsIgnoreCase(payload.getSubject())) {
             jwtService.createToken(authUser, request, httpServletRequest);
         } else {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
+            throw new GeneralException(HttpStatus.UNAUTHORIZED, localeManager.getMessage("invalid-auth-linked"));
         }
 
         return ResponseEntity.ok(authUser);
@@ -148,7 +152,7 @@ public class GoogleAuthService implements SocialAuthService {
                 .orElseGet(() -> user);
 
         if (!authUser.getId().equals(user.getId())) {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED, "Access Token and User Id doesn't match!");
+            throw new GeneralException(HttpStatus.UNAUTHORIZED, localeManager.getMessage("google-linked-failed"));
         }
 
         if (Globalizer.isNullOrEmpty(user.getGoogleId())) {

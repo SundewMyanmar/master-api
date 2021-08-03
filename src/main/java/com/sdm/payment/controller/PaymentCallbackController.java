@@ -1,6 +1,7 @@
 package com.sdm.payment.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sdm.core.controller.DefaultController;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.payment.config.properties.MPUProperties;
 import com.sdm.payment.model.request.cbpay.CBResponsePaymentOrderRequest;
@@ -27,7 +28,7 @@ import java.security.NoSuchAlgorithmException;
 @Log4j2
 @RestController
 @RequestMapping("/public/payments")
-public class PaymentCallbackController {
+public class PaymentCallbackController extends DefaultController {
 
     @Autowired(required = false)
     private PaymentCallback paymentCallback;
@@ -38,7 +39,7 @@ public class PaymentCallbackController {
     @PostMapping("/onepay/callback")
     public OnePayResponseDirectPaymentResponse onePayCallback(@Valid @RequestBody OnePayResponseDirectPaymentRequest request) throws IOException {
         if (paymentCallback == null) {
-            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, "Payment callback service is not found.");
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, localeManager.getMessage("invalid-payment-callback"));
         }
         return paymentCallback.onePayCallback(request);
     }
@@ -46,7 +47,7 @@ public class PaymentCallbackController {
     @PostMapping("/cb/callback")
     public CBResponsePaymentOrderResponse cbPayCallback(@Valid @RequestBody CBResponsePaymentOrderRequest request) throws JsonProcessingException, NoSuchAlgorithmException {
         if (paymentCallback == null) {
-            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, "Payment callback service is not found.");
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, localeManager.getMessage("invalid-payment-callback"));
         }
         log.info("CB_CALLBACK=>" + request.getGenerateRefOrder());
         return paymentCallback.cbPayCallback(request);
@@ -55,7 +56,7 @@ public class PaymentCallbackController {
     @PostMapping("/sai2/callback")
     public Sai2PayResponsePaymentResponse sai2Callback(@Valid @RequestBody Sai2PayResponsePaymentRequest request) throws IOException {
         if (paymentCallback == null) {
-            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, "Payment callback service is not found.");
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, localeManager.getMessage("invalid-payment-callback"));
         }
         log.info("SAISAI_CALLBACK=>" + request);
 
@@ -65,7 +66,7 @@ public class PaymentCallbackController {
     @PostMapping("/wave/callback")
     public ResponseEntity<?> waveCallback(@Valid @RequestBody WavePayResponsePaymentRequest request) throws JsonProcessingException {
         if (paymentCallback == null) {
-            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, "Payment callback service is not found.");
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, localeManager.getMessage("invalid-payment-callback"));
         }
         return paymentCallback.wavePayCallback(request);
     }
@@ -73,7 +74,7 @@ public class PaymentCallbackController {
     @PostMapping(value = "/mpu/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<?> mpuPayCallback(@ModelAttribute MPUPaymentInquiryResponseRequest request) {
         if (paymentCallback == null) {
-            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, "Payment callback service is not found.");
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, localeManager.getMessage("invalid-payment-callback"));
         }
 
         return paymentCallback.mpuPayCallback(request);
@@ -82,7 +83,7 @@ public class PaymentCallbackController {
     @PostMapping("/kbz/callback")
     public ResponseEntity<?> kbzPayCallback(@RequestBody KBZPayResponseRequest request) {
         if (paymentCallback == null) {
-            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, "Payment callback service is not found.");
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, localeManager.getMessage("invalid-payment-callback"));
         }
         return paymentCallback.kbzPayCallback(request);
     }

@@ -2,7 +2,9 @@ package com.sdm.core.controller;
 
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.util.Globalizer;
+import com.sdm.core.util.LocaleManager;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -13,6 +15,9 @@ import java.util.List;
 
 @Log4j2
 public class DefaultController {
+
+    @Autowired
+    protected LocaleManager localeManager;
 
     protected AuthInfo getCurrentUser() {
         return (AuthInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

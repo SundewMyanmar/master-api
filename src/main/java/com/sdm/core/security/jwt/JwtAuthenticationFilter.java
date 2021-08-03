@@ -4,6 +4,7 @@ import com.sdm.Constants;
 import com.sdm.core.exception.InvalidTokenException;
 import com.sdm.core.service.ClientService;
 import com.sdm.core.util.Globalizer;
+import com.sdm.core.util.LocaleManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +30,9 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
     @Autowired
     private ClientService clientService;
 
+    @Autowired
+    LocaleManager localeManager;
+
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtAuthenticationHandler jwtAuthHandler, ClientService clientService) {
         super(authenticationManager);
         this.jwtAuthHandler = jwtAuthHandler;
@@ -45,7 +49,7 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
         //Check Client Info
         if (clientService.isBlocked(httpServletRequest)) {
             SecurityContextHolder.clearContext();
-            httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "Blocked! Please contact to authority person.");
+            httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), localeManager.getMessage("blocked-auth-user"));
             return;
         }
 
@@ -64,7 +68,7 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             } catch (InvalidTokenException ex) {
-                httpServletResponse.sendError(HttpStatus.UNAUTHORIZED.value(), "Sorry! your authorization token hasn't permission to the resource.");
+                httpServletResponse.sendError(HttpStatus.UNAUTHORIZED.value(), localeManager.getMessage("auth-token-access-denied"));
                 return;
             }
         }

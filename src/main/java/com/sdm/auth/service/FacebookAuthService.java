@@ -10,6 +10,7 @@ import com.sdm.core.exception.GeneralException;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.FBGraphManager;
 import com.sdm.core.util.Globalizer;
+import com.sdm.core.util.LocaleManager;
 import com.sdm.file.model.File;
 import com.sdm.file.service.FileService;
 import lombok.extern.log4j.Log4j2;
@@ -43,6 +44,9 @@ public class FacebookAuthService implements SocialAuthService {
 
     @Autowired
     JwtService jwtService;
+
+    @Autowired
+    LocaleManager localeManager;
 
     @Autowired
     private HttpServletRequest httpServletRequest;
@@ -137,7 +141,7 @@ public class FacebookAuthService implements SocialAuthService {
         if (authUser.getFacebookId().equalsIgnoreCase(facebookProfile.get("id").getAsString())) {
             jwtService.createToken(authUser, request, httpServletRequest);
         } else {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid Access Token!");
+            throw new GeneralException(HttpStatus.UNAUTHORIZED, localeManager.getMessage("invalid-auth-linked"));
         }
         return ResponseEntity.ok(authUser);
     }
@@ -149,7 +153,7 @@ public class FacebookAuthService implements SocialAuthService {
                 .orElseGet(() -> user);
 
         if (!authUser.getId().equals(user.getId())) {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED, "Someone is already registered!");
+            throw new GeneralException(HttpStatus.UNAUTHORIZED, localeManager.getMessage("facebook-linked-failed"));
         } else {
             authUser.setFacebookId(null);
         }

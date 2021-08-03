@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.util.HttpRequestManager;
+import com.sdm.core.util.LocaleManager;
 import com.sdm.payment.config.properties.WavePayProperties;
 import com.sdm.payment.model.request.wavepay.WavePayPaymentRequest;
 import com.sdm.payment.model.request.wavepay.WavePayResponsePaymentRequest;
@@ -35,6 +36,8 @@ public class WavePayPaymentService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private LocaleManager localeManager;
 
     public Map<String, String> buildItem(String name, String amount) {
         Map<String, String> item = new HashMap<>();
@@ -48,7 +51,7 @@ public class WavePayPaymentService {
         try {
             itemListStr = objectMapper.writeValueAsString(itemList);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         WavePayPaymentRequest request = new WavePayPaymentRequest(wavePayProperties.getMerchantId(), orderId, merchantReferenceId, wavePayProperties.getSuccessUrl(), wavePayProperties.getPaymentCallbackUrl()
@@ -87,21 +90,21 @@ public class WavePayPaymentService {
             try {
                 log.error("INVALID_YOMA_RESPONSE >>>" + objectMapper.writeValueAsString(request));
             } catch (Exception ex) {
-                throw new GeneralException(HttpStatus.BAD_REQUEST, "Payment encryption fail.");
+                throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("payment-encryption-failed"));
             }
 
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         if (!request.getStatus().equals(WavePayResponsePaymentRequest.PaymentStatus.PAYMENT_CONFIRMED)) {
             try {
                 log.error("INVALID_YOMA_RESPONSE >>>" + objectMapper.writeValueAsString(request));
             } catch (Exception ex) {
-                throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+                throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
             }
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
         }
 
-        return ResponseEntity.ok(new MessageResponse("SUCCESS", "Wave Pay Callback is success for transactionId : " + request.getTransactionId()));
+        return ResponseEntity.ok(new MessageResponse(localeManager.getMessage("success"), localeManager.getMessage("wave-pay-callback-success", request.getTransactionId())));
     }
 }

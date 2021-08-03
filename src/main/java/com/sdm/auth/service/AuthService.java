@@ -11,6 +11,7 @@ import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
+import com.sdm.core.util.LocaleManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,6 +49,9 @@ public class AuthService {
 
     @Autowired
     private HttpServletRequest httpServletRequest;
+
+    @Autowired
+    LocaleManager localeManager;
 
     public static final int MAX_PASSWORD = 32;
     public static final int MIN_PASSWORD = 16;
@@ -93,7 +97,7 @@ public class AuthService {
     public ResponseEntity<MessageResponse> accountActivation(ActivateRequest request) {
         User user = userRepository.checkOTP(request.getUser(), request.getToken())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
-                        "Your OTP is invalid. Pls try to contact admin team."));
+                        localeManager.getMessage("invalid-otp-code")));
 
         //Resend OTP to User
         if (user.getOtpExpired().before(new Date())) {
@@ -104,7 +108,7 @@ public class AuthService {
             }
             userRepository.save(user);
             throw new GeneralException(HttpStatus.NOT_ACCEPTABLE,
-                    "Sorry! Your token has expired. We send new token to your email.");
+                    localeManager.getMessage("otp-expired"));
         }
 
         user.setOtpToken(null);
@@ -114,21 +118,21 @@ public class AuthService {
             user.setStatus(User.Status.ACTIVE);
         }
         userRepository.save(user);
-        return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "activation_success", "Your account is ready.", null));
+        return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, localeManager.getMessage("success"), localeManager.getMessage("account-activation-success"), null));
     }
 
     @Transactional
     private User resetPasswordByToken(ActivateRequest request, String password) {
         User user = userRepository.checkOTP(request.getUser(), request.getToken())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
-                        "Your OTP is invalid. Pls try to contact admin team."));
+                        localeManager.getMessage("invalid-otp-code")));
 
         if (user.getOtpExpired().before(new Date()) || !user.getOtpToken().equals(request.getToken())) {
             user.setOtpToken(null);
             user.setOtpExpired(null);
             userRepository.save(user);
             throw new GeneralException(HttpStatus.NOT_ACCEPTABLE,
-                    "Your OTP is invalid. Pls try to contact admin team.");
+                    localeManager.getMessage("invalid-otp-code"));
         }
 
         String newPassword = securityManager.hashString(password);
@@ -153,7 +157,7 @@ public class AuthService {
 
     public ResponseEntity<MessageResponse> forgetPassword(ForgetPasswordRequest request) {
         User user = userRepository.findFirstByPhoneNumberAndEmail(request.getPhoneNumber(), request.getEmail())
-                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Invalid phone number (or) email address."));
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, localeManager.getMessage("forget-password-verification-failed")));
         try {
             String url = request.getCallback();
             if (Globalizer.isNullOrEmpty(url)) {
@@ -163,7 +167,7 @@ public class AuthService {
             mailService.forgetPasswordLink(user, url);
             userRepository.save(user);
 
-            return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "SUCCESS", "We send the reset password link to your e-mail.", null));
+            return ResponseEntity.ok(new MessageResponse(localeManager.getMessage("success"), localeManager.getMessage("sent-reset-password-link")));
         } catch (Exception ex) {
             log.error(ex.getLocalizedMessage());
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
@@ -177,7 +181,7 @@ public class AuthService {
                 .orElseThrow(() -> {
                     increaseFailedCount();
                     return new GeneralException(HttpStatus.UNAUTHORIZED,
-                            "Opp! request email or password is something wrong");
+                            localeManager.getMessage("auth-by-password-failed"));
                 });
         session.setAttribute(Constants.SESSION.AUTH_FAILED_COUNT, 0);
         return authUser;
@@ -196,7 +200,7 @@ public class AuthService {
         }
 
         if (mfa != null && !mfaService.verify(authUser.getId(), request.getMfaCode(), request.getMfaKey())) {
-            throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! Invalid otp code.");
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-otp-code"));
         }
 
         jwtService.createToken(authUser, request, httpServletRequest);
@@ -209,9 +213,9 @@ public class AuthService {
         userRepository.findFirstByPhoneNumberOrEmail(request.getPhoneNumber(), request.getEmail())
                 .ifPresent(user -> {
                     if (user.getEmail().equalsIgnoreCase(request.getEmail())) {
-                        throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! someone already registered with this email.");
+                        throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("already-registered-email"));
                     } else if (user.getPhoneNumber().equalsIgnoreCase(request.getPhoneNumber())) {
-                        throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! someone already registered with this phone number.");
+                        throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("already-registered-phone"));
                     }
                 });
 

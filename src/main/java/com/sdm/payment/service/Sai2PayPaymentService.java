@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.HttpRequestManager;
+import com.sdm.core.util.LocaleManager;
 import com.sdm.payment.config.properties.Sai2PayProperties;
 import com.sdm.payment.model.request.sai2pay.*;
 import com.sdm.payment.model.response.sai2pay.*;
@@ -33,6 +34,9 @@ public class Sai2PayPaymentService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private LocaleManager localeManager;
+
     public Sai2PayLoginResponse login() {
         Sai2PayLoginRequest request = new Sai2PayLoginRequest(uabProperties.getUser(), uabProperties.getPassword());
         String rawUrl = uabProperties.getLoginUrl();
@@ -43,7 +47,7 @@ public class Sai2PayPaymentService {
             resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), false);
             result = objectMapper.readValue(resultString, Sai2PayLoginResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         if (!result.getRespCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
@@ -72,7 +76,7 @@ public class Sai2PayPaymentService {
                     false);
             result = objectMapper.readValue(resultString, Sai2PayLoginResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         if (!result.getRespCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
@@ -97,7 +101,7 @@ public class Sai2PayPaymentService {
                     tokenString, false);
             result = objectMapper.readValue(resultString, Sai2PayCheckPhResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         if (!result.getRespCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
@@ -109,7 +113,7 @@ public class Sai2PayPaymentService {
         String resultHash = securityManager.generateUABHashHmac(result.getSignatureString());
         if (!resultHash.equals(result.getHashValue())) {
             log.error("INVALID_UAB_RESPONSE >>>" + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         return result;
@@ -131,7 +135,7 @@ public class Sai2PayPaymentService {
                     tokenString, false);
             result = objectMapper.readValue(resultString, Sai2PayEnquiryPaymentResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         if (!result.getRespCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
@@ -143,7 +147,7 @@ public class Sai2PayPaymentService {
         String resultHash = securityManager.generateUABHashHmac(result.getSignatureString());
         if (!resultHash.equals(result.getHashValue())) {
             log.error("INVALID_UAB_RESPONSE >>>" + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         return result;
@@ -153,7 +157,7 @@ public class Sai2PayPaymentService {
         try {
             log.error("INVALID_UAB_RESPONSE >>>" + objectMapper.writeValueAsString(request));
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
         }
     }
 
@@ -162,12 +166,12 @@ public class Sai2PayPaymentService {
         String requestHash = securityManager.generateUABHashHmac(request.getSignatureString());
         if (!requestHash.equals(request.getHashValue())) {
             writeLog(request);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         if (!request.getTransactionStatus().equals(ApiResponseStatus.SUCCESS.getValue())) {
             writeLog(request);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         // TODO: call repository with invoice no and update status
@@ -176,7 +180,7 @@ public class Sai2PayPaymentService {
         try {
             itemListStr = objectMapper.writeValueAsString(itemList);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         Sai2PayResponsePaymentResponse response = new Sai2PayResponsePaymentResponse(request.getReferIntegrationId(),
@@ -209,7 +213,7 @@ public class Sai2PayPaymentService {
                     tokenString, false);
             result = objectMapper.readValue(resultString, Sai2PayCheckTransactionResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         if (!result.getRespCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
@@ -221,7 +225,7 @@ public class Sai2PayPaymentService {
         String resultHash = securityManager.generateUABHashHmac(result.getSignatureString());
         if (!resultHash.equals(result.getHashValue())) {
             log.error("INVALID_UAB_RESPONSE >>>" + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         return result;

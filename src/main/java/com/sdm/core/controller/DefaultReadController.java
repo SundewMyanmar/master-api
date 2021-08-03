@@ -58,7 +58,7 @@ public abstract class DefaultReadController<T extends DefaultEntity, ID extends 
     protected T checkData(ID id) {
         return this.getRepository().findById(id)
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
-                        "There is no any data by : " + id.toString()));
+                        localeManager.getMessage("no-data-by", id)));
     }
 
 

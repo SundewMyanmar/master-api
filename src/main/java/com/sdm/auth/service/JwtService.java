@@ -12,6 +12,7 @@ import com.sdm.core.model.AuthInfo;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.security.jwt.JwtAuthenticationHandler;
 import com.sdm.core.util.Globalizer;
+import com.sdm.core.util.LocaleManager;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
@@ -58,6 +59,9 @@ public class JwtService implements JwtAuthenticationHandler {
     @Autowired
     private TokenRepository tokenRepository;
 
+    @Autowired
+    private LocaleManager localeManager;
+
     private Date getTokenExpired() {
         return Globalizer.addDate(new Date(), securityProperties.getAuthTokenLife());
     }
@@ -66,7 +70,7 @@ public class JwtService implements JwtAuthenticationHandler {
         String ip = Globalizer.getRemoteAddress(request);
         String agent = request.getHeader(HttpHeaders.USER_AGENT);
         if (Globalizer.isNullOrEmpty(agent) || Globalizer.isNullOrEmpty(ip)) {
-            throw new InvalidTokenException("Invalid request audience!");
+            throw new InvalidTokenException(localeManager.getMessage("invalid-auth-token"));
         }
         return String.format("IP=%s; Agent=%s", ip, agent);
     }
@@ -185,7 +189,7 @@ public class JwtService implements JwtAuthenticationHandler {
 
             Date expired = authorizeToken.getExpiration();
             if (expired.before(new Date())) {
-                throw new InvalidTokenException("Token has expired.");
+                throw new InvalidTokenException(localeManager.getMessage("auth-token-expired"));
             }
 
             int userId = Integer.parseInt(authorizeToken.getSubject());
@@ -197,7 +201,7 @@ public class JwtService implements JwtAuthenticationHandler {
             boolean allowed = tokenRepository.existsByIdAndUserIdAndDeviceIdAndDeviceOs(
                     tokenId, userId, deviceId, deviceOs);
             if (!allowed) {
-                throw new InvalidTokenException("Invalid access token.");
+                throw new InvalidTokenException(localeManager.getMessage("resource-access-denied"));
             }
 
             log.info(String.format("User Id [%d] login by => %s", userId, tokenId));

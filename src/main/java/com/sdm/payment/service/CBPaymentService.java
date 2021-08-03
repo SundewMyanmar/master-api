@@ -3,6 +3,7 @@ package com.sdm.payment.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.util.HttpRequestManager;
+import com.sdm.core.util.LocaleManager;
 import com.sdm.payment.config.properties.CBPayProperties;
 import com.sdm.payment.model.request.cbpay.CBCheckPaymentStatusRequest;
 import com.sdm.payment.model.request.cbpay.CBPaymentOrderRequest;
@@ -41,6 +42,9 @@ public class CBPaymentService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private LocaleManager localeManager;
+
     public String getDeepLink(String id) {
         return cbProperties.getDeepLinkUrl(id);
     }
@@ -51,7 +55,7 @@ public class CBPaymentService {
         try {
             request.setSignature(securityManager.generateCBHashSHA256(request.getSignatureString()));
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_REQUEST, "Payment encryption fail.");
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("payment-encryption-failed"));
         }
 
         String rawUrl = cbProperties.getPaymentOrderUrl();
@@ -62,7 +66,7 @@ public class CBPaymentService {
             resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), true);
             result = objectMapper.readValue(resultString, CBPaymentOrderResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         result.setDeepLinkUrl(cbProperties.getDeepLinkUrl(result.getGenerateRefOrder()));
@@ -83,7 +87,7 @@ public class CBPaymentService {
             String resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), true);
             return objectMapper.readValue(resultString, CBCheckPaymentStatusResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
         }
     }
 
@@ -94,7 +98,7 @@ public class CBPaymentService {
                     cbProperties.getAuthToken() + "&" + cbProperties.getEcommerceId() + "&" + cbProperties.getSubMerId() + "&" + orderId + "&" + request.getAmount() + "&" + request.getCurrency()
             );
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_REQUEST, "Payment encryption fail.");
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("payment-encryption-failed"));
         }
 
 
@@ -102,10 +106,10 @@ public class CBPaymentService {
             try {
                 log.error("INVALID_CB_RESPONSE >>>" + objectMapper.writeValueAsString(request));
             } catch (Exception ex) {
-                throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+                throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
             }
 
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
         }
         //TODO: check response status code "0000" success
         //TODO: call repository with invoice and update status
@@ -120,9 +124,9 @@ public class CBPaymentService {
             try {
                 log.error("INVALID_CB_RESPONSE >>>" + objectMapper.writeValueAsString(request));
             } catch (Exception ex) {
-                throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+                throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
             }
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         CBResponsePaymentOrderResponse response = new CBResponsePaymentOrderResponse("0000", "OPERATION SUCCESS");

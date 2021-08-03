@@ -68,14 +68,14 @@ public class ProfileController extends DefaultController {
     @GetMapping("")
     public ResponseEntity<User> getProfile() {
         User user = userRepository.findById(getCurrentUser().getUserId())
-                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, localeManager.getMessage("invalid-user-account")));
         return ResponseEntity.ok(user);
     }
 
     @PostMapping("")
     public ResponseEntity<User> updateProfile(@RequestBody User user) {
         User existUser = userRepository.findById(getCurrentUser().getUserId())
-                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, localeManager.getMessage("invalid-user-account")));
 
         existUser.setProfileImage(user.getProfileImage());
         existUser.setMMDisplayName(user.getDisplayName());
@@ -89,7 +89,7 @@ public class ProfileController extends DefaultController {
     @PostMapping(value = "/changeProfileImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<User> uploadFile(@RequestParam("profileImage") List<MultipartFile> files) {
         User existUser = userRepository.findById(getCurrentUser().getUserId())
-                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, localeManager.getMessage("invalid-user-account")));
 
         if (files.size() > 0) {
             File file = fileService.create(files.get(0), true, true, null);
@@ -103,11 +103,11 @@ public class ProfileController extends DefaultController {
     public ResponseEntity<User> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         String oldPassword = securityManager.hashString(request.getOldPassword());
         User authUser = userRepository.authByPassword(request.getUser(), oldPassword).orElseThrow(
-                () -> new GeneralException(HttpStatus.UNAUTHORIZED, "Sorry! you old password are not correct."));
+                () -> new GeneralException(HttpStatus.UNAUTHORIZED, localeManager.getMessage("invalid-old-password")));
 
         if (!authUser.getId().equals(getCurrentUser().getUserId())) {
             throw new GeneralException(HttpStatus.UNAUTHORIZED,
-                    "There is no user (or) old password is wrong. Pls try again.");
+                    localeManager.getMessage("invalid-user-or-old-password"));
         }
 
         String newPassword = securityManager.hashString(request.getNewPassword());
@@ -120,7 +120,7 @@ public class ProfileController extends DefaultController {
     @PostMapping("/refreshToken")
     public ResponseEntity<User> refreshToken(@Valid @RequestBody TokenInfo tokenInfo, HttpServletRequest servletRequest) {
         User existUser = userRepository.findById(getCurrentUser().getUserId())
-                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, localeManager.getMessage("invalid-user-account")));
 
         String currentToken = jwtService.createToken(existUser, tokenInfo, servletRequest);
         existUser.setCurrentToken(currentToken);
@@ -134,8 +134,8 @@ public class ProfileController extends DefaultController {
         request.setDeviceId(getCurrentUser().getDeviceId());
         request.setDeviceOS(getCurrentUser().getDeviceOs());
         tokenRepository.cleanTokenByUserId(this.getCurrentUser().getUserId());
-        MessageResponse message = new MessageResponse(HttpStatus.OK, "Successfully deleted.",
-                "Cleaned all token by User ID : " + this.getCurrentUser().getUserId(), null);
+        MessageResponse message = new MessageResponse(HttpStatus.OK, localeManager.getMessage("remove-success"),
+                localeManager.getMessage("clear-all-auth-token", this.getCurrentUser().getUserId()), null);
         return ResponseEntity.ok(message);
     }
 
@@ -143,7 +143,7 @@ public class ProfileController extends DefaultController {
     public ResponseEntity<User> linkOAuth2(@PathVariable(value = "type") LINK_TYPE type,
                                            @RequestParam(value = "accessId", defaultValue = "") String accessId) {
         User user = userRepository.findById(getCurrentUser().getUserId())
-                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Sorry! can't find your account."));
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, localeManager.getMessage("invalid-user-account")));
 
         if (type.equals(LINK_TYPE.GOOGLE)) {
             return googleAuthService.link(accessId, user);
@@ -151,6 +151,6 @@ public class ProfileController extends DefaultController {
             return facebookAuthService.link(accessId, user);
         }
 
-        throw new GeneralException(HttpStatus.NOT_ACCEPTABLE, "Invalid Type!");
+        throw new GeneralException(HttpStatus.NOT_ACCEPTABLE, localeManager.getMessage("invalid-auth-linked-type"));
     }
 }

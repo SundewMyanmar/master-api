@@ -31,7 +31,7 @@ public abstract class DefaultReadWriteController<T extends DefaultEntity, ID ext
         this.checkData(id);
         if (!id.equals(body.getId())) {
             throw new GeneralException(HttpStatus.CONFLICT,
-                    "Path ID and body ID aren't match.");
+                    localeManager.getMessage("not-match-path-body-id"));
         }
 
         T entity = getRepository().save(body);
@@ -58,8 +58,8 @@ public abstract class DefaultReadWriteController<T extends DefaultEntity, ID ext
     public ResponseEntity<MessageResponse> remove(ID id) {
         T existEntity = this.checkData(id);
         getRepository().softDelete(existEntity);
-        MessageResponse message = new MessageResponse("DELETED",
-                "Deleted data on your request by : " + id.toString());
+        MessageResponse message = new MessageResponse(localeManager.getMessage("remove-success"),
+                localeManager.getMessage("remove-data-by", id));
         return ResponseEntity.ok(message);
     }
 
@@ -67,8 +67,8 @@ public abstract class DefaultReadWriteController<T extends DefaultEntity, ID ext
     @Transactional
     public ResponseEntity<MessageResponse> multiRemove(@Valid List<ID> ids) {
         ids.forEach(id -> getRepository().softDeleteById(id));
-        MessageResponse message = new MessageResponse(HttpStatus.OK, "DELETED",
-                "Deleted " + ids.size() + " data.", null);
+        MessageResponse message = new MessageResponse(localeManager.getMessage("remove-success"),
+                localeManager.getMessage("remove-multi-data", ids.size()));
         return ResponseEntity.ok(message);
     }
 

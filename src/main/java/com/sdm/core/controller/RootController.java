@@ -5,7 +5,7 @@ import com.sdm.core.config.PropertyConfig;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
-import com.sdm.core.util.MessageManager;
+import com.sdm.core.util.LocaleManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -39,11 +39,11 @@ public class RootController implements ErrorController {
     private SpringTemplateEngine templateEngine;
 
     @Autowired
-    private MessageManager messageManager;
+    private LocaleManager localeManager;
 
     @GetMapping("")
     public ResponseEntity<MessageResponse> welcome() {
-        MessageResponse message = new MessageResponse(messageManager.getMessage("welcome-title"), messageManager.getMessage("welcome-message"));
+        MessageResponse message = new MessageResponse(localeManager.getMessage("welcome-title"), localeManager.getMessage("welcome-message"));
         return ResponseEntity.ok(message);
     }
 

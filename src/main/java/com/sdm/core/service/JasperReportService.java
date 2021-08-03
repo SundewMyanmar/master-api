@@ -110,7 +110,7 @@ public class JasperReportService {
         throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load report.");
     }
 
-    public class Base64ResourceHandler implements HtmlResourceHandler {
+    public static class Base64ResourceHandler implements HtmlResourceHandler {
         final Map<String, String> images;
 
         public Base64ResourceHandler() {

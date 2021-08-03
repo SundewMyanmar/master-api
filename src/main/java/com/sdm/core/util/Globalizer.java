@@ -10,8 +10,8 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -57,12 +57,7 @@ public class Globalizer {
     }
 
     public static String encodeUrl(String url) {
-        try {
-            return URLEncoder.encode(url, "UTF-8").replace("+", "%20");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return url;
+        return URLEncoder.encode(url, StandardCharsets.UTF_8).replace("+", "%20");
     }
 
     public static boolean isNullOrEmpty(Object data) {
@@ -86,12 +81,12 @@ public class Globalizer {
         return result;
     }
 
-    public static Integer toInt(String input, int defultValue) {
+    public static Integer toInt(String input, int defaultValue) {
         Pattern pattern = Pattern.compile(Constants.Pattern.INTEGER);
         if (pattern.matcher(input).matches()) {
             return Integer.parseInt(input);
         }
-        return defultValue;
+        return defaultValue;
     }
 
     public static String getDateString(String format, Date date) {

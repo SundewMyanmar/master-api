@@ -11,6 +11,7 @@ public class LocaleConfig {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
         messageSource.setBasename("i18n/messages");
         messageSource.setDefaultEncoding("utf-8");
+        messageSource.setUseCodeAsDefaultMessage(true);
         return messageSource;
     }
 }

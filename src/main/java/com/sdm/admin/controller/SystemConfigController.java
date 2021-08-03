@@ -3,6 +3,7 @@ package com.sdm.admin.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.Constants;
 import com.sdm.core.config.properties.PathProperties;
+import com.sdm.core.controller.DefaultController;
 import com.sdm.core.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/config")
-public class SystemConfigController {
+public class SystemConfigController extends DefaultController {
     @Autowired
     private PathProperties pathProperties;
 
@@ -34,7 +35,7 @@ public class SystemConfigController {
             String config = Files.readString(getConfigFile());
             return ResponseEntity.ok(config);
         } catch (IOException e) {
-            throw new GeneralException(HttpStatus.NO_CONTENT, "There is no file");
+            throw new GeneralException(HttpStatus.NO_CONTENT, localeManager.getMessage("no-data"));
         }
     }
 

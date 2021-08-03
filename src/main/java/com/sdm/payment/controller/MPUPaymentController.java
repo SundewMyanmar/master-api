@@ -1,5 +1,6 @@
 package com.sdm.payment.controller;
 
+import com.sdm.core.controller.DefaultController;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.security.AESManager;
 import com.sdm.core.util.Globalizer;
@@ -28,7 +29,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/public/payments/mpu")
 @Log4j2
-public class MPUPaymentController {
+public class MPUPaymentController extends DefaultController {
 
     @Autowired
     private MPUProperties mpuProperties;
@@ -85,7 +86,7 @@ public class MPUPaymentController {
     public ModelAndView paymentRequest(@PathVariable("id") String id,
                                        @DefaultValue("") @RequestParam(value = "callback", required = false) String callbackUrl) {
         MPUPayment request = repository.findById(id)
-                .orElseThrow(() -> new GeneralException(HttpStatus.BAD_REQUEST, "There is no any transaction."));
+                .orElseThrow(() -> new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("no-data")));
         if (!Globalizer.isNullOrEmpty(callbackUrl)) {
             request.setFrontendURL(callbackUrl);
         } else {

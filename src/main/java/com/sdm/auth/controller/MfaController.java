@@ -57,7 +57,7 @@ public class MfaController extends DefaultController {
     public ResponseEntity<MessageResponse> resendMfa(@RequestParam("userId") int userId,
                                                      @DefaultValue("") @RequestParam(value = "key", required = false) String mfaKey) {
         multiFactorAuthService.sendMfaCode(getCurrentUser().getUserId(), mfaKey);
-        return ResponseEntity.ok(new MessageResponse("Success!", "Sent new OTP code."));
+        return ResponseEntity.ok(new MessageResponse(localeManager.getMessage("success"), localeManager.getMessage("sent-new-mfa-key")));
     }
 
     @PostMapping("/setup")
@@ -65,20 +65,20 @@ public class MfaController extends DefaultController {
     public ResponseEntity<MessageResponse> setupMfa(@Valid @RequestBody MultiFactorAuth mfa) {
         mfa.setUserId(getCurrentUser().getUserId());
         multiFactorAuthService.setupEmailOrSMS(mfa);
-        return ResponseEntity.ok(new MessageResponse("Success!", "Sent verification code to " + mfa.getKey() + "."));
+        return ResponseEntity.ok(new MessageResponse(localeManager.getMessage("success"), localeManager.getMessage("sent-mfa-key", mfa.getKey())));
     }
 
     @GetMapping("/disable")
     public ResponseEntity<MessageResponse> disableMfa() {
         multiFactorAuthService.disable(getCurrentUser().getUserId());
-        return ResponseEntity.ok(new MessageResponse("Success!", "Disabled 2-Step verification."));
+        return ResponseEntity.ok(new MessageResponse(localeManager.getMessage("success"), localeManager.getMessage("disabled-mfa")));
     }
 
     @DeleteMapping("/remove/{id}")
     public ResponseEntity<MessageResponse> removeMfa(@PathVariable(value = "id") String id) {
         multiFactorAuthService.remove(getCurrentUser().getUserId(), id);
-        MessageResponse message = new MessageResponse("DELETED",
-                "Deleted data on your request by.");
+        MessageResponse message = new MessageResponse(localeManager.getMessage("remove-success"),
+                localeManager.getMessage("remove-data"));
         return ResponseEntity.ok(message);
     }
 
@@ -92,9 +92,9 @@ public class MfaController extends DefaultController {
     public ResponseEntity<MessageResponse> verifyMfa(@RequestParam(value = "totp") String totp,
                                                      @DefaultValue("") @RequestParam(value = "key", required = false) String key) {
         if (!multiFactorAuthService.verify(getCurrentUser().getUserId(), totp, key)) {
-            throw new GeneralException(HttpStatus.BAD_REQUEST, "Sorry! Invalid otp code.");
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-otp-code"));
         }
-        return ResponseEntity.ok(new MessageResponse("Success!", "Thank you for your verification."));
+        return ResponseEntity.ok(new MessageResponse(localeManager.getMessage("success"), localeManager.getMessage("verification-success")));
     }
 
     @GetMapping("/qr")

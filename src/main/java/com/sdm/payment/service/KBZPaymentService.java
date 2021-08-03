@@ -5,6 +5,7 @@ import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.HttpRequestManager;
+import com.sdm.core.util.LocaleManager;
 import com.sdm.payment.config.properties.KBZPayProperties;
 import com.sdm.payment.model.request.kbzpay.KBZPayBizContent;
 import com.sdm.payment.model.request.kbzpay.KBZPayRequest;
@@ -45,6 +46,9 @@ public class KBZPaymentService {
 
     @Autowired
     private HttpRequestManager httpRequestManager;
+
+    @Autowired
+    private LocaleManager localeManager;
 
     public String getStringBuilder(TreeMap<String, String> treeMap) {
         StringBuilder builder = new StringBuilder();
@@ -137,7 +141,7 @@ public class KBZPaymentService {
             resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(paymentRequest), !kbzPayProperties.getIsUat());
             paymentResult = objectMapper.readValue(resultString, KBZPayPaymentResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         KBZPayResponse response = paymentResult.getResponse();
@@ -153,7 +157,7 @@ public class KBZPaymentService {
         try {
             log.error("INVALID_KBZ_RESPONSE >>>" + objectMapper.writeValueAsString(request));
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
         }
     }
 
@@ -164,15 +168,15 @@ public class KBZPaymentService {
 
             if (!sign.equals(request.getSign())) {
                 writeLog(request);
-                throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Server Response!");
+                throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
             }
 
             if (!request.getTradeStatus().equals("PAY_SUCCESS")) {
                 writeLog(request);
-                throw new GeneralException(HttpStatus.BAD_GATEWAY, "Payment server return unprocessable entity.");
+                throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
             }
 
-            return ResponseEntity.ok(new MessageResponse("SUCCESS", "KPay Callback is success for transactionId : " + request.getMerchOrderId()));
+            return ResponseEntity.ok(new MessageResponse(localeManager.getMessage("success"), localeManager.getMessage("kpay-callback-success", request.getMerchOrderId())));
         } catch (Exception ex) {
             throw new GeneralException(HttpStatus.BAD_GATEWAY, ex.getLocalizedMessage());
         }

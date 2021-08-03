@@ -13,6 +13,7 @@ import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
+import com.sdm.core.util.LocaleManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +43,9 @@ public class UserController extends DefaultReadController<User, Integer> impleme
     @Autowired
     private SecurityManager securityManager;
 
+    @Autowired
+    private LocaleManager localeManager;
+
     @Override
     protected DefaultRepository<User, Integer> getRepository() {
         return this.userRepository;
@@ -68,8 +72,8 @@ public class UserController extends DefaultReadController<User, Integer> impleme
     public ResponseEntity<MessageResponse> cleanToken(@PathVariable("userId") int userId) {
         User existUser = this.checkData(userId);
         tokenRepository.cleanTokenByUserId(existUser.getId());
-        MessageResponse message = new MessageResponse("success",
-                "Cleaned all token by User ID : " + this.getCurrentUser().getUserId());
+        MessageResponse message = new MessageResponse(localeManager.getMessage("success"),
+                localeManager.getMessage("clear-all-auth-token", this.getCurrentUser().getUserId()));
         return ResponseEntity.ok(message);
     }
 
@@ -99,10 +103,10 @@ public class UserController extends DefaultReadController<User, Integer> impleme
     public ResponseEntity<User> update(@Valid @RequestBody User body, @PathVariable("id") Integer id) {
         User dbEntity = this.getRepository().findById(id)
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
-                        "There is no any data by : " + id));
+                        localeManager.getMessage("no-data-by", id)));
 
         if (!id.equals(body.getId())) {
-            throw new GeneralException(HttpStatus.CONFLICT, "Path ID and body ID aren't match.");
+            throw new GeneralException(HttpStatus.CONFLICT, localeManager.getMessage("not-match-path-body-id"));
         }
 
         body.setPassword(dbEntity.getPassword());
@@ -131,16 +135,16 @@ public class UserController extends DefaultReadController<User, Integer> impleme
     public ResponseEntity<MessageResponse> remove(Integer id) {
         User existEntity = this.checkData(id);
         getRepository().softDelete(existEntity);
-        MessageResponse message = new MessageResponse(HttpStatus.OK, "successfully_deleted",
-                "Deleted data on your request by : " + id.toString(), null);
+        MessageResponse message = new MessageResponse(localeManager.getMessage("remove-success"),
+                localeManager.getMessage("remove-data-by", id));
         return ResponseEntity.ok(message);
     }
 
     @Override
     public ResponseEntity<MessageResponse> multiRemove(@Valid List<Integer> ids) {
         ids.forEach(id -> getRepository().softDeleteById(id));
-        MessageResponse message = new MessageResponse(HttpStatus.OK, "DELETED",
-                "Deleted " + ids.size() + " data.", null);
+        MessageResponse message = new MessageResponse(localeManager.getMessage("remove-success"),
+                localeManager.getMessage("remove-multi-data", ids.size()));
         return ResponseEntity.ok(message);
     }
 

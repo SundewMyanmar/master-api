@@ -2,6 +2,7 @@ package com.sdm.sms.service;
 
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.util.Globalizer;
+import com.sdm.core.util.LocaleManager;
 import com.sdm.sms.model.ValidPhone;
 import com.sdm.sms.model.request.telenor.MessageType;
 import com.sdm.sms.respository.ValidPhoneRepository;
@@ -22,10 +23,13 @@ public class PhoneVerificationService {
     @Autowired
     private TelenorSmsService smsService;
 
+    @Autowired
+    private LocaleManager localeManager;
+
     public ValidPhone checkPhone(String phoneNumber) {
         phoneNumber = Globalizer.cleanPhoneNo(phoneNumber);
         if (Globalizer.isNullOrEmpty(phoneNumber)) {
-            throw new GeneralException(HttpStatus.BAD_REQUEST, "Invalid Phone Number");
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-phone-number"));
         }
 
         ValidPhone phone = repository.findById(phoneNumber)
@@ -49,14 +53,14 @@ public class PhoneVerificationService {
     public ValidPhone verifyPhone(String phoneNumber, String secretToken) {
         phoneNumber = Globalizer.cleanPhoneNo(phoneNumber);
         if (Globalizer.isNullOrEmpty(phoneNumber)) {
-            throw new GeneralException(HttpStatus.BAD_REQUEST, "Invalid Phone Number");
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-phone-number"));
         }
 
         ValidPhone phone = repository.findById(phoneNumber)
-                .orElseThrow(() -> new GeneralException(HttpStatus.BAD_REQUEST, "Invalid phone number"));
+                .orElseThrow(() -> new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-phone-number")));
 
         if (Globalizer.isNullOrEmpty(secretToken) || !phone.getSecret().equalsIgnoreCase(secretToken)) {
-            throw new GeneralException(HttpStatus.BAD_REQUEST, "Invalid verification code.");
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-phone-number"));
         }
         phone.setVerifiedAt(new Date());
         phone.setVerified(true);

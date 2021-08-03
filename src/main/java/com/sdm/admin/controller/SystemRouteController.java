@@ -41,7 +41,7 @@ public class SystemRouteController extends DefaultReadController<SystemRoute, In
     public ResponseEntity<ListResponse<SystemRoute>> getByRole(@PathVariable("id") Integer role) {
         var results = systemRouteRepository.findByRoleId(role)
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
-                        "There is no any data by role : " + role.toString()));
+                        localeManager.getMessage("no-data-by", role)));
 
         return ResponseEntity.ok(new ListResponse<>(results));
     }
@@ -50,7 +50,7 @@ public class SystemRouteController extends DefaultReadController<SystemRoute, In
     @RequestMapping(value = "/role/{id}", method = {RequestMethod.POST, RequestMethod.PUT})
     public ResponseEntity<ListResponse<SystemRoute>> savePermission(@PathVariable("id") Integer roleId, @RequestBody @Valid List<SystemRoute> request) {
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
-                "There is no any data by role : " + roleId.toString()));
+                localeManager.getMessage("no-data-by", roleId)));
         List<SystemRoute> savedRoutes = new ArrayList<>();
         systemRouteRepository.clearPermissionByRoleId(roleId);
 

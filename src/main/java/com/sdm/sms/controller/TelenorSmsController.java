@@ -52,7 +52,7 @@ public class TelenorSmsController extends DefaultController {
 
         ValidPhone phone = phoneVerificationService.verifyPhone(phoneNumber, secret);
         if (!phone.isVerified()) {
-            throw new GeneralException(HttpStatus.BAD_REQUEST, "Invalid verification code!");
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-phone-number"));
         }
 
         return ResponseEntity.ok(phone);

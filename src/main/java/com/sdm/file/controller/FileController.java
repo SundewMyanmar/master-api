@@ -64,13 +64,13 @@ public class FileController extends DefaultReadController<File, String> {
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<File> update(@Valid @RequestBody File body, @PathVariable("id") @Size(min = 36, max = 36) String id) {
-        File file=this.getRepository().findById(id)
+        File file = this.getRepository().findById(id)
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE,
-                        "There is no any data by : " + id.toString()));
+                        localeManager.getMessage("no-data-by", id)));
 
         if (!id.equals(body.getId())) {
             throw new GeneralException(HttpStatus.CONFLICT,
-                    "Path ID and body ID aren't match.");
+                    localeManager.getMessage("not-match-path-body-id"));
         }
 
         file.setPublicAccess(body.isPublicAccess());
@@ -84,8 +84,8 @@ public class FileController extends DefaultReadController<File, String> {
     public ResponseEntity<MessageResponse> remove(@PathVariable("id") @Size(min = 36, max = 36) String id,
                                                   @RequestParam(value = "isTrash", required = false, defaultValue = "false") boolean isTrash) {
         fileService.remove(id, isTrash);
-        MessageResponse message = new MessageResponse(HttpStatus.OK, "Successfully deleted.",
-                "Deleted data on your request by : " + id, null);
+        MessageResponse message = new MessageResponse(localeManager.getMessage("remove-success"),
+                localeManager.getMessage("remove-data-by", id));
         return ResponseEntity.ok(message);
     }
 
@@ -94,8 +94,8 @@ public class FileController extends DefaultReadController<File, String> {
     public ResponseEntity<MessageResponse> multiRemove(@RequestBody Set<String> ids,
                                                        @RequestParam(value = "isTrash", required = false, defaultValue = "false") final boolean isTrash) {
         ids.forEach(id -> fileService.remove(id, isTrash));
-        MessageResponse message = new MessageResponse(HttpStatus.OK, "Successfully deleted.",
-                "Deleted data on your request.", null);
+        MessageResponse message = new MessageResponse(localeManager.getMessage("remove-success"),
+                localeManager.getMessage("remove-data"));
         return ResponseEntity.ok(message);
     }
 

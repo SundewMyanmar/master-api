@@ -3,6 +3,7 @@ package com.sdm.file.service;
 import com.sdm.core.config.properties.PathProperties;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.util.Globalizer;
+import com.sdm.core.util.LocaleManager;
 import com.sdm.file.model.File;
 import com.sdm.file.repository.FileRepository;
 import com.sdm.file.repository.FolderRepository;
@@ -30,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -70,6 +72,9 @@ public class FileService {
     @Autowired
     FolderRepository folderRepository;
 
+    @Autowired
+    LocaleManager localeManager;
+
     private final String fileUploadedPath;
 
     private final CacheControl cacheControl;
@@ -84,7 +89,7 @@ public class FileService {
 
     public File checkFile(String id) {
         return fileRepository.findById(id)
-                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, "There is no file by : " + id));
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, localeManager.getMessage("no-data-by", id)));
     }
 
     public void generatePreCacheImage(MultipartFile uploadFile, String storagePath, String ext) throws IOException {
@@ -103,13 +108,13 @@ public class FileService {
                 continue;
             }
 
-            Double scale;
+            double scale;
             if (image.getHeight() <= size.getMaxSize() && image.getWidth() <= size.getMaxSize()) {
                 scale = 1.0;
             } else if (image.getHeight() > image.getWidth()) {
-                scale = Double.valueOf(size.getMaxSize()) / Double.valueOf(image.getHeight());
+                scale = (double) size.getMaxSize() / (double) image.getHeight();
             } else {
-                scale = Double.valueOf(size.getMaxSize()) / Double.valueOf(image.getWidth());
+                scale = (double) size.getMaxSize() / (double) image.getWidth();
             }
             Thumbnails.of(image)
                     .scale(scale)
@@ -188,7 +193,7 @@ public class FileService {
 
     @Transactional
     public File create(MultipartFile uploadFile, boolean isPublic, boolean isHidden, Integer folderId) {
-        String fileName = StringUtils.cleanPath(uploadFile.getOriginalFilename());
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(uploadFile.getOriginalFilename()));
 
         String[] nameInfo = FileService.fileNameSplitter(fileName);
 
@@ -214,7 +219,7 @@ public class FileService {
         String storagePath = Globalizer.getDateString("/yyyy/MM/", new Date());
         String storageName = rawEntity.getId();
         try {
-            if (uploadFile.getContentType().contains("image")) {
+            if (Objects.requireNonNull(uploadFile.getContentType()).contains("image")) {
                 Path savePath = Paths.get(this.fileUploadedPath, storagePath, rawEntity.getId()).normalize();
                 Files.createDirectories(savePath);
                 generatePreCacheImage(uploadFile, savePath.toString(), rawEntity.getExtension());
@@ -244,7 +249,7 @@ public class FileService {
         File downloadEntity = this.checkFile(id);
 
         if (isPublic && !downloadEntity.isPublicAccess()) {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED, "You don't have access to this file.");
+            throw new GeneralException(HttpStatus.UNAUTHORIZED, localeManager.getMessage("access-denied"));
         }
 
         byte[] data;
