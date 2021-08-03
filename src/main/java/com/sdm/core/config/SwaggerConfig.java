@@ -5,9 +5,6 @@ import com.sdm.core.util.Globalizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import springfox.documentation.RequestHandler;
 import springfox.documentation.annotations.ApiIgnore;
 import springfox.documentation.builders.PathSelectors;
@@ -16,33 +13,18 @@ import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger.web.SecurityConfiguration;
-import springfox.documentation.swagger.web.SecurityConfigurationBuilder;
+import springfox.documentation.swagger.web.*;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
 @Configuration
-public class SwaggerConfig extends WebMvcConfigurationSupport {
-
-    @Override
-    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/swagger-ui/**")
-                .addResourceLocations("classpath:/META-INF/resources/webjars/springfox-swagger-ui/");
-
-        super.addResourceHandlers(registry);
-    }
-
-    @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/swagger-ui/")
-                .setViewName("forward:/swagger-ui/index.html");
-    }
+public class SwaggerConfig {
 
     private SecurityContext swaggerSecurityContext() {
         return SecurityContext.builder().securityReferences(swaggerAuth())
-                .forPaths(PathSelectors.any()).build();
+                .operationSelector(operationContext -> true)
+                .build();
     }
 
     private List<SecurityReference> swaggerAuth() {
@@ -59,7 +41,7 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
 
         return new ApiInfo("MasterAPI Documentation",
                 "This is a master-api backend system documentation page by swagger-ui.",
-                "v1.5", "", contact, "", "", List.of(springBoot));
+                "v1.6", "", contact, "", "", List.of(springBoot));
     }
 
     private ApiKey apiKey() {
@@ -72,6 +54,27 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
                 .scopeSeparator(",")
                 .additionalQueryStringParams(null)
                 .useBasicAuthenticationWithAccessCodeGrant(false)
+                .build();
+    }
+
+    @Bean
+    UiConfiguration uiConfig() {
+        return UiConfigurationBuilder.builder()
+                .deepLinking(true)
+                .displayOperationId(false)
+                .defaultModelsExpandDepth(1)
+                .defaultModelExpandDepth(1)
+                .defaultModelRendering(ModelRendering.EXAMPLE)
+                .displayRequestDuration(false)
+                .docExpansion(DocExpansion.NONE)
+                .filter(false)
+                .maxDisplayedTags(null)
+                .operationsSorter(OperationsSorter.ALPHA)
+                .showExtensions(false)
+                .showCommonExtensions(false)
+                .tagsSorter(TagsSorter.ALPHA)
+                .supportedSubmitMethods(UiConfiguration.Constants.DEFAULT_SUBMIT_METHODS)
+                .validatorUrl(null)
                 .build();
     }
 
@@ -91,8 +94,8 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
                 .apis(findThere)
                 .paths(PathSelectors.any())
                 .build()
-                .securitySchemes(Arrays.asList(apiKey()))
-                .securityContexts(Arrays.asList(swaggerSecurityContext()))
+                .securitySchemes(List.of(apiKey()))
+                .securityContexts(List.of(swaggerSecurityContext()))
                 .ignoredParameterTypes(ApiIgnore.class)
                 .enableUrlTemplating(true);
     }

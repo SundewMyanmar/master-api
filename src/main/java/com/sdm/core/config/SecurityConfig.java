@@ -80,6 +80,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+        serializer.setSameSite("strict");
         if (!Globalizer.isNullOrEmpty(securityProperties.getCookieDomain())) {
             serializer.setDomainName(securityProperties.getCookieDomain());
         }

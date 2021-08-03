@@ -13,8 +13,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @SpringBootApplication
-@EnableWebMvc
 @EnableJpaRepositories(repositoryBaseClass = DefaultRepositoryImpl.class)
+@EnableWebMvc
 @Log4j2
 public class Application extends SpringBootServletInitializer {
 

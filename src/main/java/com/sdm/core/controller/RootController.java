@@ -5,6 +5,7 @@ import com.sdm.core.config.PropertyConfig;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
+import com.sdm.core.util.MessageManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -37,9 +38,12 @@ public class RootController implements ErrorController {
     @Autowired
     private SpringTemplateEngine templateEngine;
 
+    @Autowired
+    private MessageManager messageManager;
+
     @GetMapping("")
     public ResponseEntity<MessageResponse> welcome() {
-        MessageResponse message = new MessageResponse("Welcome!", "Never give up to be a warrior.");
+        MessageResponse message = new MessageResponse(messageManager.getMessage("welcome-title"), messageManager.getMessage("welcome-message"));
         return ResponseEntity.ok(message);
     }
 
