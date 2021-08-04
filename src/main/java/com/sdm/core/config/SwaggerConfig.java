@@ -2,6 +2,8 @@ package com.sdm.core.config;
 
 import com.sdm.Constants;
 import com.sdm.core.util.Globalizer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +22,9 @@ import java.util.function.Predicate;
 
 @Configuration
 public class SwaggerConfig {
+
+    @Autowired
+    BuildProperties buildProperties;
 
     private SecurityContext swaggerSecurityContext() {
         return SecurityContext.builder().securityReferences(swaggerAuth())
@@ -40,8 +45,8 @@ public class SwaggerConfig {
         VendorExtension springBoot = new StringVendorExtension("Spring Boot", "https://docs.spring.io/spring-boot/docs/current/reference/html/");
 
         return new ApiInfo("MasterAPI Documentation",
-                "This is a master-api backend system documentation page by swagger-ui.",
-                Constants.VERSION, "", contact, "", "", List.of(springBoot));
+                "This is a " + buildProperties.getName() + " backend system documentation page by swagger-ui.",
+                buildProperties.getVersion(), "", contact, "", "", List.of(springBoot));
     }
 
     private ApiKey apiKey() {

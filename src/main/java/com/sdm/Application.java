@@ -31,6 +31,6 @@ public class Application extends SpringBootServletInitializer {
 
     @EventListener(ApplicationReadyEvent.class)
     public void systemStartup() {
-        log.info("System is running...");
+        log.info("System is running ...");
     }
 }

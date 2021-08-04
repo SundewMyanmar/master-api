@@ -1,7 +1,9 @@
-# MasterAPI 
+# MasterAPI
+
 This RESTful framework was developed by following:
 
 ### Reference Documentation
+
 For further reference, please consider the following sections:
 
 * [Official Gradle documentation](https://docs.gradle.org)
@@ -13,6 +15,7 @@ For further reference, please consider the following sections:
 * [Spring Security](https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#boot-features-security)
 
 ### Guides
+
 The following guides illustrate how to use some features concretely:
 
 * [Building a RESTful Web Service with Spring Boot Actuator](https://spring.io/guides/gs/actuator-service/)
@@ -26,6 +29,7 @@ The following guides illustrate how to use some features concretely:
 * [Lombok](https://projectlombok.org/)
 
 ### Additional Links
+
 These additional references should also help you:
 
 * [Gradle Build Scans – insights for your project's build](https://scans.gradle.com#gradle)
@@ -33,10 +37,11 @@ These additional references should also help you:
 So, you have to know about these frameworks and libraries. [Getting Started](#getting_started)
 
 ## <a name="getting_started"></a>Getting started
+
 - Clone or download the project from [github](https://github.com/SUNDEWMYANMAR/master-api)
 - Open project in Java IDE such as Intellij, Eclipse, NetBeans, etc ...
 - Clone following setting files:
-	- [example.log4j2.xml](./src/main/resources/example.log4j2.xml) => __log4j2.xml__
+  - [example.log4j2.xml](./src/main/resources/example.log4j2.xml) => __log4j2.xml__
 - Create system directories:
     - File upload directory. (Example: /var/www/master-api/upload/)
     - Report directory. (Example: /var/www/master-api/reports/)
@@ -44,28 +49,37 @@ So, you have to know about these frameworks and libraries. [Getting Started](#ge
 - Edit require properties from **log4j2.xml** file.
 
 ### Require config to edit in **log4j2.xml**
+
 Modified output directory.
+
 ```xml
+
 <Property name="LOG_ROOT">{log directory path}/</Property>
 ```
 
 Run Spring Boot Application
+
 ```bash
 > ./gradlew clean bootRun
 ```
 
 ### Setup System
+
 Open Browser and Enter this URL [http://locahost:8080/setup](http://localhost:8080/setup)
+
 - Fill configuration fields and Submit
-- Copy generated configuration codes and save as a **/src/resources/application.properties** file. 
+- Copy generated configuration codes and save as a **/src/resources/application.properties** file.
 - Reload Server again
 - !Finished
 
 ### Ready for your API system now!
+
 ```bash
 > ./gradlew clean bootRun
 ```
+
 Ready Output log:
+
 ```bash
 2020-01-28 13:41:44.597  INFO 2727 --- [main] com.sdm.Application   : System is running...
 ```
@@ -79,6 +93,10 @@ Ready Output log:
 ```
 
 ___
+
+## Version 1.7.1
+
+- i18n Messaging
 
 ## Version 1.7
 
@@ -96,6 +114,7 @@ ___
 ## Package Structure
 
 ### Default Package for New Module
+
 - controller
 - model
     - request
@@ -105,6 +124,7 @@ ___
 - service
 
 ### Core System
+
 - [System Configurations](./src/main/java/com/sdm/core/config)
 - [Base Controller & Helper](./src/main/java/com/sdm/core/controller)
 - [Database Helper](./src/main/java/com/sdm/core/db)
@@ -115,6 +135,7 @@ ___
 - [Jasper Reporting](https://en.wikipedia.org/wiki/JasperReports)
 
 ### [System Authorization and Authentication](./src/main/java/com/sdm/auth)
+
 - System auth by user:password
 - System auth by Facebook
 - System auth by Google
@@ -122,9 +143,10 @@ ___
 - Auth Token Management
 
 ### [System Administration](./src/main/java/com/sdm/admin)
+
 - User & Role Management
 - Route Permission by Role
-- Menu Management 
+- Menu Management
 - Menu Permission by Role
 
 ### [File Management](./src/main/java/com/sdm/file)
@@ -171,6 +193,7 @@ ___
 |getStructure|GET|name(s)/struct|Get UI Structure|
 
 ### WriteController
+
 |method|http-method|url/{path}?{query_params}|description|
 |------|------|------|------|
 |create|POST|name(s)|Create new data
@@ -183,8 +206,11 @@ ___
 ----
 
 ## Java Object Naming and Example
+
 ### Controller Class
+
 ```java
+
 @RestController
 @RequestMapping("/module/names")
 public class NameController extends DefaultReadWriterController<Model, Primary> {
@@ -200,23 +226,27 @@ public class NameController extends DefaultReadWriterController<Model, Primary> 
 ```
 
 ### Repository Class
+
 ```java
+
 @Repository
 @Transactional
 public interface ModelRepository extends DefaultRepository<Model, Primary> {
 }
 ```
 
-### Model Class 
+### Model Class
+
 ```java
 import com.sdm.core.model.DefaultEntity;
 
-public class Name extends DefaultEntity{
+public class Name extends DefaultEntity {
     ...
 }
 ```
 
 ### Request Class
+
 ```java
 public class NameRequest {
     ...
@@ -224,26 +254,34 @@ public class NameRequest {
 ```
 
 ### Response Class
+
 ```java
-public class NameResponse{
+public class NameResponse {
     ...
 }
 ```
+
 ### Service Class
+
 ```java
+
 @Service
-public class NameService{
+public class NameService {
     ...
 }
 ```
+
 ----
+
 ## Naming Notes
+
 - Model without any suffix
 - Model combined (Entity, Request, Response)
 - Entity Name =>  module.EntityName
 - Table Name => tbl_module_name(s)
 
 ### DATABASE Naming
+
 - Table => tbl_{name_with_snake_case}
 - View => vw_{name_with_snake_case}
 - Procedure => proc_{name_with_snake_case}
