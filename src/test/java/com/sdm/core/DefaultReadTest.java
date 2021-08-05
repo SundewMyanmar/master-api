@@ -1,5 +1,6 @@
 package com.sdm.core;
 
+import com.sdm.core.model.AdvancedFilter;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
@@ -7,6 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class DefaultReadTest extends DefaultTest {
     protected abstract String getUrl();
@@ -53,7 +56,10 @@ public abstract class DefaultReadTest extends DefaultTest {
     @Order(13)
     public void getAdvanceFilter() throws Exception {
         String url = getUrl() + "/advanced";
-        this.test(url, HttpMethod.GET, null)
+        List<AdvancedFilter> filters = new ArrayList<>();
+        filters.add(new AdvancedFilter());
+
+        this.test(url, HttpMethod.POST, List.of())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isPartialContent());
     }
