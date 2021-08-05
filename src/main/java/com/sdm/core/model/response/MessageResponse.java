@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.sdm.core.util.Globalizer;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder(value = {"code", "title", "message", "details"})
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class MessageResponse implements Serializable {

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.sdm.admin.model.User;
 import com.sdm.core.model.DefaultEntity;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.NotFound;
@@ -21,6 +22,7 @@ import java.util.Date;
 @Where(clause = "deleted_at IS NULL")
 @JsonPropertyOrder(value = {"deviceId", "deviceOs", "tokenExpired"})
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Token extends DefaultEntity implements Serializable {

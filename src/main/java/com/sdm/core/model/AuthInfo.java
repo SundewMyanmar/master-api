@@ -1,6 +1,7 @@
 package com.sdm.core.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,6 +13,7 @@ import java.util.Date;
 import java.util.HashSet;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthInfo implements UserDetails {

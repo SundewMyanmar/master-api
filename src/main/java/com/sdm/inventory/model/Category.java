@@ -1,9 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.sdm.admin.model;
+package com.sdm.inventory.model;
 
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Searchable;
@@ -19,41 +14,41 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 
-/**
- * @author Htoonlin
- */
 @Audited
-@Entity(name = "admin.RoleEntity")
-@Table(name = "tbl_admin_roles")
+@Entity(name = "inventory.CategoryEntity")
+@Table(name = "tbl_inventory_categories")
 @Where(clause = "deleted_at IS NULL")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Role extends DefaultEntity implements Serializable {
-
-    /**
-     *
-     */
-    private static final long serialVersionUID = 739168064520778219L;
-
+public class Category extends DefaultEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Searchable
     @NotBlank
-    @Size(min = 1, max = 255)
-    @Column(unique = true, length = 255, nullable = false)
+    @Size(max = 255)
+    @Column(nullable = false)
     private String name;
 
     @Searchable
+    @NotBlank
     @Size(max = 500)
-    @Column(columnDefinition = "varchar(500)", length = 500, nullable = false)
+    @Column
     private String description;
+
+    @Searchable
+    @Size(max = 100)
+    @Column(length = 100)
+    private String icon;
+
+    @Column
+    private Integer parentId;
 
     @Override
     public Integer getId() {
-        return id;
+        return this.id;
     }
 }

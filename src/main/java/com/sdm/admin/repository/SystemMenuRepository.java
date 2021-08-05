@@ -15,10 +15,10 @@ public interface SystemMenuRepository extends DefaultRepository<SystemMenu, Inte
 
     @Override
     @Query("SELECT distinct m from #{#entityName} m WHERE lower(concat(m.label,COALESCE(m.description, ''),COALESCE(m.path, ''))) LIKE lower(concat(:filter, '%'))")
-    Page<SystemMenu> findAll(String filter, Pageable pageable);
+    Page<SystemMenu> findAll(@Param("filter") String filter, Pageable pageable);
 
     @Query("SELECT distinct m from #{#entityName} m WHERE m.parentId IS NULL AND lower(concat(m.label,COALESCE(m.description, ''),COALESCE(m.path, ''))) LIKE lower(concat(:filter, '%')) ORDER BY m.priority")
-    List<SystemMenu> findParentMenu(String filter);
+    List<SystemMenu> findParentMenu(@Param("filter") String filter);
 
     @Query("SELECT distinct m from #{#entityName} m JOIN m.roles ro WHERE ro.id in :ids ORDER BY m.priority")
     List<SystemMenu> findByRoles(@Param("ids") List<Integer> ids);

@@ -7,6 +7,7 @@ package com.sdm.core.model.response;
 
 import com.sdm.core.util.Globalizer;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +17,7 @@ import java.io.Serializable;
  * @author htoonlin
  */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class RouteParamResponse implements Serializable {

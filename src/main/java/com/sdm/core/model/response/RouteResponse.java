@@ -7,6 +7,7 @@ package com.sdm.core.model.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,6 +20,7 @@ import java.util.Map;
  */
 @JsonPropertyOrder(value = {"path", "method", "responseType", "queryParams,", "entityParams", "formParams", "resourceClass", "resourceMethod"})
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class RouteResponse implements Serializable {

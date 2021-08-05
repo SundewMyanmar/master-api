@@ -8,6 +8,7 @@ package com.sdm.core.model.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder(value = {"total", "count", "currentPage", "data", "pageSize", "pageCount", "sort"})
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaginationResponse<T> implements Serializable {

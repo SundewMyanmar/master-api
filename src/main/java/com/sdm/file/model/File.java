@@ -12,6 +12,7 @@ import com.sdm.core.model.annotation.Searchable;
 import com.sdm.core.util.Globalizer;
 import com.sdm.file.service.FileService;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.NotFound;
@@ -33,6 +34,7 @@ import java.util.Map;
 @Table(name = "tbl_files")
 @Where(clause = "deleted_at IS NULL")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class File extends DefaultEntity implements Serializable {

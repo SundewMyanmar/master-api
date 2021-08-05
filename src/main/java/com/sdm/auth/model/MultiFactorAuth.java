@@ -6,6 +6,7 @@ import com.sdm.Constants;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.util.Globalizer;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
@@ -22,6 +23,7 @@ import java.util.UUID;
 @Table(name = "tbl_auth_mfa_settings")
 @Where(clause = "deleted_at IS NULL")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class MultiFactorAuth extends DefaultEntity implements Serializable {

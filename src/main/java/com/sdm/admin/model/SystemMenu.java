@@ -3,6 +3,7 @@ package com.sdm.admin.model;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Searchable;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.NotFound;
@@ -22,6 +23,7 @@ import java.util.Set;
 @Table(name = "tbl_admin_system_menus")
 @Where(clause = "deleted_at IS NULL")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class SystemMenu extends DefaultEntity implements Serializable {

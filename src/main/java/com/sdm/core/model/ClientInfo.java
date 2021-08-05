@@ -1,6 +1,7 @@
 package com.sdm.core.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.util.Date;
 @Entity(name = "system.RequestInfo")
 @Table(name = "tbl_system_clients")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ClientInfo implements Serializable {

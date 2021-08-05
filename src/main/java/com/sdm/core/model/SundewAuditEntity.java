@@ -3,6 +3,7 @@ package com.sdm.core.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sdm.core.db.HibernateAuditListener;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.envers.RevisionEntity;
@@ -16,6 +17,7 @@ import javax.persistence.*;
 @Table(name = "tbl_audit_info")
 @RevisionEntity(HibernateAuditListener.class)
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class SundewAuditEntity {
