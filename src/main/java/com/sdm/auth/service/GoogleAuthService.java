@@ -120,12 +120,18 @@ public class GoogleAuthService implements SocialAuthService {
     public ResponseEntity<User> auth(OAuth2Request request) {
         final GoogleIdToken.Payload payload = googleApiManager.checkGoogle(request.getAccessToken());
         String email = payload.getEmail();
+        String googleId = payload.getSubject();
 
-        User authUser = userRepository.findFirstByPhoneNumberOrEmail("", email)
-                .orElseGet(() -> this.createUser(payload));
+        User authUser = userRepository.findFirstByGoogleId(googleId)
+                .orElseGet(() -> userRepository.findFirstByPhoneNumberOrEmail("", email)
+                        .orElseGet(() -> this.createUser(payload)));
 
         if (Globalizer.isNullOrEmpty(authUser.getGoogleId())) {
-            authUser.setGoogleId(payload.getSubject());
+            authUser.setGoogleId(googleId);
+        }
+
+        if (!authUser.getEmail().equalsIgnoreCase(email)) {
+            authUser.setEmail(email);
         }
 
         if (Globalizer.isNullOrEmpty(authUser.getProfileImage())) {
@@ -136,10 +142,12 @@ public class GoogleAuthService implements SocialAuthService {
             }
         }
 
+        userRepository.save(authUser);
+
         if (authUser.getGoogleId().equalsIgnoreCase(payload.getSubject())) {
             jwtService.createToken(authUser, request, httpServletRequest);
         } else {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED, localeManager.getMessage("invalid-auth-linked"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-auth-linked"));
         }
 
         return ResponseEntity.ok(authUser);
@@ -152,7 +160,7 @@ public class GoogleAuthService implements SocialAuthService {
                 .orElseGet(() -> user);
 
         if (!authUser.getId().equals(user.getId())) {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED, localeManager.getMessage("google-linked-failed"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("google-linked-failed"));
         }
 
         if (Globalizer.isNullOrEmpty(user.getGoogleId())) {

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sdm.auth.model.MultiFactorAuth;
+import com.sdm.core.model.Contact;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Searchable;
 import com.sdm.core.util.MyanmarFontManager;
@@ -67,6 +68,23 @@ public class User extends DefaultEntity implements Serializable {
     @Size(max = 255)
     @Column
     private String email;
+
+    @Searchable
+    @Size(max = 50)
+    @Column
+    private String type;
+
+    @Searchable
+    @Size(max = 500)
+    @Column(columnDefinition = "varchar(500)")
+    private String note;
+
+    @NotAudited
+    @NotFound(action = NotFoundAction.IGNORE)
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "tbl_admin_user_contacts", joinColumns = @JoinColumn(name = "user_id"))
+    @OrderBy("priority")
+    private Set<Contact> contacts = new HashSet<>();
 
     @NotAudited
     @NotFound(action = NotFoundAction.IGNORE)

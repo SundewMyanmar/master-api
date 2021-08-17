@@ -2,6 +2,7 @@ package com.sdm.core;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.sdm.core.model.Contact;
 import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.util.Globalizer;
 import org.junit.jupiter.api.*;
@@ -12,15 +13,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class DefaultReadWriteTest extends DefaultReadTest {
     protected static Map<String, Object> currentData;
     protected static List<Serializable> importedIds;
+    protected static String[] CONTACT_LABELS = {"Work", "Home", "Office", "Personal", "Other"};
 
     @BeforeAll
     public static void init() {
@@ -41,6 +40,37 @@ public abstract class DefaultReadWriteTest extends DefaultReadTest {
     protected abstract Map<String, Object> updateFakeData();
 
     protected abstract Map<String, Object> partialUpdateFakeData();
+
+    protected Contact createContact(Contact.Type type) {
+        Contact contact = new Contact();
+        contact.setType(type);
+        contact.setLabel(CONTACT_LABELS[faker.random().nextInt(0, CONTACT_LABELS.length - 1)]);
+        contact.setVerified(faker.bool().bool());
+        contact.setPriority(faker.random().nextInt(0, 100));
+        switch (type) {
+            case EMAIL:
+                contact.setValue(faker.internet().emailAddress());
+                break;
+            case URL:
+                contact.setValue(faker.internet().url());
+                break;
+            case ADDRESS:
+                contact.setValue(faker.address().fullAddress());
+                break;
+            case LAT_LON:
+                String lat_lon = faker.address().latitude() + ":" + faker.address().longitude();
+                contact.setValue(lat_lon);
+                break;
+            case MESSAGING_ID:
+            case SOCIAL_ID:
+                contact.setValue(UUID.randomUUID().toString());
+                break;
+            default:
+                contact.setValue(faker.phoneNumber().phoneNumber());
+                break;
+        }
+        return contact;
+    }
 
     @Override
     protected Serializable getId() {

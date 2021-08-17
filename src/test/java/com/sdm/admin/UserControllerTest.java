@@ -2,23 +2,38 @@ package com.sdm.admin;
 
 import com.sdm.admin.model.User;
 import com.sdm.core.DefaultReadWriteTest;
+import com.sdm.core.model.Contact;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UserControllerTest extends DefaultReadWriteTest {
+    public static final int SKIP_USER_ID = 1;
+    private static final String[] AVAILABLE_CONTACT_TYPES = {"PHONE", "EMAIL", "SMS", "URL", "ADDRESS", "LAT_LON", "MESSAGING_ID", "SOCIAL_ID"};
 
     @Override
     protected Map<String, Object> createFakeData() {
+        List<Contact> contacts = new ArrayList<>();
+        for (int i = 0; i < faker.random().nextInt(1, 5); i++) {
+            String type = AVAILABLE_CONTACT_TYPES[faker.random().nextInt(0, AVAILABLE_CONTACT_TYPES.length - 1)];
+            contacts.add(createContact(Contact.Type.valueOf(type)));
+        }
+
         Map<String, Object> user = new HashMap<>();
         user.put("email", faker.internet().emailAddress());
         user.put("phoneNumber", faker.phoneNumber().phoneNumber());
         user.put("password", faker.regexify("[A-Za-z0-9]{12,25}"));
         user.put("displayName", faker.name().fullName());
+        user.put("type", "CUSTOMER");
+        user.put("note", faker.lorem().paragraph(3));
+        user.put("contacts", contacts);
 
         Map<String, String> extras = new HashMap<>();
         extras.put("company", faker.company().name());
@@ -48,6 +63,11 @@ public class UserControllerTest extends DefaultReadWriteTest {
     @Override
     protected String getUrl() {
         return "/admin/users";
+    }
+
+    @Override
+    protected List<Serializable> skipRemoveIds() {
+        return List.of(SKIP_USER_ID);
     }
 
     @Test

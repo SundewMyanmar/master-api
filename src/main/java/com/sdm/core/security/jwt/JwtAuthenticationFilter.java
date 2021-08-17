@@ -68,7 +68,7 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             } catch (InvalidTokenException ex) {
-                httpServletResponse.sendError(HttpStatus.UNAUTHORIZED.value(), localeManager.getMessage("auth-token-access-denied"));
+                httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), localeManager.getMessage("auth-token-access-denied"));
                 return;
             }
         }

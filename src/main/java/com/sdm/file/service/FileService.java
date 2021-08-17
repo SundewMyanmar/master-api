@@ -249,7 +249,7 @@ public class FileService {
         File downloadEntity = this.checkFile(id);
 
         if (isPublic && !downloadEntity.isPublicAccess()) {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED, localeManager.getMessage("access-denied"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("access-denied"));
         }
 
         byte[] data;

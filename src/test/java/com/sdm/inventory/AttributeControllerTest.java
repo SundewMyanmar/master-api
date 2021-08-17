@@ -2,10 +2,13 @@ package com.sdm.inventory;
 
 import com.sdm.core.DefaultReadWriteTest;
 
+import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 public class AttributeControllerTest extends DefaultReadWriteTest {
     private final String[] AVAILABLE_TYPES = {"TEXT", "INTEGER", "FLOAT", "DATE", "DATETIME", "CHOICE", "LIST", "YES_NO"};
+    public static final int SKIP_ATTRIBUTE_ID = 1;
 
     @Override
     protected String getUrl() {
@@ -31,5 +34,10 @@ public class AttributeControllerTest extends DefaultReadWriteTest {
     protected Map<String, Object> partialUpdateFakeData() {
         return Map.of("name", faker.book().title(),
                 "guild", faker.book().genre());
+    }
+
+    @Override
+    protected List<Serializable> skipRemoveIds() {
+        return List.of(SKIP_ATTRIBUTE_ID);
     }
 }

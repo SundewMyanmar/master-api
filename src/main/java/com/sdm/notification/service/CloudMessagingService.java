@@ -20,6 +20,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -66,7 +67,7 @@ public class CloudMessagingService {
 
     private WebpushConfig webpushConfig(Integer badgeCount, String category) {
         WebpushNotification.Builder builder = WebpushNotification.builder();
-        if (!Globalizer.isNullOrEmpty(category)) {
+        if (!StringUtils.isEmpty(category)) {
             builder.setTag(category);
         }
 
@@ -81,13 +82,13 @@ public class CloudMessagingService {
 
     private AndroidConfig androidConfig(String category) {
         AndroidNotification.Builder builder = AndroidNotification.builder();
-        if (!Globalizer.isNullOrEmpty(ANDROID_COLOR)) {
+        if (!StringUtils.isEmpty(ANDROID_COLOR)) {
             builder.setColor(ANDROID_COLOR);
         }
-        if (!Globalizer.isNullOrEmpty(ANDROID_ICON)) {
+        if (!StringUtils.isEmpty(ANDROID_ICON)) {
             builder.setIcon(ANDROID_ICON);
         }
-        if (!Globalizer.isNullOrEmpty(category)) {
+        if (!StringUtils.isEmpty(category)) {
             builder.setTag(category);
         }
 
@@ -99,7 +100,7 @@ public class CloudMessagingService {
 
     private ApnsConfig iosConfig(int badgeCount, String category) {
         Aps.Builder builder = Aps.builder();
-        if (!Globalizer.isNullOrEmpty(category)) {
+        if (!StringUtils.isEmpty(category)) {
             builder.setCategory(category);
         }
 
@@ -141,7 +142,10 @@ public class CloudMessagingService {
                 .build();
 
         try {
+            log.info(String.format("Sending message to [%d] => %s", notification.getUser().getId(), notification.getTitle()));
             BatchResponse response = FirebaseMessaging.getInstance(firebaseApp).sendMulticast(message);
+            log.info("Success message count => {}", response.getSuccessCount());
+            log.info("Failure message count => {}", response.getFailureCount());
 
             //Save Notification Info
             notification.setId(UUID.randomUUID().toString());
@@ -163,6 +167,7 @@ public class CloudMessagingService {
                 .setTopic(notification.getTopic())
                 .build();
         try {
+            log.info(String.format("Sending message to [%s] => %s", notification.getTopic(), notification.getTitle()));
             FirebaseMessaging.getInstance(firebaseApp).send(message);
 
             //Save Notification Info

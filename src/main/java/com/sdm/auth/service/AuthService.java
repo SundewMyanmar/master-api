@@ -180,7 +180,7 @@ public class AuthService {
         User authUser = userRepository.authByPassword(user, password)
                 .orElseThrow(() -> {
                     increaseFailedCount();
-                    return new GeneralException(HttpStatus.UNAUTHORIZED,
+                    return new GeneralException(HttpStatus.BAD_REQUEST,
                             localeManager.getMessage("auth-by-password-failed"));
                 });
         session.setAttribute(Constants.SESSION.AUTH_FAILED_COUNT, 0);

@@ -40,7 +40,7 @@ public class NotificationController extends DefaultReadController<Notification, 
     private Notification checkUserNoti(String id) {
         Notification notification = this.checkData(id);
         if (notification.getUser() != null && !notification.getUser().getId().equals(getCurrentUser().getUserId())) {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED, localeManager.getMessage("access-denied"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("access-denied"));
         }
         return notification;
     }

@@ -103,10 +103,10 @@ public class ProfileController extends DefaultController {
     public ResponseEntity<User> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         String oldPassword = securityManager.hashString(request.getOldPassword());
         User authUser = userRepository.authByPassword(request.getUser(), oldPassword).orElseThrow(
-                () -> new GeneralException(HttpStatus.UNAUTHORIZED, localeManager.getMessage("invalid-old-password")));
+                () -> new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-old-password")));
 
         if (!authUser.getId().equals(getCurrentUser().getUserId())) {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED,
+            throw new GeneralException(HttpStatus.BAD_REQUEST,
                     localeManager.getMessage("invalid-user-or-old-password"));
         }
 

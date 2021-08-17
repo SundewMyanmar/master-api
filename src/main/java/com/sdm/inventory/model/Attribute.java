@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -46,6 +47,7 @@ public class Attribute extends DefaultEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Type type;
+    @NotAudited
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "tbl_inventory_attribute_allow_values", joinColumns = @JoinColumn(name = "attributeId"))
     @Column

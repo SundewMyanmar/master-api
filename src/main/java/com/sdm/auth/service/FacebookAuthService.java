@@ -141,7 +141,7 @@ public class FacebookAuthService implements SocialAuthService {
         if (authUser.getFacebookId().equalsIgnoreCase(facebookProfile.get("id").getAsString())) {
             jwtService.createToken(authUser, request, httpServletRequest);
         } else {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED, localeManager.getMessage("invalid-auth-linked"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-auth-linked"));
         }
         return ResponseEntity.ok(authUser);
     }
@@ -153,7 +153,7 @@ public class FacebookAuthService implements SocialAuthService {
                 .orElseGet(() -> user);
 
         if (!authUser.getId().equals(user.getId())) {
-            throw new GeneralException(HttpStatus.UNAUTHORIZED, localeManager.getMessage("facebook-linked-failed"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("facebook-linked-failed"));
         } else {
             authUser.setFacebookId(null);
         }
@@ -164,7 +164,6 @@ public class FacebookAuthService implements SocialAuthService {
             user.setFacebookId(null);
         }
 
-        user.setFacebookId(accessId);
         userRepository.save(user);
 
         return ResponseEntity.ok(user);

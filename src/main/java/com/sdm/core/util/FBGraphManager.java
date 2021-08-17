@@ -85,7 +85,7 @@ public class FBGraphManager {
         if (result.getStatusCode() == HttpStatus.OK) {
             return new Gson().fromJson(result.getBody(), JsonObject.class);
         }
-        throw new GeneralException(HttpStatus.UNAUTHORIZED, "Invalid PSID!");
+        throw new GeneralException(HttpStatus.BAD_REQUEST, "Invalid PSID!");
     }
 
     public ResponseEntity<String> sendWelcomeScreen(JsonObject entity) {
