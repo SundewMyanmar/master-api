@@ -127,14 +127,14 @@ public class File extends DefaultEntity implements Serializable {
         Map<String, String> urls = new HashMap<>();
         if (this.publicAccess) {
             urls.put("public",
-                    Globalizer.getCurrentContextBuilder(true)
+                    Globalizer.getCurrentContextBuilder(false)
                             .path("/public/files/")
                             .path(this.id + "/")
                             .path(this.name + "." + this.extension)
                             .toUriString());
         } else {
             urls.put("private",
-                    Globalizer.getCurrentContextBuilder(true)
+                    Globalizer.getCurrentContextBuilder(false)
                             .path("/files/download/")
                             .path(this.id + "/")
                             .path(this.name + "." + this.extension)

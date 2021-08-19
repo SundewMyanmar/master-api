@@ -77,8 +77,10 @@ public class ProfileController extends DefaultController {
         User existUser = userRepository.findById(getCurrentUser().getUserId())
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, localeManager.getMessage("invalid-user-account")));
 
+        existUser.setNote(user.getNote());
         existUser.setProfileImage(user.getProfileImage());
         existUser.setMMDisplayName(user.getDisplayName());
+        existUser.setContacts(user.getContacts());
         existUser.setExtras(user.getExtras());
         existUser = userRepository.save(existUser);
 

@@ -82,7 +82,7 @@ public class User extends DefaultEntity implements Serializable {
     @NotAudited
     @NotFound(action = NotFoundAction.IGNORE)
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "tbl_admin_user_contacts", joinColumns = @JoinColumn(name = "user_id"))
+    @JoinTable(name = "tbl_admin_user_contacts", joinColumns = @JoinColumn(name = "userId"))
     @OrderBy("priority")
     private Set<Contact> contacts = new HashSet<>();
 
