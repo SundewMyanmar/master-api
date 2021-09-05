@@ -13,11 +13,11 @@ import java.util.Optional;
 
 @Repository
 public interface MultiFactorAuthRepository extends DefaultRepository<MultiFactorAuth, String> {
-    Optional<MultiFactorAuth> findOneByUserIdAndKey(int userId, String key);
+    Optional<MultiFactorAuth> findOneByUserIdAndMfaKey(int userId, String key);
 
     Optional<MultiFactorAuth> findOneByUserIdAndMainTrueAndVerifyTrue(int userId);
 
-    Optional<MultiFactorAuth> findOneByUserIdAndKeyAndVerifyTrue(int userId, String key);
+    Optional<MultiFactorAuth> findOneByUserIdAndMfaKeyAndVerifyTrue(int userId, String key);
 
     Page<MultiFactorAuth> findByUserIdAndVerifyTrue(int userId, Pageable pageable);
 

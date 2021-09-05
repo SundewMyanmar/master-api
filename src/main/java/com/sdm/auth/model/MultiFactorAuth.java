@@ -54,19 +54,19 @@ public class MultiFactorAuth extends DefaultEntity implements Serializable {
     @NotNull
     @Size(max = 255)
     @Column
-    private String key;
+    private String mfaKey;
 
     public MultiFactorAuth(MultiFactorAuth mfa) {
         this.id = UUID.randomUUID().toString();
         this.userId = mfa.userId;
-        this.key = mfa.key;
+        this.mfaKey = mfa.mfaKey;
         this.main = mfa.main;
 
-        if (Globalizer.isNullOrEmpty(mfa.key)) {
+        if (Globalizer.isNullOrEmpty(mfa.mfaKey)) {
             this.type = Type.APP;
-        } else if (Globalizer.isEmail(mfa.key)) {
+        } else if (Globalizer.isEmail(mfa.mfaKey)) {
             this.type = Type.EMAIL;
-        } else if (Globalizer.isPhoneNo(mfa.key)) {
+        } else if (Globalizer.isPhoneNo(mfa.mfaKey)) {
             this.type = Type.SMS;
         } else {
             this.type = mfa.type;
@@ -81,7 +81,7 @@ public class MultiFactorAuth extends DefaultEntity implements Serializable {
     public MultiFactorAuth(int userId) {
         this.id = UUID.randomUUID().toString();
         this.userId = userId;
-        this.key = Constants.APP_NAME;
+        this.mfaKey = Constants.APP_NAME;
         this.type = Type.APP;
     }
 

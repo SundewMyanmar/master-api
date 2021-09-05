@@ -65,7 +65,7 @@ public class MfaController extends DefaultController {
     public ResponseEntity<MessageResponse> setupMfa(@Valid @RequestBody MultiFactorAuth mfa) {
         mfa.setUserId(getCurrentUser().getUserId());
         multiFactorAuthService.setupEmailOrSMS(mfa);
-        return ResponseEntity.ok(new MessageResponse(localeManager.getMessage("success"), localeManager.getMessage("sent-mfa-key", mfa.getKey())));
+        return ResponseEntity.ok(new MessageResponse(localeManager.getMessage("success"), localeManager.getMessage("sent-mfa-key", mfa.getMfaKey())));
     }
 
     @GetMapping("/disable")

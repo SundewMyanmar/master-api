@@ -60,7 +60,7 @@ public class MultiFactorAuthService {
     public MultiFactorAuth authMfa(int userId, String key, boolean useMain) {
         Optional<MultiFactorAuth> mfa;
         if (!Globalizer.isNullOrEmpty(key)) {
-            mfa = repository.findOneByUserIdAndKeyAndVerifyTrue(userId, key);
+            mfa = repository.findOneByUserIdAndMfaKeyAndVerifyTrue(userId, key);
         } else {
             mfa = repository.findAppByUserIdAndVerifyTrue(userId);
         }
@@ -69,7 +69,7 @@ public class MultiFactorAuthService {
             mfa = repository.findOneByUserIdAndMainTrueAndVerifyTrue(userId);
         }
 
-        if (mfa.isEmpty()) {
+        if (!mfa.isPresent()) {
             return null;
         }
 
@@ -104,7 +104,7 @@ public class MultiFactorAuthService {
     public void sendMfaCode(int userId, String key) {
         MultiFactorAuth mfa;
         if (!Globalizer.isNullOrEmpty(key)) {
-            mfa = repository.findOneByUserIdAndKey(userId, key)
+            mfa = repository.findOneByUserIdAndMfaKey(userId, key)
                     .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, localeManager.getMessage("no-data")));
         } else {
             mfa = repository.findAppByUserId(userId)
@@ -121,7 +121,7 @@ public class MultiFactorAuthService {
             return;
         }
 
-        if (Globalizer.isNullOrEmpty(mfa.getKey())) {
+        if (Globalizer.isNullOrEmpty(mfa.getMfaKey())) {
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, localeManager.getMessage("required-mfa-key"));
         }
 
@@ -136,12 +136,12 @@ public class MultiFactorAuthService {
             try {
                 telenorSmsService.sendMessage(
                         "Your verification code is " + code + ".",
-                        new String[]{mfa.getKey()}, MessageType.MULTILINGUAL);
+                        new String[]{mfa.getMfaKey()}, MessageType.MULTILINGUAL);
             } catch (IOException ex) {
                 throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
             }
         } else if (mfa.getType().equals(MultiFactorAuth.Type.EMAIL)) {
-            mailService.sendMfa(mfa.getKey(), code, expiredDate);
+            mailService.sendMfa(mfa.getMfaKey(), code, expiredDate);
         } else {
             throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-mfa-type"));
         }
@@ -151,7 +151,7 @@ public class MultiFactorAuthService {
     public boolean verify(int userId, String code, String key) {
         MultiFactorAuth mfa;
         if (!Globalizer.isNullOrEmpty(key)) {
-            mfa = repository.findOneByUserIdAndKey(userId, key)
+            mfa = repository.findOneByUserIdAndMfaKey(userId, key)
                     .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, localeManager.getMessage("no-data")));
         } else {
             mfa = repository.findAppByUserId(userId)
@@ -188,13 +188,13 @@ public class MultiFactorAuthService {
             throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("verify-mfa-key", "Authenticator App"));
         }
 
-        repository.findOneByUserIdAndKey(mfa.getUserId(), mfa.getKey())
+        repository.findOneByUserIdAndMfaKey(mfa.getUserId(), mfa.getMfaKey())
                 .ifPresent((existMfa) -> {
                     mfa.setId(existMfa.getId());
                     mfa.setVersion(existMfa.getVersion());
                 });
 
-        if (Globalizer.isNullOrEmpty(mfa.getKey())) {
+        if (Globalizer.isNullOrEmpty(mfa.getMfaKey())) {
             throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("required-mfa-key"));
         }
 
