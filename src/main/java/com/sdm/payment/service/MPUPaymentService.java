@@ -59,12 +59,12 @@ public class MPUPaymentService {
         if (!hash.equals(request.getHashValue())) {
             writeLog(request);
 
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         if (!request.getRespCode().equals("00")) {
             writeLog(request);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
         return ResponseEntity.ok(new MessageResponse(localeManager.getMessage("success"), localeManager.getMessage("mpu-callback-success", request.getInvoiceNo())));
     }
@@ -74,7 +74,7 @@ public class MPUPaymentService {
         try {
             log.error("INVALID_MPU_RESPONSE >>>" + objectMapper.writeValueAsString(request));
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
     }
 }

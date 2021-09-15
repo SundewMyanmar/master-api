@@ -47,12 +47,12 @@ public class Sai2PayPaymentService {
             resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), false);
             result = objectMapper.readValue(resultString, Sai2PayLoginResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         if (!result.getRespCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
             log.error(resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, result.getRespDescription());
+            throw new GeneralException(HttpStatus.BAD_REQUEST, result.getRespDescription());
         }
 
         return result;
@@ -62,7 +62,7 @@ public class Sai2PayPaymentService {
     public Sai2PayLoginResponse changePassword(String oldPassword, String newPassword) {
         if (!oldPassword.equals(uabProperties.getPassword())) {
             log.error("Invalid Old Password : " + oldPassword);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, "Invalid Old Password!");
+            throw new GeneralException(HttpStatus.BAD_REQUEST, "Invalid Old Password!");
         }
 
         Sai2PayChangePasswordRequest request = new Sai2PayChangePasswordRequest(uabProperties.getUser(),
@@ -76,12 +76,12 @@ public class Sai2PayPaymentService {
                     false);
             result = objectMapper.readValue(resultString, Sai2PayLoginResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         if (!result.getRespCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
             log.error(resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, result.getRespDescription());
+            throw new GeneralException(HttpStatus.BAD_REQUEST, result.getRespDescription());
         }
 
         return result;
@@ -101,19 +101,19 @@ public class Sai2PayPaymentService {
                     tokenString, false);
             result = objectMapper.readValue(resultString, Sai2PayCheckPhResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         if (!result.getRespCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
             log.error("INVALID_UAB_RESPONSE >>> " + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, result.getRespDescription());
+            throw new GeneralException(HttpStatus.BAD_REQUEST, result.getRespDescription());
         }
 
         // TODO: check hash value response
         String resultHash = securityManager.generateUABHashHmac(result.getSignatureString());
         if (!resultHash.equals(result.getHashValue())) {
             log.error("INVALID_UAB_RESPONSE >>>" + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         return result;
@@ -135,19 +135,19 @@ public class Sai2PayPaymentService {
                     tokenString, false);
             result = objectMapper.readValue(resultString, Sai2PayEnquiryPaymentResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         if (!result.getRespCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
             log.error("INVALID_UAB_RESPONSE >>> " + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, result.getRespDescription());
+            throw new GeneralException(HttpStatus.BAD_REQUEST, result.getRespDescription());
         }
 
         // TODO: check hash value response
         String resultHash = securityManager.generateUABHashHmac(result.getSignatureString());
         if (!resultHash.equals(result.getHashValue())) {
             log.error("INVALID_UAB_RESPONSE >>>" + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         return result;
@@ -157,7 +157,7 @@ public class Sai2PayPaymentService {
         try {
             log.error("INVALID_UAB_RESPONSE >>>" + objectMapper.writeValueAsString(request));
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
     }
 
@@ -166,12 +166,12 @@ public class Sai2PayPaymentService {
         String requestHash = securityManager.generateUABHashHmac(request.getSignatureString());
         if (!requestHash.equals(request.getHashValue())) {
             writeLog(request);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         if (!request.getTransactionStatus().equals(ApiResponseStatus.SUCCESS.getValue())) {
             writeLog(request);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         // TODO: call repository with invoice no and update status
@@ -180,7 +180,7 @@ public class Sai2PayPaymentService {
         try {
             itemListStr = objectMapper.writeValueAsString(itemList);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         Sai2PayResponsePaymentResponse response = new Sai2PayResponsePaymentResponse(request.getReferIntegrationId(),
@@ -213,19 +213,19 @@ public class Sai2PayPaymentService {
                     tokenString, false);
             result = objectMapper.readValue(resultString, Sai2PayCheckTransactionResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         if (!result.getRespCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
             log.error("INVALID_UAB_RESPONSE >>> " + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, result.getRespDescription());
+            throw new GeneralException(HttpStatus.BAD_REQUEST, result.getRespDescription());
         }
 
         // TODO: check hash value response
         String resultHash = securityManager.generateUABHashHmac(result.getSignatureString());
         if (!resultHash.equals(result.getHashValue())) {
             log.error("INVALID_UAB_RESPONSE >>>" + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         return result;

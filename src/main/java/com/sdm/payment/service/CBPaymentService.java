@@ -66,14 +66,14 @@ public class CBPaymentService {
             resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), true);
             result = objectMapper.readValue(resultString, CBPaymentOrderResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         result.setDeepLinkUrl(cbProperties.getDeepLinkUrl(result.getGenerateRefOrder()));
 
         if (!result.getCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
             log.error("INVALID_CB_RESPONSE >>> " + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, result.getMsg());
+            throw new GeneralException(HttpStatus.BAD_REQUEST, result.getMsg());
         }
 
         return result;
@@ -87,7 +87,7 @@ public class CBPaymentService {
             String resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), true);
             return objectMapper.readValue(resultString, CBCheckPaymentStatusResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
     }
 
@@ -106,10 +106,10 @@ public class CBPaymentService {
             try {
                 log.error("INVALID_CB_RESPONSE >>>" + objectMapper.writeValueAsString(request));
             } catch (Exception ex) {
-                throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+                throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
             }
 
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-payment-server-response"));
         }
         //TODO: check response status code "0000" success
         //TODO: call repository with invoice and update status
@@ -124,9 +124,9 @@ public class CBPaymentService {
             try {
                 log.error("INVALID_CB_RESPONSE >>>" + objectMapper.writeValueAsString(request));
             } catch (Exception ex) {
-                throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+                throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
             }
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         CBResponsePaymentOrderResponse response = new CBResponsePaymentOrderResponse("0000", "OPERATION SUCCESS");

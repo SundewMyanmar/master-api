@@ -51,7 +51,7 @@ public class WavePayPaymentService {
         try {
             itemListStr = objectMapper.writeValueAsString(itemList);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         WavePayPaymentRequest request = new WavePayPaymentRequest(wavePayProperties.getMerchantId(), orderId, merchantReferenceId, wavePayProperties.getSuccessUrl(), wavePayProperties.getPaymentCallbackUrl()
@@ -68,14 +68,14 @@ public class WavePayPaymentService {
 
             result = objectMapper.readValue(resultString, WavePayPaymentResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, ex.getLocalizedMessage());
+            throw new GeneralException(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage());
         }
 
         result.setAuthenticatedUrl(wavePayProperties.getPaymentRequestAuthenticateUrl(result.getTransactionId()));
 
         if (!result.getMessage().equals("success")) {
             log.error("INVALID_YOMA_RESPONSE>>>" + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, result.getMessage());
+            throw new GeneralException(HttpStatus.BAD_REQUEST, result.getMessage());
         }
 //        if(!result.getStatusCode().equals(YOMAProperties.APIPaymentResponseStatus.SUCCESS.getValue())){
 //            log.error("INVALID_YOMA_RESPONSE>>>"+resultString);
@@ -93,16 +93,16 @@ public class WavePayPaymentService {
                 throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("payment-encryption-failed"));
             }
 
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         if (!request.getStatus().equals(WavePayResponsePaymentRequest.PaymentStatus.PAYMENT_CONFIRMED)) {
             try {
                 log.error("INVALID_YOMA_RESPONSE >>>" + objectMapper.writeValueAsString(request));
             } catch (Exception ex) {
-                throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+                throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
             }
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         return ResponseEntity.ok(new MessageResponse(localeManager.getMessage("success"), localeManager.getMessage("wave-pay-callback-success", request.getTransactionId())));

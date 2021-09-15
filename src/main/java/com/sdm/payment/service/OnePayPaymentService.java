@@ -53,19 +53,19 @@ public class OnePayPaymentService {
             resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), false);
             result = objectMapper.readValue(resultString, OnePayVerifyPhResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         if (!result.getRespCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
             log.error("INVALID_AGD_RESPONSE >>> " + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, result.getRespDescription());
+            throw new GeneralException(HttpStatus.BAD_REQUEST, result.getRespDescription());
         }
 
         //TODO: check hash value response
         String resultHash = securityManager.generateAGDHashHMac(result.getSignatureString());
         if (!resultHash.equals(result.getHashValue())) {
             log.error("INVALID_AGD_RESPONSE >>>" + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         return result;
@@ -86,19 +86,19 @@ public class OnePayPaymentService {
             resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), false);
             result = objectMapper.readValue(resultString, OnePayDirectPaymentResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         if (!result.getRespCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
             log.error("INVALID_AGD_RESPONSE >>> " + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, result.getRespDescription());
+            throw new GeneralException(HttpStatus.BAD_REQUEST, result.getRespDescription());
         }
 
         //TODO: check hash value response
         String resultHash = securityManager.generateAGDHashHMac(result.getSignatureString());
         if (!resultHash.equals(result.getHashValue())) {
             log.error("INVALID_AGD_RESPONSE >>>" + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         return result;
@@ -116,7 +116,7 @@ public class OnePayPaymentService {
         try {
             log.error("INVALID_AGD_RESPONSE >>>" + objectMapper.writeValueAsString(request));
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
     }
 
@@ -124,12 +124,12 @@ public class OnePayPaymentService {
         String requestHash = securityManager.generateAGDHashHMac(request.getSignatureString());
         if (!requestHash.equals(request.getHashValue())) {
             writeLog((request));
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         if (!request.getTransactionStatus().equals(ApiResponseStatus.SUCCESS.getValue())) {
             writeLog((request));
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         //TODO: call repository with invoice no and update status
@@ -138,7 +138,7 @@ public class OnePayPaymentService {
         try {
             itemListStr = objectMapper.writeValueAsString(itemList);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         itemListStr = itemListStr.replace("[", "");
@@ -160,19 +160,19 @@ public class OnePayPaymentService {
             resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(request), false);
             result = objectMapper.readValue(resultString, OnePayCheckTransactionResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         if (!result.getRespCode().equals(ApiResponseStatus.SUCCESS.getValue())) {
             log.error("INVALID_AGD_RESPONSE >>> " + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, result.getRespDescription());
+            throw new GeneralException(HttpStatus.BAD_REQUEST, result.getRespDescription());
         }
 
         //TODO: check hash value response
         String resultHash = securityManager.generateAGDHashHMac(result.getSignatureString());
         if (!resultHash.equals(result.getHashValue())) {
             log.error("INVALID_AGD_RESPONSE >>>" + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-payment-server-response"));
         }
 
         return result;

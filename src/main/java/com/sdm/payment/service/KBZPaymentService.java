@@ -141,13 +141,13 @@ public class KBZPaymentService {
             resultString = httpRequestManager.jsonPostRequest(new URL(rawUrl), objectMapper.writeValueAsString(paymentRequest), !kbzPayProperties.getIsUat());
             paymentResult = objectMapper.readValue(resultString, KBZPayPaymentResponse.class);
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
 
         KBZPayResponse response = paymentResult.getResponse();
         if (response == null || !response.getCode().equals("0")) {
             log.error("INVALID_KBZ_RESPONSE >>> " + resultString);
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, response.getMsg());
+            throw new GeneralException(HttpStatus.BAD_REQUEST, response.getMsg());
         }
 
         return this.buildPayment(response, request.getTimestamp());
@@ -157,7 +157,7 @@ public class KBZPaymentService {
         try {
             log.error("INVALID_KBZ_RESPONSE >>>" + objectMapper.writeValueAsString(request));
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
         }
     }
 
@@ -168,17 +168,17 @@ public class KBZPaymentService {
 
             if (!sign.equals(request.getSign())) {
                 writeLog(request);
-                throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("invalid-payment-server-response"));
+                throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-payment-server-response"));
             }
 
             if (!request.getTradeStatus().equals("PAY_SUCCESS")) {
                 writeLog(request);
-                throw new GeneralException(HttpStatus.BAD_GATEWAY, localeManager.getMessage("unprocessable-payment-response"));
+                throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("unprocessable-payment-response"));
             }
 
             return ResponseEntity.ok(new MessageResponse(localeManager.getMessage("success"), localeManager.getMessage("kpay-callback-success", request.getMerchOrderId())));
         } catch (Exception ex) {
-            throw new GeneralException(HttpStatus.BAD_GATEWAY, ex.getLocalizedMessage());
+            throw new GeneralException(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage());
         }
     }
 }
