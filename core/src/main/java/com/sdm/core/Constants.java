@@ -22,8 +22,6 @@ public interface Constants {
 
     int STRUCT_CACHE_DAYS = 365;
 
-    String SYSTEM_CONFIG = "system-config.json";
-
     /**
      * Regex Patterns
      *

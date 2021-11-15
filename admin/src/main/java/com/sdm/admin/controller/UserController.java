@@ -17,6 +17,7 @@ import com.sdm.core.util.LocaleManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +45,9 @@ public class UserController extends DefaultReadController<User, Integer> impleme
     private SecurityManager securityManager;
 
     @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
     private LocaleManager localeManager;
 
     @Override
@@ -55,13 +59,12 @@ public class UserController extends DefaultReadController<User, Integer> impleme
     public ResponseEntity<User> resetPassword(@PathVariable("userId") int userId,
                                               @Valid @RequestBody ChangePasswordRequest request) {
         User adminUser = this.checkData(getCurrentUser().getUserId());
-        String adminPassword = securityManager.hashString(request.getOldPassword());
-        if (!adminUser.getPassword().equals(adminPassword)) {
+        if (!passwordEncoder.matches(request.getOldPassword(), adminUser.getPassword())) {
             throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-admin-password"));
         }
 
         User existUser = this.checkData(userId);
-        String newPassword = securityManager.hashString(request.getNewPassword());
+        String newPassword = passwordEncoder.encode(request.getNewPassword());
         existUser.setPassword(newPassword);
         userRepository.save(existUser);
 
@@ -89,7 +92,7 @@ public class UserController extends DefaultReadController<User, Integer> impleme
         });
 
         String rawPassword = request.getPassword();
-        String password = securityManager.hashString(rawPassword);
+        String password = passwordEncoder.encode(rawPassword);
         request.setPassword(password);
         request.setPhoneNumber(Globalizer.cleanPhoneNo(request.getPhoneNumber()));
 
@@ -161,7 +164,7 @@ public class UserController extends DefaultReadController<User, Integer> impleme
         for (final User user : body) {
             String rawPassword = user.getPassword();
             if (!Globalizer.isNullOrEmpty(rawPassword)) {
-                String password = securityManager.hashString(rawPassword);
+                String password = passwordEncoder.encode(rawPassword);
                 user.setPassword(password);
             }
 

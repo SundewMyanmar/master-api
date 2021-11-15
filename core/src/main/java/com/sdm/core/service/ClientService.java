@@ -1,9 +1,9 @@
 package com.sdm.core.service;
 
 import com.sdm.core.Constants;
-import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.db.repository.ClientRepository;
 import com.sdm.core.model.ClientInfo;
+import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Marker;
@@ -27,7 +27,7 @@ public class ClientService {
     private ClientRepository repository;
 
     @Autowired
-    private SecurityProperties securityProperties;
+    private SecurityManager securityManager;
 
     private void writeLog(String type, String remoteAddress, String url) {
         Marker marker = MarkerManager.getMarker(type.toUpperCase());
@@ -73,14 +73,14 @@ public class ClientService {
         }
 
         //Blocked Client if Failed count reached limit.
-        if (authCount >= securityProperties.getAuthFailedCount() || jwtCount >= securityProperties.getAuthFailedCount()) {
-            Date blockedDate = Globalizer.addDate(new Date(), securityProperties.getBlockedTime());
+        if (authCount >= securityManager.getProperties().getAuthFailedCount() || jwtCount >= securityManager.getProperties().getAuthFailedCount()) {
+            Date blockedDate = Globalizer.addDate(new Date(), securityManager.getProperties().getBlockedTime());
             client.setBlockedExpiry(blockedDate);
             blocked = true;
         }
 
         //Unblock Client
-        if (!blocked && authCount < securityProperties.getAuthFailedCount() && jwtCount < securityProperties.getAuthFailedCount()) {
+        if (!blocked && authCount < securityManager.getProperties().getAuthFailedCount() && jwtCount < securityManager.getProperties().getAuthFailedCount()) {
             client.setBlockedExpiry(null);
         }
 

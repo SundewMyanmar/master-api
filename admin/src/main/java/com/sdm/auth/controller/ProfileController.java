@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,6 +48,9 @@ public class ProfileController extends DefaultController {
 
     @Autowired
     private SecurityManager securityManager;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private AuthService authService;
@@ -104,23 +108,22 @@ public class ProfileController extends DefaultController {
 
     @PostMapping("/changePassword")
     public ResponseEntity<User> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
-        String oldPassword = securityManager.hashString(request.getOldPassword());
-        String user = request.getUser();
-        if (Globalizer.isPhoneNo(user)) user = Globalizer.cleanPhoneNo(user);
+        String phoneOrEmail = request.getUser();
+        if (Globalizer.isPhoneNo(phoneOrEmail)) phoneOrEmail = Globalizer.cleanPhoneNo(phoneOrEmail);
 
-        User authUser = userRepository.authByPassword(user, oldPassword).orElseThrow(
-                () -> new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-old-password")));
+        User user = userRepository.findFirstByPhoneNumberOrEmail(phoneOrEmail, phoneOrEmail).orElseThrow(
+                () -> new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-user-account")));
 
-        if (!authUser.getId().equals(getCurrentUser().getUserId())) {
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             throw new GeneralException(HttpStatus.BAD_REQUEST,
                     localeManager.getMessage("invalid-user-or-old-password"));
         }
 
-        String newPassword = securityManager.hashString(request.getNewPassword());
-        authUser.setPassword(newPassword);
-        userRepository.save(authUser);
+        String newPassword = passwordEncoder.encode(request.getNewPassword());
+        user.setPassword(newPassword);
+        userRepository.save(user);
 
-        return ResponseEntity.ok(authUser);
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/refreshToken")

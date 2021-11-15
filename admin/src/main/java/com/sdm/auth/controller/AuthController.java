@@ -9,7 +9,6 @@ import com.sdm.auth.service.*;
 import com.sdm.core.Constants;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
-import com.sdm.core.security.AESManager;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.LocaleManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -25,7 +23,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
-@Controller
+@RestController
 @RequestMapping("/auth")
 public class AuthController {
     @Autowired
@@ -42,9 +40,6 @@ public class AuthController {
 
     @Autowired
     private SecurityManager securityManager;
-
-    @Autowired
-    private AESManager aesManager;
 
     @Autowired
     private ObjectMapper jacksonObjectMapper;
@@ -65,7 +60,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<User> registerByUserAndPassword(@Valid @RequestBody RegistrationRequest request) {
-        return service.registerByUserAndEmail(request);
+        return service.userRegistration(request);
     }
 
     @PostMapping("/apple")
@@ -104,7 +99,7 @@ public class AuthController {
         boolean isValid = service.checkSMSOTP(request);
         try {
             if (isValid) {
-                String token = aesManager.encrypt(jacksonObjectMapper.writeValueAsString(request), securityManager.getProperties().getEncryptSalt());
+                String token = securityManager.aesEncrypt(jacksonObjectMapper.writeValueAsString(request));
                 return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, localeManager.getMessage("success"), token, null));
             }
         } catch (JsonProcessingException ex) {
@@ -116,7 +111,7 @@ public class AuthController {
     @GetMapping(value = "/resetPassword", produces = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ModelAndView resetPassword(@RequestParam("token") String token,
                                       @RequestParam("user") String user) throws JsonProcessingException {
-        String activateToken = aesManager.decrypt(token, securityManager.getProperties().getEncryptSalt());
+        String activateToken = securityManager.aesDecrypt(token);
         ActivateRequest activateRequest = jacksonObjectMapper.readValue(activateToken, ActivateRequest.class);
         service.resetPasswordMail(activateRequest);
 
@@ -129,7 +124,7 @@ public class AuthController {
     @PostMapping("/resetPassword")
     public ResponseEntity<User> resetPasswordWithNewPassword(@Valid @RequestBody ChangePasswordRequest request) {
         try {
-            String activateToken = aesManager.decrypt(request.getOldPassword(), securityManager.getProperties().getEncryptSalt());
+            String activateToken = securityManager.aesDecrypt(request.getOldPassword());
             ActivateRequest activateRequest = jacksonObjectMapper.readValue(activateToken, ActivateRequest.class);
             return service.resetPasswordJson(request, activateRequest);
         } catch (Exception ex) {

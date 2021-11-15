@@ -20,6 +20,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +53,9 @@ public class AppleAuthService implements SocialAuthService {
 
     @Autowired
     private SecurityManager securityManager;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -134,7 +138,7 @@ public class AppleAuthService implements SocialAuthService {
         String phoneNumber = "APL_" + appleId;
         String email = payload.has("email") ? payload.get("email").getAsString() : appleId + "@appleId.com";
         String rawPassword = Globalizer.randomPassword(AuthService.MIN_PASSWORD, AuthService.MAX_PASSWORD);
-        String password = securityManager.hashString(rawPassword);
+        String password = passwordEncoder.encode(rawPassword);
 
         //Get Back Old User Data With Email
         User userEntity = userRepository.findFirstByEmailAndEmailIsNotNull(email)

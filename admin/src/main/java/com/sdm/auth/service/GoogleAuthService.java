@@ -21,6 +21,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
@@ -59,6 +60,9 @@ public class GoogleAuthService implements SocialAuthService {
 
     @Autowired
     private HttpServletRequest httpServletRequest;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * Check Google Account
@@ -127,7 +131,7 @@ public class GoogleAuthService implements SocialAuthService {
         String email = payload.getEmail();
         String displayName = (String) payload.get("name");
         String rawPassword = Globalizer.randomPassword(AuthService.MIN_PASSWORD, AuthService.MAX_PASSWORD);
-        String password = securityManager.hashString(rawPassword);
+        String password = passwordEncoder.encode(rawPassword);
         File profilePicture = this.createProfileImage(payload.get("picture").toString());
 
         if (!payload.getEmailVerified()) {

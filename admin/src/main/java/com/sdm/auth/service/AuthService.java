@@ -21,6 +21,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,6 +70,9 @@ public class AuthService {
     private LocaleManager localeManager;
 
     @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
     FileService fileService;
 
     public static final int MAX_PASSWORD = 32;
@@ -107,7 +111,7 @@ public class AuthService {
                 + Globalizer.generateToken(Constants.Auth.GENERATED_TOKEN_CHARS, 8);
 
         String passwordChars = Globalizer.randomPassword(MIN_PASSWORD, MAX_PASSWORD);
-        String password = securityManager.hashString(passwordChars);
+        String password = passwordEncoder.encode(passwordChars);
         return new User(userName, "Anonymous", password, User.Status.ACTIVE);
     }
 
@@ -161,7 +165,7 @@ public class AuthService {
                     localeManager.getMessage("invalid-otp-code"));
         }
 
-        String newPassword = securityManager.hashString(password);
+        String newPassword = passwordEncoder.encode(password);
         user.setPassword(newPassword);
         user.setActivateToken(null);
         user.setActivateTokenExpire(null);
@@ -220,22 +224,22 @@ public class AuthService {
 
     @Transactional
     private User authByPassword(String user, String rawPassword) {
-        String password = securityManager.hashString(rawPassword);
+        User authUser;
         if (Globalizer.isPhoneNo(user)) {
             user = Globalizer.cleanPhoneNo(user);
-            userRepository.findFirstByPhoneNumberAndPhoneNumberIsNotNull(user)
+            authUser = userRepository.findFirstByPhoneNumberAndPhoneNumberIsNotNull(user)
                     .orElseThrow(() -> new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-registration-phone")));
         } else {
             //Check User
-            userRepository.findFirstByEmailAndEmailIsNotNull(user)
+            authUser = userRepository.findFirstByEmailAndEmailIsNotNull(user)
                     .orElseThrow(() -> new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-registration-email")));
         }
 
-        User authUser = userRepository.authByPassword(user, password)
-                .orElseThrow(() -> {
-                    increaseFailedCount();
-                    return new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("auth-by-password-failed"));
-                });
+        if (!passwordEncoder.matches(rawPassword, authUser.getPassword())) {
+            increaseFailedCount();
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("auth-by-password-failed"));
+        }
+
         return authUser;
     }
 
@@ -261,7 +265,7 @@ public class AuthService {
     }
 
     @Transactional
-    public ResponseEntity<User> registerByUserAndEmail(RegistrationRequest request) {
+    public ResponseEntity<User> userRegistration(RegistrationRequest request) {
         String phoneNumber = Globalizer.cleanPhoneNo(request.getPhoneNumber());
         //Check user by phone number
         userRepository.findFirstByPhoneNumberAndPhoneNumberIsNotNull(phoneNumber)
@@ -278,7 +282,7 @@ public class AuthService {
 
         boolean needConfirm = securityManager.getProperties().isRequireConfirm();
         User.Status status = needConfirm ? User.Status.PENDING : User.Status.ACTIVE;
-        String password = securityManager.hashString(request.getPassword());
+        String password = passwordEncoder.encode(request.getPassword());
         User newUser = new User(phoneNumber, request.getDisplayName(),
                 password, status);
 

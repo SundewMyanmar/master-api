@@ -6,7 +6,6 @@ import com.sdm.auth.model.Token;
 import com.sdm.auth.model.request.TokenInfo;
 import com.sdm.auth.repository.TokenRepository;
 import com.sdm.core.Constants;
-import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.exception.InvalidTokenException;
 import com.sdm.core.model.AuthInfo;
 import com.sdm.core.security.SecurityManager;
@@ -20,14 +19,13 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.WebUtils;
 
 import javax.crypto.SecretKey;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
@@ -38,6 +36,8 @@ import java.util.UUID;
 @Service("jwtAuthHandler")
 @Log4j2
 public class JwtService implements JwtAuthenticationHandler {
+    @Value("${com.sdm.security.jwt-key}")
+    private String jwtKey = "";
 
     private static final String CLIENT_TOKEN = "ct";
     private static final String CLAIM_DEVICE_ID = "deviceId";
@@ -51,9 +51,6 @@ public class JwtService implements JwtAuthenticationHandler {
     private UserRepository userRepository;
 
     @Autowired
-    private SecurityProperties securityProperties;
-
-    @Autowired
     private SecurityManager securityManager;
 
     @Autowired
@@ -63,7 +60,7 @@ public class JwtService implements JwtAuthenticationHandler {
     private LocaleManager localeManager;
 
     private Date getTokenExpired() {
-        return Globalizer.addDate(new Date(), securityProperties.getAuthTokenLife());
+        return Globalizer.addDate(new Date(), securityManager.getProperties().getAuthTokenLife());
     }
 
     private String getAudience(HttpServletRequest request) {
@@ -80,33 +77,8 @@ public class JwtService implements JwtAuthenticationHandler {
     }
 
     private SecretKey getKey() {
-        byte[] decodeKey = Decoders.BASE64.decode(securityProperties.getJwtKey());
+        byte[] decodeKey = Decoders.BASE64.decode(jwtKey);
         return Keys.hmacShaKeyFor(decodeKey);
-    }
-
-    private String getClientToken(HttpServletRequest request) {
-        Cookie clientToken = WebUtils.getCookie(request, CLIENT_TOKEN);
-        if (clientToken != null) {
-            return clientToken.getValue();
-        }
-        return "";
-    }
-
-    private void setClientToken(Token token) {
-        Cookie cookie = new Cookie(CLIENT_TOKEN, token.getId());
-        cookie.setHttpOnly(false);
-        cookie.setSecure(false);
-        cookie.setMaxAge(-1);
-
-        if (!Globalizer.isNullOrEmpty(securityProperties.getCookieDomain())) {
-            cookie.setDomain(securityProperties.getCookieDomain());
-        }
-        if (!Globalizer.isNullOrEmpty(securityProperties.getCookiePath())) {
-            cookie.setPath(securityProperties.getCookiePath());
-        } else {
-            cookie.setPath("/");
-        }
-        servletResponse.addCookie(cookie);
     }
 
     private String buildRoles(User user) {
@@ -115,7 +87,7 @@ public class JwtService implements JwtAuthenticationHandler {
         roles.add(Constants.Auth.DEFAULT_USER_ROLE);
 
         //Is Root?
-        if (securityProperties.getOwnerIds().contains(user.getId())) {
+        if (securityManager.getProperties().getOwnerIds().contains(user.getId())) {
             roles.add(Constants.Auth.ROOT_ROLE);
         }
 

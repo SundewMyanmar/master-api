@@ -33,14 +33,14 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
 
-    //Swagger
-    implementation "io.springfox:springfox-boot-starter:3.0.0"
-
     //Mail
     implementation 'javax.mail:mail:1.4.7'
 
     //Hibernate Audit
     implementation 'org.hibernate:hibernate-envers'
+
+    //Swagger
+    implementation "io.springfox:springfox-boot-starter:3.0.0"
 
     implementation "org.springframework.boot:spring-boot-starter-quartz"
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'

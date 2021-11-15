@@ -2,13 +2,12 @@ package com.sdm.payment.controller;
 
 import com.sdm.core.controller.DefaultController;
 import com.sdm.core.exception.GeneralException;
-import com.sdm.core.security.AESManager;
+import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.payment.config.properties.MPUProperties;
 import com.sdm.payment.model.request.mpu.HttpParameter;
 import com.sdm.payment.model.request.mpu.MPUPayment;
 import com.sdm.payment.repository.MPUPaymentRepository;
-import com.sdm.payment.util.PaymentSecurityManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.bind.DefaultValue;
@@ -38,10 +37,7 @@ public class MPUPaymentController extends DefaultController {
     private MPUPaymentRepository repository;
 
     @Autowired
-    private AESManager aesManager;
-
-    @Autowired
-    private PaymentSecurityManager securityManager;
+    private SecurityManager securityManager;
 
     private ModelAndView buildModel(MPUPayment request) {
         ModelAndView modelAndView = new ModelAndView("mpu/payment");
@@ -58,7 +54,7 @@ public class MPUPaymentController extends DefaultController {
                 HttpParameter httpParameter = field.getAnnotation(HttpParameter.class);
                 if (!Globalizer.isNullOrEmpty(value)) {
                     if (field.getName().equals("cardInfo")) {
-                        value = aesManager.encrypt(value.toString(), mpuProperties.getSecretKey());
+                        value = securityManager.aesEncrypt(value.toString(), mpuProperties.getSecretKey());
                     }
                     modelAndView.addObject(httpParameter.value(), value.toString());
                     hashBuilder.add(value.toString());
@@ -77,7 +73,8 @@ public class MPUPaymentController extends DefaultController {
         for (String value : values) {
             hashString += value;
         }
-        String hash = securityManager.generateMPUHashHmac(hashString);
+        String hash = securityManager.generateHashHmac(hashString, mpuProperties.getSecretKey(), "HmacSHA1");
+        ;
         modelAndView.addObject("hashValue", hash);
         return modelAndView;
     }

@@ -1,10 +1,11 @@
-package com.sdm.core.config;
+package com.sdm.admin.config;
 
 import com.sdm.core.Constants;
 import com.sdm.core.util.Globalizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.util.AntPathMatcher;
 import springfox.documentation.RequestHandler;
 import springfox.documentation.annotations.ApiIgnore;
 import springfox.documentation.builders.PathSelectors;
@@ -15,6 +16,7 @@ import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger.web.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -100,11 +102,6 @@ public class SwaggerConfig {
     }
 
     @Bean
-    Docket resourceApi() {
-        return this.buildDocket("01. Resource", "com.sdm.resource");
-    }
-
-    @Bean
     Docket authApi() {
         return this.buildDocket("02. Auth", "com.sdm.auth");
     }
@@ -134,4 +131,28 @@ public class SwaggerConfig {
         return this.buildDocket("All", "com.sdm");
     }
 
+    @Bean
+    Docket permitApi() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .groupName("Permit")
+                .apiInfo(apiInfo())
+                .select()
+                .apis(RequestHandlerSelectors.any())
+                .paths(s -> {
+                    List<String> permittedPatterns = new java.util.ArrayList<>(Arrays.asList(SecurityConfig.ROOT_PERMISSION_LIST));
+                    permittedPatterns.addAll(Arrays.asList(SecurityConfig.USER_PERMISSION_LIST));
+                    permittedPatterns.addAll(Arrays.asList(SecurityConfig.SYSTEM_WHITE_LIST));
+                    AntPathMatcher matcher = new AntPathMatcher();
+                    for (String antPattern : permittedPatterns) {
+                        if (matcher.match(antPattern, s)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }).build()
+                .securitySchemes(List.of(apiKey()))
+                .securityContexts(List.of(swaggerSecurityContext()))
+                .ignoredParameterTypes(ApiIgnore.class)
+                .enableUrlTemplating(true);
+    }
 }

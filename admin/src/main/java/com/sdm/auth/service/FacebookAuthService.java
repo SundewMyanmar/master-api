@@ -19,6 +19,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -56,6 +57,9 @@ public class FacebookAuthService implements SocialAuthService {
 
     @Autowired
     private LocaleManager localeManager;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     private static final String FB_AUTH_FIELDS = "id,name,email,picture.width(512),gender";
 
@@ -108,7 +112,7 @@ public class FacebookAuthService implements SocialAuthService {
         String gender = "";
 
         String rawPassword = Globalizer.randomPassword(AuthService.MIN_PASSWORD, AuthService.MAX_PASSWORD);
-        String password = securityManager.hashString(rawPassword);
+        String password = passwordEncoder.encode(rawPassword);
 
         if (profileObj.has("email")) {
             email = profileObj.get("email").getAsString();

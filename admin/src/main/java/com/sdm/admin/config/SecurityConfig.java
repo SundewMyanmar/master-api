@@ -1,9 +1,8 @@
 package com.sdm.admin.config;
 
 import com.sdm.core.Constants;
-import com.sdm.core.config.properties.CorsProperties;
-import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.security.PermissionHandler;
+import com.sdm.core.security.SecurityManager;
 import com.sdm.core.security.jwt.JwtAuthenticationFilter;
 import com.sdm.core.security.jwt.JwtAuthenticationHandler;
 import com.sdm.core.security.jwt.JwtUnauthorizeHandler;
@@ -17,17 +16,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -37,7 +32,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String[] SYSTEM_WHITE_LIST = {
             "/",
             "/error",
-            "/facebook/messenger",
             "/public/**",
             "/auth/**",
             "/mfa/resend",
@@ -58,6 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/mfa/**"
     };
     public static final String[] ROOT_PERMISSION_LIST = {
+            "/system/config",
     };
 
     @Autowired
@@ -73,21 +68,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private PermissionHandler permissionHandler;
 
     @Autowired
-    private CorsProperties corsProperties;
+    private SecurityManager securityManager;
 
-    @Autowired
-    private SecurityProperties securityProperties;
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
         serializer.setSameSite("strict");
-        if (!Globalizer.isNullOrEmpty(securityProperties.getCookieDomain())) {
-            serializer.setDomainName(securityProperties.getCookieDomain());
+        if (!Globalizer.isNullOrEmpty(securityManager.getProperties().getCookieDomain())) {
+            serializer.setDomainName(securityManager.getProperties().getCookieDomain());
         }
 
-        if (!Globalizer.isNullOrEmpty(securityProperties.getCookiePath())) {
-            serializer.setCookiePath(securityProperties.getCookiePath());
+        if (!Globalizer.isNullOrEmpty(securityManager.getProperties().getCookiePath())) {
+            serializer.setCookiePath(securityManager.getProperties().getCookiePath());
         }
         return serializer;
     }
@@ -97,28 +94,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new JwtAuthenticationFilter(authenticationManager(), jwtAuthenticationHandler, clientService);
     }
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        if (!Globalizer.isNullOrEmpty(corsProperties.getAllowedOriginPatterns())) {
-            configuration.setAllowedOriginPatterns(Arrays.asList(corsProperties.getAllowedOriginPatterns()));
-        } else if (Arrays.stream(corsProperties.getAllowedOrigins()).anyMatch((value) -> value.equalsIgnoreCase("*"))) {
-            configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
-        } else {
-            configuration.setAllowedOrigins(Arrays.asList(corsProperties.getAllowedOrigins()));
-        }
-
-        configuration.setAllowedMethods(Arrays.asList(corsProperties.getAllowedMethods()));
-        configuration.setAllowedHeaders(Arrays.asList(corsProperties.getAllowedHeaders()));
-        configuration.setExposedHeaders(Arrays.asList(corsProperties.getExposedHeaders()));
-        configuration.setMaxAge(corsProperties.getMaxAge());
-        configuration.setAllowCredentials(corsProperties.getAllowedCredential());
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-
     /**
      * To fix XSRF cookie error if admin panel and API domain is not much.
      *
@@ -126,12 +101,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     private CsrfTokenRepository getCsrfTokenRepository() {
         CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        if (!Globalizer.isNullOrEmpty(securityProperties.getCookieDomain())) {
-            csrfTokenRepository.setCookieDomain(securityProperties.getCookieDomain());
+        if (!Globalizer.isNullOrEmpty(securityManager.getProperties().getCookieDomain())) {
+            csrfTokenRepository.setCookieDomain(securityManager.getProperties().getCookieDomain());
         }
 
-        if (!Globalizer.isNullOrEmpty(securityProperties.getCookiePath())) {
-            csrfTokenRepository.setCookiePath(securityProperties.getCookiePath());
+        if (!Globalizer.isNullOrEmpty(securityManager.getProperties().getCookiePath())) {
+            csrfTokenRepository.setCookiePath(securityManager.getProperties().getCookiePath());
         }
         return csrfTokenRepository;
     }
@@ -156,7 +131,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .anyRequest().access("@permissionHandler.check(authentication, request)")
                 );
 
-        if (securityProperties.isCsrfEnable()) {
+        if (securityManager.getProperties().isCsrfEnable()) {
             http.csrf().csrfTokenRepository(this.getCsrfTokenRepository());
         } else {
             http.csrf().disable();

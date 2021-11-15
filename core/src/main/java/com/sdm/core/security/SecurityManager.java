@@ -7,24 +7,24 @@ package com.sdm.core.security;
 
 
 import com.sdm.core.config.properties.SecurityProperties;
+import com.sdm.core.exception.GeneralException;
+import com.sdm.core.util.SettingManager;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
+import java.security.*;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Random;
 
@@ -34,12 +34,22 @@ import java.util.Random;
 @Component
 @Log4j2
 public class SecurityManager {
+    @Value("${com.sdm.security.secret-key}")
+    private String secretKey = "";
+
+    public static final String SECURITY_CONFIG_FILE = "security-config.json";
 
     @Autowired
-    private SecurityProperties securityProperties;
+    private SettingManager settingManager;
 
     public SecurityProperties getProperties() {
-        return this.securityProperties;
+        SecurityProperties properties = new SecurityProperties();
+        try {
+            properties = settingManager.loadSetting(SECURITY_CONFIG_FILE, SecurityProperties.class);
+        } catch (IOException ex) {
+            log.error(ex.getLocalizedMessage());
+        }
+        return properties;
     }
 
     public String generateSalt() {
@@ -53,27 +63,6 @@ public class SecurityManager {
         byte[] salt = new byte[64];
         random.nextBytes(salt);
         return Base64.getEncoder().encodeToString(salt);
-    }
-
-    public String hashString(String input) {
-        String systemSalt = this.securityProperties.getEncryptSalt();
-
-        log.info("Preparing to encrypt data....");
-        final int iterations = 1000;
-        final int keyLength = 512;
-        char[] password = input.toCharArray();
-        byte[] staticSalt = Base64.getDecoder().decode(systemSalt);
-        try {
-            PBEKeySpec spec = new PBEKeySpec(password, staticSalt, iterations, keyLength);
-            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            String inputHex = DatatypeConverter.printHexBinary(skf.generateSecret(spec).getEncoded());
-            log.info("Successfully encrypted data.");
-            return inputHex;
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            log.error(e.getLocalizedMessage(), e);
-        }
-
-        return base64Encode(input + systemSalt);
     }
 
     public String base64Encode(String normal) {
@@ -107,18 +96,64 @@ public class SecurityManager {
     }
 
     public String generateHashHmac(String stringData, String secretKey, final String algorithm) {
-        Mac sha_hmac = null;
         try {
             byte[] byteKey = secretKey.getBytes(StandardCharsets.UTF_8);
-            sha_hmac = Mac.getInstance(algorithm);
+            Mac sha_hmac = Mac.getInstance(algorithm);
             SecretKeySpec keySpec = new SecretKeySpec(byteKey, algorithm);
             sha_hmac.init(keySpec);
             byte[] mac_data = sha_hmac.
                     doFinal(stringData.getBytes(StandardCharsets.UTF_8));
             return DatatypeConverter.printHexBinary(mac_data);
-        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            log.warn(e.getLocalizedMessage());
+        } catch (NoSuchAlgorithmException | InvalidKeyException ex) {
+            log.warn(ex.getLocalizedMessage());
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
-        return null;
+    }
+
+    private Cipher getAESCipher(int mode, String secret) throws NoSuchAlgorithmException {
+        try {
+            byte[] key = secret.getBytes(StandardCharsets.UTF_8);
+            MessageDigest sha = MessageDigest.getInstance("SHA-1");
+            key = sha.digest(key);
+            key = Arrays.copyOf(key, 16);
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(mode, new SecretKeySpec(key, "AES"));
+            return cipher;
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException ex) {
+            log.error(ex.getLocalizedMessage(), ex);
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
+        }
+    }
+
+    public String aesEncrypt(String input, String secret) {
+        try {
+            Cipher cipher = getAESCipher(Cipher.ENCRYPT_MODE, secret);
+            byte[] encryptBytes = input.getBytes(StandardCharsets.UTF_8);
+            byte[] byteCipher = cipher.doFinal(encryptBytes);
+            return Base64.getEncoder().encodeToString(byteCipher);
+        } catch (IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException ex) {
+            log.error(ex.getLocalizedMessage(), ex);
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
+        }
+    }
+
+    public String aesEncrypt(String input) {
+        return this.aesEncrypt(input, secretKey);
+    }
+
+    public String aesDecrypt(String input, String secret) {
+        try {
+            Cipher cipher = getAESCipher(Cipher.DECRYPT_MODE, secret);
+            byte[] decryptBytes = Base64.getDecoder().decode(input);
+            byte[] bytePlain = cipher.doFinal(decryptBytes);
+            return new String(bytePlain);
+        } catch (GeneralSecurityException ex) {
+            log.error(ex.getLocalizedMessage(), ex);
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
+        }
+    }
+
+    public String aesDecrypt(String input) {
+        return this.aesDecrypt(input, secretKey);
     }
 }

@@ -19,7 +19,7 @@ import java.nio.file.Path;
 public class SettingManager {
 
     @Value("${com.sdm.path.setting}")
-    private String settingRootPath = "/setting/";
+    private String settingRootPath = "/var/www/master-api/setting/";
 
     @Autowired
     ObjectMapper objectMapper;

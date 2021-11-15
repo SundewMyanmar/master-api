@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.admin.model.User;
 import com.sdm.auth.model.request.ActivateRequest;
 import com.sdm.core.Constants;
-import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.model.MailHeader;
-import com.sdm.core.security.AESManager;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.service.MailService;
 import com.sdm.core.util.Globalizer;
@@ -21,19 +19,14 @@ import java.util.Map;
 
 @Service
 public class AuthMailService {
-
     private static final int OTP_LENGTH = 8;
+
     @Autowired
     SecurityManager securityManager;
 
     @Autowired
-    AESManager aesManager;
-
-    @Autowired
     MailService mailManager;
 
-    @Autowired
-    SecurityProperties securityProperties;
     @Autowired
     private ObjectMapper jacksonObjectMapper;
 
@@ -69,7 +62,7 @@ public class AuthMailService {
     public void forgetPasswordLink(User user, String contextPath)
             throws JsonProcessingException {
         ActivateRequest request = buildRequest(user);
-        String token = aesManager.encrypt(jacksonObjectMapper.writeValueAsString(request), securityProperties.getEncryptSalt());
+        String token = securityManager.aesEncrypt(jacksonObjectMapper.writeValueAsString(request));
 
         String link = contextPath + "?token=" + Globalizer.encodeUrl(token) + "&user=" + Globalizer.encodeUrl(user.getEmail());
 

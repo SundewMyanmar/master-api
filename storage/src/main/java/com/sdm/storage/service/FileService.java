@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 public class FileService {
 
     @Value("${com.sdm.path.upload}")
-    private String uploadRootPath = "/upload/";
+    private String uploadRootPath = "/var/www/master-api/upload/";
 
     public static final String[] SIZE_CODES = new String[]{"", "K", "M", "G", "T", "P", "E", "Z", "Y"};
 
