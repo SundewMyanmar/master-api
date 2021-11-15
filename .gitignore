@@ -54,8 +54,7 @@ buildNumber.properties
 **/src/main/resources/logback-spring.xml
 **/src/main/resources/log4j2-spring.xml
 **/src/main/resources/log4j2.xml
-**/src/main/resources/*.json
-**/src/main/resources/*.p8
-**/src/main/resources/static/
-**.src/main/resources/templates/reports/
+**/src/main/resources/firebase.json
+**/src/main/resources/google.json
+**/src/main/resources/apple.p8
 

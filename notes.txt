@@ -1,0 +1,10 @@
+- master-modules
+    - admin (Thymeleaf, RESTFul) => Auth DB
+    - core (jar)
+    - notification (jar)
+    - payment (jar)
+    - reporting (jar)  
+    - storage (Thymeleaf, jar) => Use Java FileIO
+    - telenor (jar)
+    ...
+    - ecommerce (RESTFul) => ecommerce DB
