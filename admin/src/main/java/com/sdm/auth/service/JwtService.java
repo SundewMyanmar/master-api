@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -60,7 +61,7 @@ public class JwtService implements JwtAuthenticationHandler {
     private LocaleManager localeManager;
 
     private Date getTokenExpired() {
-        return Globalizer.addDate(new Date(), securityManager.getProperties().getAuthTokenLife());
+        return Globalizer.addDate(new Date(), Duration.ofDays(securityManager.getProperties().getAuthTokenDayOfLife()));
     }
 
     private String getAudience(HttpServletRequest request) {

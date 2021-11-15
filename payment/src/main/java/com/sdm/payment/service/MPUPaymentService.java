@@ -3,16 +3,22 @@ package com.sdm.payment.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.model.response.MessageResponse;
+import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.LocaleManager;
+import com.sdm.core.util.SettingManager;
+import com.sdm.payment.config.properties.MPUProperties;
 import com.sdm.payment.exception.CallbackException;
 import com.sdm.payment.exception.FailedType;
+import com.sdm.payment.model.request.mpu.HttpParameter;
+import com.sdm.payment.model.request.mpu.MPUPayment;
 import com.sdm.payment.model.request.mpu.MPUPaymentInquiryResponseRequest;
-import com.sdm.payment.util.PaymentSecurityManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,14 +32,82 @@ public class MPUPaymentService extends BasePaymentService {
         return "MPU";
     }
 
+    private static final String VIEW_TEMPLATE = "mpu/payment";
+
     @Autowired
-    private PaymentSecurityManager securityManager;
+    private SecurityManager securityManager;
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
     private LocaleManager localeManager;
+
+    @Autowired
+    private SettingManager settingManager;
+
+    private MPUProperties getProperties() {
+        MPUProperties properties = new MPUProperties();
+        try {
+            properties = settingManager.loadSetting(MPUProperties.class);
+        } catch (IOException ex) {
+            log.error(ex.getLocalizedMessage());
+        }
+        return properties;
+    }
+
+    public String generateHash(String stringData) {
+        String encryptData = securityManager.generateHashHmac(stringData, this.getProperties().getSecretKey(), "HmacSHA1");
+        return encryptData;
+    }
+
+    public ModelAndView buildModelAndView(MPUPayment request, String callbackUrl) {
+        if (!Globalizer.isNullOrEmpty(callbackUrl)) {
+            request.setFrontendURL(callbackUrl);
+        } else {
+            request.setFrontendURL(this.getProperties().getSuccessUrl());
+        }
+        request.setMerchantID(this.getProperties().getMerchantId());
+        request.setBackendURL(this.getProperties().getPaymentCallbackUrl());
+
+        ModelAndView modelAndView = new ModelAndView(VIEW_TEMPLATE);
+        modelAndView.addObject("paymentUrl", this.getProperties().getPaymentRequestUrl());
+
+        List<String> hashBuilder = new ArrayList<>();
+        for (Field field : request.getClass().getDeclaredFields()) {
+            if (field.getName().equals("hashValue") || !field.isAnnotationPresent(HttpParameter.class)) {
+                continue;
+            }
+            field.setAccessible(true);
+            try {
+                Object value = field.get(request);
+                HttpParameter httpParameter = field.getAnnotation(HttpParameter.class);
+                if (!Globalizer.isNullOrEmpty(value)) {
+                    if (field.getName().equals("cardInfo")) {
+                        value = securityManager.aesEncrypt(value.toString(), this.getProperties().getSecretKey());
+                    }
+                    modelAndView.addObject(httpParameter.value(), value.toString());
+                    hashBuilder.add(value.toString());
+                }
+
+            } catch (IllegalAccessException ex) {
+                log.warn(ex.getLocalizedMessage());
+            }
+        }
+
+        //Sort Input Values
+        String[] values = new String[hashBuilder.size()];
+        Arrays.sort(hashBuilder.toArray(values));
+
+        String hashString = "";
+        for (String value : values) {
+            hashString += value;
+        }
+        String hash = securityManager.generateHashHmac(hashString, this.getProperties().getSecretKey(), "HmacSHA1");
+        ;
+        modelAndView.addObject("hashValue", hash);
+        return modelAndView;
+    }
 
     public MessageResponse paymentCallback(MPUPaymentInquiryResponseRequest request) throws CallbackException {
         try {
@@ -62,7 +136,7 @@ public class MPUPaymentService extends BasePaymentService {
             for (String value : values) {
                 hashString += value;
             }
-            String hash = securityManager.generateMPUHashHmac(hashString);
+            String hash = generateHash(hashString);
             if (!hash.equals(request.getHashValue())) {
                 throw new CallbackException(FailedType.INVALID_HASH, localeManager.getMessage("invalid-hash-value", getPayment()));
             }

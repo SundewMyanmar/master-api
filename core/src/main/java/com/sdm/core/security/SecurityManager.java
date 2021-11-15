@@ -37,15 +37,13 @@ public class SecurityManager {
     @Value("${com.sdm.security.secret-key}")
     private String secretKey = "";
 
-    public static final String SECURITY_CONFIG_FILE = "security-config.json";
-
     @Autowired
     private SettingManager settingManager;
 
     public SecurityProperties getProperties() {
         SecurityProperties properties = new SecurityProperties();
         try {
-            properties = settingManager.loadSetting(SECURITY_CONFIG_FILE, SecurityProperties.class);
+            properties = settingManager.loadSetting(SecurityProperties.class);
         } catch (IOException ex) {
             log.error(ex.getLocalizedMessage());
         }

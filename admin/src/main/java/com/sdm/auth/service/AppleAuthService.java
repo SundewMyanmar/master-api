@@ -14,6 +14,7 @@ import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.HttpRequestManager;
 import com.sdm.core.util.LocaleManager;
+import com.sdm.core.util.SettingManager;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.log4j.Log4j2;
@@ -28,8 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -42,8 +41,7 @@ import java.util.*;
 @Log4j2
 public class AppleAuthService implements SocialAuthService {
 
-    private final String APPLE_ID_URL = "https://appleid.apple.com";
-    private final AppleProperties properties;
+    private static final String APPLE_ID_URL = "https://appleid.apple.com";
 
     @Autowired
     private HttpRequestManager httpRequestManager;
@@ -69,14 +67,18 @@ public class AppleAuthService implements SocialAuthService {
     @Autowired
     private LocaleManager localeManager;
 
-    public AppleAuthService(AppleProperties properties) {
-        this.properties = properties;
-    }
+    @Autowired
+    private SettingManager settingManager;
 
-    private String generateClientSecret() {
+    private String generateClientSecret(AppleProperties properties) {
         try {
-            String authKey = Files.readString(Path.of(properties.getApiKey()));
-            authKey = authKey.replaceAll("-----BEGIN PRIVATE KEY-----", "")
+            properties = settingManager.loadSetting(AppleProperties.class);
+        } catch (IOException ex) {
+            log.error(ex.getLocalizedMessage());
+        }
+
+        try {
+            String authKey = properties.getPrivateKey().replaceAll("-----BEGIN PRIVATE KEY-----", "")
                     .replaceAll("-----END PRIVATE KEY-----", "").replaceAll("\\s", "");
             byte[] keyBytes = Base64.getDecoder().decode(authKey);
             KeyFactory keyFactory = KeyFactory.getInstance("EC");
@@ -92,7 +94,7 @@ public class AppleAuthService implements SocialAuthService {
                     .setIssuedAt(issuedAt)
                     .setExpiration(expired)
                     .signWith(privateKey, SignatureAlgorithm.ES256).compact();
-        } catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException ex) {
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException ex) {
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, "Invalid Key File!");
         }
     }
@@ -100,7 +102,8 @@ public class AppleAuthService implements SocialAuthService {
     private JsonObject verifyAuthToken(String authorizationCode) {
         try {
             URL verifyURL = new URL(String.join("/", APPLE_ID_URL, "auth", "token"));
-            String clientSecret = this.generateClientSecret();
+            AppleProperties properties = new AppleProperties();
+            String clientSecret = this.generateClientSecret(properties);
 
             Map<String, String> body = new HashMap<>();
             body.put("client_id", properties.getAppId());

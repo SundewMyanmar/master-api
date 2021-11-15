@@ -1,19 +1,17 @@
 package com.sdm.payment.config.properties;
 
 import com.sdm.core.util.Globalizer;
+import com.sdm.core.util.annotation.SettingFile;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
 @Log4j2
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Configuration
-@ConfigurationProperties(prefix = "com.sdm.payment.yoma")
+@SettingFile("wave-money-config.json")
 public class WavePayProperties {
     private String url = "https://payments.wavemoney.io/payment";
     private String merchantId = "";

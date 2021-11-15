@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.HttpResponse;
+import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.HttpRequestManager;
 import com.sdm.core.util.LocaleManager;
+import com.sdm.core.util.SettingManager;
 import com.sdm.payment.config.properties.OnePayProperties;
 import com.sdm.payment.exception.CallbackException;
 import com.sdm.payment.exception.FailedType;
@@ -15,12 +17,12 @@ import com.sdm.payment.model.request.onepay.OnePayDirectPaymentRequest;
 import com.sdm.payment.model.request.onepay.OnePayResponseDirectPaymentRequest;
 import com.sdm.payment.model.request.onepay.OnePayVerifyPhRequest;
 import com.sdm.payment.model.response.onepay.*;
-import com.sdm.payment.util.PaymentSecurityManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -36,13 +38,10 @@ public class OnePayPaymentService extends BasePaymentService {
     }
 
     @Autowired
-    private PaymentSecurityManager securityManager;
+    private SecurityManager securityManager;
 
     @Autowired
     private HttpRequestManager httpRequestManager;
-
-    @Autowired
-    private OnePayProperties agdProperties;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -50,13 +49,31 @@ public class OnePayPaymentService extends BasePaymentService {
     @Autowired
     private LocaleManager localeManager;
 
+    @Autowired
+    private SettingManager settingManager;
+
+    private OnePayProperties getProperties() {
+        OnePayProperties properties = new OnePayProperties();
+        try {
+            properties = settingManager.loadSetting(OnePayProperties.class);
+        } catch (IOException ex) {
+            log.error(ex.getLocalizedMessage());
+        }
+        return properties;
+    }
+
+    public String generateHash(String stringData) {
+        String encryptData = securityManager.generateHashHmac(stringData, this.getProperties().getSecretKey(), "HmacSHA1");
+        return encryptData;
+    }
+
     public OnePayVerifyPhResponse verifyPhone(String phoneNo) {
         try {
-            OnePayVerifyPhRequest request = new OnePayVerifyPhRequest(agdProperties.getChannel(), agdProperties.getUser(),
-                    agdProperties.getPhoneNo(Globalizer.cleanPhoneNo(phoneNo)),
+            OnePayVerifyPhRequest request = new OnePayVerifyPhRequest(this.getProperties().getChannel(), this.getProperties().getUser(),
+                    this.getProperties().getPhoneNo(Globalizer.cleanPhoneNo(phoneNo)),
                     "");
-            request.setHashValue(securityManager.generateAGDHashHMac(request.getSignatureString()));
-            String rawUrl = agdProperties.getVerifyPhoneUrl();
+            request.setHashValue(generateHash(request.getSignatureString()));
+            String rawUrl = this.getProperties().getVerifyPhoneUrl();
 
             String requestString = objectMapper.writeValueAsString(request);
             writeLog(LogType.REQUEST, requestString);
@@ -66,7 +83,7 @@ public class OnePayPaymentService extends BasePaymentService {
             OnePayVerifyPhResponse response = objectMapper.readValue(serverResponse.getBody(), OnePayVerifyPhResponse.class);
 
             //TODO: check hash value response
-            String resultHash = securityManager.generateAGDHashHMac(response.getSignatureString());
+            String resultHash = generateHash(response.getSignatureString());
             if (!resultHash.equals(response.getHashValue())) {
                 throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-hash-value", getPayment()));
             }
@@ -84,13 +101,13 @@ public class OnePayPaymentService extends BasePaymentService {
 
     public OnePayDirectPaymentResponse paymentRequest(String invoiceNo, String sequenceNo, String amount, String remark, String walletUserId) {
         try {
-            OnePayDirectPaymentRequest request = new OnePayDirectPaymentRequest(agdProperties.getVersion(), agdProperties.getChannel(),
-                    agdProperties.getUser(), invoiceNo, sequenceNo, amount, remark,
-                    agdProperties.getPhoneNo(Globalizer.cleanPhoneNo(walletUserId)),
-                    agdProperties.getPaymentCallbackUrl(),
-                    agdProperties.getExpSeconds(), "");
-            request.setHashValue(securityManager.generateAGDHashHMac(request.getSignatureString()));
-            String rawUrl = agdProperties.getDirectPaymentUrl();
+            OnePayDirectPaymentRequest request = new OnePayDirectPaymentRequest(this.getProperties().getVersion(), this.getProperties().getChannel(),
+                    this.getProperties().getUser(), invoiceNo, sequenceNo, amount, remark,
+                    this.getProperties().getPhoneNo(Globalizer.cleanPhoneNo(walletUserId)),
+                    this.getProperties().getPaymentCallbackUrl(),
+                    this.getProperties().getExpSeconds(), "");
+            request.setHashValue(generateHash(request.getSignatureString()));
+            String rawUrl = this.getProperties().getDirectPaymentUrl();
 
             String requestString = objectMapper.writeValueAsString(request);
             writeLog(LogType.REQUEST, requestString);
@@ -101,7 +118,7 @@ public class OnePayPaymentService extends BasePaymentService {
             OnePayDirectPaymentResponse response = objectMapper.readValue(serverResponse.getBody(), OnePayDirectPaymentResponse.class);
 
             //TODO: check hash value response
-            String resultHash = securityManager.generateAGDHashHMac(response.getSignatureString());
+            String resultHash = generateHash(response.getSignatureString());
             if (!resultHash.equals(response.getHashValue())) {
                 throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-hash-value", getPayment()));
             }
@@ -128,7 +145,7 @@ public class OnePayPaymentService extends BasePaymentService {
         try {
             writeLog(LogType.CALLBACK_REQUEST, objectMapper.writeValueAsString(request));
 
-            String requestHash = securityManager.generateAGDHashHMac(request.getSignatureString());
+            String requestHash = generateHash(request.getSignatureString());
             if (!requestHash.equals(request.getHashValue())) {
                 throw new CallbackException(FailedType.INVALID_HASH, localeManager.getMessage("invalid-hash-value", getPayment()));
             }
@@ -143,7 +160,7 @@ public class OnePayPaymentService extends BasePaymentService {
             itemListStr = itemListStr.replace("[", "");
             itemListStr = itemListStr.replace("]", "");
             OnePayResponseDirectPaymentResponse response = new OnePayResponseDirectPaymentResponse(request.getReferIntegrationId(), OnePayResponseDirectPaymentResponse.DataType.Data, "", itemListStr, "Success", TransactionStatus.SUCCESS.getValue(), "");
-            response.setHashValue(securityManager.generateAGDHashHMac(response.getSignatureString()));
+            response.setHashValue(generateHash(response.getSignatureString()));
             writeLog(LogType.CALLBACK_RESPONSE, objectMapper.writeValueAsString(response));
             return response;
         } catch (JsonProcessingException ex) {
@@ -154,9 +171,9 @@ public class OnePayPaymentService extends BasePaymentService {
 
     public OnePayCheckTransactionResponse checkStatus(String referIntegrationId) {
         try {
-            OnePayCheckTransactionRequest request = new OnePayCheckTransactionRequest(agdProperties.getUser(), referIntegrationId, "");
-            request.setHashValue(securityManager.generateAGDHashHMac(request.getSignatureString()));
-            String rawUrl = agdProperties.getCheckTransactionUrl();
+            OnePayCheckTransactionRequest request = new OnePayCheckTransactionRequest(this.getProperties().getUser(), referIntegrationId, "");
+            request.setHashValue(generateHash(request.getSignatureString()));
+            String rawUrl = this.getProperties().getCheckTransactionUrl();
 
             String requestString = objectMapper.writeValueAsString(request);
             writeLog(LogType.REQUEST, requestString);
@@ -167,7 +184,7 @@ public class OnePayPaymentService extends BasePaymentService {
             OnePayCheckTransactionResponse response = objectMapper.readValue(serverResponse.getBody(), OnePayCheckTransactionResponse.class);
 
             //TODO: check hash value response
-            String resultHash = securityManager.generateAGDHashHMac(response.getSignatureString());
+            String resultHash = generateHash(response.getSignatureString());
             if (!resultHash.equals(response.getHashValue())) {
                 throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-hash-value", getPayment()));
             }

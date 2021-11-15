@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Date;
 import java.util.UUID;
 
@@ -74,7 +75,7 @@ public class ClientService {
 
         //Blocked Client if Failed count reached limit.
         if (authCount >= securityManager.getProperties().getAuthFailedCount() || jwtCount >= securityManager.getProperties().getAuthFailedCount()) {
-            Date blockedDate = Globalizer.addDate(new Date(), securityManager.getProperties().getBlockedTime());
+            Date blockedDate = Globalizer.addDate(new Date(), Duration.ofMinutes(securityManager.getProperties().getAuthFailedMinuteOfBlock()));
             client.setBlockedExpiry(blockedDate);
             blocked = true;
         }

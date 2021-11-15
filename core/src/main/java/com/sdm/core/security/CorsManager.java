@@ -18,15 +18,13 @@ import java.util.Collections;
 @Component
 @Log4j2
 public class CorsManager {
-    public static final String CORS_CONFIG_FILE = "cors-config.json";
-
     @Autowired
     private SettingManager settingManager;
 
     public CorsProperties getProperties() {
         CorsProperties properties = new CorsProperties();
         try {
-            properties = settingManager.loadSetting(CORS_CONFIG_FILE, CorsProperties.class);
+            properties = settingManager.loadSetting(CorsProperties.class);
         } catch (IOException ex) {
             log.error(ex.getLocalizedMessage());
         }

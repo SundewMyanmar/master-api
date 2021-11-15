@@ -4,20 +4,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.HttpResponse;
+import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.HttpRequestManager;
 import com.sdm.core.util.LocaleManager;
+import com.sdm.core.util.SettingManager;
 import com.sdm.payment.config.properties.UABPayProperties;
 import com.sdm.payment.exception.CallbackException;
 import com.sdm.payment.exception.FailedType;
 import com.sdm.payment.model.request.uabpay.*;
 import com.sdm.payment.model.response.uabpay.*;
-import com.sdm.payment.util.PaymentSecurityManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -33,10 +35,7 @@ public class UABPayPaymentService extends BasePaymentService {
     }
 
     @Autowired
-    private PaymentSecurityManager securityManager;
-
-    @Autowired
-    private UABPayProperties uabProperties;
+    private SecurityManager securityManager;
 
     @Autowired
     private HttpRequestManager httpRequestManager;
@@ -47,10 +46,28 @@ public class UABPayPaymentService extends BasePaymentService {
     @Autowired
     private LocaleManager localeManager;
 
+    @Autowired
+    private SettingManager settingManager;
+
+    private UABPayProperties getProperties() {
+        UABPayProperties properties = new UABPayProperties();
+        try {
+            properties = settingManager.loadSetting(UABPayProperties.class);
+        } catch (IOException ex) {
+            log.error(ex.getLocalizedMessage());
+        }
+        return properties;
+    }
+
+    public String generateHash(String stringData) {
+        String encryptData = securityManager.generateHashHmac(stringData, this.getProperties().getSecretKey(), "HmacSHA1");
+        return encryptData;
+    }
+
     public UABPayLoginResponse login() {
         try {
-            UABPayLoginRequest request = new UABPayLoginRequest(uabProperties.getUser(), uabProperties.getPassword());
-            String rawUrl = uabProperties.getLoginUrl();
+            UABPayLoginRequest request = new UABPayLoginRequest(this.getProperties().getUser(), this.getProperties().getPassword());
+            String rawUrl = this.getProperties().getLoginUrl();
             String requestString = objectMapper.writeValueAsString(request);
             writeLog(LogType.REQUEST, requestString);
 
@@ -72,14 +89,14 @@ public class UABPayPaymentService extends BasePaymentService {
     // DANGER app.properties need to change if you call this api
     public UABPayLoginResponse changePassword(String oldPassword, String newPassword) {
         try {
-            if (!oldPassword.equals(uabProperties.getPassword())) {
+            if (!oldPassword.equals(this.getProperties().getPassword())) {
                 writeLog(LogType.ERROR, "Invalid old password!");
                 throw new GeneralException(HttpStatus.BAD_REQUEST, getPayment() + " : " + localeManager.getMessage("invalid-old-password"));
             }
 
-            UABPayChangePasswordRequest request = new UABPayChangePasswordRequest(uabProperties.getUser(),
-                    uabProperties.getPassword(), newPassword);
-            String rawUrl = uabProperties.getChangePasswordUrl();
+            UABPayChangePasswordRequest request = new UABPayChangePasswordRequest(this.getProperties().getUser(),
+                    this.getProperties().getPassword(), newPassword);
+            String rawUrl = this.getProperties().getChangePasswordUrl();
             String requestString = objectMapper.writeValueAsString(request);
             writeLog(LogType.REQUEST, requestString);
 
@@ -102,11 +119,11 @@ public class UABPayPaymentService extends BasePaymentService {
 
     public UABPayCheckPhResponse verifyPhone(String phoneNo, String tokenString) {
         try {
-            UABPayCheckPhRequest request = new UABPayCheckPhRequest(uabProperties.getChannel(), uabProperties.getUser(),
-                    uabProperties.getPhoneNo(Globalizer.cleanPhoneNo(phoneNo)),
-                    uabProperties.getAppName(), "");
-            request.setHashValue(securityManager.generateUABHashHmac(request.getSignatureString()));
-            String rawUrl = uabProperties.getCheckPhoneUrl();
+            UABPayCheckPhRequest request = new UABPayCheckPhRequest(this.getProperties().getChannel(), this.getProperties().getUser(),
+                    this.getProperties().getPhoneNo(Globalizer.cleanPhoneNo(phoneNo)),
+                    this.getProperties().getAppName(), "");
+            request.setHashValue(generateHash(request.getSignatureString()));
+            String rawUrl = this.getProperties().getCheckPhoneUrl();
             String requestString = objectMapper.writeValueAsString(request);
             writeLog(LogType.REQUEST, requestString);
 
@@ -120,7 +137,7 @@ public class UABPayPaymentService extends BasePaymentService {
             }
 
             // TODO: check hash value response
-            String resultHash = securityManager.generateUABHashHmac(response.getSignatureString());
+            String resultHash = generateHash(response.getSignatureString());
             if (!resultHash.equals(response.getHashValue())) {
                 throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-hash-value", getPayment()));
             }
@@ -135,12 +152,12 @@ public class UABPayPaymentService extends BasePaymentService {
     public UABPayEnquiryPaymentResponse paymentRequest(String invoiceNo, String sequenceNo, String amount,
                                                        String remark, String walletUserId, String tokenString) {
         try {
-            UABPayEnquiryPaymentRequest request = new UABPayEnquiryPaymentRequest(uabProperties.getChannel(),
-                    uabProperties.getAppName(), uabProperties.getUser(), invoiceNo, sequenceNo, amount, remark,
-                    uabProperties.getPhoneNo(Globalizer.cleanPhoneNo(walletUserId)),
-                    uabProperties.getEnquiryCallbackUrl(), uabProperties.getExpSeconds(), "");
-            request.setHashValue(securityManager.generateUABHashHmac(request.getSignatureString()));
-            String rawUrl = uabProperties.getEnquiryPaymentUrl();
+            UABPayEnquiryPaymentRequest request = new UABPayEnquiryPaymentRequest(this.getProperties().getChannel(),
+                    this.getProperties().getAppName(), this.getProperties().getUser(), invoiceNo, sequenceNo, amount, remark,
+                    this.getProperties().getPhoneNo(Globalizer.cleanPhoneNo(walletUserId)),
+                    this.getProperties().getEnquiryCallbackUrl(), this.getProperties().getExpSeconds(), "");
+            request.setHashValue(generateHash(request.getSignatureString()));
+            String rawUrl = this.getProperties().getEnquiryPaymentUrl();
             String requestString = objectMapper.writeValueAsString(request);
             writeLog(LogType.REQUEST, requestString);
 
@@ -154,7 +171,7 @@ public class UABPayPaymentService extends BasePaymentService {
             }
 
             // TODO: check hash value response
-            String resultHash = securityManager.generateUABHashHmac(response.getSignatureString());
+            String resultHash = generateHash(response.getSignatureString());
             if (!resultHash.equals(response.getHashValue())) {
                 throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-hash-value", getPayment()));
             }
@@ -170,7 +187,7 @@ public class UABPayPaymentService extends BasePaymentService {
                                                          List<Map<String, String>> itemList) throws CallbackException {
         try {
             writeLog(LogType.CALLBACK_REQUEST, objectMapper.writeValueAsString(request));
-            String requestHash = securityManager.generateUABHashHmac(request.getSignatureString());
+            String requestHash = generateHash(request.getSignatureString());
             if (!requestHash.equals(request.getHashValue())) {
                 throw new CallbackException(FailedType.INVALID_HASH, localeManager.getMessage("invalid-hash-value", getPayment()));
             }
@@ -188,7 +205,7 @@ public class UABPayPaymentService extends BasePaymentService {
                     TransactionStatus.SUCCESS.getValue(), "");
 
             writeLog(LogType.CALLBACK_RESPONSE, objectMapper.writeValueAsString(response));
-            response.setHashValue(securityManager.generateUABHashHmac(response.getSignatureString()));
+            response.setHashValue(generateHash(response.getSignatureString()));
 
             return response;
         } catch (JsonProcessingException ex) {
@@ -207,10 +224,10 @@ public class UABPayPaymentService extends BasePaymentService {
 
     public UABPayCheckTransactionResponse checkStatus(String ReferIntegrationID, String tokenString) {
         try {
-            UABPayCheckTransactionRequest request = new UABPayCheckTransactionRequest(uabProperties.getUser(),
-                    uabProperties.getChannel(), uabProperties.getAppName(), ReferIntegrationID, "");
-            request.setHashValue(securityManager.generateUABHashHmac(request.getSignatureString()));
-            String rawUrl = uabProperties.getCheckTransactionStatus();
+            UABPayCheckTransactionRequest request = new UABPayCheckTransactionRequest(this.getProperties().getUser(),
+                    this.getProperties().getChannel(), this.getProperties().getAppName(), ReferIntegrationID, "");
+            request.setHashValue(generateHash(request.getSignatureString()));
+            String rawUrl = this.getProperties().getCheckTransactionStatus();
             String requestString = objectMapper.writeValueAsString(request);
             writeLog(LogType.REQUEST, requestString);
 
@@ -223,7 +240,7 @@ public class UABPayPaymentService extends BasePaymentService {
             }
 
             // TODO: check hash value response
-            String resultHash = securityManager.generateUABHashHmac(response.getSignatureString());
+            String resultHash = generateHash(response.getSignatureString());
             if (!resultHash.equals(response.getHashValue())) {
                 throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-hash-value", getPayment()));
             }

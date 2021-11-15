@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.util.LocaleManager;
-import com.sdm.payment.config.properties.MPUProperties;
 import com.sdm.payment.model.request.cbpay.CBResponsePaymentOrderRequest;
 import com.sdm.payment.model.request.kbzpay.KBZPayResponseRequest;
 import com.sdm.payment.model.request.mpu.MPUPaymentInquiryResponseRequest;
@@ -33,9 +32,6 @@ public class PaymentCallbackController {
 
     @Autowired(required = false)
     private PaymentCallback paymentCallback;
-
-    @Autowired
-    private MPUProperties mpuProperties;
 
     @Autowired
     private LocaleManager localeManager;

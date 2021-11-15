@@ -1,6 +1,7 @@
 package com.sdm.core.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sdm.core.util.annotation.SettingFile;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,11 +56,27 @@ public class SettingManager {
         return objectMapper.readValue(resultString, refClass);
     }
 
+    public <T> T loadSetting(Class<T> refClass) throws IOException {
+        if (!refClass.isAnnotationPresent(SettingFile.class)) {
+            throw new RuntimeException("Can't find setting info.");
+        }
+        SettingFile settingFile = refClass.getAnnotation(SettingFile.class);
+        return this.loadSetting(settingFile.value(), refClass);
+    }
+
     public void writeSetting(String settingPath, Object setting) throws IOException {
         File settingFile = this.createSettingFile(settingPath);
         if (!Globalizer.isNullOrEmpty(settingFile)) {
             String settingString = objectMapper.writeValueAsString(setting);
             Files.writeString(settingFile.toPath(), settingString, StandardCharsets.UTF_8);
         }
+    }
+
+    public <T> void writeSetting(T setting, Class<T> refClass) throws IOException {
+        if (!refClass.isAnnotationPresent(SettingFile.class)) {
+            throw new RuntimeException("Can't find setting info.");
+        }
+        SettingFile settingFile = refClass.getAnnotation(SettingFile.class);
+        this.writeSetting(settingFile.value(), setting);
     }
 }

@@ -2,17 +2,15 @@ package com.sdm.telenor.config.properties;
 
 
 import com.sdm.core.util.Globalizer;
+import com.sdm.core.util.annotation.SettingFile;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
-@ConfigurationProperties(prefix = "com.sdm.telenor")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@SettingFile("telenor-sms-config.json")
 public class TelenorSmsProperties {
     private String apiUrl = "https://prod-apigw.mytelenor.com.mm/";
     private String clientId = "";

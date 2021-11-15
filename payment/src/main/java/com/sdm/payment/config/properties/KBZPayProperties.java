@@ -1,19 +1,17 @@
 package com.sdm.payment.config.properties;
 
 import com.sdm.core.util.Globalizer;
+import com.sdm.core.util.annotation.SettingFile;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
 @Log4j2
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Configuration
-@ConfigurationProperties(prefix = "com.sdm.payment.kbz")
+@SettingFile("kbz-pay-config.json")
 public class KBZPayProperties {
     private String url = "https://api.kbzpay.com/payment/gateway/";
     private String version = "1.0";
@@ -24,7 +22,7 @@ public class KBZPayProperties {
     private Boolean isUat;
 
     public String getPaymentCallbackUrl() {
-        log.info("KBZPay CALLBACK=> " + Globalizer.getCurrentContextPath("/public/payments/kbz/callback", true));
+        log.info("KBZPay CALLBACK => " + Globalizer.getCurrentContextPath("/public/payments/kbz/callback", true));
         return Globalizer.getCurrentContextPath("/public/payments/kbz/callback", true);
     }
 

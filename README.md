@@ -53,6 +53,7 @@ ___
 ## Version 1.8.0
 - Multi Module Project
 - Apple Authentication
+- Setting Management
 
 ## Version 1.7.1
 - i18n Messaging

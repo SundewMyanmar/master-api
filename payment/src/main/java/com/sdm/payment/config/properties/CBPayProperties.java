@@ -1,19 +1,17 @@
 package com.sdm.payment.config.properties;
 
 import com.sdm.core.util.Globalizer;
+import com.sdm.core.util.annotation.SettingFile;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
 @Log4j2
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Configuration
-@ConfigurationProperties(prefix = "com.sdm.payment.cb")
+@SettingFile("cb-pay-config.json")
 public class CBPayProperties {
     private String url = "https://cbpay.cbbank.com.mm:10443/orderpayment-api/v1/";
     private String authToken = "";
@@ -32,7 +30,7 @@ public class CBPayProperties {
     }
 
     public String getPaymentCallbackUrl() {
-        log.info("CB CALLBACK=> " + Globalizer.getCurrentContextPath("/public/payments/cb/callback", true));
+        log.info("CB CALLBACK => " + Globalizer.getCurrentContextPath("/public/payments/cb/callback", true));
         return Globalizer.getCurrentContextPath("/public/payments/cb/callback", true);
     }
 

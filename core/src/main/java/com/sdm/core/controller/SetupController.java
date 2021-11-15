@@ -21,17 +21,8 @@ import java.util.Set;
 @RequestMapping("/setup")
 public class SetupController {
     private final Set<String> ENCRYPT_FIELDS = Set.of(
-            "ownerIds",
             "dbUser", "dbPassword",
-            "mailUser", "mailPassword",
-            "facebookAppId", "facebookAppSecret", "facebookAccessToken",
-            "telenorClientId", "telenorClientSecret",
-            "uabPayUser", "uabPayPassword", "uabPaySecret",
-            "onePayUser", "onePaySecret",
-            "cbPayAuthToken", "cbPayEcommerceId", "cbPaySubMerId",
-            "wavePayMerchant", "wavePaySecret", "wavePayName",
-            "mpuPayMerchantId", "mpuPaySecret", "clientRole",
-            "telenorUserName", "telenorPassword", "telenorSenderId"
+            "mailUser", "mailPassword"
     );
     @Autowired
     SecurityManager securityManager;
@@ -43,9 +34,6 @@ public class SetupController {
     public ModelAndView getIndex() {
         ModelAndView response = new ModelAndView("setup/index");
         response.addObject("title", Constants.APP_NAME);
-        response.addObject("encryptSalt", securityManager.generateSalt());
-        response.addObject("jwtKey", securityManager.generateJWTKey());
-        response.addObject("webhookToken", Globalizer.randomPassword(36));
         return response;
     }
 
@@ -53,6 +41,8 @@ public class SetupController {
     public ModelAndView postIndex(@RequestBody MultiValueMap<String, String> formData) {
         ModelAndView response = new ModelAndView("setup/generate");
         response.addObject("title", Constants.APP_NAME);
+        response.addObject("secretKey", securityManager.generateSalt());
+        response.addObject("jwtKey", securityManager.generateJWTKey());
         for (String key : formData.keySet()) {
             String value = formData.getFirst(key);
             if (!Globalizer.isNullOrEmpty(value) && ENCRYPT_FIELDS.contains(key)) {

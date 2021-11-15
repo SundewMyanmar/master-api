@@ -32,18 +32,27 @@ import java.util.Map;
 @Service
 @Log4j2
 public class TelenorSmsService {
-    private final String SETTING_FILE = "telenor-sms-setting.json";
     @Autowired
     private HttpRequestManager httpRequestManager;
-    @Autowired
-    private TelenorSmsProperties telenorSmsProperties;
+
     @Autowired
     private ObjectMapper objectMapper;
+
     @Autowired
     private SettingManager settingManager;
 
+    private TelenorSmsProperties getProperties() {
+        TelenorSmsProperties properties = new TelenorSmsProperties();
+        try {
+            properties = settingManager.loadSetting(TelenorSmsProperties.class);
+        } catch (IOException ex) {
+            log.error(ex.getLocalizedMessage());
+        }
+        return properties;
+    }
+
     public TelenorTokenSetting requestCode() throws MalformedURLException, JsonProcessingException {
-        URL url = new URL(telenorSmsProperties.getOAuthURL());
+        URL url = new URL(this.getProperties().getOAuthURL());
         HttpResponse response = httpRequestManager.formGetRequest(url, true);
         log.info("TELENOR_LOAD_TOKEN => " + response.getBody());
         TelenorTokenSetting tokenSetting = objectMapper.readValue(response.getBody(), TelenorTokenSetting.class);
@@ -62,17 +71,17 @@ public class TelenorSmsService {
           is 86400 seconds (i.e. 24 hours)
          */
         Date expDate = new Date();
-        expDate = Globalizer.addSecond(expDate, telenorSmsProperties.getExpSeconds() - 3600);//To Refresh token before 1 hour
+        expDate = Globalizer.addSecond(expDate, this.getProperties().getExpSeconds() - 3600);//To Refresh token before 1 hour
 
         Map<String, String> body = Map.of(
-                "client_id", telenorSmsProperties.getClientId(),
-                "client_secret", telenorSmsProperties.getClientSecret(),
+                "client_id", this.getProperties().getClientId(),
+                "client_secret", this.getProperties().getClientSecret(),
                 "grant_type", "authorization_code",
                 "code", authCode,
-                "redirect_uri", telenorSmsProperties.getRedirectUri(),
-                "expires_in", telenorSmsProperties.getExpSeconds().toString()
+                "redirect_uri", this.getProperties().getRedirectUri(),
+                "expires_in", this.getProperties().getExpSeconds().toString()
         );
-        URL url = new URL(telenorSmsProperties.getOAuthTokenURL());
+        URL url = new URL(this.getProperties().getOAuthTokenURL());
         HttpResponse response = httpRequestManager.formPostRequest(url, body, true);
         log.info("TELENOR_TOKEN =>" + response.getBody());
 
@@ -82,7 +91,7 @@ public class TelenorSmsService {
         }
 
         tokenSetting.setExpiredDate(expDate);
-        settingManager.writeSetting(SETTING_FILE, tokenSetting);
+        settingManager.writeSetting(tokenSetting, TelenorTokenSetting.class);
 
         return tokenSetting;
     }
@@ -113,19 +122,19 @@ public class TelenorSmsService {
         message.setContent(content);
 
         List<Map<String, String>> characteristics = new ArrayList<>();
-        characteristics.add(Map.of("name", "UserName", "value", telenorSmsProperties.getUserName()));
-        characteristics.add(Map.of("name", "Password", "value", telenorSmsProperties.getPassword()));
+        characteristics.add(Map.of("name", "UserName", "value", this.getProperties().getUserName()));
+        characteristics.add(Map.of("name", "Password", "value", this.getProperties().getPassword()));
         if (msgType.equals(MessageType.BINARY) || msgType.equals(MessageType.MULTILINGUAL)) {
             characteristics.add(Map.of("name", "Udhi", "value", "1"));
         }
         message.setCharacteristic(characteristics);
 
-        message.setSender(Map.of("@type", NameType.ALPHANUMERIC.getValue(), "name", telenorSmsProperties.getSenderId()));
+        message.setSender(Map.of("@type", NameType.ALPHANUMERIC.getValue(), "name", this.getProperties().getSenderId()));
 
         List<Map<String, String>> receivers = new ArrayList<>();
         for (String phone : phones) {
             receivers.add(Map.of("@type", NameType.INTERNATIONAL.getValue(), "phoneNumber",
-                    telenorSmsProperties.getPhoneNo(Globalizer.cleanPhoneNo(phone))));
+                    this.getProperties().getPhoneNo(Globalizer.cleanPhoneNo(phone))));
         }
         message.setReceiver(receivers);
 
@@ -141,7 +150,7 @@ public class TelenorSmsService {
      * @param phones
      */
     public Map<String, String> sendMessage(String content, String[] phones, MessageType msgType) throws IOException {
-        TelenorTokenSetting setting = settingManager.loadSetting(SETTING_FILE, TelenorTokenSetting.class);
+        TelenorTokenSetting setting = settingManager.loadSetting(TelenorTokenSetting.class);
         if (setting == null || setting.getAccessToken() == null || setting.getExpiredDate() == null) {
             setting = this.requestCode();
         }
@@ -163,7 +172,7 @@ public class TelenorSmsService {
             return null;
         }
 
-        URL url = new URL(telenorSmsProperties.getCommunicationMessageUrl());
+        URL url = new URL(this.getProperties().getCommunicationMessageUrl());
         HttpResponse response = httpRequestManager.jsonPostRequest(url,
                 objectMapper.writeValueAsString(message),
                 "Bearer " + setting.getAccessToken(),

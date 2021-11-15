@@ -7,6 +7,7 @@ import com.sdm.core.model.response.HttpResponse;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.HttpRequestManager;
 import com.sdm.core.util.LocaleManager;
+import com.sdm.core.util.SettingManager;
 import com.sdm.payment.config.properties.KBZPayProperties;
 import com.sdm.payment.exception.CallbackException;
 import com.sdm.payment.exception.FailedType;
@@ -17,14 +18,17 @@ import com.sdm.payment.model.request.kbzpay.KBZPaymentResponseRequest;
 import com.sdm.payment.model.response.PaymentResultAction;
 import com.sdm.payment.model.response.kbzpay.KBZPayPaymentResponse;
 import com.sdm.payment.model.response.kbzpay.KBZPayResponse;
-import com.sdm.payment.util.PaymentSecurityManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Locale;
@@ -44,12 +48,6 @@ public class KBZPaymentService extends BasePaymentService {
     private static final String CURRENCY = "MMK";
 
     @Autowired
-    private KBZPayProperties kbzPayProperties;
-
-    @Autowired
-    private PaymentSecurityManager paymentSecurityManager;
-
-    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -57,6 +55,26 @@ public class KBZPaymentService extends BasePaymentService {
 
     @Autowired
     private LocaleManager localeManager;
+
+    @Autowired
+    private SettingManager settingManager;
+
+    private KBZPayProperties getProperties() {
+        KBZPayProperties properties = new KBZPayProperties();
+        try {
+            properties = settingManager.loadSetting(KBZPayProperties.class);
+        } catch (IOException ex) {
+            log.error(ex.getLocalizedMessage());
+        }
+        return properties;
+    }
+
+    public String generateHash(String stringData) throws NoSuchAlgorithmException {
+        final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        final byte[] hashbytes = digest.digest(
+                stringData.getBytes(StandardCharsets.UTF_8));
+        return DatatypeConverter.printHexBinary(hashbytes).toUpperCase(Locale.ROOT);
+    }
 
     public String getStringBuilder(TreeMap<String, String> treeMap) {
         StringBuilder builder = new StringBuilder();
@@ -67,7 +85,7 @@ public class KBZPaymentService extends BasePaymentService {
             }
         }
 
-        builder.append(String.format("&%s=%s", "key", kbzPayProperties.getSecretKey()));
+        builder.append(String.format("&%s=%s", "key", this.getProperties().getSecretKey()));
         return builder.toString();
     }
 
@@ -111,13 +129,13 @@ public class KBZPaymentService extends BasePaymentService {
 
     public Map<String, Object> buildPayment(String prepayId, String nonce, String timestamp) throws NoSuchAlgorithmException {
         TreeMap<String, String> treeMap = new TreeMap<>();
-        treeMap.put("appid", kbzPayProperties.getAppId());
-        treeMap.put("merch_code", kbzPayProperties.getMerchantCode());
+        treeMap.put("appid", this.getProperties().getAppId());
+        treeMap.put("merch_code", this.getProperties().getMerchantCode());
         treeMap.put("nonce_str", nonce);
         treeMap.put("prepay_id", prepayId);
         treeMap.put("timestamp", timestamp);
         String orderInfo = this.getStringBuilder(treeMap);
-        String sign = paymentSecurityManager.generateKbzPayHashSHA256(orderInfo).toUpperCase(Locale.ROOT);
+        String sign = generateHash(orderInfo);
         return Map.of(
                 "referenceIntegrationId", prepayId,
                 "orderInfo", orderInfo,
@@ -127,27 +145,27 @@ public class KBZPaymentService extends BasePaymentService {
     }
 
     public KBZPayBizContent getBizContent(String invoiceNo, Double amount) {
-        KBZPayBizContent bizContent = new KBZPayBizContent(kbzPayProperties.getMerchantCode(), invoiceNo,
-                kbzPayProperties.getAppId(), "APP", String.format("Payment for %s", invoiceNo),
+        KBZPayBizContent bizContent = new KBZPayBizContent(this.getProperties().getMerchantCode(), invoiceNo,
+                this.getProperties().getAppId(), "APP", String.format("Payment for %s", invoiceNo),
                 amount.toString(), KBZPaymentService.CURRENCY, invoiceNo);
         return bizContent;
     }
 
     public Map<String, Object> paymentRequest(String invoiceNo, Double amount) {
         try {
-            KBZPayRequest request = new KBZPayRequest(String.valueOf(new Date().getTime()), kbzPayProperties.getPaymentCallbackUrl(),
+            KBZPayRequest request = new KBZPayRequest(String.valueOf(new Date().getTime()), this.getProperties().getPaymentCallbackUrl(),
                     KBZPayProperties.PaymentMethod.CREATE.getValue(), invoiceNo,
                     KBZPaymentService.ENCRYPTION_ALGO, "",
-                    kbzPayProperties.getVersion(), this.getBizContent(invoiceNo, amount));
+                    this.getProperties().getVersion(), this.getBizContent(invoiceNo, amount));
             String signatureString = this.getSignatureString(request);
-            request.setSign(paymentSecurityManager.generateKbzPayHashSHA256(signatureString).toUpperCase(Locale.ROOT));
+            request.setSign(generateHash(signatureString));
 
-            String rawUrl = kbzPayProperties.getPaymentOrderUrl();
+            String rawUrl = this.getProperties().getPaymentOrderUrl();
 
             KBZPaymentRequest paymentRequest = new KBZPaymentRequest(request);
             String paymentRequestString = objectMapper.writeValueAsString(paymentRequest);
             writeLog(LogType.REQUEST, paymentRequestString);
-            HttpResponse serverResponse = httpRequestManager.jsonPostRequest(new URL(rawUrl), paymentRequestString, !kbzPayProperties.getIsUat());
+            HttpResponse serverResponse = httpRequestManager.jsonPostRequest(new URL(rawUrl), paymentRequestString, !this.getProperties().getIsUat());
             writeLog(LogType.RESPONSE, serverResponse.getBody());
 
             KBZPayPaymentResponse paymentResult = objectMapper.readValue(serverResponse.getBody(), KBZPayPaymentResponse.class);
@@ -168,7 +186,7 @@ public class KBZPaymentService extends BasePaymentService {
         try {
             writeLog(LogType.CALLBACK_REQUEST, objectMapper.writeValueAsString(request));
             String signatureString = getCallbackSignatureString(request);
-            String sign = paymentSecurityManager.generateKbzPayHashSHA256(signatureString).toUpperCase(Locale.ROOT);
+            String sign = generateHash(signatureString);
 
             if (!sign.equals(request.getSign())) {
                 throw new CallbackException(FailedType.INVALID_HASH, localeManager.getMessage("invalid-hash-value", getPayment()));

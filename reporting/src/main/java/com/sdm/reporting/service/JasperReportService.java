@@ -12,6 +12,7 @@ import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.engine.util.JRSaver;
 import net.sf.jasperreports.export.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -40,7 +41,8 @@ import java.util.Objects;
  */
 public class JasperReportService {
 
-    public final String REPORT_PATH = "classpath:/reports/";
+    @Value("${com.sdm.path.report}")
+    private String reportRootPath = "/var/www/master-api/report/";
 
     @Autowired
     private DataSource dataSource;
@@ -75,7 +77,7 @@ public class JasperReportService {
 
     public void compileReports() {
         log.info("Compiling reports...");
-        File rootFolder = new File(REPORT_PATH);
+        File rootFolder = new File(reportRootPath);
         if (!rootFolder.exists() || !rootFolder.isDirectory()) {
             log.warn("Invalid Report File Path");
             return;

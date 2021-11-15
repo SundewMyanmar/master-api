@@ -1,5 +1,6 @@
 package com.sdm.core.config.properties;
 
+import com.sdm.core.util.annotation.SettingFile;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import java.time.temporal.ChronoUnit;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@SettingFile("cors-config.json")
 public class CorsProperties {
     private String[] allowedOriginPatterns;
 
