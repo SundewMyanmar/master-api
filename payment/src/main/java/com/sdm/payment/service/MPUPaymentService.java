@@ -18,8 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -61,6 +64,12 @@ public class MPUPaymentService extends BasePaymentService {
         return encryptData;
     }
 
+    public String encryptCard(String cardInfo) {
+        byte[] secret = this.getProperties().getSecretKey().getBytes(StandardCharsets.UTF_8);
+        SecretKey secretKey = new SecretKeySpec(secret, "AES");
+        return securityManager.aesEncrypt(cardInfo, secretKey, "AES/ECB/PKCS5Padding", null);
+    }
+
     public ModelAndView buildModelAndView(MPUPayment request, String callbackUrl) {
         if (!Globalizer.isNullOrEmpty(callbackUrl)) {
             request.setFrontendURL(callbackUrl);
@@ -84,7 +93,7 @@ public class MPUPaymentService extends BasePaymentService {
                 HttpParameter httpParameter = field.getAnnotation(HttpParameter.class);
                 if (!Globalizer.isNullOrEmpty(value)) {
                     if (field.getName().equals("cardInfo")) {
-                        value = securityManager.aesEncrypt(value.toString(), this.getProperties().getSecretKey());
+                        value = this.encryptCard(value.toString());
                     }
                     modelAndView.addObject(httpParameter.value(), value.toString());
                     hashBuilder.add(value.toString());

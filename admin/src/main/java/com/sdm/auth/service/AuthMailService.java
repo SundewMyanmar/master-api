@@ -83,7 +83,7 @@ public class AuthMailService {
     @Async
     public void activateLink(User user, String callbackUrl) throws JsonProcessingException {
         ActivateRequest request = buildRequest(user);
-        String token = securityManager.base64Encode(jacksonObjectMapper.writeValueAsString(request));
+        String token = securityManager.aesEncrypt(jacksonObjectMapper.writeValueAsString(request));
 
         String link = callbackUrl + "?token=" + token;
         // Send mail with activation link

@@ -31,28 +31,10 @@ public class UtilController {
     @Autowired
     private BarCodeManager barCodeManager;
 
-    @GetMapping("/jwtKey")
-    public ResponseEntity<MessageResponse> generateJwtKey() {
-        String generated = securityManager.generateJWTKey();
-        return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "JWT_KEY", generated, null));
-    }
-
-    @GetMapping("/salt")
-    public ResponseEntity<MessageResponse> generateSalt() {
-        String generated = securityManager.generateSalt();
-        return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "ENCRYPT_SALT", generated, null));
-    }
-
     @GetMapping("/generate/{len}")
     public ResponseEntity<MessageResponse> generateRandomLetter(@PathVariable("len") int len) {
         String generated = Globalizer.randomPassword(len);
         return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "GENERATE", generated, null));
-    }
-
-    //    @GetMapping("/encryptProperty")
-    public ResponseEntity<MessageResponse> encryptProperty(@RequestParam("input") String input) {
-        String encrypted = "ENC(" + appConfig.stringEncryptor().encrypt(input) + ")";
-        return ResponseEntity.ok(new MessageResponse(HttpStatus.OK, "ENCRYPTED", encrypted, null));
     }
 
     @GetMapping("/barcode/{type}")

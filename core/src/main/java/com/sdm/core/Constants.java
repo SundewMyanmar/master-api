@@ -8,17 +8,10 @@ package com.sdm.core;
 public interface Constants {
 
     String APP_NAME = "MasterAPI";
-    String INFO_MAIL = "iT@linnmyanmar.com.mm";
+    String INFO_MAIL = "info@sundewmyanmar.com";
 
     //Online
-    //LIVE
-    String ENCRYPT_KEY = "Xi9c7Gv0b3VZq58tXWEwlxhrDq9YpQ9STc6tICfyizSLhbEZCqoas7W";
-
-    //DEV
-//    String ENCRYPT_KEY="Xn7csSLAAsnwhayLCcKf7AA6l7UjIrrZolobUiW8";
-
-    //Local
-//    String ENCRYPT_KEY="2D0QfScdecFdOfexENuAHoQzHSVJtEqj3TpK33KH";
+    String ENCRYPT_KEY = "N3verG!veupT0Be@Warrior";
 
     int STRUCT_CACHE_DAYS = 365;
 

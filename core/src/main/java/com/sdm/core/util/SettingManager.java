@@ -19,8 +19,8 @@ import java.nio.file.Path;
 @Log4j2
 public class SettingManager {
 
-    @Value("${com.sdm.path.setting}")
-    private String settingRootPath = "/var/www/master-api/setting/";
+    @Value("${com.sdm.path.setting:/var/www/master-api/setting/}")
+    private String settingRootPath;
 
     @Autowired
     ObjectMapper objectMapper;

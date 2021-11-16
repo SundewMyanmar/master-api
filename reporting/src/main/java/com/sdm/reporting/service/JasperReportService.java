@@ -41,8 +41,8 @@ import java.util.Objects;
  */
 public class JasperReportService {
 
-    @Value("${com.sdm.path.report}")
-    private String reportRootPath = "/var/www/master-api/report/";
+    @Value("${com.sdm.path.report:/var/www/master-api/report/}")
+    private String reportRootPath;
 
     @Autowired
     private DataSource dataSource;

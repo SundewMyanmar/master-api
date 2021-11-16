@@ -37,8 +37,8 @@ import java.util.UUID;
 @Service("jwtAuthHandler")
 @Log4j2
 public class JwtService implements JwtAuthenticationHandler {
-    @Value("${com.sdm.security.jwt-key}")
-    private String jwtKey = "";
+    @Value("${com.sdm.security.jwt-key:v5OtLen4XOumAFTmp4vPsgtXoHzidfwoJEIITGDrfX2BUUd09ToF4kFMbRsX0cV7/7rRQzU1/BhsJ/OGPJ61tA==}")
+    private String jwtKey;
 
     private static final String CLIENT_TOKEN = "ct";
     private static final String CLAIM_DEVICE_ID = "deviceId";

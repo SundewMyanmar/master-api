@@ -16,7 +16,6 @@ spring.application.name=<th:block th:text="${appName}"/>
 
 #server
 server.compression.enabled=true
-server.error.path=/error
 server.error.whitelabel.enabled=false
 
 #Path
@@ -64,6 +63,7 @@ com.sdm.async.queue-size=100
 #Security
 jasypt.encryptor.bean=jasyptEncryptor
 com.sdm.security.secret-key=<th:block th:text="${secretKey}"/>
+com.sdm.security.secret-iv=<th:block th:text="${secretIv}"/>
 com.sdm.security.jwt-key=<th:block th:text="${jwtKey}"/>
 
 #Quartz Scheduler

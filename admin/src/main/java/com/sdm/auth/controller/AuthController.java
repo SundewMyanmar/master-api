@@ -86,7 +86,7 @@ public class AuthController {
     @GetMapping("/activate")
     public ResponseEntity<MessageResponse> activateUser(@DefaultValue("") @RequestParam("token") String activateToken) {
         try {
-            activateToken = securityManager.base64Decode(activateToken);
+            activateToken = securityManager.aesDecrypt(activateToken);
             ActivateRequest activateRequest = jacksonObjectMapper.readValue(activateToken, ActivateRequest.class);
             return service.accountActivation(activateRequest);
         } catch (JsonProcessingException ex) {

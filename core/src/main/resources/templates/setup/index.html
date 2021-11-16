@@ -252,24 +252,6 @@
                 $("input#settingPath").val(root + "setting/");
                 $("input#reportPath").val(root + "report/");
             });
-
-            $("button#btnEncryptSaltRefresh").click(() => {
-                $.get("[[@{/util/salt}]]", (data, status) => {
-                    $("input#encryptSalt").val(data.message);
-                });
-            });
-
-            $("button#btnJwtKeyRefresh").click(() => {
-                $.get("[[@{/util/jwtKey}]]", (data, status) => {
-                    $("input#jwtKey").val(data.message);
-                });
-            });
-
-            $("button#btnWebhookToken").click(() => {
-                $.get("[[@{/util/generate/32}]]", (data, status) => {
-                    $("input#facebookWebhook").val(data.message);
-                });
-            });
         });
 
 
