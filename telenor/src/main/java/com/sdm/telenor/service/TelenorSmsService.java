@@ -1,7 +1,6 @@
 package com.sdm.telenor.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.HttpResponse;
@@ -180,8 +179,7 @@ public class TelenorSmsService {
 
         log.info("TELENOR INFO =>" + response.getBody());
 
-        Map<String, String> resultMap = objectMapper.readValue(response.getBody(), new TypeReference<Map<String, String>>() {
-        });
+        Map<String, String> resultMap = objectMapper.readValue(response.getBody(), Map.class);
         if (resultMap.get("status") == null || !resultMap.get("status").equals("SUCCESS")) {
             log.error("TELENOR_SMS_ERROR =>" + response.getBody());
             throw new GeneralException(HttpStatus.BAD_REQUEST, "SMS Error: " + resultMap.get("message"));
