@@ -10,9 +10,11 @@ import com.sdm.payment.model.request.mpu.MPUPaymentInquiryResponseRequest;
 import com.sdm.payment.model.request.onepay.OnePayResponseDirectPaymentRequest;
 import com.sdm.payment.model.request.uabpay.UABPayResponsePaymentRequest;
 import com.sdm.payment.model.request.wavepay.WavePayResponsePaymentRequest;
+import com.sdm.payment.model.response.ayapay.AYAPayCallbackResponse;
 import com.sdm.payment.model.response.cbpay.CBResponsePaymentOrderResponse;
 import com.sdm.payment.model.response.onepay.OnePayResponseDirectPaymentResponse;
 import com.sdm.payment.model.response.uabpay.UABPayResponsePaymentResponse;
+import com.sdm.payment.service.AYAPayPaymentService;
 import com.sdm.payment.service.PaymentCallback;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,9 @@ public class PaymentCallbackController {
 
     @Autowired
     private LocaleManager localeManager;
+
+    @Autowired
+    private AYAPayPaymentService ayaService;
 
     @PostMapping("/onepay/callback")
     public ResponseEntity<OnePayResponseDirectPaymentResponse> onePayCallback(@Valid @RequestBody OnePayResponseDirectPaymentRequest request) throws IOException {
@@ -90,6 +95,16 @@ public class PaymentCallbackController {
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, localeManager.getMessage("invalid-payment-callback"));
         }
         String response = paymentCallback.kbzPayCallback(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(value = "/aya/callback", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
+    public ResponseEntity<?> ayaPayCallback(@ModelAttribute AYAPayCallbackResponse request) {
+        log.info("AYA_CALLBACK => ", request.getPaymentResult());
+        if (paymentCallback == null) {
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, localeManager.getMessage("invalid-payment-callback"));
+        }
+        String response = paymentCallback.ayaPayCallback(request);
         return ResponseEntity.ok(response);
     }
 }

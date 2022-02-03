@@ -199,4 +199,17 @@ public class HttpRequestManager {
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
     }
+
+    public HttpResponse jsonPostRequest(URL apiUrl, String jsonString, String tokenString, boolean useSSL, Map<String, String> headers) {
+        try {
+            HttpURLConnection connection = this.openConnection(apiUrl, useSSL);
+            for (Map.Entry<String, String> param : headers.entrySet()) {
+                connection.setRequestProperty(param.getKey(), param.getValue());
+            }
+
+            return this.httpRequest(connection, "POST", jsonString, tokenString);
+        } catch (IOException ex) {
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
+        }
+    }
 }

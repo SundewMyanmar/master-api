@@ -7,6 +7,7 @@ import com.sdm.payment.model.request.mpu.MPUPaymentInquiryResponseRequest;
 import com.sdm.payment.model.request.onepay.OnePayResponseDirectPaymentRequest;
 import com.sdm.payment.model.request.uabpay.UABPayResponsePaymentRequest;
 import com.sdm.payment.model.request.wavepay.WavePayResponsePaymentRequest;
+import com.sdm.payment.model.response.ayapay.AYAPayCallbackResponse;
 import com.sdm.payment.model.response.cbpay.CBResponsePaymentOrderResponse;
 import com.sdm.payment.model.response.onepay.OnePayResponseDirectPaymentResponse;
 import com.sdm.payment.model.response.uabpay.UABPayResponsePaymentResponse;
@@ -24,4 +25,6 @@ public interface PaymentCallback {
     MessageResponse mpuPayCallback(MPUPaymentInquiryResponseRequest request);
 
     String kbzPayCallback(KBZPayResponseRequest request);
+
+    String ayaPayCallback(AYAPayCallbackResponse request);
 }

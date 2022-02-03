@@ -19,6 +19,9 @@ group = 'com.sdm.payment'
 dependencies {
     implementation project(':core')
 
+    // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
+
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
