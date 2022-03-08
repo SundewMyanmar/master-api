@@ -1,0 +1,104 @@
+plugins {
+    id 'org.springframework.boot' version '2.5.10'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+    id 'war'
+}
+
+group = 'com.sdm'
+version = '1.8.0-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+    all {
+        exclude group: "org.springframework.boot", module: "spring-boot-starter-logging"
+    }
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Reporting
+    // http://jasperreports.sourceforge.net/maven2/com/lowagie/itext/
+    implementation 'com.lowagie:itext:2.1.7'
+
+    // https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports
+    implementation 'net.sf.jasperreports:jasperreports:6.18.0'
+    // https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports-fonts
+    implementation group: 'net.sf.jasperreports', name: 'jasperreports-fonts', version: '6.18.0'
+    // https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports-functions
+    implementation group: 'net.sf.jasperreports', name: 'jasperreports-functions', version: '6.18.0'
+    // https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports-metadata
+    implementation 'net.sf.jasperreports:jasperreports-metadata:6.18.0'
+
+    //Thumbnailtor
+    implementation 'net.coobird:thumbnailator:0.4.14'
+
+    //jasypt
+    implementation "com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.2"
+
+    //Firebase
+    implementation "com.google.firebase:firebase-admin:7.1.0"
+
+    //Swagger
+    implementation "io.springfox:springfox-boot-starter:3.0.0"
+
+    //Google Api Client Library
+    implementation 'com.google.api-client:google-api-client:1.32.1'
+
+    //MFA
+    implementation 'dev.samstevens.totp:totp-spring-boot-starter:1.7.1'
+
+    //JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
+
+    //Fake Data http://dius.github.io/java-faker/
+    implementation 'com.github.javafaker:javafaker:1.0.2'
+
+    //H2 DB
+    implementation 'com.h2database:h2'
+
+    //PostgreSQL
+    implementation "org.postgresql:postgresql"
+
+    //MySQL Runtime
+    implementation "mysql:mysql-connector-java"
+
+    //Hibernate Audit
+    implementation 'org.hibernate:hibernate-envers'
+
+    implementation "org.springframework.boot:spring-boot-starter-mail"
+    implementation "org.springframework.boot:spring-boot-starter-quartz"
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.session:spring-session-core'
+    implementation 'org.springframework.session:spring-session-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
