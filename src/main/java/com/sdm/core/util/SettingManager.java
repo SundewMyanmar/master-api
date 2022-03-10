@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,19 +38,32 @@ public class SettingManager {
         }
     }
 
-    private File createSettingFile(String settingPath) throws IOException {
-        File file = new File(settingRootPath + settingPath);
+    private File createSettingFile(String setting) throws IOException {
+        File file = new File(settingRootPath + setting);
         boolean booleanResult = true;
         if (!file.exists()) booleanResult = file.createNewFile();
         return booleanResult ? file : null;
     }
 
+    public String loadSetting(Path settingPath) throws IOException {
+        return Files.readString(settingPath);
+    }
+
     public String loadSetting(String setting) throws IOException {
-        return Files.readString(Path.of(settingRootPath, setting));
+        return this.loadSetting(Path.of(settingRootPath, setting));
     }
 
     public <T> T loadSetting(String setting, Class<T> refClass) throws IOException {
-        String resultString = this.loadSetting(setting);
+        Path settingPath = Path.of(settingRootPath, setting);
+        if(!Files.exists(settingPath)){
+            try {
+                T data = refClass.getDeclaredConstructor().newInstance();
+                this.writeSetting(setting, data);
+            }catch(IOException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ex){
+                log.warn(ex.getLocalizedMessage());
+            }
+        }
+        String resultString = this.loadSetting(settingPath);
         if (Globalizer.isNullOrEmpty(resultString))
             resultString = "{}";
 
@@ -64,10 +78,10 @@ public class SettingManager {
         return this.loadSetting(settingFile.value(), refClass);
     }
 
-    public void writeSetting(String settingPath, Object setting) throws IOException {
-        File settingFile = this.createSettingFile(settingPath);
+    public void writeSetting(String setting, Object data) throws IOException {
+        File settingFile = this.createSettingFile(setting);
         if (!Globalizer.isNullOrEmpty(settingFile)) {
-            String settingString = objectMapper.writeValueAsString(setting);
+            String settingString = objectMapper.writeValueAsString(data);
             Files.writeString(settingFile.toPath(), settingString, StandardCharsets.UTF_8);
         }
     }
