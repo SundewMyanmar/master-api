@@ -14,13 +14,17 @@ import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.LocaleManager;
+import com.sdm.storage.model.File;
+import com.sdm.storage.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.Id;
 import javax.validation.Valid;
@@ -50,6 +54,9 @@ public class UserController extends DefaultReadController<User, Integer> impleme
     @Autowired
     private LocaleManager localeManager;
 
+    @Autowired
+    private FileService fileService;
+
     @Override
     protected DefaultRepository<User, Integer> getRepository() {
         return this.userRepository;
@@ -78,6 +85,19 @@ public class UserController extends DefaultReadController<User, Integer> impleme
         MessageResponse message = new MessageResponse(localeManager.getMessage("success"),
                 localeManager.getMessage("clear-all-auth-token", this.getCurrentUser().getUserId()));
         return ResponseEntity.ok(message);
+    }
+
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Transactional
+    public ResponseEntity<ListResponse<File>> uploadFile(@RequestParam("uploadedFile") List<MultipartFile> files,
+                                                         @RequestParam(value = "folder", required = false, defaultValue = "") Integer folder) {
+        ListResponse<File> uploadedFiles = new ListResponse<>();
+
+        files.forEach(file -> {
+            File fileEntity = fileService.create(file, folder,this.getFileAnnotation("profileImage"));
+            uploadedFiles.addData(fileEntity);
+        });
+        return new ResponseEntity<ListResponse<File>>(uploadedFiles, HttpStatus.CREATED);
     }
 
     @Override

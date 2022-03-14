@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.sdm.auth.model.MultiFactorAuth;
 import com.sdm.core.model.Contact;
 import com.sdm.core.model.DefaultEntity;
+import com.sdm.core.model.annotation.FileClassification;
 import com.sdm.core.model.annotation.Searchable;
 import com.sdm.storage.model.File;
 import lombok.AllArgsConstructor;
@@ -40,6 +41,7 @@ public class User extends DefaultEntity implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "profileImage")
     @NotFound(action = NotFoundAction.IGNORE)
+    @FileClassification(guild = "USER",isHidden = false,isPublic = true)
     private File profileImage;
 
     @Searchable

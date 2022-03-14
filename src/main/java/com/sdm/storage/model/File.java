@@ -53,6 +53,9 @@ public class File extends DefaultEntity implements Serializable {
     @NotBlank
     @Column(columnDefinition = "varchar(255)", length = 255, nullable = false)
     private String name;
+    @Searchable
+    @Column(columnDefinition = "varchar(255)", length = 255, nullable = true)
+    private String guild;
     @NotBlank
     @Column(columnDefinition = "varchar(10)", length = 10, nullable = false)
     private String extension;

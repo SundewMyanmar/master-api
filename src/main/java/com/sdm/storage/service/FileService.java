@@ -1,6 +1,7 @@
 package com.sdm.storage.service;
 
 import com.sdm.core.exception.GeneralException;
+import com.sdm.core.model.annotation.FileClassification;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.LocaleManager;
 import com.sdm.storage.model.File;
@@ -24,6 +25,7 @@ import javax.imageio.spi.ImageReaderSpi;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -151,14 +153,22 @@ public class FileService {
     }
 
     @Transactional
-    public File create(String urlString, boolean isPublic, boolean isHidden, Integer folderId) throws IOException {
+    public File create(String urlString, Integer folderId, FileClassification fileClassification) throws IOException {
         URL url = new URL(urlString);
         URLConnection conn = url.openConnection();
         String contentType = conn.getContentType();
         String extension = this.getExtension(contentType);
 
-        File rawEntity = new File();
+        boolean isPublic=false;
+        boolean isHidden=true;
+        String guild="";
+        if(fileClassification!=null){
+            isPublic=fileClassification.isPublic();
+            isHidden=fileClassification.isHidden();
+            guild=fileClassification.guild();
+        }
 
+        File rawEntity = new File();
         rawEntity.setId(UUID.randomUUID().toString());
         rawEntity.setName("Profile");
         rawEntity.setExtension(extension);
@@ -166,6 +176,7 @@ public class FileService {
         rawEntity.setType(contentType);
         rawEntity.setFileSize(conn.getContentLength());
         rawEntity.setStatus(File.Status.STORAGE);
+        rawEntity.setGuild(guild);
 
         if (isHidden) rawEntity.setStatus(File.Status.HIDDEN);
 
@@ -190,8 +201,20 @@ public class FileService {
         return rawEntity;
     }
 
+    public File create(MultipartFile uploadFile,Integer folderId,FileClassification fileClassification){
+        boolean isPublic=false;
+        boolean isHidden=true;
+        String guild="";
+        if(fileClassification!=null){
+            isPublic=fileClassification.isPublic();
+            isHidden=fileClassification.isHidden();
+            guild=fileClassification.guild();
+        }
+        return this.create(uploadFile,isPublic,isHidden,guild,folderId);
+    }
+
     @Transactional
-    public File create(MultipartFile uploadFile, boolean isPublic, boolean isHidden, Integer folderId) {
+    public File create(MultipartFile uploadFile, boolean isPublic, boolean isHidden, String guild, Integer folderId) {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(uploadFile.getOriginalFilename()));
 
         String[] nameInfo = FileService.fileNameSplitter(fileName);
@@ -205,6 +228,7 @@ public class FileService {
         }
 
         rawEntity.setPublicAccess(isPublic);
+        rawEntity.setGuild(guild);
         if (Globalizer.isNullOrEmpty(uploadFile.getContentType())) {
             rawEntity.setType("application/octet-stream");
         } else {

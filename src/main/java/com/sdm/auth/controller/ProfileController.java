@@ -12,6 +12,7 @@ import com.sdm.auth.service.GoogleAuthService;
 import com.sdm.auth.service.JwtService;
 import com.sdm.core.controller.DefaultController;
 import com.sdm.core.exception.GeneralException;
+import com.sdm.core.model.annotation.FileClassification;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.BarCodeManager;
@@ -29,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.lang.reflect.Field;
 import java.util.List;
 
 @Controller
@@ -98,8 +100,16 @@ public class ProfileController extends DefaultController {
     public ResponseEntity<User> uploadFile(@RequestParam("profileImage") List<MultipartFile> files) {
         User existUser = this.checkMe();
 
+        Field profileImageField= null;
+        FileClassification annotation=null;
+        try {
+            profileImageField = User.class.getDeclaredField("profileImage");
+            annotation=profileImageField.getAnnotation(FileClassification.class);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
         if (files.size() > 0) {
-            File file = fileService.create(files.get(0), true, true, null);
+            File file = fileService.create(files.get(0), null,annotation);
             existUser.setProfileImage(file);
             userRepository.save(existUser);
         }

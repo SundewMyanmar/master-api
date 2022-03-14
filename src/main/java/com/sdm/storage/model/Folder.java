@@ -37,6 +37,11 @@ public class Folder extends DefaultEntity implements Serializable {
     private String name;
 
     @Searchable
+    @Size(min = 1, max = 250)
+    @Column(nullable = true, length = 250)
+    private String guild;
+
+    @Searchable
     @Size(max = 20)
     @Column(length = 20)
     private String color;

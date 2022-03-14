@@ -46,6 +46,7 @@ public class FileController extends DefaultReadController<File, String> {
             @RequestParam(value = "size", defaultValue = "10") int pageSize,
             @RequestParam(value = "sort", defaultValue = "id:DESC") String sortString,
             @RequestParam(value = "filter", defaultValue = "") String filter,
+            @RequestParam(value = "guild", defaultValue = "") String guild,
             @RequestParam(value = "public", defaultValue = "false") Boolean isPublic,
             @RequestParam(value = "hidden", defaultValue = "false") Boolean isHidden,
             @PathVariable("id") Integer id) {
@@ -53,11 +54,11 @@ public class FileController extends DefaultReadController<File, String> {
         if (id == null || id <= 0) {
             result = fileRepository.findByFolderIsNull(this.buildPagination(pageId, pageSize, sortString), filter,
                     isPublic ? null : false,
-                    isHidden ? null : File.Status.STORAGE);
+                    isHidden ? null : File.Status.STORAGE, guild);
         } else {
             result = fileRepository.findByFolder(this.buildPagination(pageId, pageSize, sortString), filter, id,
                     isPublic ? null : false,
-                    isHidden ? null : File.Status.STORAGE);
+                    isHidden ? null : File.Status.STORAGE, guild);
         }
         return new ResponseEntity<>(new PaginationResponse<>(result), HttpStatus.PARTIAL_CONTENT);
     }
@@ -104,10 +105,12 @@ public class FileController extends DefaultReadController<File, String> {
     public ResponseEntity<ListResponse<File>> uploadFile(@RequestParam("uploadedFile") List<MultipartFile> files,
                                                          @RequestParam(value = "isPublic", required = false, defaultValue = "false") boolean isPublic,
                                                          @RequestParam(value = "isHidden", required = false, defaultValue = "false") boolean isHidden,
-                                                         @RequestParam(value = "folder", required = false, defaultValue = "") Integer folder) {
+                                                         @RequestParam(value = "folder", required = false, defaultValue = "") Integer folder,
+                                                         @RequestParam(value = "guild", required = false, defaultValue = "") String guild) {
         ListResponse<File> uploadedFiles = new ListResponse<>();
+
         files.forEach(file -> {
-            File fileEntity = fileService.create(file, isPublic, isHidden, folder);
+            File fileEntity = fileService.create(file, isPublic, isHidden, guild, folder);
             uploadedFiles.addData(fileEntity);
         });
         return new ResponseEntity<ListResponse<File>>(uploadedFiles, HttpStatus.CREATED);

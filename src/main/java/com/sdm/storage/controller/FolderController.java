@@ -34,8 +34,8 @@ public class FolderController extends DefaultReadWriteController<Folder, Integer
     }
 
     @GetMapping("/root")
-    public ResponseEntity<ListResponse<Folder>> getSystemMenuTree(@DefaultValue("") @RequestParam("filter") String filter) {
-        var results = repository.findParentMenu(filter);
+    public ResponseEntity<ListResponse<Folder>> getSystemMenuTree(@DefaultValue("") @RequestParam("filter") String filter,@RequestParam(value="guild", defaultValue="") String guild) {
+        var results = repository.findParentMenu(filter,guild);
         return ResponseEntity.ok(new ListResponse<>(results));
     }
 

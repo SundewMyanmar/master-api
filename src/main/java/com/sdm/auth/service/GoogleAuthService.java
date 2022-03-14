@@ -12,6 +12,7 @@ import com.sdm.admin.repository.RoleRepository;
 import com.sdm.admin.repository.UserRepository;
 import com.sdm.auth.model.request.OAuth2Request;
 import com.sdm.core.exception.GeneralException;
+import com.sdm.core.model.annotation.FileClassification;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.LocaleManager;
@@ -30,6 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Optional;
@@ -111,7 +114,15 @@ public class GoogleAuthService implements SocialAuthService {
 
         if (pictureUrl != null) {
             try {
-                return fileService.create(pictureUrl, false, true, null);
+                Field profileImageField= null;
+                FileClassification annotation=null;
+                try {
+                    profileImageField = User.class.getDeclaredField("profileImage");
+                    annotation=profileImageField.getAnnotation(FileClassification.class);
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                }
+                return fileService.create(pictureUrl, null,annotation);
             } catch (IOException e) {
                 log.error("GOOGLE_IMAGE_FAIL>>>" + e.getLocalizedMessage());
             }
