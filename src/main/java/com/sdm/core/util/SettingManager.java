@@ -19,7 +19,6 @@ import java.nio.file.Path;
 @Service
 @Log4j2
 public class SettingManager {
-
     @Value("${com.sdm.path.setting:/var/www/master-api/setting/}")
     private String settingRootPath;
 
@@ -28,6 +27,7 @@ public class SettingManager {
 
     @PostConstruct
     private void init() {
+
         Path rootPath = Path.of(settingRootPath);
         if (Files.notExists(rootPath)) {
             try {
