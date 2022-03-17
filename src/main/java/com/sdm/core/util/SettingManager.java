@@ -160,7 +160,7 @@ public class SettingManager {
 
             String value= (String) field.get(data);
             Boolean isEncrypt=(Boolean)refField.getOrDefault("encrypt",false);
-            if(!Globalizer.isNullOrEmpty(value) && isEncrypt){
+            if(!Globalizer.isNullOrEmpty(value) && !value.startsWith("ENC(") && !value.endsWith(")") && isEncrypt){
                 value = "ENC(" + appConfig.stringEncryptor().encrypt(value) + ")";
             }
 
