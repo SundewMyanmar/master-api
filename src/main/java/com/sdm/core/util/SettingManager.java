@@ -148,7 +148,7 @@ public class SettingManager {
         return this.loadSetting(settingFile.value(), refClass);
     }
 
-    private void write(String filePath,Object data, Class<?> refClass) throws IOException, IllegalAccessException {
+    private Object write(String filePath,Object data, Class<?> refClass) throws IOException, IllegalAccessException {
         if(!data.getClass().equals(refClass))
             data=objectMapper.convertValue(data, refClass);
 
@@ -173,12 +173,14 @@ public class SettingManager {
             String settingString = objectMapper.writeValueAsString(data);
             Files.writeString(settingFile.toPath(), settingString, StandardCharsets.UTF_8);
         }
+
+        return data;
     }
 
-    public void writeSetting(String className, Object data) throws IOException, ClassNotFoundException, IllegalAccessException {
+    public Object writeSetting(String className, Object data) throws IOException, ClassNotFoundException, IllegalAccessException {
         Class<?> refClass=Class.forName(className);
         SettingFile setting=this.getSettingFile(refClass);
-        this.write(setting.value(),data,refClass);
+        return this.write(setting.value(),data,refClass);
     }
 
     public <T> void writeSetting(T setting, Class<T> refClass) throws IOException, IllegalAccessException {

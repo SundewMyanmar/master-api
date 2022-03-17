@@ -33,11 +33,11 @@ public class SettingController extends DefaultController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Map<String, Object>> saveConfig(@RequestBody Map<String, Object> data,
+    public ResponseEntity<?> saveConfig(@RequestBody Map<String, Object> data,
                                                           @RequestParam("className") String className) {
         try {
-            settingManager.writeSetting(className, data);
-            return new ResponseEntity<>(data, HttpStatus.CREATED);
+            var result=settingManager.writeSetting(className, data);
+            return new ResponseEntity<>(result, HttpStatus.CREATED);
         } catch (IOException | ClassNotFoundException | IllegalAccessException e) {
             throw new GeneralException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
