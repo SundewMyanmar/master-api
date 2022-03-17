@@ -2,6 +2,7 @@ package com.sdm.payment.config.properties;
 
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.annotation.SettingFile;
+import com.sdm.core.util.annotation.Encrypt;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,11 +12,13 @@ import lombok.extern.log4j.Log4j2;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@SettingFile("wave-money-config.json")
+@SettingFile(value="wave-money-config.json",icon="credit_card")
 public class WavePayProperties {
     private String url = "https://payments.wavemoney.io/payment";
+    @Encrypt
     private String merchantId = "";
     private String merchantName = "";
+    @Encrypt
     private String secretKey = "";
     private Integer expSeconds = 300;
     private String successUrl;

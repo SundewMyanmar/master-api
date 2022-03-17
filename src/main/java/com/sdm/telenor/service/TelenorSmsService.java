@@ -63,7 +63,7 @@ public class TelenorSmsService {
         return tokenSetting;
     }
 
-    public TelenorTokenSetting requestAccessToken(String authCode) throws IOException {
+    public TelenorTokenSetting requestAccessToken(String authCode) throws IOException, IllegalAccessException {
         /*
           Access Token -> expires_in
           Expires in time in sec. Default is an hour. Max value allowed

@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/system/config")
@@ -16,23 +16,29 @@ public class SettingController extends DefaultController {
     @Autowired
     private SettingManager settingManager;
 
+    @GetMapping("/struct")
+    public ResponseEntity<List<Map<String,Object>>> getSettingStructure() throws ClassNotFoundException {
+        var result=settingManager.getSettingStructure();
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("")
-    public ResponseEntity<String> getSystemConfig(@RequestParam("fileName") String fileName) {
+    public ResponseEntity<String> getSystemConfig(@RequestParam("className") String className) {
         try {
-            String config = settingManager.loadSetting(fileName);
+            String config = settingManager.loadSetting(className);
             return ResponseEntity.ok(config);
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new GeneralException(HttpStatus.NO_CONTENT, localeManager.getMessage("no-data"));
         }
     }
 
     @PostMapping("")
     public ResponseEntity<Map<String, Object>> saveConfig(@RequestBody Map<String, Object> data,
-                                                          @RequestParam("fileName") String fileName) {
+                                                          @RequestParam("className") String className) {
         try {
-            settingManager.writeSetting(fileName, data);
+            settingManager.writeSetting(className, data);
             return new ResponseEntity<>(data, HttpStatus.CREATED);
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException | IllegalAccessException e) {
             throw new GeneralException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }

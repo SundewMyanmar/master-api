@@ -12,7 +12,7 @@ import java.time.temporal.ChronoUnit;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@SettingFile("cors-config.json")
+@SettingFile(value="cors-config.json",icon="settings_input_composite")
 public class CorsProperties {
     private String[] allowedOriginPatterns;
 

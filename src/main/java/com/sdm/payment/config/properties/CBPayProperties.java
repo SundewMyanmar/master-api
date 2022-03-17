@@ -2,6 +2,7 @@ package com.sdm.payment.config.properties;
 
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.annotation.SettingFile;
+import com.sdm.core.util.annotation.Encrypt;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,11 +12,14 @@ import lombok.extern.log4j.Log4j2;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@SettingFile("cb-pay-config.json")
+@SettingFile(value="cb-pay-config.json",icon="credit_card")
 public class CBPayProperties {
     private String url = "https://cbpay.cbbank.com.mm:10443/orderpayment-api/v1/";
+    @Encrypt
     private String authToken = "";
+    @Encrypt
     private String ecommerceId = "";
+    @Encrypt
     private String subMerId = "";
     private String currency = "MMK";
     //cbuat, cb

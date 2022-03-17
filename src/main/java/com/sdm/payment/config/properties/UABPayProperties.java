@@ -2,6 +2,7 @@ package com.sdm.payment.config.properties;
 
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.annotation.SettingFile;
+import com.sdm.core.util.annotation.Encrypt;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,11 +12,14 @@ import lombok.extern.log4j.Log4j2;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@SettingFile("uab-pay-config.json")
+@SettingFile(value="uab-pay-config.json",icon="credit_card")
 public class UABPayProperties {
     private String url = "https://www.uabpaybusiness.com/API/";
+    @Encrypt
     private String user = "";
+    @Encrypt
     private String password = "";
+    @Encrypt
     private String secretKey = "";
     private String channel = "";
     private String appName = "uabpay";

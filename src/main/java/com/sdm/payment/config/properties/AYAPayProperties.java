@@ -1,6 +1,7 @@
 package com.sdm.payment.config.properties;
 
 import com.sdm.core.util.annotation.SettingFile;
+import com.sdm.core.util.annotation.Encrypt;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,14 +11,19 @@ import lombok.extern.log4j.Log4j2;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@SettingFile("aya-pay-config.json")
+@SettingFile(value="aya-pay-config.json",icon="credit_card")
 public class AYAPayProperties {
     private String url = "https://opensandbox.ayainnovation.com/";
+    @Encrypt
     private String consumerKey = "";
+    @Encrypt
     private String consumerSecret = "";
+    @Encrypt
     private String decryptionKey = "";
     private String userId = "";
+    @Encrypt
     private String phone = "";
+    @Encrypt
     private String pin = "";
     private String currency = "MMK";
 

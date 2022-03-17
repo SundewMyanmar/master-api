@@ -10,7 +10,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@SettingFile("security-config.json")
+@SettingFile(value="security-config.json",icon="security")
 public class SecurityProperties {
     private Set<Integer> ownerIds = Set.of(1);
 

@@ -37,7 +37,7 @@ public class TelenorSmsController extends DefaultController {
             log.info("TELENOR_CALLBACK => " + code + ", " + scope);
             TelenorTokenSetting result = this.telenorSmsService.requestAccessToken(code);
             return ResponseEntity.ok(result);
-        } catch (IOException e) {
+        } catch (IOException | IllegalAccessException e) {
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         }
     }
