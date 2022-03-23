@@ -8,7 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/system/config")
@@ -16,9 +17,9 @@ public class SettingController extends DefaultController {
     @Autowired
     private SettingManager settingManager;
 
-    @GetMapping("/struct")
+    @GetMapping("/all")
     public ResponseEntity<List<Map<String,Object>>> getSettingStructure() throws ClassNotFoundException {
-        var result=settingManager.getSettingStructure();
+        var result = settingManager.getAllSettings();
         return ResponseEntity.ok(result);
     }
 

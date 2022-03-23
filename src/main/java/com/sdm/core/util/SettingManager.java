@@ -2,8 +2,8 @@ package com.sdm.core.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.config.PropertyConfig;
-import com.sdm.core.util.annotation.SettingFile;
 import com.sdm.core.util.annotation.Encrypt;
+import com.sdm.core.util.annotation.SettingFile;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -68,17 +69,17 @@ public class SettingManager {
         return result;
     }
 
-    public List<Map<String,Object>> getSettingStructure() throws ClassNotFoundException {
-        ClassPathScanningCandidateComponentProvider scanner=new ClassPathScanningCandidateComponentProvider(false);
+    public List<Map<String, Object>> getAllSettings() throws ClassNotFoundException {
+        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AnnotationTypeFilter(SettingFile.class));
-        Set<BeanDefinition> beanSets=scanner.findCandidateComponents("com.sdm");
-        List<Map<String,Object>> result=new ArrayList<>();
-        for(BeanDefinition bean:beanSets){
-            Class<?> cls= Class.forName(bean.getBeanClassName()) ;
-            SettingFile settingFile=getSettingFile(cls);
+        Set<BeanDefinition> beanSets = scanner.findCandidateComponents("com.sdm");
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (BeanDefinition bean : beanSets) {
+            Class<?> cls = Class.forName(bean.getBeanClassName());
+            SettingFile settingFile = getSettingFile(cls);
 
-            var structure=this.buildStructure(cls);
-            Map<String, Object> structMap=new HashMap<>();
+            var structure = this.buildStructure(cls);
+            Map<String, Object> structMap = new HashMap<>();
             structMap.put("structure",structure);
             structMap.put("fullName",bean.getBeanClassName());
             structMap.put("name",cls.getSimpleName());
@@ -149,22 +150,27 @@ public class SettingManager {
     }
 
     private Object write(String filePath,Object data, Class<?> refClass) throws IOException, IllegalAccessException {
-        if(!data.getClass().equals(refClass))
-            data=objectMapper.convertValue(data, refClass);
+        for(Field field:refClass.getDeclaredFields()) {
+            if (field.getName().equals("log") || !field.isAnnotationPresent(Encrypt.class))
+                continue;
 
-        for(Field field:refClass.getDeclaredFields()){
-            if(field.getName().equals("log"))continue;
-
-            Map<String,Object>refField=this.buildField(field);
             field.setAccessible(true);
+            Object value = field.get(data);
 
-            String value= (String) field.get(data);
-            Boolean isEncrypt=(Boolean)refField.getOrDefault("encrypt",false);
-            if(!Globalizer.isNullOrEmpty(value) && !value.startsWith("ENC(") && !value.endsWith(")") && isEncrypt){
-                value = "ENC(" + appConfig.stringEncryptor().encrypt(value) + ")";
+            if (value instanceof Collection) {
+                List<String> values = ((Collection<?>) value).stream()
+                        .map(Object::toString).collect(Collectors.toList());
+                value = String.join(",", values);
             }
 
-            field.set(data,value);
+            try {
+                if (!Globalizer.isNullOrEmpty(value)) {
+                    String encryptValue = "ENC(" + appConfig.stringEncryptor().encrypt(value.toString()) + ")";
+                    field.set(data, encryptValue);
+                }
+            } catch (Exception ex) {
+                log.warn("Invalid value!");
+            }
         }
 
         //TODO HERE
