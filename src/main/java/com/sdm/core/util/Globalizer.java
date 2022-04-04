@@ -17,9 +17,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Random;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +25,26 @@ import java.util.regex.Pattern;
  * @author Htoonlin
  */
 public class Globalizer {
+    private final static Set<Class<?>> NUMBER_REFLECTED_PRIMITIVES;
+    static {
+        Set<Class<?>> s = new HashSet<>();
+        s.add(byte.class);
+        s.add(short.class);
+        s.add(int.class);
+        s.add(long.class);
+        s.add(float.class);
+        s.add(double.class);
+        NUMBER_REFLECTED_PRIMITIVES = s;
+    }
+
+    public static Object clone(Object obj){
+        return org.apache.commons.lang3.ObjectUtils.clone(obj);
+    }
+
+    public static boolean isNumber(Class<?> type) {
+        return Number.class.isAssignableFrom(type) || NUMBER_REFLECTED_PRIMITIVES.contains(type);
+    }
+
     public static String formatDecimal(String format, double amount) {
         DecimalFormat formatter = new DecimalFormat(format);
         return formatter.format(amount);

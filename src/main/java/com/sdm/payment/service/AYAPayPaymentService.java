@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.HttpResponse;
 import com.sdm.core.security.SecurityManager;
+import com.sdm.core.service.ISettingManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.HttpRequestManager;
 import com.sdm.core.util.LocaleManager;
-import com.sdm.core.util.SettingManager;
 import com.sdm.payment.config.properties.AYAPayProperties;
 import com.sdm.payment.exception.CallbackException;
 import com.sdm.payment.exception.FailedType;
@@ -58,13 +58,13 @@ public class AYAPayPaymentService extends BasePaymentService {
     private SecurityManager aesManager;
 
     @Autowired
-    private SettingManager settingManager;
+    private ISettingManager settingManager;
 
     private AYAPayProperties getProperties() {
         AYAPayProperties properties = new AYAPayProperties();
         try {
             properties = settingManager.loadSetting(AYAPayProperties.class);
-        } catch (IOException ex) {
+        } catch (IOException | IllegalAccessException ex) {
             log.error(ex.getLocalizedMessage());
         }
         return properties;

@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.HttpResponse;
 import com.sdm.core.security.SecurityManager;
+import com.sdm.core.service.ISettingManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.HttpRequestManager;
 import com.sdm.core.util.LocaleManager;
-import com.sdm.core.util.SettingManager;
 import com.sdm.payment.config.properties.UABPayProperties;
 import com.sdm.payment.exception.CallbackException;
 import com.sdm.payment.exception.FailedType;
@@ -47,13 +47,13 @@ public class UABPayPaymentService extends BasePaymentService {
     private LocaleManager localeManager;
 
     @Autowired
-    private SettingManager settingManager;
+    private ISettingManager settingManager;
 
     private UABPayProperties getProperties() {
         UABPayProperties properties = new UABPayProperties();
         try {
             properties = settingManager.loadSetting(UABPayProperties.class);
-        } catch (IOException ex) {
+        } catch (IOException | IllegalAccessException ex) {
             log.error(ex.getLocalizedMessage());
         }
         return properties;

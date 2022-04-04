@@ -1,8 +1,8 @@
 package com.sdm.core.security;
 
 import com.sdm.core.config.properties.CorsProperties;
+import com.sdm.core.service.ISettingManager;
 import com.sdm.core.util.Globalizer;
-import com.sdm.core.util.SettingManager;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -19,13 +19,13 @@ import java.util.Collections;
 @Log4j2
 public class CorsManager {
     @Autowired
-    private SettingManager settingManager;
+    private ISettingManager settingManager;
 
     public CorsProperties getProperties() {
         CorsProperties properties = new CorsProperties();
         try {
             properties = settingManager.loadSetting(CorsProperties.class);
-        } catch (IOException ex) {
+        } catch (IOException | IllegalAccessException ex) {
             log.error(ex.getLocalizedMessage());
         }
         return properties;

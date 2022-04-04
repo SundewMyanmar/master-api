@@ -11,10 +11,10 @@ import com.sdm.auth.model.request.OAuth2Request;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.HttpResponse;
 import com.sdm.core.security.SecurityManager;
+import com.sdm.core.service.ISettingManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.HttpRequestManager;
 import com.sdm.core.util.LocaleManager;
-import com.sdm.core.util.SettingManager;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.log4j.Log4j2;
@@ -68,12 +68,12 @@ public class AppleAuthService implements SocialAuthService {
     private LocaleManager localeManager;
 
     @Autowired
-    private SettingManager settingManager;
+    private ISettingManager settingManager;
 
     private String generateClientSecret(AppleProperties properties) {
         try {
             properties = settingManager.loadSetting(AppleProperties.class);
-        } catch (IOException ex) {
+        } catch (IOException | IllegalAccessException ex) {
             log.error(ex.getLocalizedMessage());
         }
 

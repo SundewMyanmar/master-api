@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.security.SecurityManager;
+import com.sdm.core.service.ISettingManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.LocaleManager;
-import com.sdm.core.util.SettingManager;
 import com.sdm.payment.config.properties.MPUProperties;
 import com.sdm.payment.exception.CallbackException;
 import com.sdm.payment.exception.FailedType;
@@ -47,13 +47,13 @@ public class MPUPaymentService extends BasePaymentService {
     private LocaleManager localeManager;
 
     @Autowired
-    private SettingManager settingManager;
+    private ISettingManager settingManager;
 
     private MPUProperties getProperties() {
         MPUProperties properties = new MPUProperties();
         try {
             properties = settingManager.loadSetting(MPUProperties.class);
-        } catch (IOException ex) {
+        } catch (IOException | IllegalAccessException ex) {
             log.error(ex.getLocalizedMessage());
         }
         return properties;

@@ -8,8 +8,8 @@ package com.sdm.core.security;
 
 import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.exception.GeneralException;
+import com.sdm.core.service.ISettingManager;
 import com.sdm.core.util.Globalizer;
-import com.sdm.core.util.SettingManager;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;
@@ -48,13 +48,13 @@ public class SecurityManager {
     private static final String AES_DEFAULT_ALGORITHM = "AES/CBC/PKCS5Padding";
 
     @Autowired
-    private SettingManager settingManager;
+    private ISettingManager settingManager;
 
     public SecurityProperties getProperties() {
         SecurityProperties properties = new SecurityProperties();
         try {
             properties = settingManager.loadSetting(SecurityProperties.class);
-        } catch (IOException ex) {
+        } catch (IOException | IllegalAccessException ex) {
             log.error(ex.getLocalizedMessage());
         }
         return properties;

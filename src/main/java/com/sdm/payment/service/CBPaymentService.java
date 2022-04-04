@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.HttpResponse;
+import com.sdm.core.service.ISettingManager;
 import com.sdm.core.util.HttpRequestManager;
 import com.sdm.core.util.LocaleManager;
-import com.sdm.core.util.SettingManager;
 import com.sdm.payment.config.properties.CBPayProperties;
 import com.sdm.payment.exception.CallbackException;
 import com.sdm.payment.exception.FailedType;
@@ -55,13 +55,13 @@ public class CBPaymentService extends BasePaymentService {
     private LocaleManager localeManager;
 
     @Autowired
-    private SettingManager settingManager;
+    private ISettingManager settingManager;
 
     private CBPayProperties getProperties() {
         CBPayProperties properties = new CBPayProperties();
         try {
             properties = settingManager.loadSetting(CBPayProperties.class);
-        } catch (IOException ex) {
+        } catch (IOException | IllegalAccessException ex) {
             log.error(ex.getLocalizedMessage());
         }
         return properties;

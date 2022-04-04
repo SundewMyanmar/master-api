@@ -1,7 +1,7 @@
 package com.sdm.core.controller;
 
 import com.sdm.core.exception.GeneralException;
-import com.sdm.core.util.SettingManager;
+import com.sdm.core.service.ISettingManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +15,10 @@ import java.util.Map;
 @RequestMapping("/system/config")
 public class SettingController extends DefaultController {
     @Autowired
-    private SettingManager settingManager;
+    private ISettingManager settingManager;
 
     @GetMapping("/all")
-    public ResponseEntity<List<Map<String,Object>>> getSettingStructure() throws ClassNotFoundException {
+    public ResponseEntity<List<Map<String,Object>>> getSettingStructure() throws ClassNotFoundException,IllegalAccessException {
         var result = settingManager.getAllSettings();
         return ResponseEntity.ok(result);
     }

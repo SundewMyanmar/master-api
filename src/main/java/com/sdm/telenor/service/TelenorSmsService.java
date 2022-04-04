@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.HttpResponse;
+import com.sdm.core.service.ISettingManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.HttpRequestManager;
-import com.sdm.core.util.SettingManager;
 import com.sdm.telenor.config.properties.TelenorSmsProperties;
 import com.sdm.telenor.model.request.telenor.MessageType;
 import com.sdm.telenor.model.request.telenor.NameType;
@@ -38,13 +38,13 @@ public class TelenorSmsService {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private SettingManager settingManager;
+    private ISettingManager settingManager;
 
     private TelenorSmsProperties getProperties() {
         TelenorSmsProperties properties = new TelenorSmsProperties();
         try {
             properties = settingManager.loadSetting(TelenorSmsProperties.class);
-        } catch (IOException ex) {
+        } catch (IOException | IllegalAccessException ex) {
             log.error(ex.getLocalizedMessage());
         }
         return properties;
@@ -149,7 +149,13 @@ public class TelenorSmsService {
      * @param phones
      */
     public Map<String, String> sendMessage(String content, String[] phones, MessageType msgType) throws IOException {
-        TelenorTokenSetting setting = settingManager.loadSetting(TelenorTokenSetting.class);
+        TelenorTokenSetting setting = new TelenorTokenSetting();
+        try {
+            setting= settingManager.loadSetting(TelenorTokenSetting.class);
+        } catch (IOException | IllegalAccessException ex) {
+            log.error(ex.getLocalizedMessage());
+        }
+
         if (setting == null || setting.getAccessToken() == null || setting.getExpiredDate() == null) {
             setting = this.requestCode();
         }
