@@ -2,23 +2,35 @@ package com.sdm.core.controller;
 
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.DefaultEntity;
+import com.sdm.core.model.annotation.FileClassification;
 import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.model.response.MessageResponse;
+import com.sdm.core.util.StorageManager;
+import com.sdm.storage.model.File;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.Id;
 import javax.validation.Valid;
+
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public abstract class DefaultReadWriteController<T extends DefaultEntity, ID extends Serializable>
         extends DefaultReadController<T, ID>
         implements ReadController<T, ID>, WriteController<T, ID> {
+
+    @Autowired
+    public StorageManager storageManager;
 
     @Override
     public ResponseEntity<T> create(@Valid T body) {
@@ -70,6 +82,13 @@ public abstract class DefaultReadWriteController<T extends DefaultEntity, ID ext
         MessageResponse message = new MessageResponse(localeManager.getMessage("remove-success"),
                 localeManager.getMessage("remove-multi-data", ids.size()));
         return ResponseEntity.ok(message);
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<Object> uploadFile(MultipartFile file, String fieldName, Integer folder) {
+        Object storedFile = storageManager.store(file, folder, this.getFileClassification(this.getEntityClass(), fieldName));
+        return new ResponseEntity<>(storedFile, HttpStatus.CREATED);
     }
 
     @Override

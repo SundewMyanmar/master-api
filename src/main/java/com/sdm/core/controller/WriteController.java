@@ -8,8 +8,10 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +90,21 @@ public interface WriteController<T, ID extends Serializable> {
     @DeleteMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<MessageResponse> multiRemove(@Valid @RequestBody List<ID> ids);
 
+    @ApiOperation(value = "Upload File", notes = "Upload file by field name")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 400, message = "Invalid Data.", response = MessageResponse.class),
+            @ApiResponse(code = 401, message = "Permission Denied.", response = MessageResponse.class),
+            @ApiResponse(code = 403, message = "Access Forbidden.", response = MessageResponse.class),
+            @ApiResponse(code = 404, message = "URL Not Found.", response = MessageResponse.class),
+            @ApiResponse(code = 406, message = "Unauthorize Token", response = MessageResponse.class),
+            @ApiResponse(code = 409, message = "Invalid Request.", response = MessageResponse.class),
+            @ApiResponse(code = 500, message = "Server Error.", response = MessageResponse.class),
+    })
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResponseEntity<Object> uploadFile(@RequestParam("uploadedFile") MultipartFile files,
+                                                  @RequestParam(value = "fieldName", required = true, defaultValue = "") String fieldName,
+                                                  @RequestParam(value = "folder", required = false, defaultValue = "") Integer folder);
 
     @ApiOperation(value = "Import Data", notes = "Create, Modified data by data list.")
     @ApiResponses({

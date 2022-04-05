@@ -9,6 +9,7 @@ import com.sdm.core.model.response.PaginationResponse;
 import com.sdm.storage.model.File;
 import com.sdm.storage.repository.FileRepository;
 import com.sdm.storage.service.FileService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -103,14 +105,14 @@ public class FileController extends DefaultReadController<File, String> {
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
     public ResponseEntity<ListResponse<File>> uploadFile(@RequestParam("uploadedFile") List<MultipartFile> files,
+                                                         @RequestParam(value = "folder", required = false, defaultValue = "") Integer folder,
                                                          @RequestParam(value = "isPublic", required = false, defaultValue = "false") boolean isPublic,
                                                          @RequestParam(value = "isHidden", required = false, defaultValue = "false") boolean isHidden,
-                                                         @RequestParam(value = "folder", required = false, defaultValue = "") Integer folder,
                                                          @RequestParam(value = "guild", required = false, defaultValue = "") String guild) {
         ListResponse<File> uploadedFiles = new ListResponse<>();
 
         files.forEach(file -> {
-            File fileEntity = fileService.create(file, isPublic, isHidden, guild, folder);
+            File fileEntity = fileService.create(file, folder, isPublic, isHidden, guild);
             uploadedFiles.addData(fileEntity);
         });
         return new ResponseEntity<ListResponse<File>>(uploadedFiles, HttpStatus.CREATED);
