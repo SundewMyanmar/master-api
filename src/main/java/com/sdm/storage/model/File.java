@@ -11,7 +11,9 @@ import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Searchable;
 import com.sdm.core.util.Globalizer;
 import com.sdm.storage.service.FileService;
+
 import lombok.*;
+
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Where;
@@ -19,6 +21,7 @@ import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,15 +54,15 @@ public class File extends DefaultEntity implements Serializable {
     private String id;
     @Searchable
     @NotBlank
-    @Column(columnDefinition = "varchar(255)", length = 255, nullable = false)
+    @Column(columnDefinition = "varchar(255)", nullable = false)
     private String name;
     @Searchable
-    @Column(columnDefinition = "varchar(255)", length = 255, nullable = true)
+    @Column(columnDefinition = "varchar(255)")
     private String guild;
     @NotBlank
     @Column(columnDefinition = "varchar(10)", length = 10, nullable = false)
     private String extension;
-    @Column(columnDefinition = "varchar(50)", length = 50, nullable = false)
+    @Column(columnDefinition = "varchar(255)", nullable = false)
     private String type;
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "name")
