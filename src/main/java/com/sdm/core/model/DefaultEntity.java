@@ -34,6 +34,7 @@ public abstract class DefaultEntity implements Serializable {
             @AttributeOverride(name = "token", column = @Column(name = "created_token", length = 36, columnDefinition = "char(36)", updatable = false))
     })
     private Auditor createdBy;
+
     @JsonIgnore
     @Getter
     @Setter
@@ -45,6 +46,7 @@ public abstract class DefaultEntity implements Serializable {
             @AttributeOverride(name = "token", column = @Column(name = "modified_token", length = 36, columnDefinition = "char(36)"))
     })
     private Auditor modifiedBy;
+
     @Getter
     @Setter
     @NotAudited
@@ -52,6 +54,7 @@ public abstract class DefaultEntity implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
     private Date createdAt;
+
     @Getter
     @Setter
     @NotAudited
@@ -59,11 +62,13 @@ public abstract class DefaultEntity implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
     private Date modifiedAt;
+
     @Getter
     @Setter
     @NotAudited
     @Version
     private int version;
+
     @Getter
     @Setter
     @JsonIgnore

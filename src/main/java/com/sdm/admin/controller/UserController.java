@@ -87,19 +87,6 @@ public class UserController extends DefaultReadController<User, Integer> impleme
         return ResponseEntity.ok(message);
     }
 
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Transactional
-    public ResponseEntity<ListResponse<File>> uploadFile(@RequestParam("uploadedFile") List<MultipartFile> files,
-                                                         @RequestParam(value = "folder", required = false, defaultValue = "") Integer folder) {
-        ListResponse<File> uploadedFiles = new ListResponse<>();
-
-        files.forEach(file -> {
-            File fileEntity = fileService.create(file, folder,this.getFileAnnotation("profileImage"));
-            uploadedFiles.addData(fileEntity);
-        });
-        return new ResponseEntity<ListResponse<File>>(uploadedFiles, HttpStatus.CREATED);
-    }
-
     @Override
     public ResponseEntity<User> create(@Valid @RequestBody User request) {
         // Check user by user name
@@ -175,6 +162,13 @@ public class UserController extends DefaultReadController<User, Integer> impleme
         MessageResponse message = new MessageResponse(localeManager.getMessage("remove-success"),
                 localeManager.getMessage("remove-multi-data", ids.size()));
         return ResponseEntity.ok(message);
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<Object> uploadFile(MultipartFile file, String fieldName, Integer folder) {
+        File fileEntity = fileService.create(file, folder,this.getFileClassification(this.getEntityClass(), fieldName));
+        return new ResponseEntity<>(fileEntity, HttpStatus.CREATED);
     }
 
     @Override

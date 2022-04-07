@@ -64,31 +64,6 @@ public abstract class DefaultReadController<T extends DefaultEntity, ID extends 
                         localeManager.getMessage("no-data-by", id)));
     }
 
-    protected Field getField(String fieldName) throws NoSuchFieldException {
-        return getEntityClass().getDeclaredField(fieldName);
-    }
-
-    protected FileClassification getFileAnnotation(String fieldName){
-        return (FileClassification) this.getAnnotation(fieldName,FileClassification.class);
-    }
-
-    protected Annotation getAnnotation(String fieldName, Class<?> cls){
-        Field field;
-        try {
-            field = getField(fieldName);
-        } catch (NoSuchFieldException e) {
-            return null;
-        }
-
-        Annotation result=null;
-        for(Annotation annotation:field.getDeclaredAnnotations()){
-            if (annotation.annotationType().equals(cls)) {
-                result=annotation;
-                break;
-            }
-        }
-        return result;
-    }
     @SuppressWarnings("unchecked")
     @GetMapping(value = "/{id}/histories", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ListResponse<Map<String, Object>>> getAuditHistory(@PathVariable(value = "id", required = true) ID id) {

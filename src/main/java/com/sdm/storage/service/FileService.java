@@ -4,11 +4,15 @@ import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.annotation.FileClassification;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.LocaleManager;
+import com.sdm.core.util.StorageManager;
 import com.sdm.storage.model.File;
 import com.sdm.storage.repository.FileRepository;
 import com.sdm.storage.repository.FolderRepository;
+
 import lombok.extern.log4j.Log4j2;
+
 import net.coobird.thumbnailator.Thumbnails;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -22,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.spi.ImageReaderSpi;
+
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @Log4j2
-public class FileService {
+public class FileService implements StorageManager {
 
     @Value("${com.sdm.path.upload:/var/www/master-api/upload/}")
     private String uploadRootPath;
@@ -159,13 +164,13 @@ public class FileService {
         String contentType = conn.getContentType();
         String extension = this.getExtension(contentType);
 
-        boolean isPublic=false;
-        boolean isHidden=true;
-        String guild="";
-        if(fileClassification!=null){
-            isPublic=fileClassification.isPublic();
-            isHidden=fileClassification.isHidden();
-            guild=fileClassification.guild();
+        boolean isPublic = false;
+        boolean isHidden = true;
+        String guild = "";
+        if (fileClassification != null) {
+            isPublic = fileClassification.isPublic();
+            isHidden = fileClassification.isHidden();
+            guild = fileClassification.guild();
         }
 
         File rawEntity = new File();
@@ -201,20 +206,20 @@ public class FileService {
         return rawEntity;
     }
 
-    public File create(MultipartFile uploadFile,Integer folderId,FileClassification fileClassification){
-        boolean isPublic=false;
-        boolean isHidden=true;
-        String guild="";
-        if(fileClassification!=null){
-            isPublic=fileClassification.isPublic();
-            isHidden=fileClassification.isHidden();
-            guild=fileClassification.guild();
+    public File create(MultipartFile uploadFile, Integer folderId, FileClassification fileClassification) {
+        boolean isPublic = false;
+        boolean isHidden = true;
+        String guild = "";
+        if (fileClassification != null) {
+            isPublic = fileClassification.isPublic();
+            isHidden = fileClassification.isHidden();
+            guild = fileClassification.guild();
         }
-        return this.create(uploadFile,isPublic,isHidden,guild,folderId);
+        return this.create(uploadFile, folderId, isPublic, isHidden, guild);
     }
 
     @Transactional
-    public File create(MultipartFile uploadFile, boolean isPublic, boolean isHidden, String guild, Integer folderId) {
+    public File create(MultipartFile uploadFile, Integer folderId, boolean isPublic, boolean isHidden, String guild) {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(uploadFile.getOriginalFilename()));
 
         String[] nameInfo = FileService.fileNameSplitter(fileName);
@@ -268,6 +273,10 @@ public class FileService {
         return rawEntity;
     }
 
+    public Object store(MultipartFile uploadFile, Integer folderId, FileClassification fileClassification) {
+        return this.create(uploadFile, folderId, fileClassification);
+    }
+
     public ResponseEntity<?> downloadFile(String id, String fileName, File.ImageSize size, boolean isPublic) {
         File downloadEntity = this.checkFile(id);
 
@@ -308,4 +317,6 @@ public class FileService {
                 .cacheControl(cacheControl)
                 .body(resource);
     }
+
+
 }
