@@ -38,7 +38,7 @@ public class Globalizer {
     }
 
     public static Object clone(Object obj){
-        return org.apache.commons.lang3.ObjectUtils.clone(obj);
+        return org.apache.commons.lang3.ObjectUtils.cloneIfPossible(obj);
     }
 
     public static boolean isNumber(Class<?> type) {

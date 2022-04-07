@@ -12,6 +12,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -46,7 +47,7 @@ public class CorsManager {
         configuration.setAllowedMethods(Arrays.asList(this.getProperties().getAllowedMethods()));
         configuration.setAllowedHeaders(Arrays.asList(this.getProperties().getAllowedHeaders()));
         configuration.setExposedHeaders(Arrays.asList(this.getProperties().getExposedHeaders()));
-        configuration.setMaxAge(this.getProperties().getMaxAge());
+        configuration.setMaxAge(Duration.ofHours(this.getProperties().getMaxAge()));
         configuration.setAllowCredentials(this.getProperties().getAllowedCredential());
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

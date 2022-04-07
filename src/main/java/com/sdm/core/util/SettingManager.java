@@ -68,6 +68,8 @@ public class SettingManager implements ISettingManager {
     }
 
     private Object getValue(Field field, Class<?> cls, Object data) throws IllegalAccessException {
+        if(data==null)return null;
+
         Object value;
         if(cls.equals(data.getClass()))
             value = field.get(data);
@@ -88,20 +90,23 @@ public class SettingManager implements ISettingManager {
             if(resultMap!=null)
                 resultMap.put("encrypt",true);
 
-            Object value=null;
-            if(cls.equals(data.getClass()))
+            Object value;
+            if(data==null)value=null;
+            else if(cls.equals(data.getClass()))
                 value = field.get(data);
             else
                 value=((Map<String,Object>)data).get(field.getName());
 
-            if(value!=null && value.toString().startsWith("ENC(")){
-                value=value.toString()
-                        .replace("ENC(","")
-                        .replace(")","");
-                value=appConfig.stringEncryptor().decrypt(value.toString());
-            }
+            if(value!=null){
+                if(value.toString().startsWith("ENC(")){
+                    value=value.toString()
+                            .replace("ENC(","")
+                            .replace(")","");
+                    value=appConfig.stringEncryptor().decrypt(value.toString());
+                }
 
-            field.set(data,value);
+                field.set(data,value);
+            }
         }
     }
 
@@ -228,6 +233,7 @@ public class SettingManager implements ISettingManager {
 
     private Object write(String filePath,Object data, Class<?> refClass) throws IOException, IllegalAccessException {
         Object newData=Globalizer.clone(data);
+        
         for(Field field:refClass.getDeclaredFields()) {
             if (field.getName().equals("log") || !field.isAnnotationPresent(Encrypt.class))
                 continue;

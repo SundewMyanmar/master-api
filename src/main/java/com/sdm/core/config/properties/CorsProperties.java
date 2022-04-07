@@ -26,6 +26,5 @@ public class CorsProperties {
 
     private Boolean allowedCredential = true;
 
-    @DurationUnit(ChronoUnit.MINUTES)
-    private Duration maxAge = Duration.ofHours(1);
+    private Long maxAge = 1L;
 }
