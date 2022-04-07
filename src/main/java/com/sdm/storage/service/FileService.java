@@ -16,7 +16,9 @@ import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,10 +31,12 @@ import javax.imageio.ImageReader;
 import javax.imageio.spi.ImageReaderSpi;
 
 import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -63,6 +67,13 @@ public class FileService implements StorageManager {
 
     @Autowired
     LocaleManager localeManager;
+
+    @Autowired
+    ResourceLoader resourceLoader;
+
+    private final String DEFAULT_FILE_IMAGE = "classpath:/images/file.png";
+
+    private final String DEFAULT_FILE_NAME = "UPLOADED_FILE";
 
     public FileClassification getInstanceFileClassification(final String guild, final boolean isPublic, final boolean isHidden){
         return new FileClassification(){
@@ -213,13 +224,12 @@ public class FileService implements StorageManager {
         }
         if (Objects.requireNonNull(fileEntity.getType()).contains("image")) {
             generatePreCacheImage(inputStream, savePath.toString(), fileEntity.getExtension());
-            fileEntity.setStoragePath(Paths.get(storagePath, fileEntity.getId()).normalize().toString());
         } else {
-            String fileName = fileEntity.getName() + "." + fileEntity.getExtension();
+            String fileName = DEFAULT_FILE_NAME + "." + fileEntity.getExtension();
             java.io.File saveFile = Paths.get(savePath.toString(), fileName).normalize().toFile();
             FileCopyUtils.copy(inputStream, new FileOutputStream(saveFile));
-            fileEntity.setStoragePath(saveFile.getPath());
         }
+        fileEntity.setStoragePath(Paths.get(storagePath, fileEntity.getId()).normalize().toString());
         log.info("Save uploaded file => " + fileEntity.getStoragePath());
     }
 
@@ -280,19 +290,22 @@ public class FileService implements StorageManager {
             throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("access-denied"));
         }
 
-        byte[] data;
+        InputStreamResource data;
         try {
             Path savedPath;
             //Independent File Separator
             String storagePath = downloadEntity.getStoragePath();//.replaceAll("[\\\\/]", java.io.File.separator);
             // If it is image and include dimension, it will process image on dimension
             if (downloadEntity.getType().contains("image")) {
-                String imageFile = size.name().toLowerCase() + "." + downloadEntity.getExtension();
-                savedPath = Paths.get(uploadRootPath, storagePath, imageFile).normalize();
+                String image = size.name().toLowerCase() + "." + downloadEntity.getExtension();
+                savedPath = Paths.get(uploadRootPath, storagePath, image).normalize();
+            } else if(size == File.ImageSize.original){
+                String file = DEFAULT_FILE_NAME + "." + downloadEntity.getExtension();
+                savedPath = Paths.get(uploadRootPath, storagePath, file).normalize();
             } else {
-                savedPath = Paths.get(uploadRootPath, storagePath).normalize();
+                savedPath = Paths.get(resourceLoader.getResource(DEFAULT_FILE_IMAGE).getURI());
             }
-            data = Files.readAllBytes(savedPath);
+            data = new InputStreamResource(new FileInputStream(savedPath.toFile()));
         } catch (IOException ex) {
             log.error(ex.getMessage(), ex);
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
@@ -306,11 +319,10 @@ public class FileService implements StorageManager {
 
         String attachment = "attachment; filename=\"" + fileName + "\"";
 
-        Resource resource = new ByteArrayResource(data);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(downloadEntity.getType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, attachment)
                 .cacheControl(cacheControl)
-                .body(resource);
+                .body(data);
     }
 }
