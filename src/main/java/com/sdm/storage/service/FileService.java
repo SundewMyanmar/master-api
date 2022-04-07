@@ -20,6 +20,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +29,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.spi.ImageReaderSpi;
 
 import java.awt.image.BufferedImage;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -61,6 +63,30 @@ public class FileService implements StorageManager {
 
     @Autowired
     LocaleManager localeManager;
+
+    public FileClassification getInstanceFileClassification(final String guild, final boolean isPublic, final boolean isHidden){
+        return new FileClassification(){
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return FileClassification.class;
+            }
+
+            @Override
+            public String guild() {
+                return guild;
+            }
+
+            @Override
+            public boolean isHidden() {
+                return isHidden;
+            }
+
+            @Override
+            public boolean isPublic() {
+                return isPublic;
+            }
+        };
+    }
 
     @Autowired
     public FileService() {
@@ -98,16 +124,12 @@ public class FileService implements StorageManager {
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, localeManager.getMessage("no-data-by", id)));
     }
 
-    public void generatePreCacheImage(MultipartFile uploadFile, String storagePath, String ext) throws IOException {
-        this.generatePreCacheImage(uploadFile.getInputStream(), storagePath, ext);
-    }
-
     public void generatePreCacheImage(InputStream iStream, String storagePath, String ext) throws IOException {
         BufferedImage image = ImageIO.read(iStream);
 
         for (File.ImageSize size : File.ImageSize.values()) {
             String fileName = size.name().toLowerCase() + "." + ext;
-            java.io.File saveFile = new java.io.File(storagePath + java.io.File.separator + fileName);
+            java.io.File saveFile =  Path.of(storagePath, fileName).normalize().toFile();
             log.info(String.format("Generating %s size image => %s", size, saveFile.getName()));
             if (size.getMaxSize() == 0) {
                 ImageIO.write(image, ext, saveFile);
@@ -157,120 +179,94 @@ public class FileService implements StorageManager {
         return suffix;
     }
 
+    public File buildEntity(FileClassification fileClassification, String name, String extension, String contentType, long size) throws IOException {
+        File fileEntity = new File();
+        fileEntity.setId(UUID.randomUUID().toString());
+
+        boolean isPublic = false;
+        boolean isHidden = false;
+        String guild = "";
+        if (fileClassification != null) {
+            isPublic = fileClassification.isPublic();
+            isHidden = fileClassification.isHidden();
+            guild = fileClassification.guild();
+        }
+
+        fileEntity.setPublicAccess(isPublic);
+        fileEntity.setGuild(guild);
+        fileEntity.setStatus(File.Status.STORAGE);
+        fileEntity.setName(name);
+        fileEntity.setExtension(extension);
+        fileEntity.setType(contentType);
+        fileEntity.setFileSize(size);
+
+        if (isHidden) fileEntity.setStatus(File.Status.HIDDEN);
+
+        return fileEntity;
+    }
+
+    public void fileProcessing(InputStream inputStream, File fileEntity) throws IOException {
+        String storagePath = Globalizer.getDateString("/yyyy/MM/", new Date());
+        Path savePath = Paths.get(uploadRootPath, storagePath, fileEntity.getId()).normalize();
+        if(!Files.exists(savePath)){
+            Files.createDirectories(savePath);
+        }
+        if (Objects.requireNonNull(fileEntity.getType()).contains("image")) {
+            generatePreCacheImage(inputStream, savePath.toString(), fileEntity.getExtension());
+            fileEntity.setStoragePath(Paths.get(storagePath, fileEntity.getId()).normalize().toString());
+        } else {
+            String fileName = fileEntity.getName() + "." + fileEntity.getExtension();
+            java.io.File saveFile = Paths.get(savePath.toString(), fileName).normalize().toFile();
+            FileCopyUtils.copy(inputStream, new FileOutputStream(saveFile));
+            fileEntity.setStoragePath(saveFile.getPath());
+        }
+        log.info("Save uploaded file => " + fileEntity.getStoragePath());
+    }
+
     @Transactional
-    public File create(String urlString, Integer folderId, FileClassification fileClassification) throws IOException {
+    public File loadExternalImage(String urlString, FileClassification fileClassification) throws IOException {
         URL url = new URL(urlString);
         URLConnection conn = url.openConnection();
         String contentType = conn.getContentType();
         String extension = this.getExtension(contentType);
-
-        boolean isPublic = false;
-        boolean isHidden = true;
-        String guild = "";
-        if (fileClassification != null) {
-            isPublic = fileClassification.isPublic();
-            isHidden = fileClassification.isHidden();
-            guild = fileClassification.guild();
-        }
-
-        File rawEntity = new File();
-        rawEntity.setId(UUID.randomUUID().toString());
-        rawEntity.setName("Profile");
-        rawEntity.setExtension(extension);
-        rawEntity.setPublicAccess(isPublic);
-        rawEntity.setType(contentType);
-        rawEntity.setFileSize(conn.getContentLength());
-        rawEntity.setStatus(File.Status.STORAGE);
-        rawEntity.setGuild(guild);
-
-        if (isHidden) rawEntity.setStatus(File.Status.HIDDEN);
-
-        String storagePath = Globalizer.getDateString("/yyyy/MM/", new Date());
-        String storageName = rawEntity.getId();
-        try {
-            Path savePath = Paths.get(uploadRootPath, storagePath, rawEntity.getId()).normalize();
-            Files.createDirectories(savePath);
-            generatePreCacheImage(conn.getInputStream(), savePath.toString(), extension);
-            storageName += java.io.File.separator;
-        } catch (IOException ex) {
-            log.warn(ex.getLocalizedMessage());
-            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
-        }
-
-        rawEntity.setStoragePath(Paths.get(storagePath, storageName).normalize().toString());
-
-        if (folderId != null)
-            folderRepository.findById(folderId).ifPresent(rawEntity::setFolder);
+        File rawEntity = this.buildEntity(fileClassification, "Profile", extension, contentType, conn.getContentLength());
+        this.fileProcessing(conn.getInputStream(), rawEntity);
 
         fileRepository.save(rawEntity);
         return rawEntity;
     }
 
-    public File create(MultipartFile uploadFile, Integer folderId, FileClassification fileClassification) {
-        boolean isPublic = false;
-        boolean isHidden = true;
-        String guild = "";
-        if (fileClassification != null) {
-            isPublic = fileClassification.isPublic();
-            isHidden = fileClassification.isHidden();
-            guild = fileClassification.guild();
-        }
-        return this.create(uploadFile, folderId, isPublic, isHidden, guild);
-    }
-
     @Transactional
-    public File create(MultipartFile uploadFile, Integer folderId, boolean isPublic, boolean isHidden, String guild) {
+    public File create(MultipartFile uploadFile, Integer folderId, FileClassification fileClassification) {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(uploadFile.getOriginalFilename()));
 
         String[] nameInfo = FileService.fileNameSplitter(fileName);
 
-        File rawEntity = new File();
-
-        rawEntity.setId(UUID.randomUUID().toString());
-        rawEntity.setName(nameInfo[0]);
+        String name = nameInfo[0];
+        String ext = "";
+        String contentType = "application/octet-stream";
         if (nameInfo.length == 2) {
-            rawEntity.setExtension(nameInfo[1]);
+            ext = nameInfo[1];
         }
 
-        rawEntity.setPublicAccess(isPublic);
-        rawEntity.setGuild(guild);
-        if (Globalizer.isNullOrEmpty(uploadFile.getContentType())) {
-            rawEntity.setType("application/octet-stream");
-        } else {
-            rawEntity.setType(uploadFile.getContentType());
+        if(!Globalizer.isNullOrEmpty(uploadFile.getContentType())){
+            contentType = uploadFile.getContentType();
         }
 
-        rawEntity.setFileSize(uploadFile.getSize());
-        rawEntity.setStatus(File.Status.STORAGE);
-        if (isHidden) rawEntity.setStatus(File.Status.HIDDEN);
-
-        String storagePath = Globalizer.getDateString("/yyyy/MM/", new Date());
-        String storageName = rawEntity.getId();
         try {
-            if (Objects.requireNonNull(uploadFile.getContentType()).contains("image")) {
-                Path savePath = Paths.get(uploadRootPath, storagePath, rawEntity.getId()).normalize();
-                Files.createDirectories(savePath);
-                generatePreCacheImage(uploadFile, savePath.toString(), rawEntity.getExtension());
-                storageName += java.io.File.separator;
-            } else {
-                Path savePath = Paths.get(uploadRootPath, storagePath).normalize();
-                Files.createDirectories(savePath);
-                java.io.File savedFile = new java.io.File(savePath + java.io.File.separator + storageName);
-                uploadFile.transferTo(savedFile);
-                storageName += "." + rawEntity.getExtension();
-            }
-        } catch (IOException ex) {
+            File rawEntity = this.buildEntity(fileClassification, name, ext, contentType, uploadFile.getSize());
+            this.fileProcessing(uploadFile.getInputStream(), rawEntity);
+
+            if (folderId != null)
+                folderRepository.findById(folderId).ifPresent(rawEntity::setFolder);
+
+            fileRepository.save(rawEntity);
+            return rawEntity;
+
+        }catch(IOException ex){
             log.warn(ex.getLocalizedMessage());
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
-        rawEntity.setStoragePath(Paths.get(storagePath, storageName).normalize().toString());
-
-        if (folderId != null)
-            folderRepository.findById(folderId).ifPresent(rawEntity::setFolder);
-
-        fileRepository.save(rawEntity);
-
-        return rawEntity;
     }
 
     public Object store(MultipartFile uploadFile, Integer folderId, FileClassification fileClassification) {
@@ -317,6 +313,4 @@ public class FileService implements StorageManager {
                 .cacheControl(cacheControl)
                 .body(resource);
     }
-
-
 }

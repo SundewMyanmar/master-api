@@ -41,7 +41,7 @@ public class User extends DefaultEntity implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "profileImage")
     @NotFound(action = NotFoundAction.IGNORE)
-    @FileClassification(guild = "USER",isHidden = false,isPublic = true)
+    @FileClassification(guild = "USER", isPublic = true)
     private File profileImage;
 
     @Searchable

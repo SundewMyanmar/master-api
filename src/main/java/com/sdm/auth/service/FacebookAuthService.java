@@ -100,7 +100,7 @@ public class FacebookAuthService implements SocialAuthService {
                         } catch (NoSuchFieldException e) {
                             e.printStackTrace();
                         }
-                        return fileService.create(pictureUrl, null,annotation);
+                        return fileService.loadExternalImage(pictureUrl, annotation);
                     } catch (IOException e) {
                         log.error("FACEBOOK_IMAGE_FAIL >>>" + e.getLocalizedMessage());
                     }

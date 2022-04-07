@@ -3,6 +3,7 @@ package com.sdm.storage.controller;
 import com.sdm.core.controller.DefaultReadController;
 import com.sdm.core.db.repository.DefaultRepository;
 import com.sdm.core.exception.GeneralException;
+import com.sdm.core.model.annotation.FileClassification;
 import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.model.response.PaginationResponse;
@@ -106,23 +107,23 @@ public class FileController extends DefaultReadController<File, String> {
     @Transactional
     public ResponseEntity<ListResponse<File>> uploadFile(@RequestParam("uploadedFile") List<MultipartFile> files,
                                                          @RequestParam(value = "folder", required = false, defaultValue = "") Integer folder,
+                                                         @RequestParam(value = "guild", required = false, defaultValue = "") String guild,
                                                          @RequestParam(value = "isPublic", required = false, defaultValue = "false") boolean isPublic,
-                                                         @RequestParam(value = "isHidden", required = false, defaultValue = "false") boolean isHidden,
-                                                         @RequestParam(value = "guild", required = false, defaultValue = "") String guild) {
+                                                         @RequestParam(value = "isHidden", required = false, defaultValue = "false") boolean isHidden) {
         ListResponse<File> uploadedFiles = new ListResponse<>();
-
+        FileClassification classification = fileService.getInstanceFileClassification(guild, isPublic, isHidden);
         files.forEach(file -> {
-            File fileEntity = fileService.create(file, folder, isPublic, isHidden, guild);
+            File fileEntity = fileService.create(file, folder, classification);
             uploadedFiles.addData(fileEntity);
         });
-        return new ResponseEntity<ListResponse<File>>(uploadedFiles, HttpStatus.CREATED);
+        return new ResponseEntity<>(uploadedFiles, HttpStatus.CREATED);
     }
 
     @GetMapping("/download/{id}/{name}")
     public ResponseEntity<?> downloadFile(@PathVariable("id") @Size(max = 36, min = 36) String id,
                                           @PathVariable("name") String filename,
-                                          @RequestParam("size") Optional<File.ImageSize> imageSize) {
+                                          @RequestParam(value = "size", defaultValue = "medium") File.ImageSize imageSize) {
 
-        return fileService.downloadFile(id, filename, imageSize.orElse(File.ImageSize.medium), false);
+        return fileService.downloadFile(id, filename, imageSize, false);
     }
 }

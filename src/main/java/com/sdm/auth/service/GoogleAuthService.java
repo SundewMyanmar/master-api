@@ -122,7 +122,7 @@ public class GoogleAuthService implements SocialAuthService {
                 } catch (NoSuchFieldException e) {
                     e.printStackTrace();
                 }
-                return fileService.create(pictureUrl, null,annotation);
+                return fileService.loadExternalImage(pictureUrl, annotation);
             } catch (IOException e) {
                 log.error("GOOGLE_IMAGE_FAIL>>>" + e.getLocalizedMessage());
             }
