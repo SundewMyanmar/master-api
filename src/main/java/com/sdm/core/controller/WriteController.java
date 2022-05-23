@@ -102,9 +102,9 @@ public interface WriteController<T, ID extends Serializable> {
             @ApiResponse(code = 500, message = "Server Error.", response = MessageResponse.class),
     })
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    ResponseEntity<Object> uploadFile(@RequestParam("uploadedFile") MultipartFile files,
-                                                  @RequestParam(value = "fieldName", required = true, defaultValue = "") String fieldName,
-                                                  @RequestParam(value = "folder", required = false, defaultValue = "") Integer folder);
+    ResponseEntity<Object> uploadFile(@RequestParam("uploadedFile") MultipartFile file,
+                                      @RequestParam(value = "fieldName", required = true, defaultValue = "") String fieldName,
+                                      @RequestParam(value = "folder", required = false, defaultValue = "") Integer folder);
 
     @ApiOperation(value = "Import Data", notes = "Create, Modified data by data list.")
     @ApiResponses({

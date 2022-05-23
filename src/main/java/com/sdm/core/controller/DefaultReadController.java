@@ -65,7 +65,7 @@ public abstract class DefaultReadController<T extends DefaultEntity, ID extends 
     }
 
     @SuppressWarnings("unchecked")
-    @GetMapping(value = "/{id}/histories", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Override
     public ResponseEntity<ListResponse<Map<String, Object>>> getAuditHistory(@PathVariable(value = "id", required = true) ID id) {
         List<SundewAuditEntity> audits = auditReader.createQuery()
                 .forRevisionsOfEntity(getEntityClass(), true)
@@ -95,7 +95,6 @@ public abstract class DefaultReadController<T extends DefaultEntity, ID extends 
         return new ResponseEntity<>(response, HttpStatus.PARTIAL_CONTENT);
     }
 
-    @Transactional
     @Override
     public ResponseEntity<PaginationResponse<T>> getPagingByFilter(int page, int pageSize, String filter, String sort) {
         Page<T> paging = getRepository().findAll(filter, this.buildPagination(page, pageSize, sort));

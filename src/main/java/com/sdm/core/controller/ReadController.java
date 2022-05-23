@@ -31,7 +31,7 @@ public interface ReadController<T, ID extends Serializable> {
     ResponseEntity<PaginationResponse<T>> getPagingByFilter(@RequestParam(value = "page", defaultValue = "0") int page,
                                                             @RequestParam(value = "size", defaultValue = "10") int pageSize,
                                                             @RequestParam(value = "filter", defaultValue = "") String filter,
-                                                            @RequestParam(value = "sort", defaultValue = "id:DESC") String sort);
+                                                            @RequestParam(value = "sort", defaultValue = "modifiedAt:DESC") String sort);
 
     @ApiOperation(value = "GetAll Data", notes = "Retrieve all data by async.")
     @ApiResponses({

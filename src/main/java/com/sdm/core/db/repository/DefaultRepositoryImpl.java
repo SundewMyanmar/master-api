@@ -5,6 +5,7 @@ import com.sdm.core.model.AdvancedFilter;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Searchable;
 import com.sdm.core.util.Globalizer;
+
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
@@ -22,8 +23,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Log4j2
 public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializable> extends SimpleJpaRepository<T, ID> implements DefaultRepository<T, ID> {
@@ -42,19 +45,12 @@ public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializa
         this.filterableFields = getSearchableFields(entityInformation.getJavaType());
     }
 
-    private final List<String> getSearchableFields(Class<T> entityClass) {
-        List<String> fields = new ArrayList<>();
-        Arrays.stream(entityClass.getDeclaredFields()).forEach(field ->
-                Arrays.stream(field.getDeclaredAnnotations()).forEach(annotation -> {
-                    if (annotation.annotationType().equals(Searchable.class)) {
-                        fields.add(field.getName());
-                    }
-                })
-        );
-        return fields;
+    private List<String> getSearchableFields(Class<T> entityClass) {
+        return Arrays.stream(entityClass.getDeclaredFields()).filter(field -> field.isAnnotationPresent(Searchable.class) && field.getType() == String.class)
+                .map((Field::getName)).collect(Collectors.toList());
     }
 
-    protected boolean checkColumn(String column, Class entity) {
+    protected boolean checkColumn(String column, Class<?> entity) {
         if (!Pattern.matches(VALID_FIELD_NAME, column)) {
             return false;
         }
@@ -159,7 +155,7 @@ public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializa
         //Select Statement
         cQuery.select(root);
         if (predicates.size() > 0)
-            cQuery.where(builder.or(predicates.toArray(new Predicate[predicates.size()])));
+            cQuery.where(builder.or(predicates.toArray(new Predicate[0])));
         cQuery.orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
         //Get Total
