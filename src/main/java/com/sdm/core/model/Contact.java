@@ -36,12 +36,10 @@ public class Contact implements Serializable {
     @Column(nullable = false)
     private String value;
 
-    @Searchable
     @Size(max = 20)
     @Column(length = 20)
     private String color;
 
-    @Searchable
     @Size(max = 100)
     @Column(length = 100)
     private String icon;
