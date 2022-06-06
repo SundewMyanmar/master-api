@@ -16,8 +16,9 @@ import com.sdm.core.util.HttpRequestManager;
 import com.sdm.core.util.LocaleManager;
 import com.sdm.storage.model.File;
 import com.sdm.storage.service.FileService;
-import lombok.extern.log4j.Log4j2;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,16 +26,28 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.*;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.DatatypeConverter;
+
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
 public class FacebookAuthService implements SocialAuthService {
     private static final String FB_GRAPH_URL = "https://graph.facebook.com/v9.0/";
+
+    @Value("${com.sdm.facebook.app-secret}")
+    private String facebookAppSecret;
 
     @Autowired
     FileService fileService;
@@ -65,6 +78,26 @@ public class FacebookAuthService implements SocialAuthService {
 
     private static final String FB_AUTH_FIELDS = "id,name,email,picture.width(512),gender";
 
+    public Map<String, String> facebookDataDeletion(String signedRequest) {
+        log.info("Data deletion request from Facebook => " + signedRequest);
+        String[] signedData = signedRequest.split("\\.", 2);
+        if (signedData.length != 2) {
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid_facebook_sign"));
+        }
+        String signature = DatatypeConverter.printHexBinary(Base64.getUrlDecoder().decode(signedData[0]));
+
+        String expectedSignature = securityManager.generateHashHmac(signedData[1], facebookAppSecret, "HmacSHA256");
+        if (!signature.equals(expectedSignature)) {
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid_facebook_sign"));
+        }
+
+        String confirmationCode = Globalizer.generateToken("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 6);
+        String url = Globalizer.getCurrentContextPath("/facebook/deletion", true) + "?id=" + confirmationCode;
+        return Map.of(
+                "confirmation_code", confirmationCode,
+                "url", url
+        );
+    }
 
     public JsonObject checkFacebookToken(String accessToken) {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(FB_GRAPH_URL + "me")
