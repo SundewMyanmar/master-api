@@ -2,7 +2,11 @@ package com.sdm.reporting.service;
 
 import com.sdm.core.Constants;
 import com.sdm.core.exception.GeneralException;
-import lombok.Getter;
+import com.sdm.core.util.Globalizer;
+import com.sdm.core.util.LocaleManager;
+import com.sdm.reporting.model.Report;
+import com.sdm.reporting.repository.ReportRepository;
+
 import lombok.extern.log4j.Log4j2;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.export.HtmlExporter;
@@ -20,19 +24,27 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Log4j2
@@ -41,14 +53,128 @@ import java.util.Objects;
  */
 public class JasperReportService {
 
+    protected interface Suffix {
+        String DESIGN = ".jrxml";
+        String COMPILE = ".jasper";
+    }
+
     @Value("${com.sdm.path.report:/var/www/master-api/report/}")
     private String reportRootPath;
 
     @Autowired
+    private LocaleManager localeManager;
+
+    @Autowired
+    private ReportRepository repository;
+
+    @Autowired
     private DataSource dataSource;
 
-    @Getter
-    private Map<String, String> reports;
+    public static class Base64ResourceHandler implements HtmlResourceHandler {
+        final Map<String, String> images;
+
+        public Base64ResourceHandler() {
+            this.images = new HashMap<>();
+        }
+
+        @Override
+        public String getResourcePath(String id) {
+            return images.get(id);
+        }
+
+        @Override
+        public void handleResource(String id, byte[] data) {
+            images.put(id, "data:image/png;base64," + new String(Base64.getEncoder().encode(data)));
+        }
+    }
+
+
+    public Report checkReport(String id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("no-data-by", id)));
+    }
+
+    private Path getReportFile(String id, String type){
+        return Paths.get(reportRootPath, id + type).normalize();
+    }
+
+    @Transactional
+    public void uploadReport(MultipartFile reportFile, Report report){
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(reportFile.getOriginalFilename()));
+
+        //Check file extension
+        String[] fileInfo = fileName.split("\\.(?=[^\\.]+$)");
+        String ext = "";
+        if(fileInfo.length > 1){
+            ext = "." + fileInfo[fileInfo.length - 1].toLowerCase(Locale.ROOT);
+        }
+        if(Globalizer.isNullOrEmpty(ext) || !List.of(Suffix.DESIGN, Suffix.COMPILE).contains(ext)){
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-report-extension", fileName));
+        }
+        //Update or create report model
+        if(!Globalizer.isNullOrEmpty(report.getId())) {
+            Optional<Report> existReport = repository.findById(report.getId());
+            if (existReport.isEmpty()) {
+                report.setId(UUID.randomUUID().toString());
+            }
+        }else{
+            report.setId(UUID.randomUUID().toString());
+        }
+
+        try {
+            //Store report
+            //If design, compile report
+            if(ext.equalsIgnoreCase(Suffix.DESIGN)){
+                Path designFile = getReportFile(report.getId(), Suffix.DESIGN);
+                reportFile.transferTo(designFile);
+                compileReport(report.getId());
+                report.setHasDesign(true);
+            }else {
+                reportFile.transferTo(getReportFile(report.getId(), Suffix.COMPILE));
+            }
+            repository.save(report);
+        }catch(IOException ex){
+            log.warn(ex.getLocalizedMessage());
+            throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
+        }
+    }
+
+    public void compileReport(String id){
+        Path designFile = getReportFile(id, Suffix.DESIGN);
+        Path compileFile = getReportFile(id, Suffix.COMPILE);
+        if(Files.notExists(designFile)){
+            log.warn("Invalid Report File Path");
+            throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("report-compiled-failed"));
+        }
+
+        log.info("Compiling report : " + id);
+        try (FileInputStream inputStream = new FileInputStream(designFile.toFile())) {
+            JasperReport report = JasperCompileManager.compileReport(inputStream);
+            JRSaver.saveObject(report, compileFile.toFile());
+            log.info("Compiled report " + report.getName());
+        } catch (IOException | JRException ex) {
+            log.warn(ex.getLocalizedMessage());
+        }
+    }
+
+    public JasperPrint loadReport(String reportId, Map<String, Object> parameters) {
+        Report report = checkReport(reportId);
+        Path reportFile = getReportFile(reportId, Suffix.COMPILE);
+        log.info(String.format("Load Report %s => %s", report.getId(), report.getName()));
+
+        //Load report
+        try (FileInputStream inputStream = new FileInputStream(reportFile.toFile())) {
+            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(inputStream);
+            try (Connection connection = dataSource.getConnection()) {
+                return JasperFillManager.fillReport(jasperReport, parameters, connection);
+            } catch (SQLException ex) {
+                log.warn(ex.getLocalizedMessage());
+            }
+        } catch (IOException | JRException ex) {
+            log.warn(ex.getLocalizedMessage());
+        }
+        throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load report.");
+    }
 
     public String generateToHTML(String reportId, Map<String, Object> parameters) {
         JasperPrint print = loadReport(reportId, parameters);
@@ -68,71 +194,6 @@ public class JasperReportService {
         }
 
         return html.toString();
-    }
-
-    @PostConstruct
-    protected void init() {
-        compileReports();
-    }
-
-    public void compileReports() {
-        log.info("Compiling reports...");
-        File rootFolder = new File(reportRootPath);
-        if (!rootFolder.exists() || !rootFolder.isDirectory()) {
-            log.warn("Invalid Report File Path");
-            return;
-        }
-
-        this.reports = new HashMap<>();
-        for (File file : Objects.requireNonNull(rootFolder.listFiles())) {
-            if (!file.getName().endsWith(Suffix.DESIGN)) {
-                continue;
-            }
-            try (FileInputStream inputStream = new FileInputStream(file)) {
-                JasperReport designFile = JasperCompileManager.compileReport(inputStream);
-                File jasperFile = new File(file.getAbsolutePath().replace(Suffix.DESIGN, Suffix.COMPILE));
-                JRSaver.saveObject(designFile, jasperFile);
-
-                log.info("Compiled report " + jasperFile.getName());
-                this.reports.put(jasperFile.getName().replace(Suffix.COMPILE, ""), jasperFile.getAbsolutePath());
-            } catch (IOException | JRException ex) {
-                log.warn(ex.getLocalizedMessage());
-            }
-        }
-    }
-
-    public JasperPrint loadReport(String reportId, Map<String, Object> parameters) {
-        File compileFile = new File(this.reports.get(reportId));
-        log.info("Load Report " + compileFile.getName());
-        try (FileInputStream inputStream = new FileInputStream(compileFile)) {
-            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(inputStream);
-            try (Connection connection = dataSource.getConnection()) {
-                return JasperFillManager.fillReport(jasperReport, parameters, connection);
-            } catch (SQLException ex) {
-                log.warn(ex.getLocalizedMessage());
-            }
-        } catch (IOException | JRException ex) {
-            log.warn(ex.getLocalizedMessage());
-        }
-        throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to load report.");
-    }
-
-    public class Base64ResourceHandler implements HtmlResourceHandler {
-        final Map<String, String> images;
-
-        public Base64ResourceHandler() {
-            this.images = new HashMap<>();
-        }
-
-        @Override
-        public String getResourcePath(String id) {
-            return images.get(id);
-        }
-
-        @Override
-        public void handleResource(String id, byte[] data) {
-            images.put(id, "data:image/png;base64," + new String(Base64.getEncoder().encode(data)));
-        }
     }
 
     public ResponseEntity<?> generateToPDF(String reportId, Map<String, Object> parameters) {
@@ -166,10 +227,5 @@ public class JasperReportService {
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, attachment)
                 .body(resource);
-    }
-
-    protected interface Suffix {
-        String DESIGN = ".jrxml";
-        String COMPILE = ".jasper";
     }
 }

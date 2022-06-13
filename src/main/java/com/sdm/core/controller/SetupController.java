@@ -25,7 +25,8 @@ import java.util.Set;
 public class SetupController {
     private final Set<String> ENCRYPT_FIELDS = Set.of(
             "dbUser", "dbPassword",
-            "mailUser", "mailPassword"
+            "mailUser", "mailPassword",
+            "facebookSecret"
     );
     @Autowired
     SecurityManager securityManager;

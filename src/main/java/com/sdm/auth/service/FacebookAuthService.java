@@ -6,6 +6,7 @@ import com.sdm.admin.model.Role;
 import com.sdm.admin.model.User;
 import com.sdm.admin.repository.RoleRepository;
 import com.sdm.admin.repository.UserRepository;
+import com.sdm.auth.config.properties.FacebookProperties;
 import com.sdm.auth.model.request.OAuth2Request;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.annotation.FileClassification;
@@ -14,6 +15,7 @@ import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.HttpRequestManager;
 import com.sdm.core.util.LocaleManager;
+import com.sdm.core.util.SettingManager;
 import com.sdm.storage.model.File;
 import com.sdm.storage.service.FileService;
 
@@ -44,10 +46,6 @@ import lombok.extern.log4j.Log4j2;
 @Service
 @Log4j2
 public class FacebookAuthService implements SocialAuthService {
-    private static final String FB_GRAPH_URL = "https://graph.facebook.com/v9.0/";
-
-    @Value("${com.sdm.facebook.app-secret}")
-    private String facebookAppSecret;
 
     @Autowired
     FileService fileService;
@@ -74,9 +72,20 @@ public class FacebookAuthService implements SocialAuthService {
     private LocaleManager localeManager;
 
     @Autowired
+    private SettingManager settingManager;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private static final String FB_AUTH_FIELDS = "id,name,email,picture.width(512),gender";
+    private FacebookProperties getProperties(){
+        FacebookProperties properties = new FacebookProperties();
+        try {
+            properties = settingManager.loadSetting(FacebookProperties.class);
+        } catch (IOException | IllegalAccessException e) {
+            log.error(e.getLocalizedMessage());
+        }
+        return properties;
+    }
 
     public Map<String, String> facebookDataDeletion(String signedRequest) {
         log.info("Data deletion request from Facebook => " + signedRequest);
@@ -86,7 +95,7 @@ public class FacebookAuthService implements SocialAuthService {
         }
         String signature = DatatypeConverter.printHexBinary(Base64.getUrlDecoder().decode(signedData[0]));
 
-        String expectedSignature = securityManager.generateHashHmac(signedData[1], facebookAppSecret, "HmacSHA256");
+        String expectedSignature = securityManager.generateHashHmac(signedData[1], getProperties().getAppSecret(), "HmacSHA256");
         if (!signature.equals(expectedSignature)) {
             throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid_facebook_sign"));
         }
@@ -100,8 +109,8 @@ public class FacebookAuthService implements SocialAuthService {
     }
 
     public JsonObject checkFacebookToken(String accessToken) {
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(FB_GRAPH_URL + "me")
-                .queryParam("fields", FB_AUTH_FIELDS)
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(getProperties().getGraphUrl() + "me")
+                .queryParam("fields", getProperties().getAuthFields())
                 .queryParam("access_token", accessToken);
         try {
             HttpResponse response = requestManager.jsonGetRequest(new URL(uriBuilder.toUriString()), "", true);
