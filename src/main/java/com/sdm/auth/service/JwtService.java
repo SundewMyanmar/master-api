@@ -68,8 +68,10 @@ public class JwtService implements JwtAuthenticationHandler {
 
     private String getAudience(HttpServletRequest request) {
         Cookie clientToken = WebUtils.getCookie(request, CLIENT_TOKEN);
+
+        //If doesn't include client token, it should be invalid jwt audience. So generate random UUID
         if(Globalizer.isNullOrEmpty(clientToken)){
-            return "";
+            return UUID.randomUUID().toString();
         }
 
         return clientToken.getValue();
@@ -152,16 +154,21 @@ public class JwtService implements JwtAuthenticationHandler {
     @Override
     public void setClientToken(HttpServletRequest request, HttpServletResponse response) {
         Cookie tokenCookie = WebUtils.getCookie(request, CLIENT_TOKEN);
-        if(Globalizer.isNullOrEmpty(tokenCookie)){
+        String token = (tokenCookie != null) ? tokenCookie.getValue() : "";
+
+        if(Globalizer.isNullOrEmpty(token)){
             tokenCookie = new Cookie(CLIENT_TOKEN, UUID.randomUUID().toString());
             if (!Globalizer.isNullOrEmpty(securityManager.getProperties().getCookieDomain())) {
                 tokenCookie.setDomain(securityManager.getProperties().getCookieDomain());
             }
             if (!Globalizer.isNullOrEmpty(securityManager.getProperties().getCookiePath())) {
                 tokenCookie.setPath(securityManager.getProperties().getCookiePath());
+            }else {
+                tokenCookie.setPath("/");
             }
+
+            response.addCookie(tokenCookie);
         }
-        response.addCookie(tokenCookie);
     }
 
     @SuppressWarnings("unchecked")
