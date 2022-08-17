@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.HttpResponse;
-import com.sdm.core.service.ISettingManager;
+import com.sdm.core.util.ISettingManager;
 import com.sdm.core.util.HttpRequestManager;
 import com.sdm.core.util.LocaleManager;
 import com.sdm.payment.config.properties.CBPayProperties;

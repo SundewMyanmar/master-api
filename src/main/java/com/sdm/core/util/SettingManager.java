@@ -2,11 +2,10 @@ package com.sdm.core.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.config.PropertyConfig;
-import com.sdm.core.service.ISettingManager;
 import com.sdm.core.util.annotation.Encrypt;
 import com.sdm.core.util.annotation.SettingFile;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.math.NumberUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -14,7 +13,6 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -49,12 +47,6 @@ public class SettingManager implements ISettingManager {
                 log.warn(ex.getLocalizedMessage());
             }
         }
-    }
-
-    public static void main(String[] args){
-        String[] arr=new String[]{"1","2"};
-        Boolean isArray=arr.getClass().isArray();
-        isArray=isArray;
     }
 
     private String  getSettingType(Class<?> type){

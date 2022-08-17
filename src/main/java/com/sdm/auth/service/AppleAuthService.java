@@ -11,7 +11,7 @@ import com.sdm.auth.model.request.OAuth2Request;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.HttpResponse;
 import com.sdm.core.security.SecurityManager;
-import com.sdm.core.service.ISettingManager;
+import com.sdm.core.util.ISettingManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.HttpRequestManager;
 import com.sdm.core.util.LocaleManager;

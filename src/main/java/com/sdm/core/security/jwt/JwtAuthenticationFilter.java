@@ -17,17 +17,21 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.UUID;
 
 @Log4j2
 public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
 
     @Autowired
     LocaleManager localeManager;
+
     @Autowired
     private JwtAuthenticationHandler jwtAuthHandler;
+
     @Autowired
     private ClientService clientService;
 
@@ -39,6 +43,9 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
+        //Set Client Token by Cookie
+        jwtAuthHandler.setClientToken(httpServletRequest, httpServletResponse);
+
         if (httpServletRequest.getMethod().equalsIgnoreCase("options")) {
             filterChain.doFilter(httpServletRequest, httpServletResponse);
             return;

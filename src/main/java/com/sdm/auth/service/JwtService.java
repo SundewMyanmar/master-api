@@ -24,8 +24,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.WebUtils;
 
 import javax.crypto.SecretKey;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.Duration;
@@ -40,7 +42,7 @@ public class JwtService implements JwtAuthenticationHandler {
     @Value("${com.sdm.security.jwt-key:v5OtLen4XOumAFTmp4vPsgtXoHzidfwoJEIITGDrfX2BUUd09ToF4kFMbRsX0cV7/7rRQzU1/BhsJ/OGPJ61tA==}")
     private String jwtKey;
 
-    private static final String CLIENT_TOKEN = "ct";
+    private static final String CLIENT_TOKEN = "C-TOKEN";
     private static final String CLAIM_DEVICE_ID = "deviceId";
     private static final String CLAIM_DEVICE_OS = "deviceOs";
     private static final String CLAIM_ROLES = "roles";
@@ -65,12 +67,12 @@ public class JwtService implements JwtAuthenticationHandler {
     }
 
     private String getAudience(HttpServletRequest request) {
-        String ip = Globalizer.getRemoteAddress(request);
-        String agent = request.getHeader(HttpHeaders.USER_AGENT);
-        if (Globalizer.isNullOrEmpty(agent) || Globalizer.isNullOrEmpty(ip)) {
-            throw new InvalidTokenException(localeManager.getMessage("invalid-auth-token"));
+        Cookie clientToken = WebUtils.getCookie(request, CLIENT_TOKEN);
+        if(Globalizer.isNullOrEmpty(clientToken)){
+            return "";
         }
-        return String.format("IP=%s; Agent=%s", ip, agent);
+
+        return clientToken.getValue();
     }
 
     private String getIssuer(HttpServletRequest request) {
@@ -145,6 +147,21 @@ public class JwtService implements JwtAuthenticationHandler {
 
         user.setCurrentToken(tokenString);
         return token.getId();
+    }
+
+    @Override
+    public void setClientToken(HttpServletRequest request, HttpServletResponse response) {
+        Cookie tokenCookie = WebUtils.getCookie(request, CLIENT_TOKEN);
+        if(Globalizer.isNullOrEmpty(tokenCookie)){
+            tokenCookie = new Cookie(CLIENT_TOKEN, UUID.randomUUID().toString());
+            if (!Globalizer.isNullOrEmpty(securityManager.getProperties().getCookieDomain())) {
+                tokenCookie.setDomain(securityManager.getProperties().getCookieDomain());
+            }
+            if (!Globalizer.isNullOrEmpty(securityManager.getProperties().getCookiePath())) {
+                tokenCookie.setPath(securityManager.getProperties().getCookiePath());
+            }
+        }
+        response.addCookie(tokenCookie);
     }
 
     @SuppressWarnings("unchecked")

@@ -8,7 +8,7 @@ package com.sdm.core.security;
 
 import com.sdm.core.config.properties.SecurityProperties;
 import com.sdm.core.exception.GeneralException;
-import com.sdm.core.service.ISettingManager;
+import com.sdm.core.util.ISettingManager;
 import com.sdm.core.util.Globalizer;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;

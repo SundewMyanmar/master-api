@@ -1,7 +1,7 @@
 package com.sdm.core.security;
 
 import com.sdm.core.config.properties.CorsProperties;
-import com.sdm.core.service.ISettingManager;
+import com.sdm.core.util.ISettingManager;
 import com.sdm.core.util.Globalizer;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;

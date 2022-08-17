@@ -1,4 +1,4 @@
-package com.sdm.core.service;
+package com.sdm.core.util;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;

@@ -1,7 +1,7 @@
 package com.sdm.core.controller;
 
 import com.sdm.core.exception.GeneralException;
-import com.sdm.core.service.ISettingManager;
+import com.sdm.core.util.ISettingManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

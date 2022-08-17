@@ -98,7 +98,7 @@ public class Globalizer {
     }
 
     public static boolean isNullOrEmpty(Object data) {
-        boolean result = ObjectUtils.isEmpty(data);
+        boolean result = ObjectUtils.isEmpty(data) && !Objects.nonNull(data);
 
         if (!result && data instanceof String) {
             result = data.toString().trim().length() <= 0

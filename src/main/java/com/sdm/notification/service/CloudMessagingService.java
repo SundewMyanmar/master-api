@@ -10,20 +10,26 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.*;
 import com.sdm.core.util.Globalizer;
-import com.sdm.notification.config.properties.FireBaseProperties;
 import com.sdm.notification.model.Notification;
 import com.sdm.notification.repository.NotificationRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ResourceUtils;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import javax.annotation.PostConstruct;
 
 /**
  * @author htoonlin
@@ -32,6 +38,7 @@ import java.util.UUID;
 @Log4j2
 public class CloudMessagingService {
 
+    private static final String FIREBASE_JSON_FILE_NAME = "classpath:firebase.json";
     private static final String FIR_APP_NAME = "FIR_CLOUD_MESSAGING_APP";
     private static final String ANDROID_COLOR = "#ffffff";
     private static final String ANDROID_ICON = "noti";
@@ -41,19 +48,20 @@ public class CloudMessagingService {
 
     private FirebaseApp firebaseApp;
 
-    public CloudMessagingService(FireBaseProperties properties) {
-        if (properties.getProjectUrl().length() > 0 && properties.getServiceJson().length() > 0) {
-            if (firebaseApp == null) {
-                try (FileInputStream serviceAccount = new FileInputStream(properties.getServiceJson())) {
-                    FirebaseOptions options = FirebaseOptions.builder()
-                            .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                            .setDatabaseUrl(properties.getProjectUrl())
-                            .build();
-                    this.firebaseApp = FirebaseApp.initializeApp(options, FIR_APP_NAME);
-                } catch (IOException ex) {
-                    log.warn(ex.getLocalizedMessage(), ex);
-                }
+    @PostConstruct
+    public void init(){
+        try {
+            File jsonFile = ResourceUtils.getFile(FIREBASE_JSON_FILE_NAME);
+            try(FileInputStream jsonStream = new FileInputStream(jsonFile)){
+                FirebaseOptions options = FirebaseOptions.builder()
+                        .setCredentials(GoogleCredentials.fromStream(jsonStream))
+                        .build();
+                this.firebaseApp = FirebaseApp.initializeApp(options, FIR_APP_NAME);
+            } catch (IOException ex) {
+                log.warn(ex.getLocalizedMessage(), ex);
             }
+        } catch (FileNotFoundException ex){
+            log.warn(ex.getLocalizedMessage());
         }
     }
 
