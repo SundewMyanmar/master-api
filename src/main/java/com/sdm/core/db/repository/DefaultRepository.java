@@ -7,8 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.NoRepositoryBean;
 
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaQuery;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 @NoRepositoryBean
 public interface DefaultRepository<T, ID extends Serializable> extends JpaRepository<T, ID> {
@@ -25,4 +28,8 @@ public interface DefaultRepository<T, ID extends Serializable> extends JpaReposi
 
     @Modifying
     void softDelete(Iterable<T> entities);
+
+    EntityManager getEntityManager();
+
+    public Map<String, CriteriaQuery<?>> findAllQuery(String filter, Pageable pageable);
 }

@@ -46,6 +46,8 @@ dependencies {
     implementation group: 'net.sf.jasperreports', name: 'jasperreports-functions', version: '6.19.1'
     // https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports-metadata
     implementation 'net.sf.jasperreports:jasperreports-metadata:6.19.1'
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-webflux
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: '2.7.2'
 
     //Thumbnailtor
     implementation 'net.coobird:thumbnailator:0.4.17'
