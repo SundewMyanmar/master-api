@@ -2,6 +2,7 @@ package com.sdm.inventory.repository;
 
 import com.sdm.core.db.repository.DefaultRepository;
 import com.sdm.inventory.model.Attribute;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;

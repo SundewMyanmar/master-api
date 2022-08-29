@@ -1,5 +1,7 @@
 package com.sdm.reporting.controller;
 
+import com.sdm.admin.model.Role;
+import com.sdm.admin.repository.RoleRepository;
 import com.sdm.core.controller.DefaultReadController;
 import com.sdm.core.db.repository.DefaultRepository;
 import com.sdm.core.exception.GeneralException;
@@ -20,13 +22,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -41,28 +44,55 @@ public class ReportController extends DefaultReadController<Report, String> {
     @Autowired
     private ReportRepository repository;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
     @Override
     protected DefaultRepository<Report, String> getRepository() {
         return this.repository;
     }
 
+    /**
+     * Check Report Permission by Current User Roles
+     *
+     * @param reportId
+     */
+    private void checkPermission(String reportId) {
+        Report report = checkData(reportId);
+        if (report.isPublic()) {
+            return;
+        }
+
+        Set<Integer> roles = report.getRoles().stream().map(Role::getId).collect(Collectors.toSet());
+        //Check Roles
+        List<Role> allowRoles = roleRepository.findRoleByUserIdAndRoleIds(getCurrentUser().getUserId(), roles)
+                .orElseThrow(() -> new GeneralException(HttpStatus.FORBIDDEN,
+                        localeManager.getMessage("access-denied")));
+
+        if (allowRoles.size() <= 0) {
+            throw new GeneralException(HttpStatus.FORBIDDEN, localeManager.getMessage("access-denied"));
+        }
+    }
+
     @GetMapping("/view/{id}")
     public ResponseEntity<?> viewReport(@RequestParam Map<String, Object> parameters,
-                                        @PathVariable("id") String reportId){
+                                        @PathVariable("id") String reportId) {
+        checkPermission(reportId);
         String html = reportService.generateToHTML(reportId, parameters);
         return ResponseEntity.ok(html);
     }
 
     @GetMapping("/print/{id}")
     public ResponseEntity<?> printReport(@RequestParam Map<String, Object> parameters,
-                                        @PathVariable("id") String reportId){
+                                         @PathVariable("id") String reportId) {
+        checkPermission(reportId);
         return reportService.generateToPDF(reportId, parameters);
     }
 
     @Transactional
     @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Report> createReport(@Valid Report report,
-                                                         @RequestParam("reportFile") MultipartFile reportFile) {
+                                               @RequestParam("reportFile") MultipartFile reportFile) {
         reportService.uploadReport(reportFile, report);
         return new ResponseEntity<>(report, HttpStatus.CREATED);
     }
@@ -77,9 +107,9 @@ public class ReportController extends DefaultReadController<Report, String> {
             throw new GeneralException(HttpStatus.CONFLICT,
                     localeManager.getMessage("not-match-path-body-id"));
         }
-        if(Globalizer.isNullOrEmpty(reportFile)){
+        if (Globalizer.isNullOrEmpty(reportFile)) {
             repository.save(report);
-        }else{
+        } else {
             reportService.uploadReport(reportFile, report);
         }
         return ResponseEntity.ok(report);

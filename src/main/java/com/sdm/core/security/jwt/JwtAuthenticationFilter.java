@@ -5,7 +5,7 @@ import com.sdm.core.exception.InvalidTokenException;
 import com.sdm.core.service.ClientService;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.LocaleManager;
-import lombok.extern.log4j.Log4j2;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,13 +15,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import java.io.IOException;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.UUID;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class JwtAuthenticationFilter extends BasicAuthenticationFilter {

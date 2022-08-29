@@ -5,6 +5,7 @@ import com.sdm.core.db.repository.DefaultRepository;
 import com.sdm.core.model.response.PaginationResponse;
 import com.sdm.inventory.model.Category;
 import com.sdm.inventory.repository.CategoryRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -30,8 +31,8 @@ public class CategoryController extends DefaultReadWriteController<Category, Int
                                                                    @RequestParam(value = "size", defaultValue = "10") int pageSize,
                                                                    @RequestParam(value = "filter", defaultValue = "") String filter,
                                                                    @RequestParam(value = "sort", defaultValue = "id:DESC") String sort,
-                                                                   @RequestParam(value = "parent", defaultValue = "null") Integer parent){
-        Page<Category> pageResult=repository.getPagingByParent(this.buildPagination(page,pageSize,sort),"%"+filter+"%",parent);
+                                                                   @RequestParam(value = "parent", defaultValue = "null") Integer parent) {
+        Page<Category> pageResult = repository.getPagingByParent(this.buildPagination(page, pageSize, sort), "%" + filter + "%", parent);
         PaginationResponse<Category> response = new PaginationResponse<>(pageResult);
         return new ResponseEntity<>(response, HttpStatus.PARTIAL_CONTENT);
     }

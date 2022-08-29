@@ -9,6 +9,7 @@ import com.sdm.core.model.MailHeader;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.service.MailService;
 import com.sdm.core.util.Globalizer;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

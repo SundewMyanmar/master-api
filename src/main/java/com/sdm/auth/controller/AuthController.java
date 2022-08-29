@@ -4,24 +4,40 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.admin.model.User;
 import com.sdm.admin.repository.UserRepository;
-import com.sdm.auth.model.request.*;
-import com.sdm.auth.service.*;
+import com.sdm.auth.model.request.ActivateRequest;
+import com.sdm.auth.model.request.AuthRequest;
+import com.sdm.auth.model.request.ChangePasswordRequest;
+import com.sdm.auth.model.request.ForgetPasswordRequest;
+import com.sdm.auth.model.request.OAuth2Request;
+import com.sdm.auth.model.request.RegistrationRequest;
+import com.sdm.auth.service.AppleAuthService;
+import com.sdm.auth.service.AuthMailService;
+import com.sdm.auth.service.AuthService;
+import com.sdm.auth.service.FacebookAuthService;
+import com.sdm.auth.service.GoogleAuthService;
 import com.sdm.core.Constants;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.security.SecurityManager;
 import com.sdm.core.util.LocaleManager;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.validation.Valid;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")

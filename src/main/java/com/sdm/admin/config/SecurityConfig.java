@@ -8,6 +8,7 @@ import com.sdm.core.security.jwt.JwtAuthenticationHandler;
 import com.sdm.core.security.jwt.JwtUnauthorizeHandler;
 import com.sdm.core.service.ClientService;
 import com.sdm.core.util.Globalizer;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,7 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/auth/**",
             "/mfa/resend",
 
-            //Don't forget to remove in Production Mode
+            // Don't forget to remove in Production Mode
             "/setup",
             "/util/**",
             "/webjars/**",
@@ -128,8 +129,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers(SYSTEM_WHITE_LIST).permitAll()
                         .antMatchers(USER_PERMISSION_LIST).hasAuthority(Constants.Auth.DEFAULT_USER_ROLE)
                         .antMatchers(ROOT_PERMISSION_LIST).hasAuthority(Constants.Auth.ROOT_ROLE)
-                        .anyRequest().access("@permissionHandler.check(authentication, request)")
-                );
+                        .anyRequest().access("@permissionHandler.check(authentication, request)"));
 
         if (securityManager.getProperties().isCsrfEnable()) {
             http.csrf().csrfTokenRepository(this.getCsrfTokenRepository());
@@ -137,6 +137,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             http.csrf().disable();
         }
     }
-
 
 }

@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.HttpResponse;
 import com.sdm.core.security.SecurityManager;
-import com.sdm.core.util.ISettingManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.HttpRequestManager;
+import com.sdm.core.util.ISettingManager;
 import com.sdm.core.util.LocaleManager;
 import com.sdm.payment.config.properties.AYAPayProperties;
 import com.sdm.payment.exception.CallbackException;
@@ -17,13 +17,11 @@ import com.sdm.payment.model.response.ayapay.AYAMerchangeLoginResponse;
 import com.sdm.payment.model.response.ayapay.AYAPayCallbackData;
 import com.sdm.payment.model.response.ayapay.AYAPaymentResponse;
 import com.sdm.payment.model.response.ayapay.AYATokenResponse;
-import lombok.extern.log4j.Log4j2;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -33,6 +31,11 @@ import java.security.Security;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Service

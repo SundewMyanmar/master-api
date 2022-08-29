@@ -1,9 +1,9 @@
 package com.sdm.core.security;
 
 import com.sdm.core.config.properties.CorsProperties;
-import com.sdm.core.util.ISettingManager;
 import com.sdm.core.util.Globalizer;
-import lombok.extern.log4j.Log4j2;
+import com.sdm.core.util.ISettingManager;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
+
+import lombok.extern.log4j.Log4j2;
 
 @Component
 @Log4j2

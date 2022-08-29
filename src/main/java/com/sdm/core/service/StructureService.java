@@ -5,18 +5,31 @@ import com.sdm.core.Constants;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.ModelInfo;
 import com.sdm.core.util.Globalizer;
-import lombok.extern.log4j.Log4j2;
+
 import org.springframework.stereotype.Service;
 
-import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Embedded;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2

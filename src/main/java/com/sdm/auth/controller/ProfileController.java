@@ -19,19 +19,27 @@ import com.sdm.core.util.BarCodeManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.storage.model.File;
 import com.sdm.storage.service.FileService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.lang.reflect.Field;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.lang.reflect.Field;
-import java.util.List;
 
 @Controller
 @RequestMapping("/me")
@@ -100,16 +108,16 @@ public class ProfileController extends DefaultController {
     public ResponseEntity<User> uploadFile(@RequestParam("profileImage") List<MultipartFile> files) {
         User existUser = this.checkMe();
 
-        Field profileImageField= null;
-        FileClassification annotation=null;
+        Field profileImageField = null;
+        FileClassification annotation = null;
         try {
             profileImageField = User.class.getDeclaredField("profileImage");
-            annotation=profileImageField.getAnnotation(FileClassification.class);
+            annotation = profileImageField.getAnnotation(FileClassification.class);
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
         if (files.size() > 0) {
-            File file = fileService.create(files.get(0), null,annotation);
+            File file = fileService.create(files.get(0), null, annotation);
             existUser.setProfileImage(file);
             userRepository.save(existUser);
         }
@@ -119,7 +127,8 @@ public class ProfileController extends DefaultController {
     @PostMapping("/changePassword")
     public ResponseEntity<User> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         String phoneOrEmail = request.getUser();
-        if (Globalizer.isPhoneNo(phoneOrEmail)) phoneOrEmail = Globalizer.cleanPhoneNo(phoneOrEmail);
+        if (Globalizer.isPhoneNo(phoneOrEmail))
+            phoneOrEmail = Globalizer.cleanPhoneNo(phoneOrEmail);
 
         User user = userRepository.findFirstByPhoneNumberOrEmail(phoneOrEmail, phoneOrEmail).orElseThrow(
                 () -> new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-user-account")));

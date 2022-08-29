@@ -6,7 +6,12 @@ import com.sdm.admin.model.User;
 import com.sdm.admin.repository.RoleRepository;
 import com.sdm.admin.repository.UserRepository;
 import com.sdm.auth.model.MultiFactorAuth;
-import com.sdm.auth.model.request.*;
+import com.sdm.auth.model.request.ActivateRequest;
+import com.sdm.auth.model.request.AnonymousRequest;
+import com.sdm.auth.model.request.AuthRequest;
+import com.sdm.auth.model.request.ChangePasswordRequest;
+import com.sdm.auth.model.request.ForgetPasswordRequest;
+import com.sdm.auth.model.request.RegistrationRequest;
 import com.sdm.core.Constants;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.MessageResponse;
@@ -17,7 +22,7 @@ import com.sdm.storage.service.FileService;
 import com.sdm.telenor.model.request.telenor.MessageType;
 import com.sdm.telenor.service.PhoneVerificationService;
 import com.sdm.telenor.service.TelenorSmsService;
-import lombok.extern.log4j.Log4j2;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +30,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2

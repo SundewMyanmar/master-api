@@ -2,9 +2,9 @@ package com.sdm.inventory.controller;
 
 import com.sdm.core.controller.DefaultReadWriteController;
 import com.sdm.core.db.repository.DefaultRepository;
-import com.sdm.inventory.model.Attribute;
 import com.sdm.inventory.model.Product;
 import com.sdm.inventory.repository.ProductRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -28,10 +28,10 @@ public class ProductController extends DefaultReadWriteController<Product, Integ
     }
 
     @GetMapping("/barcodes")
-    ResponseEntity<List<String>> getBarcodeTypes(){
-        List<String> result=new ArrayList<>();
+    ResponseEntity<List<String>> getBarcodeTypes() {
+        List<String> result = new ArrayList<>();
         EnumSet.allOf(Product.BarcodeType.class)
-                .forEach(type->result.add(type.toString()));
+                .forEach(type -> result.add(type.toString()));
         return ResponseEntity.ok(result);
     }
 }

@@ -3,7 +3,7 @@ package com.sdm.core.service;
 import com.sdm.core.Constants;
 import com.sdm.core.model.MailHeader;
 import com.sdm.core.util.Globalizer;
-import lombok.extern.log4j.Log4j2;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,6 +14,8 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import java.util.Map;
+
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2

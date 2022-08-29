@@ -1,16 +1,17 @@
 package com.sdm.core.config.properties;
 
 import com.sdm.core.util.annotation.SettingFile;
+
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@SettingFile(value="security-config.json",icon="security")
+@SettingFile(value = "security-config.json", icon = "security")
 public class SecurityProperties {
     private Set<Integer> ownerIds = Set.of(1);
 

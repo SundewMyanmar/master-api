@@ -20,7 +20,6 @@ import com.sdm.storage.model.File;
 import com.sdm.storage.service.FileService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -77,7 +76,7 @@ public class FacebookAuthService implements SocialAuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private FacebookProperties getProperties(){
+    private FacebookProperties getProperties() {
         FacebookProperties properties = new FacebookProperties();
         try {
             properties = settingManager.loadSetting(FacebookProperties.class);
@@ -134,11 +133,11 @@ public class FacebookAuthService implements SocialAuthService {
                 if (pictureDataObj.has("url")) {
                     String pictureUrl = pictureDataObj.get("url").getAsString();
                     try {
-                        Field profileImageField= null;
-                        FileClassification annotation=null;
+                        Field profileImageField = null;
+                        FileClassification annotation = null;
                         try {
                             profileImageField = User.class.getDeclaredField("profileImage");
-                            annotation=profileImageField.getAnnotation(FileClassification.class);
+                            annotation = profileImageField.getAnnotation(FileClassification.class);
                         } catch (NoSuchFieldException e) {
                             e.printStackTrace();
                         }

@@ -12,29 +12,31 @@ import com.sdm.core.security.SecurityManager;
 import com.sdm.core.security.jwt.JwtAuthenticationHandler;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.LocaleManager;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.WebUtils;
+
+import java.time.Duration;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.crypto.SecretKey;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.WebUtils;
-
-import javax.crypto.SecretKey;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.time.Duration;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 
 @Service("jwtAuthHandler")
 @Log4j2
@@ -70,7 +72,7 @@ public class JwtService implements JwtAuthenticationHandler {
         Cookie clientToken = WebUtils.getCookie(request, CLIENT_TOKEN);
 
         //If doesn't include client token, it should be invalid jwt audience. So generate random UUID
-        if(Globalizer.isNullOrEmpty(clientToken)){
+        if (Globalizer.isNullOrEmpty(clientToken)) {
             return UUID.randomUUID().toString();
         }
 
@@ -156,14 +158,14 @@ public class JwtService implements JwtAuthenticationHandler {
         Cookie tokenCookie = WebUtils.getCookie(request, CLIENT_TOKEN);
         String token = (tokenCookie != null) ? tokenCookie.getValue() : "";
 
-        if(Globalizer.isNullOrEmpty(token)){
+        if (Globalizer.isNullOrEmpty(token)) {
             tokenCookie = new Cookie(CLIENT_TOKEN, UUID.randomUUID().toString());
             if (!Globalizer.isNullOrEmpty(securityManager.getProperties().getCookieDomain())) {
                 tokenCookie.setDomain(securityManager.getProperties().getCookieDomain());
             }
             if (!Globalizer.isNullOrEmpty(securityManager.getProperties().getCookiePath())) {
                 tokenCookie.setPath(securityManager.getProperties().getCookiePath());
-            }else {
+            } else {
                 tokenCookie.setPath("/");
             }
 

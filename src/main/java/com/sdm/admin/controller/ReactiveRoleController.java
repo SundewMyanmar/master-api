@@ -6,10 +6,15 @@ import com.sdm.admin.service.ReactiveRoleService;
 import com.sdm.core.controller.DefaultReadWriteController;
 import com.sdm.core.db.repository.DefaultRepository;
 import com.sdm.core.model.response.PaginationResponse;
+
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Locale;
 
@@ -33,15 +38,15 @@ public class ReactiveRoleController extends DefaultReadWriteController<Role, Int
     }
 
     @GetMapping("/all")
-    private Publisher<ResponseEntity<Role>> getAllRoles(){
+    private Publisher<ResponseEntity<Role>> getAllRoles() {
         return service.getHttpFindAll();
     }
 
     @GetMapping("/paging")
     private Publisher<ResponseEntity<PaginationResponse<Role>>> getPaging(@RequestParam(value = "page", defaultValue = "0") int page,
-                                                                           @RequestParam(value = "size", defaultValue = "10") int pageSize,
-                                                                           @RequestParam(value = "filter", defaultValue = "") String filter,
-                                                                           @RequestParam(value = "sort", defaultValue = "id:DESC") String sort){
+                                                                          @RequestParam(value = "size", defaultValue = "10") int pageSize,
+                                                                          @RequestParam(value = "filter", defaultValue = "") String filter,
+                                                                          @RequestParam(value = "sort", defaultValue = "id:DESC") String sort) {
         return service.paging(this.buildPagination(page, pageSize, sort), "%" + filter.toLowerCase(Locale.ROOT) + "%");
     }
 }

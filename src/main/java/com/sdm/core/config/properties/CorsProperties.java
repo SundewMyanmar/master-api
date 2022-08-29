@@ -1,18 +1,15 @@
 package com.sdm.core.config.properties;
 
 import com.sdm.core.util.annotation.SettingFile;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.boot.convert.DurationUnit;
-
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@SettingFile(value="cors-config.json",icon="settings_input_composite")
+@SettingFile(value = "cors-config.json", icon = "settings_input_composite")
 public class CorsProperties {
     private String[] allowedOriginPatterns;
 

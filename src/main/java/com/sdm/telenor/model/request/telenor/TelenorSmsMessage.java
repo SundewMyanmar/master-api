@@ -1,15 +1,17 @@
 package com.sdm.telenor.model.request.telenor;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor

@@ -6,10 +6,11 @@
 package com.sdm.core.util;
 
 import com.sdm.core.Constants;
+
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.SerializationUtils;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
@@ -17,15 +18,24 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Htoonlin
  */
 public class Globalizer {
+
     private final static Set<Class<?>> NUMBER_REFLECTED_PRIMITIVES;
+
     static {
         Set<Class<?>> s = new HashSet<>();
         s.add(byte.class);
@@ -37,8 +47,15 @@ public class Globalizer {
         NUMBER_REFLECTED_PRIMITIVES = s;
     }
 
-    public static Object clone(Object obj){
-        return org.apache.commons.lang3.ObjectUtils.cloneIfPossible(obj);
+    /**
+     * Clone Object Deeply
+     *
+     * @param obj
+     * @return
+     */
+    public static Object cloneObject(Object obj) {
+        byte[] data = SerializationUtils.serialize(obj);
+        return SerializationUtils.deserialize(data);
     }
 
     public static boolean isNumber(Class<?> type) {
@@ -53,8 +70,7 @@ public class Globalizer {
     public static String formatPrice(Double amount) {
         if (amount == null) amount = 0.0;
         //DecimalFormat formatter = new DecimalFormat("#,###.00");
-        DecimalFormat formatter = new DecimalFormat("#,###");
-        return formatter.format(amount);
+        return formatDecimal("#,###", amount);
     }
 
     public static String camelToReadable(String input) {

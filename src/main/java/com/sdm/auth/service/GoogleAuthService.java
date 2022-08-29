@@ -18,7 +18,7 @@ import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.LocaleManager;
 import com.sdm.storage.model.File;
 import com.sdm.storage.service.FileService;
-import lombok.extern.log4j.Log4j2;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,16 +27,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
@@ -114,11 +116,11 @@ public class GoogleAuthService implements SocialAuthService {
 
         if (pictureUrl != null) {
             try {
-                Field profileImageField= null;
-                FileClassification annotation=null;
+                Field profileImageField = null;
+                FileClassification annotation = null;
                 try {
                     profileImageField = User.class.getDeclaredField("profileImage");
-                    annotation=profileImageField.getAnnotation(FileClassification.class);
+                    annotation = profileImageField.getAnnotation(FileClassification.class);
                 } catch (NoSuchFieldException e) {
                     e.printStackTrace();
                 }

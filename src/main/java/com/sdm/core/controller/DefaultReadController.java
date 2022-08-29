@@ -9,12 +9,10 @@ import com.sdm.core.model.AdvancedFilter;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.ModelInfo;
 import com.sdm.core.model.SundewAuditEntity;
-import com.sdm.core.model.annotation.FileClassification;
-import com.sdm.core.model.annotation.Searchable;
 import com.sdm.core.model.response.ListResponse;
 import com.sdm.core.model.response.PaginationResponse;
 import com.sdm.core.service.StructureService;
-import lombok.extern.log4j.Log4j2;
+
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.query.AuditEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,21 +22,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import javax.validation.Valid;
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import javax.validation.Valid;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public abstract class DefaultReadController<T extends DefaultEntity, ID extends Serializable> extends DefaultController implements ReadController<T, ID> {

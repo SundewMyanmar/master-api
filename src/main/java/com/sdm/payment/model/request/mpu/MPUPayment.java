@@ -1,15 +1,22 @@
 package com.sdm.payment.model.request.mpu;
 
 import com.sdm.core.model.DefaultEntity;
+
+import org.hibernate.annotations.Where;
+
+import java.util.UUID;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.validation.constraints.Size;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.hibernate.annotations.Where;
-
-import javax.persistence.*;
-import javax.validation.constraints.Size;
-import java.util.UUID;
 
 
 @Entity(name = "MPUPaymentEntity")

@@ -2,12 +2,14 @@ package com.sdm.payment.model.request.uabpay;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.io.Serializable;
+
+import javax.validation.constraints.Size;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.validation.constraints.Size;
-import java.io.Serializable;
 
 @Data
 @AllArgsConstructor

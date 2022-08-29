@@ -10,12 +10,7 @@ import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.LocaleManager;
 import com.sdm.telenor.model.request.telenor.MessageType;
 import com.sdm.telenor.service.TelenorSmsService;
-import dev.samstevens.totp.code.CodeGenerator;
-import dev.samstevens.totp.code.CodeVerifier;
-import dev.samstevens.totp.qr.QrData;
-import dev.samstevens.totp.qr.QrDataFactory;
-import dev.samstevens.totp.recovery.RecoveryCodeGenerator;
-import dev.samstevens.totp.secret.SecretGenerator;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -25,6 +20,13 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Date;
 import java.util.Optional;
+
+import dev.samstevens.totp.code.CodeGenerator;
+import dev.samstevens.totp.code.CodeVerifier;
+import dev.samstevens.totp.qr.QrData;
+import dev.samstevens.totp.qr.QrDataFactory;
+import dev.samstevens.totp.recovery.RecoveryCodeGenerator;
+import dev.samstevens.totp.secret.SecretGenerator;
 
 @Service
 public class MultiFactorAuthService {

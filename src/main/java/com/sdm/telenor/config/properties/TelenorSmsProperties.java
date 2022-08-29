@@ -2,8 +2,9 @@ package com.sdm.telenor.config.properties;
 
 
 import com.sdm.core.util.Globalizer;
-import com.sdm.core.util.annotation.SettingFile;
 import com.sdm.core.util.annotation.Encrypt;
+import com.sdm.core.util.annotation.SettingFile;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@SettingFile(value="telenor-sms-config.json",icon="message_processing")
+@SettingFile(value = "telenor-sms-config.json", icon = "message_processing")
 public class TelenorSmsProperties {
     private String apiUrl = "https://prod-apigw.mytelenor.com.mm/";
     @Encrypt

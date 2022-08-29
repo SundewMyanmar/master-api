@@ -5,7 +5,7 @@ import com.sdm.core.model.AuthInfo;
 import com.sdm.core.model.annotation.FileClassification;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.LocaleManager;
-import lombok.extern.log4j.Log4j2;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,20 +17,22 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.log4j.Log4j2;
+
 @Log4j2
 public class DefaultController {
 
     @Autowired
     protected LocaleManager localeManager;
 
-    protected FileClassification getFileClassification(Class<?> entityClass, String fieldName){
+    protected FileClassification getFileClassification(Class<?> entityClass, String fieldName) {
         try {
             Field field = entityClass.getDeclaredField(fieldName);
             if (!field.isAnnotationPresent(FileClassification.class)) {
                 throw new GeneralException(HttpStatus.BAD_REQUEST, "There is no file classification.");
             }
             return field.getAnnotation(FileClassification.class);
-        }catch(NoSuchFieldException fieldException){
+        } catch (NoSuchFieldException fieldException) {
             throw new GeneralException(HttpStatus.BAD_REQUEST, "Invalid field name.");
         }
     }

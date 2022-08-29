@@ -21,7 +21,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -58,7 +57,7 @@ public class Report extends DefaultEntity {
     private Set<Role> roles;
 
     @Override
-    public String getId(){
+    public String getId() {
         return this.id;
     }
 }

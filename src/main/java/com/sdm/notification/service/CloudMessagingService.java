@@ -8,28 +8,39 @@ package com.sdm.notification.service;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.firebase.messaging.*;
+import com.google.firebase.messaging.AndroidConfig;
+import com.google.firebase.messaging.AndroidNotification;
+import com.google.firebase.messaging.ApnsConfig;
+import com.google.firebase.messaging.Aps;
+import com.google.firebase.messaging.BatchResponse;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.MulticastMessage;
+import com.google.firebase.messaging.SendResponse;
+import com.google.firebase.messaging.WebpushConfig;
+import com.google.firebase.messaging.WebpushNotification;
 import com.sdm.core.util.Globalizer;
 import com.sdm.notification.model.Notification;
 import com.sdm.notification.repository.NotificationRepository;
-import lombok.extern.log4j.Log4j2;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
+
+import lombok.extern.log4j.Log4j2;
 
 /**
  * @author htoonlin
@@ -49,10 +60,10 @@ public class CloudMessagingService {
     private FirebaseApp firebaseApp;
 
     @PostConstruct
-    public void init(){
+    public void init() {
         try {
             File jsonFile = ResourceUtils.getFile(FIREBASE_JSON_FILE_NAME);
-            try(FileInputStream jsonStream = new FileInputStream(jsonFile)){
+            try (FileInputStream jsonStream = new FileInputStream(jsonFile)) {
                 FirebaseOptions options = FirebaseOptions.builder()
                         .setCredentials(GoogleCredentials.fromStream(jsonStream))
                         .build();
@@ -60,7 +71,7 @@ public class CloudMessagingService {
             } catch (IOException ex) {
                 log.warn(ex.getLocalizedMessage(), ex);
             }
-        } catch (FileNotFoundException ex){
+        } catch (FileNotFoundException ex) {
             log.warn(ex.getLocalizedMessage());
         }
     }

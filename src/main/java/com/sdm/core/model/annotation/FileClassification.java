@@ -9,6 +9,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface FileClassification {
     String guild() default "";
+
     boolean isHidden() default false;
+
     boolean isPublic() default false;
 }

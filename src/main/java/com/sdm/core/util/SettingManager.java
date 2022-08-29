@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.config.PropertyConfig;
 import com.sdm.core.util.annotation.Encrypt;
 import com.sdm.core.util.annotation.SettingFile;
-import lombok.extern.log4j.Log4j2;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,8 +20,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import lombok.extern.log4j.Log4j2;
 
 
 @Service
@@ -49,78 +55,78 @@ public class SettingManager implements ISettingManager {
         }
     }
 
-    private String  getSettingType(Class<?> type){
-        if(Globalizer.isNumber(type) || type.equals(Duration.class))return "NUMBER";
-        else if(type.equals(Boolean.class) || type.equals(boolean.class)) return "BOOL";
-        else if(type.isArray()) return "LIST";
-        else if(Collection.class.isAssignableFrom(type) ||
-                Map.class.isAssignableFrom(type)||
-                Set.class.isAssignableFrom(type))return "MAP";
+    private String getSettingType(Class<?> type) {
+        if (Globalizer.isNumber(type) || type.equals(Duration.class)) return "NUMBER";
+        else if (type.equals(Boolean.class) || type.equals(boolean.class)) return "BOOL";
+        else if (type.isArray()) return "LIST";
+        else if (Collection.class.isAssignableFrom(type) ||
+                Map.class.isAssignableFrom(type) ||
+                Set.class.isAssignableFrom(type)) return "MAP";
         else return "TEXT";
     }
 
     private Object getValue(Field field, Class<?> cls, Object data) throws IllegalAccessException {
-        if(data==null)return null;
+        if (data == null) return null;
 
         Object value;
-        if(cls.equals(data.getClass()))
+        if (cls.equals(data.getClass()))
             value = field.get(data);
         else
-            value=((Map<String,Object>)data).get(field.getName());
+            value = ((Map<String, Object>) data).get(field.getName());
         return value;
     }
 
     private void setValue(Field field, Class<?> cls, Object data, Object value) throws IllegalAccessException {
-        if(cls.equals(data.getClass()))
+        if (cls.equals(data.getClass()))
             field.set(data, value);
         else
-            ((Map<String,Object>)data).put(field.getName(),value);
+            ((Map<String, Object>) data).put(field.getName(), value);
     }
 
-    private void decryptField(Class<?> cls,Field field,Object data,Map<String,Object> resultMap) throws IllegalAccessException {
-        if(field.isAnnotationPresent(Encrypt.class)){
-            if(resultMap!=null)
-                resultMap.put("encrypt",true);
+    private void decryptField(Class<?> cls, Field field, Object data, Map<String, Object> resultMap) throws IllegalAccessException {
+        if (field.isAnnotationPresent(Encrypt.class)) {
+            if (resultMap != null)
+                resultMap.put("encrypt", true);
 
             Object value;
-            if(data==null)value=null;
-            else if(cls.equals(data.getClass()))
+            if (data == null) value = null;
+            else if (cls.equals(data.getClass()))
                 value = field.get(data);
             else
-                value=((Map<String,Object>)data).get(field.getName());
+                value = ((Map<String, Object>) data).get(field.getName());
 
-            if(value!=null){
-                if(value.toString().startsWith("ENC(")){
-                    value=value.toString()
-                            .replace("ENC(","")
-                            .replace(")","");
-                    value=appConfig.stringEncryptor().decrypt(value.toString());
+            if (value != null) {
+                if (value.toString().startsWith("ENC(")) {
+                    value = value.toString()
+                            .replace("ENC(", "")
+                            .replace(")", "");
+                    value = appConfig.stringEncryptor().decrypt(value.toString());
                 }
 
-                field.set(data,value);
+                field.set(data, value);
             }
         }
     }
 
-    private Map<String,Object> buildField(Class<?> cls, Field field, Object data) throws IllegalAccessException {
-        Map<String,Object> resultMap=new HashMap<>();
-        resultMap.put("id",field.getName());
-        resultMap.put("name",field.getName());
-        resultMap.put("type",getSettingType(field.getType()));
-        resultMap.put("label",Globalizer.camelToReadable(field.getName()));
-        decryptField(cls,field,data,resultMap);
+    private Map<String, Object> buildField(Class<?> cls, Field field, Object data) throws IllegalAccessException {
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("id", field.getName());
+        resultMap.put("name", field.getName());
+        resultMap.put("type", getSettingType(field.getType()));
+        resultMap.put("label", Globalizer.camelToReadable(field.getName()));
+        decryptField(cls, field, data, resultMap);
         return resultMap;
     }
 
     @Override
-    public List<Map<String,Object>> buildStructure(Class<?> cls, Object data) throws IllegalAccessException {
-        List<Map<String,Object>> result=new ArrayList<>();
-        for(Field field:cls.getDeclaredFields()){
-            if(field.getName().equals("log"))continue;
+    public List<Map<String, Object>> buildStructure(Class<?> cls, Object data) throws IllegalAccessException {
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Field field : cls.getDeclaredFields()) {
+            if (field.getName().equals("log")) continue;
 
             field.setAccessible(true);
 
-            Map<String,Object> fieldMap=this.buildField(cls, field, data);
+            Map<String, Object> fieldMap = this.buildField(cls, field, data);
             result.add(fieldMap);
         }
         return result;
@@ -136,22 +142,22 @@ public class SettingManager implements ISettingManager {
             Class<?> cls = Class.forName(bean.getBeanClassName());
             SettingFile settingFile = getSettingFile(cls);
 
-            Object data=null;
+            Object data = null;
             try {
                 String settings = loadSetting(bean.getBeanClassName());
-                data=objectMapper.readValue(settings,cls);
+                data = objectMapper.readValue(settings, cls);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
             var structure = this.buildStructure(cls, data);
             Map<String, Object> structMap = new HashMap<>();
-            structMap.put("structure",structure);
-            structMap.put("fullName",bean.getBeanClassName());
-            structMap.put("name",cls.getSimpleName());
-            structMap.put("label",Globalizer.camelToReadable(cls.getSimpleName()));
-            structMap.put("icon",settingFile.icon());
-            structMap.put("data",data);
+            structMap.put("structure", structure);
+            structMap.put("fullName", bean.getBeanClassName());
+            structMap.put("name", cls.getSimpleName());
+            structMap.put("label", Globalizer.camelToReadable(cls.getSimpleName()));
+            structMap.put("icon", settingFile.icon());
+            structMap.put("data", data);
             result.add(structMap);
         }
         return result;
@@ -164,7 +170,7 @@ public class SettingManager implements ISettingManager {
         return booleanResult ? file : null;
     }
 
-    private SettingFile getSettingFile(Class<?> refClass){
+    private SettingFile getSettingFile(Class<?> refClass) {
         if (!refClass.isAnnotationPresent(SettingFile.class)) {
             throw new RuntimeException("Can't find setting info.");
         }
@@ -172,7 +178,7 @@ public class SettingManager implements ISettingManager {
     }
 
     public SettingFile getSettingFile(String className) throws ClassNotFoundException {
-        Class<?> refClass=Class.forName(className);
+        Class<?> refClass = Class.forName(className);
         return getSettingFile(refClass);
     }
 
@@ -183,18 +189,18 @@ public class SettingManager implements ISettingManager {
 
     @Override
     public String loadSetting(String className) throws IOException, ClassNotFoundException {
-        SettingFile settingFile=this.getSettingFile(className);
-        Path settingPath=Path.of(settingRootPath, settingFile.value());
-        this.createIfNotExist(settingFile.value(),settingPath,Class.forName(className));
+        SettingFile settingFile = this.getSettingFile(className);
+        Path settingPath = Path.of(settingRootPath, settingFile.value());
+        this.createIfNotExist(settingFile.value(), settingPath, Class.forName(className));
         return this.loadSetting(Path.of(settingRootPath, settingFile.value()));
     }
 
-    private void createIfNotExist(String setting,Path settingPath, Class<?> refClass){
-        if(!Files.exists(settingPath)){
+    private void createIfNotExist(String setting, Path settingPath, Class<?> refClass) {
+        if (!Files.exists(settingPath)) {
             try {
                 Object data = refClass.getDeclaredConstructor().newInstance();
                 this.write(setting, data, refClass);
-            }catch(IOException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ex){
+            } catch (IOException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ex) {
                 log.warn(ex.getLocalizedMessage());
             }
         }
@@ -203,16 +209,16 @@ public class SettingManager implements ISettingManager {
     @Override
     public <T> T loadSetting(String setting, Class<T> refClass) throws IOException, IllegalAccessException {
         Path settingPath = Path.of(settingRootPath, setting);
-        this.createIfNotExist(setting,settingPath,refClass);
+        this.createIfNotExist(setting, settingPath, refClass);
         String resultString = this.loadSetting(settingPath);
         if (Globalizer.isNullOrEmpty(resultString))
             resultString = "{}";
 
-        T result=objectMapper.readValue(resultString, refClass);
+        T result = objectMapper.readValue(resultString, refClass);
 
-        for(Field field:refClass.getDeclaredFields()){
+        for (Field field : refClass.getDeclaredFields()) {
             field.setAccessible(true);
-            decryptField(refClass,field,result,null);
+            decryptField(refClass, field, result, null);
         }
         return result;
     }
@@ -223,15 +229,15 @@ public class SettingManager implements ISettingManager {
         return this.loadSetting(settingFile.value(), refClass);
     }
 
-    private Object write(String filePath,Object data, Class<?> refClass) throws IOException, IllegalAccessException {
-        Object newData=Globalizer.clone(data);
-        
-        for(Field field:refClass.getDeclaredFields()) {
+    private Object write(String filePath, Object data, Class<?> refClass) throws IOException, IllegalAccessException {
+        Object newData = Globalizer.cloneObject(data);
+
+        for (Field field : refClass.getDeclaredFields()) {
             if (field.getName().equals("log") || !field.isAnnotationPresent(Encrypt.class))
                 continue;
 
             field.setAccessible(true);
-            Object value=this.getValue(field,refClass,newData);
+            Object value = this.getValue(field, refClass, newData);
 
             if (value instanceof Collection) {
                 List<String> values = ((Collection<?>) value).stream()
@@ -242,7 +248,7 @@ public class SettingManager implements ISettingManager {
             try {
                 if (!Globalizer.isNullOrEmpty(value) && !value.toString().startsWith("ENC(")) {
                     String encryptValue = "ENC(" + appConfig.stringEncryptor().encrypt(value.toString()) + ")";
-                    this.setValue(field,refClass,newData,encryptValue);
+                    this.setValue(field, refClass, newData, encryptValue);
                 }
             } catch (Exception ex) {
                 log.warn("Invalid value!");
@@ -261,9 +267,9 @@ public class SettingManager implements ISettingManager {
 
     @Override
     public Object writeSetting(String className, Object data) throws IOException, ClassNotFoundException, IllegalAccessException {
-        Class<?> refClass=Class.forName(className);
-        SettingFile setting=this.getSettingFile(refClass);
-        return this.write(setting.value(),data,refClass);
+        Class<?> refClass = Class.forName(className);
+        SettingFile setting = this.getSettingFile(refClass);
+        return this.write(setting.value(), data, refClass);
     }
 
     @Override
@@ -272,6 +278,6 @@ public class SettingManager implements ISettingManager {
             throw new RuntimeException("Can't find setting info.");
         }
         SettingFile settingFile = refClass.getAnnotation(SettingFile.class);
-        this.write(settingFile.value(), setting,refClass);
+        this.write(settingFile.value(), setting, refClass);
     }
 }

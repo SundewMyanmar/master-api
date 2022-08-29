@@ -8,6 +8,7 @@ import com.sdm.storage.model.File;
 import com.sdm.storage.model.Folder;
 import com.sdm.storage.repository.FileRepository;
 import com.sdm.storage.repository.FolderRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +35,8 @@ public class FolderController extends DefaultReadWriteController<Folder, Integer
     }
 
     @GetMapping("/root")
-    public ResponseEntity<ListResponse<Folder>> getSystemMenuTree(@DefaultValue("") @RequestParam("filter") String filter,@RequestParam(value="guild", defaultValue="") String guild) {
-        var results = repository.findParentMenu(filter,guild);
+    public ResponseEntity<ListResponse<Folder>> getSystemMenuTree(@DefaultValue("") @RequestParam("filter") String filter, @RequestParam(value = "guild", defaultValue = "") String guild) {
+        var results = repository.findParentMenu(filter, guild);
         return ResponseEntity.ok(new ListResponse<>(results));
     }
 

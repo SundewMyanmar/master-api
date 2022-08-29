@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.HttpResponse;
 import com.sdm.core.security.SecurityManager;
-import com.sdm.core.util.ISettingManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.HttpRequestManager;
+import com.sdm.core.util.ISettingManager;
 import com.sdm.core.util.LocaleManager;
 import com.sdm.payment.config.properties.OnePayProperties;
 import com.sdm.payment.exception.CallbackException;
@@ -16,8 +16,13 @@ import com.sdm.payment.model.request.onepay.OnePayCheckTransactionRequest;
 import com.sdm.payment.model.request.onepay.OnePayDirectPaymentRequest;
 import com.sdm.payment.model.request.onepay.OnePayResponseDirectPaymentRequest;
 import com.sdm.payment.model.request.onepay.OnePayVerifyPhRequest;
-import com.sdm.payment.model.response.onepay.*;
-import lombok.extern.log4j.Log4j2;
+import com.sdm.payment.model.response.onepay.ApiResponseStatus;
+import com.sdm.payment.model.response.onepay.OnePayCheckTransactionResponse;
+import com.sdm.payment.model.response.onepay.OnePayDirectPaymentResponse;
+import com.sdm.payment.model.response.onepay.OnePayResponseDirectPaymentResponse;
+import com.sdm.payment.model.response.onepay.OnePayVerifyPhResponse;
+import com.sdm.payment.model.response.onepay.TransactionStatus;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -28,6 +33,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2

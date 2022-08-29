@@ -9,26 +9,22 @@ import com.sdm.storage.model.File;
 import com.sdm.storage.repository.FileRepository;
 import com.sdm.storage.repository.FolderRepository;
 
-import lombok.extern.log4j.Log4j2;
-
 import net.coobird.thumbnailator.Thumbnails;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.*;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.spi.ImageReaderSpi;
 
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
@@ -36,7 +32,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -47,6 +42,12 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.spi.ImageReaderSpi;
+
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
@@ -75,8 +76,8 @@ public class FileService implements StorageManager {
 
     private final String DEFAULT_FILE_NAME = "UPLOADED_FILE";
 
-    public FileClassification getInstanceFileClassification(final String guild, final boolean isPublic, final boolean isHidden){
-        return new FileClassification(){
+    public FileClassification getInstanceFileClassification(final String guild, final boolean isPublic, final boolean isHidden) {
+        return new FileClassification() {
             @Override
             public Class<? extends Annotation> annotationType() {
                 return FileClassification.class;
@@ -140,7 +141,7 @@ public class FileService implements StorageManager {
 
         for (File.ImageSize size : File.ImageSize.values()) {
             String fileName = size.name().toLowerCase() + "." + ext;
-            java.io.File saveFile =  Path.of(storagePath, fileName).normalize().toFile();
+            java.io.File saveFile = Path.of(storagePath, fileName).normalize().toFile();
             log.info(String.format("Generating %s size image => %s", size, saveFile.getName()));
             if (size.getMaxSize() == 0) {
                 ImageIO.write(image, ext, saveFile);
@@ -219,7 +220,7 @@ public class FileService implements StorageManager {
     public void fileProcessing(InputStream inputStream, File fileEntity) throws IOException {
         String storagePath = Globalizer.getDateString("/yyyy/MM/", new Date());
         Path savePath = Paths.get(uploadRootPath, storagePath, fileEntity.getId()).normalize();
-        if(!Files.exists(savePath)){
+        if (!Files.exists(savePath)) {
             Files.createDirectories(savePath);
         }
         if (Objects.requireNonNull(fileEntity.getType()).contains("image")) {
@@ -259,7 +260,7 @@ public class FileService implements StorageManager {
             ext = nameInfo[1];
         }
 
-        if(!Globalizer.isNullOrEmpty(uploadFile.getContentType())){
+        if (!Globalizer.isNullOrEmpty(uploadFile.getContentType())) {
             contentType = uploadFile.getContentType();
         }
 
@@ -273,7 +274,7 @@ public class FileService implements StorageManager {
             fileRepository.save(rawEntity);
             return rawEntity;
 
-        }catch(IOException ex){
+        } catch (IOException ex) {
             log.warn(ex.getLocalizedMessage());
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
@@ -299,7 +300,7 @@ public class FileService implements StorageManager {
             if (downloadEntity.getType().contains("image")) {
                 String image = size.name().toLowerCase() + "." + downloadEntity.getExtension();
                 savedPath = Paths.get(uploadRootPath, storagePath, image).normalize();
-            } else if(size == File.ImageSize.original){
+            } else if (size == File.ImageSize.original) {
                 String file = DEFAULT_FILE_NAME + "." + downloadEntity.getExtension();
                 savedPath = Paths.get(uploadRootPath, storagePath, file).normalize();
             } else {

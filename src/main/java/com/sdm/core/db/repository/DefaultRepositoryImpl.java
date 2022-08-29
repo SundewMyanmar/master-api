@@ -5,7 +5,7 @@ import com.sdm.core.model.AdvancedFilter;
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Searchable;
 import com.sdm.core.util.Globalizer;
-import lombok.extern.log4j.Log4j2;
+
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -18,12 +18,25 @@ import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.regex.Pattern;
+
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
-import java.io.Serializable;
-import java.util.*;
-import java.util.regex.Pattern;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializable> extends SimpleJpaRepository<T, ID> implements DefaultRepository<T, ID> {
@@ -42,7 +55,7 @@ public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializa
         this.filterableFields = getSearchableFields(entityInformation.getJavaType());
     }
 
-    public EntityManager getEntityManager(){
+    public EntityManager getEntityManager() {
         return this.entityManager;
     }
 
@@ -136,7 +149,7 @@ public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializa
         }
     }
 
-    public Map<String,CriteriaQuery<?>> findAllQuery(String filter, Pageable pageable){
+    public Map<String, CriteriaQuery<?>> findAllQuery(String filter, Pageable pageable) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 
         CriteriaQuery<T> cQuery = builder.createQuery(this.getDomainClass());
@@ -166,9 +179,9 @@ public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializa
         if (countPredicates.size() > 0)
             countQuery.where(builder.or(countPredicates.toArray(new Predicate[countPredicates.size()])));
 
-        Map<String,CriteriaQuery<?>> result=new HashMap<>();
-        result.put("data-query",cQuery);
-        result.put("count-query",countQuery);
+        Map<String, CriteriaQuery<?>> result = new HashMap<>();
+        result.put("data-query", cQuery);
+        result.put("count-query", countQuery);
         return result;
     }
 
@@ -178,9 +191,9 @@ public class DefaultRepositoryImpl<T extends DefaultEntity, ID extends Serializa
             return super.findAll(pageable);
         }
 
-        Map<String,CriteriaQuery<?>> map=this.findAllQuery(filter,pageable);
-        CriteriaQuery<T> cQuery=(CriteriaQuery<T>)map.get("data-query");
-        CriteriaQuery<Long> countQuery=(CriteriaQuery<Long>)map.get("count-query");
+        Map<String, CriteriaQuery<?>> map = this.findAllQuery(filter, pageable);
+        CriteriaQuery<T> cQuery = (CriteriaQuery<T>) map.get("data-query");
+        CriteriaQuery<Long> countQuery = (CriteriaQuery<Long>) map.get("count-query");
 
         Long total = entityManager.createQuery(countQuery).getSingleResult();
 

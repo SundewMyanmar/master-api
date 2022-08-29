@@ -7,14 +7,22 @@ import com.sdm.core.util.LocaleManager;
 import com.sdm.reporting.model.Report;
 import com.sdm.reporting.repository.ReportRepository;
 
-import lombok.extern.log4j.Log4j2;
-import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.export.HtmlExporter;
 import net.sf.jasperreports.engine.export.HtmlResourceHandler;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.engine.util.JRSaver;
-import net.sf.jasperreports.export.*;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleHtmlExporterOutput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
+import net.sf.jasperreports.export.SimplePdfReportConfiguration;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -28,7 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -45,6 +52,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+
+import javax.sql.DataSource;
+
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
@@ -94,55 +105,55 @@ public class JasperReportService {
                 .orElseThrow(() -> new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("no-data-by", id)));
     }
 
-    private Path getReportFile(String id, String type){
+    private Path getReportFile(String id, String type) {
         return Paths.get(reportRootPath, id + type).normalize();
     }
 
     @Transactional
-    public void uploadReport(MultipartFile reportFile, Report report){
+    public void uploadReport(MultipartFile reportFile, Report report) {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(reportFile.getOriginalFilename()));
 
         //Check file extension
         String[] fileInfo = fileName.split("\\.(?=[^\\.]+$)");
         String ext = "";
-        if(fileInfo.length > 1){
+        if (fileInfo.length > 1) {
             ext = "." + fileInfo[fileInfo.length - 1].toLowerCase(Locale.ROOT);
         }
-        if(Globalizer.isNullOrEmpty(ext) || !List.of(Suffix.DESIGN, Suffix.COMPILE).contains(ext)){
+        if (Globalizer.isNullOrEmpty(ext) || !List.of(Suffix.DESIGN, Suffix.COMPILE).contains(ext)) {
             throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("invalid-report-extension", fileName));
         }
         //Update or create report model
-        if(!Globalizer.isNullOrEmpty(report.getId())) {
+        if (!Globalizer.isNullOrEmpty(report.getId())) {
             Optional<Report> existReport = repository.findById(report.getId());
             if (existReport.isEmpty()) {
                 report.setId(UUID.randomUUID().toString());
             }
-        }else{
+        } else {
             report.setId(UUID.randomUUID().toString());
         }
 
         try {
             //Store report
             //If design, compile report
-            if(ext.equalsIgnoreCase(Suffix.DESIGN)){
+            if (ext.equalsIgnoreCase(Suffix.DESIGN)) {
                 Path designFile = getReportFile(report.getId(), Suffix.DESIGN);
                 reportFile.transferTo(designFile);
                 compileReport(report.getId());
                 report.setHasDesign(true);
-            }else {
+            } else {
                 reportFile.transferTo(getReportFile(report.getId(), Suffix.COMPILE));
             }
             repository.save(report);
-        }catch(IOException ex){
+        } catch (IOException ex) {
             log.warn(ex.getLocalizedMessage());
             throw new GeneralException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
         }
     }
 
-    public void compileReport(String id){
+    public void compileReport(String id) {
         Path designFile = getReportFile(id, Suffix.DESIGN);
         Path compileFile = getReportFile(id, Suffix.COMPILE);
-        if(Files.notExists(designFile)){
+        if (Files.notExists(designFile)) {
             log.warn("Invalid Report File Path");
             throw new GeneralException(HttpStatus.BAD_REQUEST, localeManager.getMessage("report-compiled-failed"));
         }

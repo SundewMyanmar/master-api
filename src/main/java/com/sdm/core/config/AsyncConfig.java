@@ -1,7 +1,7 @@
 package com.sdm.core.config;
 
 import com.sdm.core.exception.AsyncException;
-import lombok.extern.log4j.Log4j2;
+
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
@@ -9,6 +9,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
+
+import lombok.extern.log4j.Log4j2;
 
 @Configuration
 @EnableAsync

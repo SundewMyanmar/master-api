@@ -4,20 +4,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.response.HttpResponse;
-import com.sdm.core.util.ISettingManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.HttpRequestManager;
+import com.sdm.core.util.ISettingManager;
 import com.sdm.telenor.config.properties.TelenorSmsProperties;
 import com.sdm.telenor.model.request.telenor.MessageType;
 import com.sdm.telenor.model.request.telenor.NameType;
 import com.sdm.telenor.model.request.telenor.TelenorSmsMessage;
 import com.sdm.telenor.model.request.telenor.TelenorTokenSetting;
-import lombok.extern.log4j.Log4j2;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -27,6 +26,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.bind.DatatypeConverter;
+
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
@@ -151,7 +154,7 @@ public class TelenorSmsService {
     public Map<String, String> sendMessage(String content, String[] phones, MessageType msgType) throws IOException {
         TelenorTokenSetting setting = new TelenorTokenSetting();
         try {
-            setting= settingManager.loadSetting(TelenorTokenSetting.class);
+            setting = settingManager.loadSetting(TelenorTokenSetting.class);
         } catch (IOException | IllegalAccessException ex) {
             log.error(ex.getLocalizedMessage());
         }

@@ -7,7 +7,7 @@ import com.sdm.telenor.model.ValidPhone;
 import com.sdm.telenor.model.request.telenor.TelenorTokenSetting;
 import com.sdm.telenor.service.PhoneVerificationService;
 import com.sdm.telenor.service.TelenorSmsService;
-import lombok.extern.log4j.Log4j2;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.http.HttpStatus;
@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Controller

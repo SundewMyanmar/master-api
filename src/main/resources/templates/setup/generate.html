@@ -18,6 +18,9 @@ spring.application.name=<th:block th:text="${appName}"/>
 server.compression.enabled=true
 server.error.whitelabel.enabled=false
 
+#Swagger
+spring.mvc.pathmatch.matching-strategy = ANT_PATH_MATCHER
+
 #Path
 com.sdm.path.upload=<th:block th:text="${uploadPath}"/>
 com.sdm.path.setting=<th:block th:text="${settingPath}"/>
@@ -27,6 +30,7 @@ com.sdm.path.report=<th:block th:text="${reportPath}"/>
 spring.datasource.url=jdbc:<th:block th:text="${dbType}"/>://<th:block th:text="${dbHost}"/>:<th:block th:text="${dbPort}"/>/<th:block th:text="${dbName}"/>
 spring.datasource.username=<th:block th:text="${dbUser}"/>
 spring.datasource.password=<th:block th:text="${dbPassword}"/>
+spring.datasource.maximum-pool-size=100
 spring.jdbc.template.fetch-size=1000
 spring.jdbc.template.max-rows=100
 spring.jdbc.template.query-timeout=180s

@@ -2,19 +2,33 @@ package com.sdm.inventory.model;
 
 import com.sdm.core.model.DefaultEntity;
 import com.sdm.core.model.annotation.Searchable;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
 import org.hibernate.annotations.Where;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Audited
 @Entity(name = "inventory.AttributeEntity")
@@ -51,7 +65,7 @@ public class Attribute extends DefaultEntity implements Serializable {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "tbl_inventory_attribute_allow_values", joinColumns = @JoinColumn(name = "attributeId"))
     @Column
-    private Set<String> allowedValues=new HashSet<>();
+    private Set<String> allowedValues = new HashSet<>();
 
     @Column(columnDefinition = "boolean default false")
     private boolean hasUom;

@@ -16,21 +16,27 @@ import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.LocaleManager;
 import com.sdm.storage.model.File;
 import com.sdm.storage.service.FileService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.Id;
-import javax.validation.Valid;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+
+import javax.persistence.Id;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/admin/users")
@@ -167,7 +173,7 @@ public class UserController extends DefaultReadController<User, Integer> impleme
     @Override
     @Transactional
     public ResponseEntity<Object> uploadFile(MultipartFile file, String fieldName, Integer folder) {
-        File fileEntity = fileService.create(file, folder,this.getFileClassification(this.getEntityClass(), fieldName));
+        File fileEntity = fileService.create(file, folder, this.getFileClassification(this.getEntityClass(), fieldName));
         return new ResponseEntity<>(fileEntity, HttpStatus.CREATED);
     }
 

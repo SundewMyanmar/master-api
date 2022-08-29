@@ -2,6 +2,7 @@ package com.sdm.auth.repository;
 
 import com.sdm.auth.model.Token;
 import com.sdm.core.db.repository.DefaultRepository;
+
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

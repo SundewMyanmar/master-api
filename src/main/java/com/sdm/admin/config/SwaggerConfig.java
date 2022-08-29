@@ -2,23 +2,38 @@ package com.sdm.admin.config;
 
 import com.sdm.core.Constants;
 import com.sdm.core.util.Globalizer;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.AntPathMatcher;
-import springfox.documentation.RequestHandler;
-import springfox.documentation.annotations.ApiIgnore;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.*;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spi.service.contexts.SecurityContext;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger.web.*;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
+
+import springfox.documentation.RequestHandler;
+import springfox.documentation.annotations.ApiIgnore;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.ApiKey;
+import springfox.documentation.service.AuthorizationScope;
+import springfox.documentation.service.Contact;
+import springfox.documentation.service.SecurityReference;
+import springfox.documentation.service.StringVendorExtension;
+import springfox.documentation.service.VendorExtension;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger.web.DocExpansion;
+import springfox.documentation.swagger.web.ModelRendering;
+import springfox.documentation.swagger.web.OperationsSorter;
+import springfox.documentation.swagger.web.SecurityConfiguration;
+import springfox.documentation.swagger.web.SecurityConfigurationBuilder;
+import springfox.documentation.swagger.web.TagsSorter;
+import springfox.documentation.swagger.web.UiConfiguration;
+import springfox.documentation.swagger.web.UiConfigurationBuilder;
 
 @Configuration
 public class SwaggerConfig {
@@ -124,6 +139,11 @@ public class SwaggerConfig {
     @Bean
     Docket paymentApi() {
         return this.buildDocket("06. Payment", "com.sdm.payment");
+    }
+
+    @Bean
+    Docket inventoryApi() {
+        return this.buildDocket("07. Inventory", "com.sdm.inventory");
     }
 
     @Bean

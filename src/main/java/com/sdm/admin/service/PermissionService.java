@@ -4,16 +4,18 @@ import com.sdm.admin.model.SystemRoute;
 import com.sdm.admin.repository.SystemRouteRepository;
 import com.sdm.core.Constants;
 import com.sdm.core.security.PermissionHandler;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Service("permissionHandler")
 public class PermissionService implements PermissionHandler {

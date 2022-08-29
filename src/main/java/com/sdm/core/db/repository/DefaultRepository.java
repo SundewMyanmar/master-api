@@ -1,17 +1,19 @@
 package com.sdm.core.db.repository;
 
 import com.sdm.core.model.AdvancedFilter;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.NoRepositoryBean;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaQuery;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaQuery;
 
 @NoRepositoryBean
 public interface DefaultRepository<T, ID extends Serializable> extends JpaRepository<T, ID> {
