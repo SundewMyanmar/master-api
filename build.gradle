@@ -24,9 +24,6 @@ configurations {
 
 repositories {
     mavenCentral()
-    flatDir {
-        dirs 'libs'
-    }
     //Need to disable gradle offline
     maven {
         url "https://jaspersoft.jfrog.io/jaspersoft/third-party-ce-artifacts/"
@@ -34,6 +31,9 @@ repositories {
 }
 
 dependencies {
+    //Local Jars
+    implementation fileTree(dir: 'libs', include: '*.jar')
+
     // Reporting
     implementation 'com.lowagie:itext:2.1.7.js9'
     implementation 'net.sf.jasperreports:jasperreports:6.19.1'

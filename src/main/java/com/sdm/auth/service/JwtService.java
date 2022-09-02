@@ -216,7 +216,7 @@ public class JwtService implements JwtAuthenticationHandler {
             }
             return new UsernamePasswordAuthenticationToken(authInfo, aud, authInfo.getAuthorities());
         } catch (Exception ex) {
-            throw new InvalidTokenException(ex.getLocalizedMessage());
+            throw new InvalidTokenException(localeManager.getMessage("invalid-auth-token"));
         }
     }
 }

@@ -34,8 +34,8 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 
-@RequestMapping("/reports")
 @Controller
+@RequestMapping("/reports")
 public class ReportController extends DefaultReadController<Report, String> {
 
     @Autowired
@@ -74,7 +74,7 @@ public class ReportController extends DefaultReadController<Report, String> {
         }
     }
 
-    @GetMapping("/view/{id}")
+    @GetMapping(value = "/view/{id}", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<?> viewReport(@RequestParam Map<String, Object> parameters,
                                         @PathVariable("id") String reportId) {
         checkPermission(reportId);
@@ -82,7 +82,7 @@ public class ReportController extends DefaultReadController<Report, String> {
         return ResponseEntity.ok(html);
     }
 
-    @GetMapping("/print/{id}")
+    @GetMapping(value = "/print/{id}", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<?> printReport(@RequestParam Map<String, Object> parameters,
                                          @PathVariable("id") String reportId) {
         checkPermission(reportId);
