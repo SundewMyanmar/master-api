@@ -12,6 +12,9 @@ import com.sdm.reporting.repository.ReportRepository;
 import com.sdm.reporting.service.JasperReportService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -86,7 +89,14 @@ public class ReportController extends DefaultReadController<Report, String> {
     public ResponseEntity<?> printReport(@RequestParam Map<String, Object> parameters,
                                          @PathVariable("id") String reportId) {
         checkPermission(reportId);
-        return reportService.generateToPDF(reportId, parameters);
+        byte[] data =  reportService.generateToPDF(reportId, parameters);
+        Resource resource = new ByteArrayResource(data);
+        String attachment = "attachment; filename=\"" + reportId + ".pdf\"";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, attachment)
+                .body(resource);
     }
 
     @Transactional
