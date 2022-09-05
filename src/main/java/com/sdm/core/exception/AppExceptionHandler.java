@@ -3,9 +3,8 @@ package com.sdm.core.exception;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.util.LocaleManager;
-
+import lombok.extern.log4j.Log4j2;
 import org.hibernate.StaleObjectStateException;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,14 +36,14 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.persistence.OptimisticLockException;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.persistence.OptimisticLockException;
-
-import lombok.extern.log4j.Log4j2;
 
 @ControllerAdvice
 @Log4j2
@@ -62,14 +61,14 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
             messageBuilder.append(error.getField())
                     .append(":")
                     .append(error.getDefaultMessage())
-                    .append("\n");
+                    .append(", ");
         }
         for (ObjectError error : objectErrors) {
             errors.put(error.getObjectName(), error.getDefaultMessage());
             messageBuilder.append(error.getObjectName())
                     .append(":")
                     .append(error.getDefaultMessage())
-                    .append("\n");
+                    .append(", ");
         }
 
         MessageResponse message = new MessageResponse(HttpStatus.BAD_REQUEST, "INVALID_FIELDS", messageBuilder.toString(), errors);
@@ -89,18 +88,26 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(new MessageResponse(status, message), status);
     }
 
-    @ExceptionHandler({DataAccessException.class, ConstraintViolationException.class})
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
+        log.warn(ex.getLocalizedMessage(), ex);
+        Map<String, Object> errors = new HashMap<>();
+        StringBuilder messageBuilder = new StringBuilder();
+        for(ConstraintViolation<?> error : ex.getConstraintViolations()){
+            errors.put(error.getPropertyPath().toString(), error.getMessage());
+            messageBuilder.append(error.getPropertyPath().toString())
+                    .append(":")
+                    .append(error.getMessage())
+                    .append(", ");
+        }
+        MessageResponse messageResponse = new MessageResponse(HttpStatus.BAD_REQUEST, "INVALID_FIELDS", messageBuilder.toString(), errors);
+        return new ResponseEntity<>(messageResponse, messageResponse.getStatus());
+    }
+
+    @ExceptionHandler({DataAccessException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<Object> handleDataException(DataAccessException ex, WebRequest request) {
-        if (ex.getCause() instanceof ConstraintViolationException) {
-            log.warn(ex.getLocalizedMessage(), ex);
-            ConstraintViolationException constraintViolationException = (ConstraintViolationException) ex.getCause();
-            MessageResponse messageResponse = new MessageResponse(HttpStatus.BAD_REQUEST,
-                    constraintViolationException.getSQLState(),
-                    constraintViolationException.getSQLException().getLocalizedMessage(), null);
-            return new ResponseEntity<>(messageResponse, messageResponse.getStatus());
-        }
-
         return this.generalMessage(ex, HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
     }
 
