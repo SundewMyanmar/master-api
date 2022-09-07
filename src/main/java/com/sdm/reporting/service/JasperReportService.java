@@ -1,5 +1,7 @@
 package com.sdm.reporting.service;
 
+import com.sdm.admin.model.Role;
+import com.sdm.admin.repository.RoleRepository;
 import com.sdm.core.Constants;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.util.Globalizer;
@@ -44,6 +46,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -87,7 +90,6 @@ public class JasperReportService {
             images.put(id, "data:image/png;base64," + new String(Base64.getEncoder().encode(data)));
         }
     }
-
 
     public Report checkReport(String id) {
         return repository.findById(id)

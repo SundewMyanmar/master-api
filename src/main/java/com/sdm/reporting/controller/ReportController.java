@@ -77,6 +77,15 @@ public class ReportController extends DefaultReadController<Report, String> {
         }
     }
 
+    private void buildRoles(Report requestReport){
+        if(!requestReport.isPublic()){
+            List<Role> roles = roleRepository.findByIdIn(requestReport.getRoleIds());
+            requestReport.setRoles(roles);
+        }else{
+            requestReport.setRoles(List.of());
+        }
+    }
+
     @GetMapping(value = "/view/{id}", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<?> viewReport(@RequestParam Map<String, Object> parameters,
                                         @PathVariable("id") String reportId) {
@@ -103,6 +112,7 @@ public class ReportController extends DefaultReadController<Report, String> {
     @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Report> createReport(@Valid Report report,
                                                @RequestParam("reportFile") MultipartFile reportFile) {
+        this.buildRoles(report);
         reportService.uploadReport(reportFile, report);
         return new ResponseEntity<>(report, HttpStatus.CREATED);
     }
@@ -113,6 +123,8 @@ public class ReportController extends DefaultReadController<Report, String> {
                                                @PathVariable("id") String id,
                                                @RequestParam(value = "reportFile", required = false) MultipartFile reportFile) {
         this.checkData(id);
+        this.buildRoles(report);
+
         if (!id.equals(report.getId())) {
             throw new GeneralException(HttpStatus.CONFLICT,
                     localeManager.getMessage("not-match-path-body-id"));
