@@ -108,7 +108,6 @@ public class ReportController extends DefaultReadController<Report, String> {
                 .body(resource);
     }
 
-    @Transactional
     @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Report> createReport(@Valid Report report,
                                                @RequestParam("reportFile") MultipartFile reportFile) {
@@ -117,7 +116,6 @@ public class ReportController extends DefaultReadController<Report, String> {
         return new ResponseEntity<>(report, HttpStatus.CREATED);
     }
 
-    @Transactional
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Report> updateReport(@Valid Report report,
                                                @PathVariable("id") String id,
@@ -137,7 +135,6 @@ public class ReportController extends DefaultReadController<Report, String> {
         return ResponseEntity.ok(report);
     }
 
-    @Transactional
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponse> remove(String id) {
         Report report = this.checkData(id);
