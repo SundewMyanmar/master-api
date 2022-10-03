@@ -106,6 +106,7 @@ public class SystemRoute extends DefaultEntity implements Comparable<SystemRoute
      *
      * @return
      */
+    @JsonIgnore
     public Long getPercentCount() {
         return getSqlPattern().chars().filter(c -> c == '%').count();
     }
