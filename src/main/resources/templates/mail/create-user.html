@@ -1,37 +1,44 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
-    <meta content="width=device-width, initial-scale=1" name="viewport">
-    <meta content="IE=edge" http-equiv="X-UA-Compatible">
-    <title>User Info</title>
-</head>
-<body>
-<div style="box-shadow: 3px 3px 5px #666; border: 1px solid #609547; border-radius: 3px; margin: 2px; font-family: arial;background-color:#f5f9e8">
-    <div style="color: #609547; background-color: #b9ddad; border-bottom: 1px solid #609547; padding: 20px 50px; text-align: center;">
-        <h1 style="margin: 20px 50px 10px; font-size: 21px; border-bottom: 3px solid #609547; padding-bottom: 20px; font-weight: 500;"
-            th:text="${title}"></h1>
-    </div>
-    <div style="margin: 2px 12px; padding: 28px 2px; background: #f5f9e8; font-size: 11pt;">
-        <img style="width:150px" src="https://admin.linnmyanmar.com.mm/images/linn-mm-cover.png"/>
-        <p>
-            Hi <i th:text="${name}">name</i>,
-        </p>
-        <p th:text="${title}"></p>
-        <p style="margin: 25px 0px;">
-            E-mail : <b th:text="${email}">email</b> <br/>
-            Password : <b th:text="${password}">password</b>
-        </p>
-        <code style="color: #609547;">"Grab A Healthy Life By A Better Choice."</code>
-    </div>
-    <div style="color: #609547; background-color: #b9ddad; border-top: 1px solid #609547; padding: 20px 50px; text-align: center; font-size: 10pt;">
-        <p>
-            Copyright © 2011 - <span th:text="${current_year}">2020</span> by <a
-                href="http://www.sundewmyanmar.com"
-                style="color: #71bcff; text-decoration: none; font-size: 10pt;">SUNDEW MYANMAR</a>. <br>
-            All rights reserved.
-        </p>
-    </div>
-</div>
-</body>
+
+	<head>
+		<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+		<meta content="width=device-width, initial-scale=1" name="viewport">
+		<meta content="IE=edge" http-equiv="X-UA-Compatible">
+		<title>User Info</title>
+	</head>
+
+	<body>
+		<div
+			style="box-shadow: 3px 3px 5px #666; border: 1px solid #609547; border-radius: 3px; margin: 2px; font-family: arial;background-color:#f5f9e8">
+			<div
+				style="color: #609547; background-color: #b9ddad; border-bottom: 1px solid #609547; padding: 20px 50px; text-align: center;">
+				<h1 style="margin: 20px 50px 10px; font-size: 21px; border-bottom: 3px solid #609547; padding-bottom: 20px; font-weight: 500;"
+					th:text="${title}"></h1>
+			</div>
+			<div style="margin: 2px 12px; padding: 28px 2px; background: #f5f9e8; font-size: 11pt;">
+				<img style="width:150px"
+					src="https://www.sundewmyanmar.com/wp-content/uploads/2020/09/cropped-Logo-Dark-Blue.png" />
+				<p>
+					Hi <i th:text="${name}">name</i>,
+				</p>
+				<p th:text="${title}"></p>
+				<p style="margin: 25px 0px;">
+					E-mail : <b th:text="${email}">email</b> <br />
+					Password : <b th:text="${password}">password</b>
+				</p>
+				<code style="color: #609547;">"Grab A Healthy Life By A Better Choice."</code>
+			</div>
+			<div
+				style="color: #609547; background-color: #b9ddad; border-top: 1px solid #609547; padding: 20px 50px; text-align: center; font-size: 10pt;">
+				<p>
+					Copyright © 2011 - <span th:text="${current_year}">2020</span> by <a
+						href="http://www.sundewmyanmar.com"
+						style="color: #71bcff; text-decoration: none; font-size: 10pt;">SUNDEW MYANMAR</a>. <br>
+					All rights reserved.
+				</p>
+			</div>
+		</div>
+	</body>
+
 </html>
