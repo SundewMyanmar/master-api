@@ -6,7 +6,6 @@ import com.sdm.auth.model.request.AuthRequest;
 import com.sdm.auth.model.request.ChangePasswordRequest;
 import com.sdm.auth.model.request.TokenInfo;
 import com.sdm.auth.repository.TokenRepository;
-import com.sdm.auth.service.AuthService;
 import com.sdm.auth.service.FacebookAuthService;
 import com.sdm.auth.service.GoogleAuthService;
 import com.sdm.auth.service.JwtService;
@@ -14,8 +13,6 @@ import com.sdm.core.controller.DefaultController;
 import com.sdm.core.exception.GeneralException;
 import com.sdm.core.model.annotation.FileClassification;
 import com.sdm.core.model.response.MessageResponse;
-import com.sdm.core.security.SecurityManager;
-import com.sdm.core.util.BarCodeManager;
 import com.sdm.core.util.Globalizer;
 import com.sdm.storage.model.File;
 import com.sdm.storage.service.FileService;
@@ -57,13 +54,7 @@ public class ProfileController extends DefaultController {
 	private TokenRepository tokenRepository;
 
 	@Autowired
-	private SecurityManager securityManager;
-
-	@Autowired
 	private PasswordEncoder passwordEncoder;
-
-	@Autowired
-	private AuthService authService;
 
 	@Autowired
 	private GoogleAuthService googleAuthService;
@@ -73,9 +64,6 @@ public class ProfileController extends DefaultController {
 
 	@Autowired
 	private JwtService jwtService;
-
-	@Autowired
-	private BarCodeManager barCodeManager;
 
 	@Autowired
 	private FileService fileService;

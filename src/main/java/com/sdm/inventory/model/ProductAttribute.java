@@ -42,7 +42,7 @@ public class ProductAttribute implements Serializable {
     private Attribute attribute;
 
     @NotBlank
-    @Column(columnDefinition = "text")
+    @Column(name = "\"value\"", columnDefinition = "text")
     private String value;
 
     @ManyToOne(fetch = FetchType.EAGER)

@@ -58,7 +58,6 @@ public class MultiFactorAuthService {
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_ACCEPTABLE, localeManager.getMessage("invalid-user-account")));
     }
 
-    @Transactional
     public MultiFactorAuth authMfa(int userId, String key, boolean useMain) {
         Optional<MultiFactorAuth> mfa;
         if (!Globalizer.isNullOrEmpty(key)) {
@@ -102,7 +101,6 @@ public class MultiFactorAuthService {
         return data.getUri();
     }
 
-    @Transactional
     public void sendMfaCode(int userId, String key) {
         MultiFactorAuth mfa;
         if (!Globalizer.isNullOrEmpty(key)) {
@@ -116,7 +114,6 @@ public class MultiFactorAuthService {
         this.sendMfaCode(mfa);
     }
 
-    @Transactional
     public void sendMfaCode(MultiFactorAuth mfa) {
         //Nothing to do if APP
         if (mfa.getType().equals(MultiFactorAuth.Type.APP)) {
@@ -149,7 +146,6 @@ public class MultiFactorAuthService {
         }
     }
 
-    @Transactional
     public boolean verify(int userId, String code, String key) {
         MultiFactorAuth mfa;
         if (!Globalizer.isNullOrEmpty(key)) {

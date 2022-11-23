@@ -7,9 +7,12 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.event.EventListener;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import lombok.extern.log4j.Log4j2;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+@EnableWebMvc
 @SpringBootApplication
 @Log4j2
 public class ApplicationServer extends SpringBootServletInitializer {

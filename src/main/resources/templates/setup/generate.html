@@ -19,7 +19,7 @@ server.compression.enabled=true
 server.error.whitelabel.enabled=false
 
 #Swagger
-spring.mvc.pathmatch.matching-strategy = ANT_PATH_MATCHER
+spring.mvc.pathmatch.matching-strategy=ANT_PATH_MATCHER
 
 #Path
 com.sdm.path.upload=<th:block th:text="${uploadPath}"/>
@@ -40,6 +40,8 @@ spring.jpa.open-in-view=false
 spring.jpa.properties.hibernate.enable_lazy_load_no_trans=true
 spring.jpa.properties.org.hibernate.envers.audit_table_suffix=_aud_history
 spring.main.allow-bean-definition-overriding=true
+hibernate.globally_quoted_identifiers=true
+hibernate.globally_quoted_identifiers_skip_column_definitions=true
 
 #Session Management
 spring.session.store-type=jdbc

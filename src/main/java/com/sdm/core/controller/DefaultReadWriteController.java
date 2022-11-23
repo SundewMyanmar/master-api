@@ -29,14 +29,12 @@ public abstract class DefaultReadWriteController<T extends DefaultEntity, ID ext
     public StorageManager storageManager;
 
     @Override
-    @Transactional
     public ResponseEntity<T> create(@Valid T body) {
         T entity = getRepository().save(body);
         return new ResponseEntity<>(entity, HttpStatus.CREATED);
     }
 
     @Override
-    @Transactional
     public ResponseEntity<T> update(@Valid T body, ID id) {
         this.checkData(id);
         if (!id.equals(body.getId())) {

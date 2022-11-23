@@ -2,6 +2,8 @@ package com.sdm.core.config.properties;
 
 import com.sdm.core.util.annotation.SettingFile;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @SettingFile(value = "cors-config.json", icon = "settings_input_composite")
-public class CorsProperties {
+public class CorsProperties implements Serializable {
     private String[] allowedOriginPatterns;
 
     private String[] allowedOrigins = {"*"};

@@ -5,6 +5,8 @@ import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.annotation.Encrypt;
 import com.sdm.core.util.annotation.SettingFile;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @SettingFile(value = "telenor-sms-config.json", icon = "message_processing")
-public class TelenorSmsProperties {
+public class TelenorSmsProperties implements Serializable {
     private String apiUrl = "https://prod-apigw.mytelenor.com.mm/";
     @Encrypt
     private String clientId = "";

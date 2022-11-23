@@ -4,6 +4,8 @@ import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.annotation.Encrypt;
 import com.sdm.core.util.annotation.SettingFile;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +16,7 @@ import lombok.extern.log4j.Log4j2;
 @AllArgsConstructor
 @NoArgsConstructor
 @SettingFile(value = "one-pay-config.json", icon = "credit_card")
-public class OnePayProperties {
+public class OnePayProperties implements Serializable {
     private String url = "https://onepay.mobi/API/";
     @Encrypt
     private String user = "";

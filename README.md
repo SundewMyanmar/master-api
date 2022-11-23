@@ -5,16 +5,16 @@ This RESTful framework was developed by Spring Boot
 - Clone or download the project from [github](https://github.com/SUNDEWMYANMAR/master-api)
 - Open project in Java IDE such as Intellij, Eclipse, NetBeans, etc ...
 - Clone following setting files:
-  - [example.log4j2.xml](./admin/src/main/resources/example.log4j2.xml) => __log4j2.xml__
+  - [example.log4j2.xml](./src/main/resources/example-log4j2.xml) => __log4j2.xml__
 - Create system directories:
     - File upload directory. (Example: /var/www/master-api/upload/)
-    - Report directory. (Example: /var/www/master-api/reports/)
+    - Setting directory. (Example: /var/www/master-api/setting/)
+    - Report directory. (Example: /var/www/master-api/report/)
     - Log directory. (Example: /var/www/master-api/log/)
 - Edit require properties from **log4j2.xml** file.
 
 ### Require config to edit in **log4j2.xml**
 Modified output directory.
-
 ```xml
 <Property name="LOG_ROOT">{log directory path}/</Property>
 ```
@@ -23,12 +23,15 @@ Run Spring Boot Application
 ```bash
 > ./gradlew clean bootRun
 ```
-
-### Setup System
+Ready Output log:
+```bash
+2020-01-28 13:41:44.597  INFO 2727 --- [main] com.sdm.Application   : System is running...
+```
+### Setup Production System
 Open Browser and Enter this URL [http://locahost:8080/setup](http://localhost:8080/setup)
 - Fill configuration fields and Submit
 - Copy generated configuration codes and save as
-  a [application.properties](./admin/src/resources/application.properties) file.
+  a **./src/main/resources/application.properties** file.
 - Reload Server again
 - !Finished
 
@@ -36,12 +39,23 @@ Open Browser and Enter this URL [http://locahost:8080/setup](http://localhost:80
 ```bash
 > ./gradlew clean bootRun
 ```
-
-Ready Output log:
-```bash
-2020-01-28 13:41:44.597  INFO 2727 --- [main] com.sdm.Application   : System is running...
+### System Configuration [application.properties](./src/main/resources/application.properties)
+#### Set System Paths
+```properties
+#Path
+com.sdm.path.upload=/var/www/master-api/upload/
+com.sdm.path.setting=/var/www/master-api/setting/
+com.sdm.path.report=/var/www/master-api/report/
 ```
 
+#### Set Database
+```properties
+#Database
+spring.datasource.url=jdbc:mysql://localhost:3306/master_api
+spring.datasource.username=root
+spring.datasource.password=root
+```
+### More Detail
 [Ref: Spring Boot application.properties](https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-application-properties.html)
 
 ### Generate war file to upload web server!
@@ -51,9 +65,10 @@ Ready Output log:
 ___
 
 ## Version 1.8.0
-- Multi Module Project
 - Apple Authentication
 - Setting Management
+- Inventory
+- Accounting
 
 ## Version 1.7.1
 - i18n Messaging
@@ -79,35 +94,39 @@ ___
 - service
 
 ### Core System
-- [System Configurations](./core/src/main/java/com/sdm/core/config)
-- [Base Controller & Helper](./core/src/main/java/com/sdm/core/controller)
-- [Database Helper](./core/src/main/java/com/sdm/core/db)
-- [Exception Handling](./core/src/main/java/com/sdm/core/exception)
-- [Base Models](./core/src/main/java/com/sdm/core/model)
-- [Utils & Plugins](./core/src/main/java/com/sdm/core/util)
+- [System Configurations](./src/main/java/com/sdm/core/config)
+- [Base Controller & Helper](./src/main/java/com/sdm/core/controller)
+- [Database Helper](./src/main/java/com/sdm/core/db)
+- [Exception Handling](./src/main/java/com/sdm/core/exception)
+- [Base Models](./src/main/java/com/sdm/core/model)
+- [Utils & Plugins](./src/main/java/com/sdm/core/util)
 
-### [System Authorization and Authentication](./admin/src/main/java/com/sdm/auth)
+### [System Authorization and Authentication](./src/main/java/com/sdm/auth)
 - System auth by user:password
 - System auth by Facebook
 - System auth by Google
 - Default User Profile
 - Auth Token Management
 
-### [System Administration](./admin/src/main/java/com/sdm/admin)
+### [System Administration](./src/main/java/com/sdm/admin)
 - User & Role Management
 - Route Permission by Role
 - Menu Management
 - Menu Permission by Role
 
-### [Storage Management](./storage/src/main/java/com/sdm/storage)
+### [Storage Management](./src/main/java/com/sdm/storage)
 - File Upload Download
 - Generated Public URL
 - Image Caching & Resizing
 
-### [Notification](./notification/src/main/java/com/sdm/notification)
+### [Jasper Reporting](./src/main/java/com/sdm/reporting)
+- [Jasper Reporting](https://www.jaspersoft.com/)
+- 
+
+### [Notification](./src/main/java/com/sdm/notification)
 - [Firebase Messaging](https://firebase.google.com/docs/cloud-messaging/server)
 
-### [Payment Module](./payment/src/main/java/com/sdm/payment)
+### [Payment Module](./src/main/java/com/sdm/payment)
 - AGD Payment (OnePay)
 - CB Payment (CBPay)
 - UAB Payment (UABPay)
@@ -115,7 +134,7 @@ ___
 - KBZ Payment (KPay)
 - MPU Payment
 
-### [Telenor SMS Module](./telenor/src/main/java/com/sdm/telenor)
+### [Telenor SMS Module](./src/main/java/com/sdm/telenor)
 - Telenor SMS Messaging
 
 ----

@@ -3,7 +3,7 @@ package com.sdm.core.exception;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.sdm.core.model.response.MessageResponse;
 import com.sdm.core.util.LocaleManager;
-import lombok.extern.log4j.Log4j2;
+
 import org.hibernate.StaleObjectStateException;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
@@ -36,14 +36,16 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.persistence.OptimisticLockException;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.persistence.OptimisticLockException;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+
+import lombok.extern.log4j.Log4j2;
 
 @ControllerAdvice
 @Log4j2

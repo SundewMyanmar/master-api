@@ -107,7 +107,6 @@ public class JwtService implements JwtAuthenticationHandler {
         return String.join(",", roles);
     }
 
-    @Transactional
     private String generateJWT(Token token, HttpServletRequest request) {
         token.setTokenExpired(getTokenExpired());
         token.setLastLogin(new Date());

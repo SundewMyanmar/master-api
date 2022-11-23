@@ -29,8 +29,8 @@ import javax.net.ssl.X509TrustManager;
 @Service
 public class HttpRequestManager {
     private final String DEFAULT_LANG = "en-US,en;q=0.8";
-    private final String USER_AGENT = "Mozilla";
-    private final String REFERRER = "https://www.google.com/";
+    private final String USER_AGENT = "MasterApi; SUNDEW MYANMAR";
+    private final String REFERRER = "https://www.sundewmyanmar.com/";
     private final int NETWORK_TIMEOUT = 60000;
 
     private void installSSL() {

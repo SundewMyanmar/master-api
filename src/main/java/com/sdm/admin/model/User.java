@@ -16,9 +16,11 @@ import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,139 +61,142 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class User extends DefaultEntity implements Serializable {
 
-    public static final int TOKEN_LENGTH = 8;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+	public enum Status {
+		ACTIVE,
+		PENDING,
+		CANCEL
+	}
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "profileImage")
-    @NotFound(action = NotFoundAction.IGNORE)
-    @FileClassification(guild = "USER", isPublic = true)
-    private File profileImage;
+	public enum UserType {
+		CUSTOMER,
+		STAFF,
+		GUEST
+	}
 
-    @Searchable
-    @Size(max = 255)
-    @Column
-    private String displayName;
+	public static final int TOKEN_LENGTH = 8;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
 
-    @Searchable
-    @NotBlank
-    @Size(min = 5, max = 50)
-    @Column(length = 50)
-    private String phoneNumber;
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "profileImage")
+	@NotFound(action = NotFoundAction.IGNORE)
+	@FileClassification(guild = "USER", isPublic = true)
+	private File profileImage;
 
-    @Searchable
-    @Email
-    @Size(max = 255)
-    @Column
-    private String email;
+	@Searchable
+	@Size(max = 255)
+	@Column
+	private String displayName;
 
-    @Searchable
-    @Size(max = 50)
-    @Column
-    private String type;
+	@Searchable
+	@NotBlank
+	@Size(min = 5, max = 50)
+	@Column(length = 50)
+	private String phoneNumber;
 
-    @Searchable
-    @Size(max = 500)
-    @Column(columnDefinition = "varchar(500)")
-    private String note;
+	@Searchable
+	@Email
+	@Size(max = 255)
+	@Column
+	private String email;
 
-    @NotAudited
-    @NotFound(action = NotFoundAction.IGNORE)
-    @ElementCollection(fetch = FetchType.EAGER)
-    @JoinTable(name = "tbl_admin_user_contacts", joinColumns = @JoinColumn(name = "userId"))
-    @OrderBy("priority")
-    private Set<Contact> contacts = new HashSet<>();
+	@Searchable
+	@Column
+	@Enumerated(EnumType.STRING)
+	private UserType type;
 
-    @NotAudited
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinTable(name = "tbl_admin_user_roles",
-            joinColumns = {@JoinColumn(name = "userId")},
-            inverseJoinColumns = {@JoinColumn(name = "roleId")})
-    @ManyToMany(fetch = FetchType.EAGER)
-    private Set<Role> roles = new HashSet<>();
+	@Searchable
+	@Size(max = 500)
+	@Column(columnDefinition = "varchar(500)")
+	private String note;
 
-    @Size(min = 6)
-    @Column(length = 500)
-    private String password;
+	@NotAudited
+	@NotFound(action = NotFoundAction.IGNORE)
+	@ElementCollection(fetch = FetchType.EAGER)
+	@JoinTable(name = "tbl_admin_user_contacts", joinColumns = @JoinColumn(name = "userId"))
+	@OrderBy("priority")
+	private List<Contact> contacts = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @MapKeyColumn(name = "name")
-    @CollectionTable(name = "tbl_admin_user_extras",
-            joinColumns = @JoinColumn(name = "userId", nullable = false))
-    private Map<String, String> extras = new HashMap<>();
+	@NotAudited
+	@NotFound(action = NotFoundAction.IGNORE)
+	@JoinTable(name = "tbl_admin_user_roles", joinColumns = { @JoinColumn(name = "userId") }, inverseJoinColumns = {
+			@JoinColumn(name = "roleId") })
+	@ManyToMany(fetch = FetchType.EAGER)
+	private Set<Role> roles = new HashSet<>();
 
-    @Column(unique = true, length = 500)
-    private String appleId;
+	@Size(min = 6)
+	@Column(length = 500)
+	private String password;
 
-    @Column(unique = true, length = 500)
-    private String facebookId;
+	@ElementCollection(fetch = FetchType.EAGER)
+	@MapKeyColumn(name = "name")
+	@CollectionTable(name = "tbl_admin_user_extras", joinColumns = @JoinColumn(name = "userId", nullable = false))
+	private Map<String, String> extras = new HashMap<>();
 
-    @Column(unique = true, length = 500)
-    private String googleId;
+	@Column(unique = true, length = 500)
+	private String appleId;
 
-    @JsonIgnore
-    @Column(length = TOKEN_LENGTH)
-    private String activateToken;
+	@Column(unique = true, length = 500)
+	private String facebookId;
 
-    @JsonIgnore
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(length = 19)
-    private Date activateTokenExpire;
+	@Column(unique = true, length = 500)
+	private String googleId;
 
+	@JsonIgnore
+	@Column(length = TOKEN_LENGTH)
+	private String activateToken;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Status status;
+	@JsonIgnore
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(length = 19)
+	private Date activateTokenExpire;
 
-    @Transient
-    private String currentToken;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private Status status;
 
-    @Transient
-    private MultiFactorAuth mfa;
+	@Transient
+	private String currentToken;
 
-    public User(String email, String phoneNumber, String displayName, String password, Status status) {
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.displayName = displayName;
-        this.password = password;
-        this.status = status;
-    }
+	@Transient
+	private MultiFactorAuth mfa;
 
-    public User(String phoneNumber, String displayName, String password, Status status) {
-        this.phoneNumber = phoneNumber;
-        this.displayName = displayName;
-        this.password = password;
-        this.status = status;
-    }
+	public User(String email, String phoneNumber, String displayName, String password, Status status) {
+		this.email = email;
+		this.phoneNumber = phoneNumber;
+		this.displayName = displayName;
+		this.password = password;
+		this.status = status;
+	}
 
-    public void addExtra(String key, String value) {
-        if (this.extras == null) {
-            this.extras = new HashMap<>();
-        }
-        this.extras.put(key, value);
-    }
+	public User(String phoneNumber, String displayName, String password, Status status) {
+		this.phoneNumber = phoneNumber;
+		this.displayName = displayName;
+		this.password = password;
+		this.status = status;
+	}
 
-    @Override
-    public Integer getId() {
-        return id;
-    }
+	public void addExtra(String key, String value) {
+		if (this.extras == null) {
+			this.extras = new HashMap<>();
+		}
+		this.extras.put(key, value);
+	}
 
-    @JsonIgnore
-    public String getPassword() {
-        return this.password;
-    }
+	@Override
+	public Integer getId() {
+		return id;
+	}
 
-    @JsonSetter("password")
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	@JsonIgnore
+	public String getPassword() {
+		return this.password;
+	}
 
-    public enum Status {
-        ACTIVE,
-        PENDING,
-        CANCEL
-    }
+	@JsonSetter("password")
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
 }

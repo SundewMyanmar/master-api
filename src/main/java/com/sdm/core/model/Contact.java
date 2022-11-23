@@ -33,7 +33,7 @@ public class Contact implements Serializable {
 
     @NotBlank
     @Size(max = 255)
-    @Column(nullable = false)
+    @Column(name = "\"value\"", nullable = false)
     private String value;
 
     @Size(max = 20)

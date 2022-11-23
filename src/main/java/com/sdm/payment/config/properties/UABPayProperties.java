@@ -4,6 +4,8 @@ import com.sdm.core.util.Globalizer;
 import com.sdm.core.util.annotation.Encrypt;
 import com.sdm.core.util.annotation.SettingFile;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +16,7 @@ import lombok.extern.log4j.Log4j2;
 @AllArgsConstructor
 @NoArgsConstructor
 @SettingFile(value = "uab-pay-config.json", icon = "credit_card")
-public class UABPayProperties {
+public class UABPayProperties implements Serializable {
     private String url = "https://www.uabpaybusiness.com/API/";
     @Encrypt
     private String user = "";

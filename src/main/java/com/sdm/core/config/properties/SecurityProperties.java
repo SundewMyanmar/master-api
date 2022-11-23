@@ -2,6 +2,7 @@ package com.sdm.core.config.properties;
 
 import com.sdm.core.util.annotation.SettingFile;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @SettingFile(value = "security-config.json", icon = "security")
-public class SecurityProperties {
+public class SecurityProperties implements Serializable {
     private Set<Integer> ownerIds = Set.of(1);
 
     private int authTokenDayOfLife = 30;

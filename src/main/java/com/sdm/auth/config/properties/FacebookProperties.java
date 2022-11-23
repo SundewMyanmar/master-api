@@ -3,6 +3,8 @@ package com.sdm.auth.config.properties;
 
 import com.sdm.core.util.annotation.SettingFile;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @SettingFile(value = "facebook-config.json", icon = "facebook")
-public class FacebookProperties {
+public class FacebookProperties implements Serializable {
 
     private String appId;
 

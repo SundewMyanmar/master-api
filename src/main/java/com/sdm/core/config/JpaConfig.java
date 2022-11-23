@@ -32,7 +32,7 @@ import reactor.core.scheduler.Schedulers;
 @EnableTransactionManagement
 public class JpaConfig {
 
-    @Value("${spring.datasource.maximum-pool-size}")
+    @Value("${spring.datasource.maximum-pool-size:100}")
     private int connectionPoolSize;
 
     @Bean
