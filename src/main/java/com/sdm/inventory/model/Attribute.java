@@ -71,7 +71,7 @@ public class Attribute extends DefaultEntity implements Serializable {
     private boolean hasUom;
 
     @Column(columnDefinition = "boolean default false")
-    private boolean isSearchable;
+    private boolean searchable;
 
     @Override
     public Integer getId() {

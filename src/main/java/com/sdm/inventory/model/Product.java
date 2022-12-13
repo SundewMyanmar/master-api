@@ -59,7 +59,7 @@ public class Product extends DefaultEntity implements Serializable {
     @Searchable
     @Size(max = 50)
     @Column(length = 50)
-    private String barCode;
+    private String barcode;
     @Searchable
     @Enumerated(EnumType.STRING)
     @Column
